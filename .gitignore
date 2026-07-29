@@ -1,0 +1,42 @@
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+
+# Secrets & signing — never commit these
+*.keystore
+*.jks
+*.p12
+*.mobileprovision
+*.pem
+key.properties
+google-services.json
+GoogleService-Info.plist
+.env
+.env.*
+
+# Build output (refine once engine is chosen)
+build/
+dist/
+export/
+*.apk
+*.aab
+*.ipa
+
+# Godot (if chosen)
+.godot/
+*.translation
+
+# Unity (if chosen)
+Library/
+Temp/
+Obj/
+Logs/
+UserSettings/
+
+# Node (if web-tech stack chosen)
+node_modules/
