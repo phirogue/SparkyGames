@@ -14,6 +14,15 @@ nine(-thousand) lives to solve her murder in the fog-bound city of Hollowmere.
 - **Multiplayer:** Architecture keeps the door open for PvP against other players later
 - **Art:** Card illustrations generated in Midjourney, provided by the project owner
 
+## Play the current build (Windows)
+
+Double-click **`run_game.bat`** in the repo root — it opens the game in a
+phone-shaped window (requires the Godot binary at
+`C:\Users\yurim\tools\godot\`, already set up). Current build: the four
+prologue encounters as one continuous prowl — tap skills to fight, tap hand
+cards to bank them, End Turn / Slip Away below. Or open the project in the
+Godot editor (`game/` folder) and press F5.
+
 ## Repository layout
 
 ```

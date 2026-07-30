@@ -55,21 +55,25 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 	state.catalog = p_catalog
 	state.rng = CoreRng.new(seed_value)
 	state.log = CommandLog.new()
-	state.player_max_hp = int(config.get("player_hp", 20))
-	state.player_hp = state.player_max_hp
+	state.player_max_hp = int(config.get("player_max_hp", config.get("player_hp", 20)))
+	state.player_hp = int(config.get("player_hp", state.player_max_hp))
 	state.deck = Array(config.get("deck", [])).duplicate()
+	# Mid-run continuation: a later encounter in the same prowl passes the
+	# surviving charge counts so skills stay spent across fights.
+	var charge_overrides: Dictionary = config.get("skill_charges", {})
 	for skill_id in config.get("skills", []):
 		var def: Dictionary = p_catalog.skills[skill_id]
 		state.skills.append({
 			"id": skill_id,
-			"charges_left": int(def.get("charges", 0)),
+			"charges_left": int(charge_overrides.get(skill_id, def.get("charges", 0))),
 			"jammed_turns": 0,
 		})
 	state.enemy_id = String(config.get("enemy", ""))
 	var enemy_def: Dictionary = p_catalog.enemies[state.enemy_id]
 	state.enemy_max_hp = int(enemy_def["hp"])
 	state.enemy_hp = state.enemy_max_hp
-	state.rng.shuffle(state.deck)
+	if config.get("shuffle", true):
+		state.rng.shuffle(state.deck)
 	state._draw_up_to_limit()
 	return state
 
