@@ -19,6 +19,7 @@ const DEFAULT_PROFILE := {
 		"moonlight_1", "moonlight_1", "moonlight_2",
 	],
 	"skills": ["scratch"],
+	"flags": {},
 	"achievements": {},
 }
 

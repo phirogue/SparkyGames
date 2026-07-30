@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6nwplgarnvt"
-path="res://.godot/imported/elspeth_ref.png-9d2f8e3bed16ea936c552da0e5c80b0e.ctex"
+uid="uid://de1gtfj8b5adf"
+path="res://.godot/imported/ui_button_pile.png-01c4b7eaa7401992f61c8db6b44708f9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/elspeth_ref.png"
-dest_files=["res://.godot/imported/elspeth_ref.png-9d2f8e3bed16ea936c552da0e5c80b0e.ctex"]
+source_file="res://assets/ui/ui_button_pile.png"
+dest_files=["res://.godot/imported/ui_button_pile.png-01c4b7eaa7401992f61c8db6b44708f9.ctex"]
 
 [params]
 

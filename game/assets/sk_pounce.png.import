@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c7bynni1sps3s"
-path="res://.godot/imported/ash_ref.png-fec0e7608ff889ca19acd87b1beb0905.ctex"
+uid="uid://cos4jn4wfsseb"
+path="res://.godot/imported/sk_pounce.png-13e125c69241c9efe30398fae413e3bd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ash_ref.png"
-dest_files=["res://.godot/imported/ash_ref.png-fec0e7608ff889ca19acd87b1beb0905.ctex"]
+source_file="res://assets/sk_pounce.png"
+dest_files=["res://.godot/imported/sk_pounce.png-13e125c69241c9efe30398fae413e3bd.ctex"]
 
 [params]
 

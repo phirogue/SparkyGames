@@ -32,6 +32,22 @@ var statuses: Dictionary = {}          # e.g. {"loafed": 1}
 var channel: Dictionary = {}           # active purr: {heal_per_turn, turns_left}
 var instinct_used: bool = false        # free instinct is once per turn
 var sharpened: bool = false            # lingering: next damage effect +1, once
+
+# --- The Approach (how Ash enters the fight; owner concept 2026-07-30) ---
+## Locked once any other command is taken. Initiative emerges from the
+## choice: stalk = you act from hiding, ambush = you strike first but anger
+## it, case = you learn, ward = you prepare, walk in = free.
+const APPROACHES := {
+	"stalk": {"cost": {"shadow": 2}, "name": "Stalk"},
+	"ambush": {"cost": {"ferocity": 2}, "name": "Ambush"},
+	"case": {"cost": {"guile": 2}, "name": "Case It"},
+	"ward": {"cost": {"moonlight": 2}, "name": "Ward"},
+}
+var approach := ""                     # chosen mode, "" until locked
+var approach_locked: bool = false
+var hidden: bool = false               # stalk: enemy's first act is wasted
+var _enemy_enraged: bool = false       # ambush: enemy's first hit +2
+var _ward_holds: bool = false          # ward: block survives the next turn-over
 ## Encounter telemetry consumed by AchievementTracker.record_encounter().
 var flags: Dictionary = {
 	"damage_taken": 0,     # total hp lost to enemy attacks
@@ -88,6 +104,9 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 	state.cost_mod = environment.get("cost_mod", {})
 	state.sunbeam_turns = environment.get("sunbeam_turns", [])
 	state.stealth_threshold = int(environment.get("stealth_threshold", 0))
+	if config.get("start_hidden", false):
+		# Story-granted surprise: the enemy hasn't registered you yet.
+		state.hidden = true
 	# Lingering effects carried in from the previous encounter of this prowl.
 	for lingering in config.get("lingering", []):
 		match lingering:
@@ -162,11 +181,16 @@ func do_command(command: Dictionary) -> Dictionary:
 		return _fail("encounter is over")
 	var result: Dictionary
 	match command.get("type", ""):
+		"approach":
+			result = _cmd_approach(String(command.get("mode", "")))
 		"play_skill":
+			approach_locked = true
 			result = _cmd_play_skill(String(command.get("skill_id", "")))
 		"bank":
+			approach_locked = true
 			result = _cmd_bank(int(command.get("hand_index", -1)))
 		"end_turn":
+			approach_locked = true
 			result = _cmd_end_turn()
 		"slip_away":
 			outcome = Outcome.RETREATED
@@ -176,6 +200,43 @@ func do_command(command: Dictionary) -> Dictionary:
 	if result["ok"]:
 		log.record(turn, command)
 	return result
+
+
+func can_approach() -> bool:
+	return not approach_locked and turn == 1
+
+
+func _cmd_approach(mode: String) -> Dictionary:
+	if not can_approach():
+		return _fail("the moment for a clever entrance has passed")
+	if not APPROACHES.has(mode):
+		return _fail("unknown approach '%s'" % mode)
+	var cost := effective_cost(APPROACHES[mode]["cost"])
+	if not can_pay(cost):
+		return _fail("not enough energy to %s" % mode)
+	_pay(cost)
+	approach = mode
+	approach_locked = true
+	match mode:
+		"stalk":
+			hidden = true
+			sharpened = true
+			_events.append("approach_stalk")
+		"ambush":
+			enemy_hp -= 3
+			_enemy_enraged = true
+			_events.append("approach_ambush")
+			_check_end()
+		"case":
+			for i in 2:
+				if not deck.is_empty():
+					hand.append(deck.pop_back())  # study allows over-draw
+			_events.append("approach_case")
+		"ward":
+			player_block += 4
+			_ward_holds = true
+			_events.append("approach_ward")
+	return {"ok": true, "error": ""}
 
 
 # ------------------------------------------------------------------ commands
@@ -236,7 +297,10 @@ func _cmd_end_turn() -> Dictionary:
 		return {"ok": true, "error": ""}
 	# --- start of next player turn ---
 	turn += 1
-	player_block = 0
+	if _ward_holds:
+		_ward_holds = false  # a stitched ward outlasts the moment
+	else:
+		player_block = 0
 	instinct_used = false
 	for s in skills:
 		if s["jammed_turns"] > 0:
@@ -319,6 +383,14 @@ func _apply_effects(effects: Array) -> void:
 
 
 func _enemy_act() -> void:
+	if hidden:
+		# Stalked: its first move plays out against an empty shadow.
+		hidden = false
+		_intent_index += 1
+		_events.append("hidden_wasted")
+		return
+	var rage_bonus := 2 if _enemy_enraged else 0
+	_enemy_enraged = false
 	var intent := current_intent()
 	_intent_index += 1
 	if spotted:
@@ -331,7 +403,7 @@ func _enemy_act() -> void:
 		}
 	match intent["target"]:
 		"health":
-			var damage := maxi(int(intent["amount"]) - player_block, 0)
+			var damage := maxi(int(intent["amount"]) + rage_bonus - player_block, 0)
 			player_hp -= damage
 			flags["damage_taken"] = int(flags["damage_taken"]) + damage
 			if damage > 0 and not channel.is_empty():

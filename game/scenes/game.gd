@@ -27,6 +27,7 @@ var last_outcome := CombatState.Outcome.ONGOING
 
 
 func _ready() -> void:
+	theme = UITheme.build()  # storybook theme; every child screen inherits
 	catalog = DataLoader.load_catalog()
 	profile = SaveService.load_profile()
 	tracker = AchievementTracker.new(catalog)
@@ -78,7 +79,7 @@ func _show_story(config: Dictionary, on_done: Callable) -> void:
 	_swap(screen)
 
 
-func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {}) -> void:
+func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {}, extra: Dictionary = {}) -> void:
 	var config := {
 		"player_max_hp": int(profile["max_hp"]),
 		"player_hp": carryover.get("hp", int(profile["max_hp"])),
@@ -88,6 +89,7 @@ func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {
 	}
 	if carryover.has("skill_charges"):
 		config["skill_charges"] = carryover["skill_charges"]
+	config.merge(extra, true)
 	var screen: Control = BattleScreen.new()
 	screen.setup(catalog, config, encounter_id, hints)
 	screen.encounter_finished.connect(on_done)
@@ -143,19 +145,46 @@ func _run_prologue_scene(index: int) -> void:
 		return
 	var scene: Dictionary = scenes[index]
 	var next := func(_arg: Variant = null) -> void: _run_prologue_scene(index + 1)
+	# Branch gate: scenes marked when_flag only play on the matching choice.
+	if scene.has("when_flag"):
+		var gate: Dictionary = scene["when_flag"]
+		if int(profile["flags"].get(gate["flag"], -1)) != int(gate["value"]):
+			next.call()
+			return
 	match scene["type"]:
 		"story":
 			if scene.has("grant"):
 				_grant_skills(scene["grant"])
+			if scene.has("add_card"):
+				# Story finds join the prowl deck immediately and the
+				# permanent deck forever.
+				var deck: Array = carryover.get("deck", profile["deck"].duplicate())
+				deck.append(scene["add_card"])
+				carryover["deck"] = deck
+				profile["deck"].append(scene["add_card"])
+				_save()
 			var config := _story_config(scene["environment"], scene["lines"])
 			if scene.has("portrait"):
 				config["portrait"] = scene["portrait"]
-			_show_story(config, next)
+			if scene.has("choices"):
+				config["choices"] = scene["choices"]
+				_show_story(config, func(choice: int) -> void:
+					if scene.has("flag"):
+						profile["flags"][scene["flag"]] = choice
+						_save()
+					_run_prologue_scene(index + 1))
+			else:
+				_show_story(config, next)
 		"battle":
+			var extra := {}
+			if scene.has("start_hidden_if_flag"):
+				var gate: Dictionary = scene["start_hidden_if_flag"]
+				if int(profile["flags"].get(gate["flag"], -1)) == int(gate["value"]):
+					extra["start_hidden"] = true
 			_show_battle(scene["encounter"], func(state: CombatState) -> void:
 				_digest(state)
 				_run_prologue_scene(index + 1),
-				scene.get("hints", {}))
+				scene.get("hints", {}), extra)
 		"hollow_court_if_died":
 			if last_outcome == CombatState.Outcome.DEFEAT:
 				var lines: Array = story["hollow_court_first"] \
@@ -169,8 +198,8 @@ func _run_prologue_scene(index: int) -> void:
 		"title":
 			_show_story({
 				"lines": ["THE NINE LIVES OF ASHCAT", "Prologue complete. The Mantel is open."],
-				"color": "#1c2026", "accent": "#e8b46a", "big": true,
-				"portrait": "ash_ref",
+				"color": "#1c2026", "big": true,
+				"portrait": "sc_title",
 			}, next)
 
 

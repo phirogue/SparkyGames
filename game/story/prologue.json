@@ -3,11 +3,10 @@
     {
       "type": "story",
       "environment": "rooftop_dusk",
-      "portrait": "sc_ash_vole_gift",
       "lines": [
         "Dusk. The lamps going up. The fog coming in off the Mere.",
         "She puts the kettle on when the lamps go up. I am punctual. She is predictable. The arrangement works.",
-        "Tonight I bring a vole. Thoughtfully dead. She will say 'not on the table', and mean 'thank you'."
+        "Tonight calls for a gift. A vole, ideally. Voles say what flowers cannot."
       ]
     },
     {
@@ -15,33 +14,53 @@
       "environment": "rooftop_dusk",
       "grant": ["pounce"],
       "lines": [
-        "Something small and hungry is between me and home.",
-        "Claws, then. Claws, and one good idea."
+        "There. Under the chimney pot. Fat, smug, unaware.",
+        "A hunt begins before the first claw: in the going-in.",
+        "Quietly, then. Or loudly. But *deliberately*."
+      ]
+    },
+    {
+      "type": "battle",
+      "encounter": "prologue_vole",
+      "hints": {
+        "1": "Choose your APPROACH: spend Shadow to Stalk (it wastes its first move; your first hit cuts deeper) — or spend other energy another way. Then: Pounce costs 2 Ferocity. Scratch is free, once per turn.",
+        "2": "Energy spent is gone for the whole prowl. Watch the spool."
+      }
+    },
+    {
+      "type": "story",
+      "environment": "rooftop_dusk",
+      "portrait": "sc_ash_vole_gift",
+      "lines": [
+        "Acquired. Thoughtfully dead. She will say 'not on the table', and mean 'thank you'.",
+        "Eight bells from the tower. There is no ninth bell. Someone should look into that.",
+        "Between the chimneys: a thread of silver light, thin as a hair, humming. Not mine. Not hers.",
+        "I did not chase it. I am a professional."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "rooftop_dusk",
+      "lines": [
+        "Something small and hungry drifts up from the gutter, eyeing the vole.",
+        "The vole is not up for discussion."
       ]
     },
     {
       "type": "battle",
       "encounter": "prologue_wisp",
       "hints": {
-        "1": "Your hand is ENERGY. Pounce costs 2 Ferocity (red). Scratch is free — once per turn.",
-        "2": "The wisp telegraphs its next move up top. Spent energy is gone for the whole prowl.",
-        "3": "End your turn in the sun when you can — a sunbeam returns a spent card."
+        "1": "The wisp telegraphs its next move up top — the little hand icon means it steals CARDS. Spend what you can't protect.",
+        "2": "End your turn in the sun when you can: a sunbeam returns a spent card to your deck.",
+        "3": "Its 'Covet' wants what you're holding. A banked card is a promise — and a target."
       }
-    },
-    {
-      "type": "story",
-      "environment": "rooftop_dusk",
-      "lines": [
-        "The wisp reconsidered. The vole and I proceed.",
-        "Eight bells from the tower. There is no ninth bell. Someone should look into that."
-      ]
     },
     {
       "type": "story",
       "environment": "needle_lane",
       "grant": ["slink"],
       "lines": [
-        "Street level. Too quiet. No pigeons.",
+        "Street level. Too quiet. No pigeons. Pigeons are never quiet; that is their entire profession.",
         "The lamps on Needle Lane are lit wrong. The Lamplighters never miss.",
         "The shadows here are deep enough to wear. So I will wear them."
       ]
@@ -50,9 +69,9 @@
       "type": "battle",
       "encounter": "prologue_dog",
       "hints": {
-        "1": "New skill: SLINK — Shadow energy, blocks 3. The fog makes Shadow cheaper here.",
-        "2": "Tap a hand card to BANK it for a big turn later. The dog's Bark can steal from you — spend or shield what matters.",
-        "3": "Its Lunge hits for 4. Block before it lands, not after."
+        "1": "New skill: SLINK — Shadow energy, Block 3. The fog makes Shadow cheaper on this street.",
+        "2": "Its Lunge hits for 4. Block BEFORE it lands. Or bank a card now and go big next turn — your risk to price.",
+        "3": "You could also have Stalked or Ambushed on the way in. Next fight, maybe."
       }
     },
     {
@@ -61,16 +80,16 @@
       "grant": ["purr", "loaf"],
       "lines": [
         "The dog and I have agreed to disagree.",
-        "Something is wrong tonight and it is not the dog.",
-        "Lick the sting out. Loaf if I must. Dignity is negotiable at this hour."
+        "The sting wants licking. The nerves want loafing. Dignity is negotiable at this hour.",
+        "And the quiet is still wrong. It is the quiet of a held breath."
       ]
     },
     {
       "type": "battle",
       "encounter": "prologue_wraith",
       "hints": {
-        "1": "New: PURR heals over two turns — but breaks if you take damage. LOAF blocks 6 and commits all paws.",
-        "2": "This one is above your weight. SLIP AWAY costs nothing but pride. A finished purr keeps you Warm into the next fight.",
+        "1": "New: PURR heals 2 a turn for two turns — broken if you take damage. LOAF blocks 6 and commits all paws.",
+        "2": "This one is above your weight. SLIP AWAY costs nothing but pride — and a finished purr keeps you Warm into the next fight.",
         "3": "You do not have to win this. You have to get home."
       }
     },
@@ -79,8 +98,44 @@
       "environment": "needle_lane",
       "lines": [
         "Empty clothes, out walking. The owner missing. Not dead — missing.",
-        "Her window is dark. The kettle is screaming inside.",
-        "It does not stop."
+        "And ahead, over the rooftops: her window. Dark.",
+        "Her window is never dark."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "needle_lane",
+      "flag": "prologue_route",
+      "lines": [
+        "Two ways home from here.",
+        "The long way passes the Lamplighters' silent hall — whatever went wrong tonight, it went wrong there first.",
+        "The fast way is over the fences. Now. While the kettle still screams."
+      ],
+      "choices": [
+        "The long way — see what silenced the lamps",
+        "Over the fences — home, NOW"
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "needle_lane",
+      "when_flag": { "flag": "prologue_route", "value": 0 },
+      "add_card": "moonlight_2",
+      "lines": [
+        "The Lamplighters' hall: door open, ladders racked, kettle cold. Nobody. Nothing. Except—",
+        "Caught on a lamp-hook: a thread of silver. HER stitching. She was here tonight. Why was she HERE?",
+        "I take the thread. It hums against my teeth like a struck bell.",
+        "(Her Stitching joins your deck — Moonlight 2.)"
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "parlor_cold",
+      "when_flag": { "flag": "prologue_route", "value": 1 },
+      "lines": [
+        "Over the fences, under the gate, up the drainpipe I have used nine hundred times.",
+        "Fast. Faster than anything on four legs tonight.",
+        "Fast enough that something inside is still... busy."
       ]
     },
     {
@@ -96,6 +151,7 @@
     {
       "type": "battle",
       "encounter": "prologue_parlor",
+      "start_hidden_if_flag": { "flag": "prologue_route", "value": 1 },
       "hints": {
         "1": "Spend everything.",
         "2": "It will not be enough.",
@@ -118,6 +174,7 @@
     {
       "type": "story",
       "environment": "parlor_cold",
+      "portrait": "sc_collar",
       "lines": [
         "The thread at my chest — the one that was always hers — cut.",
         "Not quite.",

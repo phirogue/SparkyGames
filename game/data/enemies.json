@@ -180,5 +180,25 @@
                                      ],
                          "flavor":  "A shape wearing the room\u0027s unravelled threads. Prologue only: it is not meant to be beaten. Yet.",
                          "image":  "en_the_unpicked"
-                     }
+                     },
+    "the_vole":  {
+                     "id":  "the_vole",
+                     "name":  "The Vole",
+                     "hp":  3,
+                     "gleam":  1,
+                     "color":  "#9e8a6f",
+                     "intents":  [
+                                     {
+                                         "name":  "Freeze",
+                                         "target":  "health",
+                                         "amount":  0
+                                     },
+                                     {
+                                         "name":  "Dart for Cover",
+                                         "target":  "hand",
+                                         "amount":  1
+                                     }
+                                 ],
+                     "flavor":  "It holds very still. It believes this is working."
+                 }
 }
