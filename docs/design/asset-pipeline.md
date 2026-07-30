@@ -61,6 +61,27 @@ the bottleneck.
 4. Anything that needs transparency or precise instruction-following goes to
    ChatGPT instead; anything animated-for-marketing goes to Kling at the end.
 
+## The programmatic animation layer (owner rule, 2026-07-30)
+
+**Living elements are engine effects, never baked into images.** One static
+image + code-driven motion = many feels, zero extra generations:
+
+- **Flicker/glow:** wisp flames, lamplight, candle glow, the Unpicked's
+  threads — tweened brightness/scale pulses over the static art. A calm wisp
+  breathes slowly; an angry one flickers fast. Same image.
+- **Tint states:** warm parlor vs cold parlor, day vs night streets, "wrong
+  quiet" — color-graded variants of one backdrop.
+- **Particles:** fog drift, dust motes, ember sparks, purr-threads, rain —
+  Godot particle systems over any scene.
+- **Card feel:** cards shiver when an enemy targets the hand, glow when
+  affordable, tilt on hover — programmatic, applies to every card ever made.
+- **Consequence for prompts:** generate art *without* dramatic baked-in
+  lighting effects where possible (no lens flares, no motion blur) — the
+  engine adds the life on top.
+
+First implementations live in `game/scenes/battle.gd` (enemy breathing,
+sunbeam flash, alarm pulse) — extend that pattern, don't regenerate art.
+
 ## Style consistency (the make-or-break for AI art)
 
 - One locked **style block** appended to every Midjourney prompt (to be

@@ -1,0 +1,26 @@
+{
+  "night_rounds": {
+    "id": "night_rounds",
+    "name": "Night Rounds",
+    "board_card": "The streets don't watch themselves. Someone ought to be paid for this. Someone is not.",
+    "encounters": ["q_rounds_wisp", "q_rounds_wisps", "q_rounds_dog"],
+    "reward_bonus": 8,
+    "repeatable": true
+  },
+  "garden_route": {
+    "id": "garden_route",
+    "name": "The Garden Route",
+    "board_card": "Cross the back gardens. Wake nothing. The dahlias are not the danger.",
+    "encounters": ["q_garden_watch", "q_garden_watch_deep"],
+    "reward_bonus": 12,
+    "repeatable": true
+  },
+  "empty_coat": {
+    "id": "empty_coat",
+    "name": "An Empty Coat",
+    "board_card": "A coat on Needle Lane is out wearing someone's evening. Object to this.",
+    "encounters": ["q_coat_wisp", "q_coat_wraith"],
+    "reward_bonus": 16,
+    "repeatable": true
+  }
+}

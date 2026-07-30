@@ -3,16 +3,33 @@
     "id": "gutter_wisp",
     "name": "Gutter-wisp",
     "hp": 6,
+    "gleam": 4,
+    "color": "#7db4d8",
     "intents": [
       { "name": "Flicker Bite", "target": "health", "amount": 2 },
       { "name": "Covet", "target": "hand", "amount": 1 }
     ],
     "flavor": "Bottle-sized. Eats small lies. Wants what you're holding."
   },
+  "wisp_pair": {
+    "id": "wisp_pair",
+    "name": "A Conspiracy of Wisps",
+    "hp": 10,
+    "gleam": 6,
+    "color": "#8fc4e8",
+    "intents": [
+      { "name": "Covet", "target": "hand", "amount": 1 },
+      { "name": "Flicker Bites", "target": "health", "amount": 3 },
+      { "name": "Gang Up", "target": "health", "amount": 2 }
+    ],
+    "flavor": "Two wisps. One shared opinion about your belongings."
+  },
   "chained_dog": {
     "id": "chained_dog",
     "name": "The Dog (On a Chain)",
     "hp": 12,
+    "gleam": 7,
+    "color": "#b8865f",
     "intents": [
       { "name": "Bark", "target": "hand", "amount": 1 },
       { "name": "Lunge", "target": "health", "amount": 4 },
@@ -20,10 +37,38 @@
     ],
     "flavor": "Wished to discuss territory. The meeting was declined."
   },
+  "garden_watch": {
+    "id": "garden_watch",
+    "name": "The Garden Watch",
+    "hp": 8,
+    "gleam": 5,
+    "color": "#a8c48a",
+    "intents": [
+      { "name": "Patrol", "target": "health", "amount": 1 },
+      { "name": "Sniff About", "target": "hand", "amount": 1 },
+      { "name": "Peer Into Shadows", "target": "health", "amount": 2 }
+    ],
+    "flavor": "A goose. Nobody warned you about the goose."
+  },
+  "garden_watch_captain": {
+    "id": "garden_watch_captain",
+    "name": "Captain of the Watch",
+    "hp": 11,
+    "gleam": 8,
+    "color": "#8fb46f",
+    "intents": [
+      { "name": "Sniff About", "target": "hand", "amount": 1 },
+      { "name": "Honk of Authority", "target": "skills", "amount": 1, "mode": "jam" },
+      { "name": "Regulation Peck", "target": "health", "amount": 3 }
+    ],
+    "flavor": "The goose has a chain of office. It is load-bearing."
+  },
   "rag_wraith": {
     "id": "rag_wraith",
     "name": "Rag-wraith",
     "hp": 18,
+    "gleam": 12,
+    "color": "#8a7f9e",
     "intents": [
       { "name": "Empty Sleeve", "target": "health", "amount": 5 },
       { "name": "Unravel", "target": "skills", "amount": 1, "mode": "jam" },
@@ -35,6 +80,8 @@
     "id": "the_unpicked",
     "name": "The Unpicked",
     "hp": 60,
+    "gleam": 0,
+    "color": "#c8ccd8",
     "intents": [
       { "name": "Pull a Thread", "target": "hand", "amount": 1 },
       { "name": "Snip", "target": "skills", "amount": 1, "mode": "burn" },

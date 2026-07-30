@@ -88,7 +88,8 @@ func test_every_achievement_stat_is_reachable_naming() -> void:
 	# lifetime stat or a per-enemy pattern over enemies that exist.
 	var known := ["encounters_won", "lives_spent", "retreats", "flawless_wins",
 		"exhausted_wins", "full_bank_wins", "shelf_justice_kills",
-		"scratch_only_wins", "purrs_completed", "hand_cards_lost", "energy_spent"]
+		"scratch_only_wins", "purrs_completed", "hand_cards_lost", "energy_spent",
+		"unspotted_wins", "pressed_on", "quests_completed", "gleam_banked"]
 	for id in catalog.achievements:
 		var stat: String = catalog.achievements[id]["stat"]
 		var ok: bool = known.has(stat)

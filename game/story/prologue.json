@@ -1,0 +1,92 @@
+{
+  "scenes": [
+    {
+      "type": "story",
+      "environment": "rooftop_dusk",
+      "lines": [
+        "Dusk. The lamps going up. The fog coming in off the Mere.",
+        "She puts the kettle on when the lamps go up. I am punctual. She is predictable. The arrangement works.",
+        "Tonight I bring a vole. Thoughtfully dead. She will say 'not on the table', and mean 'thank you'."
+      ]
+    },
+    { "type": "battle", "encounter": "prologue_wisp" },
+    {
+      "type": "story",
+      "environment": "rooftop_dusk",
+      "lines": [
+        "The wisp wanted the vole. The vole was not up for discussion.",
+        "Eight bells from the tower. There is no ninth bell. Someone should look into that."
+      ]
+    },
+    { "type": "battle", "encounter": "prologue_dog" },
+    {
+      "type": "story",
+      "environment": "needle_lane",
+      "lines": [
+        "Street level. Too quiet. No pigeons.",
+        "The lamps on Needle Lane are lit wrong. The Lamplighters never miss.",
+        "Tonight, everyone is missing."
+      ]
+    },
+    { "type": "battle", "encounter": "prologue_wraith" },
+    {
+      "type": "story",
+      "environment": "needle_lane",
+      "lines": [
+        "Empty clothes, out walking. The owner missing. Not dead — missing.",
+        "Her window is dark. The kettle is screaming somewhere inside.",
+        "It does not stop."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "parlor_cold",
+      "lines": [
+        "The door: shut. A door has never once been an obstacle. It is, however, always an insult.",
+        "In through the workroom window.",
+        "The threads on the walls — cut. All of them. Hanging like torn hems.",
+        "Something is standing in the parlor doorway, wearing the room."
+      ]
+    },
+    { "type": "battle", "encounter": "prologue_parlor" },
+    { "type": "hollow_court_if_died" },
+    {
+      "type": "story",
+      "environment": "parlor_cold",
+      "lines": [
+        "The parlor. The kettle, screaming on the stove.",
+        "Elspeth in her chair. The light gone out of her hands.",
+        "...",
+        "I took the kettle off the fire. One paw. It took three tries.",
+        "Nobody will ever know."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "parlor_cold",
+      "lines": [
+        "The thread at my chest — the one that was always hers — cut.",
+        "Not quite.",
+        "One strand left. Thin as spite. Running out under the window, into the city.",
+        "Then that is where we are going."
+      ]
+    },
+    { "type": "title" }
+  ],
+  "hollow_court_first": [
+    "A desk. A lamp. A queue of one.",
+    "'Name?' — I am a cat. — '...Vane's familiar. Nine allotted, one spent.'",
+    "'First visit is complimentary. Do try to make the others interesting.'",
+    "The stamp comes down. It is, I notice, a paw print. Neither of us remarks on this."
+  ],
+  "hollow_court_repeat": [
+    "The desk again. The lamp again. The Clerk does not look up.",
+    "'Back so soon. The form remembers you, which saves us both time.'",
+    "The Toll is taken. Professionally. Almost gently.",
+    "The stairs up are longer than the fall down. They always are."
+  ],
+  "unpicked_won": [
+    "It comes apart. Thread by thread. That was not supposed to happen.",
+    "Somewhere below the city, a clerk files something under 'irregular'."
+  ]
+}

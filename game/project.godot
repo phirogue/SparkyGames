@@ -9,7 +9,7 @@ config_version=5
 config/name="The Nine Lives of Ashcat"
 config/description="A story-driven roguelite card game. You are Ash, a murdered witch's familiar, spending your nine lives to solve her murder."
 config/version="0.1.0"
-run/main_scene="res://scenes/battle.tscn"
+run/main_scene="res://scenes/game.tscn"
 config/features=PackedStringArray("4.4", "Mobile")
 
 [display]

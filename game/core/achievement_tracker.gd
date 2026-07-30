@@ -49,6 +49,8 @@ func record_encounter(state: CombatState) -> Array:
 			var used: Dictionary = flags["skills_used"]
 			if used.size() == 1 and used.has("scratch"):
 				newly.append_array(increment("scratch_only_wins"))
+			if state.stealth_threshold > 0 and not state.spotted:
+				newly.append_array(increment("unspotted_wins"))
 		CombatState.Outcome.DEFEAT:
 			newly.append_array(increment("lives_spent"))
 			newly.append_array(increment("felled_by_" + state.enemy_id))

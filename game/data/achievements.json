@@ -142,5 +142,45 @@
     "stat": "defeated_the_unpicked",
     "threshold": 1,
     "hidden": true
+  },
+  "gainful_employment": {
+    "id": "gainful_employment",
+    "name": "Gainful Employment",
+    "description": "Complete a quest from the Mantel. She would have called this 'finally contributing'.",
+    "stat": "quests_completed",
+    "threshold": 1,
+    "hidden": false
+  },
+  "curiosity_paid_out": {
+    "id": "curiosity_paid_out",
+    "name": "Curiosity, Paid Out",
+    "description": "Press on five times instead of slipping away. Satisfaction pending.",
+    "stat": "pressed_on",
+    "threshold": 5,
+    "hidden": false
+  },
+  "dragonish": {
+    "id": "dragonish",
+    "name": "Dragonish",
+    "description": "Bank 150 gleam lifetime. The Magpie Exchange sends a fruit basket.",
+    "stat": "gleam_banked",
+    "threshold": 150,
+    "hidden": false
+  },
+  "nothing_woke": {
+    "id": "nothing_woke",
+    "name": "Nothing Woke",
+    "description": "Clear a stealth encounter without raising the alarm. The dahlias never knew.",
+    "stat": "unspotted_wins",
+    "threshold": 1,
+    "hidden": false
+  },
+  "above_the_law": {
+    "id": "above_the_law",
+    "name": "Above the Law",
+    "description": "Defeat the Captain of the Watch. The chain of office was ceremonial after all.",
+    "stat": "defeated_garden_watch_captain",
+    "threshold": 1,
+    "hidden": false
   }
 }

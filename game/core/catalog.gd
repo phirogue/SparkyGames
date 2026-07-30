@@ -12,6 +12,8 @@ var skills: Dictionary = {}         # id -> {id, name, cost, charges, effects, i
 var enemies: Dictionary = {}        # id -> {id, name, hp, intents}
 var encounters: Dictionary = {}     # id -> {id, enemies, environment}
 var achievements: Dictionary = {}   # id -> {id, name, description, stat, threshold, hidden}
+var environments: Dictionary = {}   # id -> {id, name, color, cost_mod, sunbeam_turns, stealth_threshold}
+var quests: Dictionary = {}         # id -> {id, name, board_card, encounters, reward_bonus, repeatable}
 
 func _init(data: Dictionary = {}) -> void:
 	energy_cards = data.get("energy_cards", {})
@@ -19,6 +21,8 @@ func _init(data: Dictionary = {}) -> void:
 	enemies = data.get("enemies", {})
 	encounters = data.get("encounters", {})
 	achievements = data.get("achievements", {})
+	environments = data.get("environments", {})
+	quests = data.get("quests", {})
 
 ## Returns a list of problems; empty list means the catalog is coherent.
 func validate() -> Array[String]:
@@ -50,6 +54,18 @@ func validate() -> Array[String]:
 		for enemy_id in encounters[id].get("enemies", []):
 			if not enemies.has(enemy_id):
 				problems.append("encounter '%s' references unknown enemy '%s'" % [id, enemy_id])
+		var environment_id: String = encounters[id].get("environment", "")
+		if not environments.is_empty() and not environments.has(environment_id):
+			problems.append("encounter '%s' references unknown environment '%s'" % [id, environment_id])
+	for id in quests:
+		var quest: Dictionary = quests[id]
+		if quest.get("encounters", []).is_empty():
+			problems.append("quest '%s' has no encounters" % id)
+		for encounter_id in quest.get("encounters", []):
+			if not encounters.has(encounter_id):
+				problems.append("quest '%s' references unknown encounter '%s'" % [id, encounter_id])
+		if String(quest.get("board_card", "")).is_empty():
+			problems.append("quest '%s' has no board card text" % id)
 	for id in achievements:
 		var achievement: Dictionary = achievements[id]
 		if String(achievement.get("name", "")).is_empty():

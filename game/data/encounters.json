@@ -22,5 +22,47 @@
     "name": "The Parlor Window",
     "enemies": ["the_unpicked"],
     "environment": "parlor_cold"
+  },
+  "q_rounds_wisp": {
+    "id": "q_rounds_wisp",
+    "name": "Something in the Gutter",
+    "enemies": ["gutter_wisp"],
+    "environment": "rooftop_dusk"
+  },
+  "q_rounds_wisps": {
+    "id": "q_rounds_wisps",
+    "name": "Their Little Friends",
+    "enemies": ["wisp_pair"],
+    "environment": "needle_lane"
+  },
+  "q_rounds_dog": {
+    "id": "q_rounds_dog",
+    "name": "The Usual Objection",
+    "enemies": ["chained_dog"],
+    "environment": "needle_lane"
+  },
+  "q_garden_watch": {
+    "id": "q_garden_watch",
+    "name": "The First Garden",
+    "enemies": ["garden_watch"],
+    "environment": "back_gardens"
+  },
+  "q_garden_watch_deep": {
+    "id": "q_garden_watch_deep",
+    "name": "The Captain's Lawn",
+    "enemies": ["garden_watch_captain"],
+    "environment": "back_gardens"
+  },
+  "q_coat_wisp": {
+    "id": "q_coat_wisp",
+    "name": "Witnesses",
+    "enemies": ["wisp_pair"],
+    "environment": "shambles_market"
+  },
+  "q_coat_wraith": {
+    "id": "q_coat_wraith",
+    "name": "The Coat Itself",
+    "enemies": ["rag_wraith"],
+    "environment": "needle_lane"
   }
 }

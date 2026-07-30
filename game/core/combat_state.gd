@@ -49,6 +49,16 @@ var _intent_index: int = 0
 var turn: int = 1
 var outcome: int = Outcome.ONGOING
 
+# --- Environment (see data/environments.json) ---
+var cost_mod: Dictionary = {}       # humour -> +/- cost adjustment
+var sunbeam_turns: Array = []       # player turns on which a sunbeam appears
+var stealth_threshold: int = 0      # >0 makes this a stealth encounter
+var alarm: int = 0
+var spotted: bool = false
+## Informational events for the UI layer ("sunbeam", "spotted"). Drained via
+## take_events(); core behavior never depends on them.
+var _events: Array[String] = []
+
 
 static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> CombatState:
 	var state := CombatState.new()
@@ -72,10 +82,31 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 	var enemy_def: Dictionary = p_catalog.enemies[state.enemy_id]
 	state.enemy_max_hp = int(enemy_def["hp"])
 	state.enemy_hp = state.enemy_max_hp
+	var environment: Dictionary = config.get("environment", {})
+	state.cost_mod = environment.get("cost_mod", {})
+	state.sunbeam_turns = environment.get("sunbeam_turns", [])
+	state.stealth_threshold = int(environment.get("stealth_threshold", 0))
 	if config.get("shuffle", true):
 		state.rng.shuffle(state.deck)
 	state._draw_up_to_limit()
 	return state
+
+
+## UI-facing event queue; returns and clears pending events.
+func take_events() -> Array[String]:
+	var events := _events.duplicate()
+	_events.clear()
+	return events
+
+
+## Environment-adjusted cost of a skill (never below zero per humour).
+func effective_cost(cost: Dictionary) -> Dictionary:
+	var adjusted := {}
+	for humour in cost:
+		var value: int = int(cost[humour]) + int(cost_mod.get(humour, 0))
+		if value > 0:
+			adjusted[humour] = value
+	return adjusted
 
 
 ## The enemy's telegraphed next move: {target: "health"|"skills"|"hand", amount, name}.
@@ -143,10 +174,15 @@ func _cmd_play_skill(skill_id: String) -> Dictionary:
 			return _fail("skill '%s' is jammed" % skill_id)
 		if state["charges_left"] <= 0:
 			return _fail("skill '%s' has no charges left" % skill_id)
-	var cost: Dictionary = def.get("cost", {})
+	var cost: Dictionary = effective_cost(def.get("cost", {}))
 	if not can_pay(cost):
 		return _fail("not enough energy for '%s'" % skill_id)
 	_pay(cost)
+	if stealth_threshold > 0 and not spotted and cost.has("ferocity"):
+		alarm += int(cost["ferocity"])  # loud cards raise the alarm
+		if alarm >= stealth_threshold:
+			spotted = true
+			_events.append("spotted")
 	if not is_instinct:
 		state["charges_left"] -= 1
 	var used: Dictionary = flags["skills_used"]
@@ -187,6 +223,13 @@ func _cmd_end_turn() -> Dictionary:
 			channel = {}
 			flags["purr_completed"] = true
 	_draw_up_to_limit()
+	if sunbeam_turns.has(turn) and not spent.is_empty():
+		# A patch of sun: one spent card returns to the bottom of the deck —
+		# the fuel gauge ticks back up.
+		var index := rng.pick_index(spent.size())
+		deck.push_front(spent[index])
+		spent.remove_at(index)
+		_events.append("sunbeam")
 	return {"ok": true, "error": ""}
 
 
@@ -246,6 +289,14 @@ func _apply_effects(effects: Array) -> void:
 func _enemy_act() -> void:
 	var intent := current_intent()
 	_intent_index += 1
+	if spotted:
+		# A spotted cat has no tricks left to fear but teeth: every intent
+		# becomes a straightforward, harder hit.
+		intent = {
+			"name": String(intent["name"]) + "!",
+			"target": "health",
+			"amount": maxi(int(intent.get("amount", 2)) + 1, 3),
+		}
 	match intent["target"]:
 		"health":
 			var damage := maxi(int(intent["amount"]) - player_block, 0)
