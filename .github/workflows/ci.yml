@@ -37,3 +37,6 @@ jobs:
 
       - name: Run unit tests
         run: ~/godot/godot --headless --path game -s tests/run_tests.gd
+
+      - name: Boot smoke test (screens must have real size)
+        run: ~/godot/godot --headless --path game -s tests/smoke_boot.gd

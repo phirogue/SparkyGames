@@ -1,4 +1,4 @@
-extends Node
+extends Control
 ## Game flow orchestrator: prologue script -> hub -> quest prowls.
 ## Owns the profile, the achievement tracker, and all screen transitions.
 ## Screens are dumb; this file is the only place that decides "what next".
@@ -49,6 +49,10 @@ func _swap(screen: Control) -> void:
 		current_screen.queue_free()
 	current_screen = screen
 	add_child(screen)
+	# Screens are Controls parented to this Control: anchor them to fill it,
+	# or their tap targets collapse to zero size. Must be the offsets variant —
+	# set_anchors_preset alone compensates offsets to preserve the (zero) rect.
+	screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
 func _story_config(environment_id: String, lines: Array) -> Dictionary:
