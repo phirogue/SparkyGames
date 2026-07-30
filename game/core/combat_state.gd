@@ -30,6 +30,15 @@ var spent: Array = []     # gone for the adventure — no reshuffle
 var skills: Array = []    # {id, charges_left, jammed_turns}
 var statuses: Dictionary = {}          # e.g. {"loafed": 1}
 var channel: Dictionary = {}           # active purr: {heal_per_turn, turns_left}
+## Encounter telemetry consumed by AchievementTracker.record_encounter().
+var flags: Dictionary = {
+	"damage_taken": 0,     # total hp lost to enemy attacks
+	"energy_paid": 0,      # cards spent paying skill costs
+	"hand_lost": 0,        # cards stolen by hand attacks
+	"purr_completed": false,
+	"skills_used": {},     # skill_id -> times played
+	"killing_skill": "",   # skill that landed the final blow
+}
 
 # --- Enemy ---
 var enemy_id: String
@@ -136,8 +145,12 @@ func _cmd_play_skill(skill_id: String) -> Dictionary:
 	_pay(cost)
 	if not is_instinct:
 		state["charges_left"] -= 1
+	var used: Dictionary = flags["skills_used"]
+	used[skill_id] = int(used.get(skill_id, 0)) + 1
 	_apply_effects(def.get("effects", []))
 	_check_end()
+	if outcome == Outcome.VICTORY and flags["killing_skill"] == "":
+		flags["killing_skill"] = skill_id
 	return {"ok": true, "error": ""}
 
 
@@ -168,6 +181,7 @@ func _cmd_end_turn() -> Dictionary:
 		channel["turns_left"] -= 1
 		if channel["turns_left"] <= 0:
 			channel = {}
+			flags["purr_completed"] = true
 	_draw_up_to_limit()
 	return {"ok": true, "error": ""}
 
@@ -199,6 +213,7 @@ func _pay(cost: Dictionary) -> void:
 			for i in to_remove:
 				spent.append(pool[i])
 				pool.remove_at(i)
+				flags["energy_paid"] = int(flags["energy_paid"]) + 1
 
 
 func _apply_effects(effects: Array) -> void:
@@ -231,6 +246,7 @@ func _enemy_act() -> void:
 		"health":
 			var damage := maxi(int(intent["amount"]) - player_block, 0)
 			player_hp -= damage
+			flags["damage_taken"] = int(flags["damage_taken"]) + damage
 			if damage > 0 and not channel.is_empty():
 				channel = {}  # a purr you can't finish
 		"skills":
@@ -250,6 +266,7 @@ func _enemy_act() -> void:
 				var index := rng.pick_index(pool.size())
 				spent.append(pool[index])
 				pool.remove_at(index)
+				flags["hand_lost"] = int(flags["hand_lost"]) + 1
 	_check_end()
 
 

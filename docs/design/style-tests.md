@@ -1,5 +1,9 @@
 # Art Style Tests — Kling Prompts (copy-paste ready)
 
+> **DECIDED 2026-07-29: Style A (Storybook Ink & Wash) wins.** The locked
+> style block and the full production prompt list live in
+> [art-manifest.md](art-manifest.md). This doc is kept as history.
+
 Goal: pick ONE style for the whole game before mass-generating assets. Below
 are **6 candidate styles × 3 test subjects** (18 prompts). Generate at least
 the *Ash portrait* for all six styles first — that alone may decide it. Then

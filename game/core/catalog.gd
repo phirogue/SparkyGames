@@ -11,12 +11,14 @@ var energy_cards: Dictionary = {}   # id -> {id, humour, value}
 var skills: Dictionary = {}         # id -> {id, name, cost, charges, effects, instinct}
 var enemies: Dictionary = {}        # id -> {id, name, hp, intents}
 var encounters: Dictionary = {}     # id -> {id, enemies, environment}
+var achievements: Dictionary = {}   # id -> {id, name, description, stat, threshold, hidden}
 
 func _init(data: Dictionary = {}) -> void:
 	energy_cards = data.get("energy_cards", {})
 	skills = data.get("skills", {})
 	enemies = data.get("enemies", {})
 	encounters = data.get("encounters", {})
+	achievements = data.get("achievements", {})
 
 ## Returns a list of problems; empty list means the catalog is coherent.
 func validate() -> Array[String]:
@@ -48,4 +50,14 @@ func validate() -> Array[String]:
 		for enemy_id in encounters[id].get("enemies", []):
 			if not enemies.has(enemy_id):
 				problems.append("encounter '%s' references unknown enemy '%s'" % [id, enemy_id])
+	for id in achievements:
+		var achievement: Dictionary = achievements[id]
+		if String(achievement.get("name", "")).is_empty():
+			problems.append("achievement '%s' has no name" % id)
+		if String(achievement.get("description", "")).is_empty():
+			problems.append("achievement '%s' has no description" % id)
+		if String(achievement.get("stat", "")).is_empty():
+			problems.append("achievement '%s' watches no stat" % id)
+		if int(achievement.get("threshold", 0)) < 1:
+			problems.append("achievement '%s' has a non-positive threshold" % id)
 	return problems

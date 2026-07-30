@@ -11,6 +11,7 @@ static func load_catalog(data_dir: String = DATA_DIR) -> Catalog:
 		"skills": _load_json(data_dir + "/skills.json"),
 		"enemies": _load_json(data_dir + "/enemies.json"),
 		"encounters": _load_json(data_dir + "/encounters.json"),
+		"achievements": _load_json(data_dir + "/achievements.json"),
 	})
 
 

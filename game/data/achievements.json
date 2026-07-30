@@ -1,0 +1,146 @@
+{
+  "the_vole_dispute": {
+    "id": "the_vole_dispute",
+    "name": "The Vole Dispute",
+    "description": "Win your first fight. The vole was never up for discussion.",
+    "stat": "encounters_won",
+    "threshold": 1,
+    "hidden": false
+  },
+  "seasoned_prowler": {
+    "id": "seasoned_prowler",
+    "name": "Seasoned Prowler",
+    "description": "Win fifty fights. The alleys are starting to tell stories about you.",
+    "stat": "encounters_won",
+    "threshold": 50,
+    "hidden": false
+  },
+  "first_visit_complimentary": {
+    "id": "first_visit_complimentary",
+    "name": "First Visit Complimentary",
+    "description": "Spend a life. The Hollow Court validates parking.",
+    "stat": "lives_spent",
+    "threshold": 1,
+    "hidden": false
+  },
+  "regular_customer": {
+    "id": "regular_customer",
+    "name": "Regular Customer",
+    "description": "Spend nine lives. The Clerk keeps your form at the front of the drawer now.",
+    "stat": "lives_spent",
+    "threshold": 9,
+    "hidden": false
+  },
+  "the_meeting_was_declined": {
+    "id": "the_meeting_was_declined",
+    "name": "The Meeting Was Declined",
+    "description": "Slip away from a fight. A cat does not lose fights; it schedules them for never.",
+    "stat": "retreats",
+    "threshold": 1,
+    "hidden": false
+  },
+  "strategic_withdrawal_expert": {
+    "id": "strategic_withdrawal_expert",
+    "name": "Nine-Tenths of Valor",
+    "description": "Slip away twenty times. Discretion is a skill. You are gifted.",
+    "stat": "retreats",
+    "threshold": 20,
+    "hidden": false
+  },
+  "not_a_whisker": {
+    "id": "not_a_whisker",
+    "name": "Not a Whisker Misplaced",
+    "description": "Win a fight without taking any damage.",
+    "stat": "flawless_wins",
+    "threshold": 1,
+    "hidden": false
+  },
+  "running_on_fumes": {
+    "id": "running_on_fumes",
+    "name": "Running on Fumes",
+    "description": "Win a fight with your energy deck completely empty. Spite is also a resource.",
+    "stat": "exhausted_wins",
+    "threshold": 1,
+    "hidden": false
+  },
+  "for_a_rainy_day": {
+    "id": "for_a_rainy_day",
+    "name": "For a Rainy Day",
+    "description": "Win a fight with a full bank of saved cards you never needed. The savings account of champions.",
+    "stat": "full_bank_wins",
+    "threshold": 1,
+    "hidden": false
+  },
+  "it_was_already_broken": {
+    "id": "it_was_already_broken",
+    "name": "It Was Already Broken",
+    "description": "Finish an enemy with Shelf Justice. Gravity did most of the work. You did the important part.",
+    "stat": "shelf_justice_kills",
+    "threshold": 1,
+    "hidden": false
+  },
+  "dignity_optional": {
+    "id": "dignity_optional",
+    "name": "Dignity Optional",
+    "description": "Win a fight using nothing but Scratch. Rarely sufficient. Apparently sufficient.",
+    "stat": "scratch_only_wins",
+    "threshold": 1,
+    "hidden": false
+  },
+  "audible_next_room": {
+    "id": "audible_next_room",
+    "name": "Audible From the Next Room",
+    "description": "Finish a full purr without being interrupted. Self-care is a discipline.",
+    "stat": "purrs_completed",
+    "threshold": 1,
+    "hidden": false
+  },
+  "pest_control": {
+    "id": "pest_control",
+    "name": "Pest Control",
+    "description": "Defeat ten gutter-wisps. The gutters file a formal complaint.",
+    "stat": "defeated_gutter_wisp",
+    "threshold": 10,
+    "hidden": false
+  },
+  "territory_dispute_resolved": {
+    "id": "territory_dispute_resolved",
+    "name": "Territory Dispute: Resolved",
+    "description": "Defeat the dog. The chain was never the problem.",
+    "stat": "defeated_chained_dog",
+    "threshold": 1,
+    "hidden": false
+  },
+  "robbed_in_broad_daylight": {
+    "id": "robbed_in_broad_daylight",
+    "name": "Robbed in Broad Daylight",
+    "description": "Lose twenty cards to enemies attacking your hand. Hold things closer.",
+    "stat": "hand_cards_lost",
+    "threshold": 20,
+    "hidden": false
+  },
+  "big_spender": {
+    "id": "big_spender",
+    "name": "Big Spender",
+    "description": "Spend two hundred energy cards. Wind and nerve, freely given.",
+    "stat": "energy_spent",
+    "threshold": 200,
+    "hidden": false
+  },
+  "nine_minus_one": {
+    "id": "nine_minus_one",
+    "name": "Nine Minus One",
+    "description": "Fall to the Unpicked. Everyone does, once. That is rather the point.",
+    "stat": "felled_by_the_unpicked",
+    "threshold": 1,
+    "hidden": true
+  },
+  "unpicked_unpicked": {
+    "id": "unpicked_unpicked",
+    "name": "The Unpicked, Unpicked",
+    "description": "Defeat the Unpicked. This was not supposed to be possible. The Clerk has questions.",
+    "stat": "defeated_the_unpicked",
+    "threshold": 1,
+    "hidden": true
+  }
+}
