@@ -1,0 +1,14 @@
+{
+  "ferocity_1": { "id": "ferocity_1", "humour": "ferocity", "value": 1, "name": "Bristle" },
+  "ferocity_2": { "id": "ferocity_2", "humour": "ferocity", "value": 2, "name": "Bared Claw" },
+  "ferocity_3": { "id": "ferocity_3", "humour": "ferocity", "value": 3, "name": "Blood Up" },
+  "guile_1": { "id": "guile_1", "humour": "guile", "value": 1, "name": "Sidelong Look" },
+  "guile_2": { "id": "guile_2", "humour": "guile", "value": 2, "name": "Patience" },
+  "guile_3": { "id": "guile_3", "humour": "guile", "value": 3, "name": "The Long Game" },
+  "shadow_1": { "id": "shadow_1", "humour": "shadow", "value": 1, "name": "Dusk" },
+  "shadow_2": { "id": "shadow_2", "humour": "shadow", "value": 2, "name": "Alley Dark" },
+  "shadow_3": { "id": "shadow_3", "humour": "shadow", "value": 3, "name": "New Moon" },
+  "moonlight_1": { "id": "moonlight_1", "humour": "moonlight", "value": 1, "name": "Thin Thread" },
+  "moonlight_2": { "id": "moonlight_2", "humour": "moonlight", "value": 2, "name": "Her Stitching" },
+  "moonlight_3": { "id": "moonlight_3", "humour": "moonlight", "value": 3, "name": "Needle's Eye" }
+}

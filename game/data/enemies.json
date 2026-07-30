@@ -1,0 +1,46 @@
+{
+  "gutter_wisp": {
+    "id": "gutter_wisp",
+    "name": "Gutter-wisp",
+    "hp": 6,
+    "intents": [
+      { "name": "Flicker Bite", "target": "health", "amount": 2 },
+      { "name": "Covet", "target": "hand", "amount": 1 }
+    ],
+    "flavor": "Bottle-sized. Eats small lies. Wants what you're holding."
+  },
+  "chained_dog": {
+    "id": "chained_dog",
+    "name": "The Dog (On a Chain)",
+    "hp": 12,
+    "intents": [
+      { "name": "Bark", "target": "hand", "amount": 1 },
+      { "name": "Lunge", "target": "health", "amount": 4 },
+      { "name": "Slaver", "target": "health", "amount": 2 }
+    ],
+    "flavor": "Wished to discuss territory. The meeting was declined."
+  },
+  "rag_wraith": {
+    "id": "rag_wraith",
+    "name": "Rag-wraith",
+    "hp": 18,
+    "intents": [
+      { "name": "Empty Sleeve", "target": "health", "amount": 5 },
+      { "name": "Unravel", "target": "skills", "amount": 1, "mode": "jam" },
+      { "name": "Smother", "target": "health", "amount": 3 }
+    ],
+    "flavor": "Clothes whose owner is missing. Not dead. Missing."
+  },
+  "the_unpicked": {
+    "id": "the_unpicked",
+    "name": "The Unpicked",
+    "hp": 60,
+    "intents": [
+      { "name": "Pull a Thread", "target": "hand", "amount": 1 },
+      { "name": "Snip", "target": "skills", "amount": 1, "mode": "burn" },
+      { "name": "The Hem Comes Loose", "target": "health", "amount": 3 },
+      { "name": "Wear the Room", "target": "health", "amount": 4 }
+    ],
+    "flavor": "A shape wearing the room's unravelled threads. Prologue only: it is not meant to be beaten. Yet."
+  }
+}

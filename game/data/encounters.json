@@ -1,0 +1,26 @@
+{
+  "prologue_wisp": {
+    "id": "prologue_wisp",
+    "name": "The Vole Dispute",
+    "enemies": ["gutter_wisp"],
+    "environment": "rooftop_dusk"
+  },
+  "prologue_dog": {
+    "id": "prologue_dog",
+    "name": "A Meeting Declined",
+    "enemies": ["chained_dog"],
+    "environment": "needle_lane"
+  },
+  "prologue_wraith": {
+    "id": "prologue_wraith",
+    "name": "The Wrong Quiet",
+    "enemies": ["rag_wraith"],
+    "environment": "needle_lane"
+  },
+  "prologue_parlor": {
+    "id": "prologue_parlor",
+    "name": "The Parlor Window",
+    "enemies": ["the_unpicked"],
+    "environment": "parlor_cold"
+  }
+}

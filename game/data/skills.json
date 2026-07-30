@@ -1,0 +1,62 @@
+{
+  "scratch": {
+    "id": "scratch",
+    "name": "Scratch",
+    "instinct": true,
+    "cost": {},
+    "charges": 0,
+    "effects": [{ "type": "damage", "amount": 1 }],
+    "flavor": "Always available. Rarely sufficient. Deeply satisfying."
+  },
+  "pounce": {
+    "id": "pounce",
+    "name": "Pounce",
+    "cost": { "ferocity": 2 },
+    "charges": 3,
+    "effects": [{ "type": "damage", "amount": 4 }],
+    "flavor": "The wiggle first. The wiggle is non-negotiable."
+  },
+  "swat": {
+    "id": "swat",
+    "name": "Swat",
+    "cost": { "ferocity": 1 },
+    "charges": 4,
+    "effects": [{ "type": "damage", "amount": 2 }],
+    "flavor": "Measured. Judicial. Off the shelf it goes."
+  },
+  "slink": {
+    "id": "slink",
+    "name": "Slink",
+    "cost": { "shadow": 1 },
+    "charges": 3,
+    "effects": [{ "type": "block", "amount": 3 }],
+    "flavor": "You saw a cat. You saw no such cat."
+  },
+  "purr": {
+    "id": "purr",
+    "name": "Purr",
+    "cost": { "moonlight": 1 },
+    "charges": 2,
+    "effects": [{ "type": "channel_heal", "amount": 2, "turns": 2 }],
+    "flavor": "Self-repair, audible from the next room."
+  },
+  "loaf": {
+    "id": "loaf",
+    "name": "Loaf",
+    "cost": { "guile": 1 },
+    "charges": 2,
+    "effects": [
+      { "type": "block", "amount": 6 },
+      { "type": "self_stun", "turns": 1 }
+    ],
+    "flavor": "Block 6. All paws accounted for."
+  },
+  "shelf_justice": {
+    "id": "shelf_justice",
+    "name": "Shelf Justice",
+    "cost": { "guile": 2 },
+    "charges": 1,
+    "effects": [{ "type": "damage", "amount": 6 }],
+    "flavor": "It was already broken when gravity got there."
+  }
+}

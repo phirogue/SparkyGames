@@ -16,6 +16,25 @@ comes from Midjourney, provided by the project owner.
 - Never commit secrets, keystores, signing certificates, or store credentials.
   Keep those out of the repo (see .gitignore).
 
+## Engine & code conventions (Godot 4.4.x, GDScript)
+
+- Local Godot binary: `C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe`
+- Run tests after any change to `game/`:
+  `& "C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe" --headless --path game -s tests/run_tests.gd`
+- **`game/core/` is pure rules**: RefCounted classes only — no Node, no
+  rendering, no FileAccess, no global RNG. All randomness goes through
+  `CoreRng`; all player actions go through `CombatState.do_command()` and are
+  recorded in `CommandLog`. This is load-bearing for replays and future PvP.
+- Content lives in `game/data/*.json` with stable string ids; never hardcode
+  content values in scripts. `Catalog.validate()` must stay green — add
+  validation when adding content fields.
+- Energy never reshuffles; spent is spent. Do not "fix" this in a refactor.
+- GDScript style: typed where practical, tabs for indentation, snake_case,
+  `class_name` for shared classes. Scenes subscribe to core state; they never
+  mutate it directly.
+- Tests: add a `test_*` method to `game/tests/unit/` for every new rule or
+  bug fix; register new test files in `tests/run_tests.gd`.
+
 ## Project conventions
 
 - Design decisions live in `docs/design/`; one topic per file. When a decision

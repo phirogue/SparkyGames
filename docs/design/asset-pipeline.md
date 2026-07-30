@@ -1,7 +1,16 @@
 # Asset Pipeline — Images, Music, SFX, Animation
 
-*2026-07-29. Owner has active credits on: **Midjourney**, **ChatGPT**,
-**Kling**. Budget stance: free where possible, no new subscriptions yet.*
+*2026-07-29. Owner has active credits on: **ChatGPT** and **Kling** (no
+Midjourney after all — correction 2026-07-29). Budget stance: free where
+possible, no new subscriptions yet.*
+
+> **Correction:** references to Midjourney below describe the original plan;
+> in practice **Kling (image mode)** is the primary art generator and
+> **ChatGPT** the secondary/precision tool. Kling supports reference images
+> for character consistency, which covers the consistency strategy. Style
+> test prompts: [style-tests.md](style-tests.md). Commercial-use note: verify
+> the Kling plan tier includes commercial rights before launch (their free
+> tier does not; paid memberships do).
 
 ## Summary: who makes what
 
