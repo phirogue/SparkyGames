@@ -1,6 +1,8 @@
-# SparkyGames — Fantasy Roguelite Card Game
+# SparkyGames — *The Nine Lives of Ashcat*
 
-A brand-new mobile card game for iOS (App Store) and Android (Google Play).
+A brand-new mobile roguelite card game for iOS (App Store) and Android
+(Google Play). You are Ash, a murdered witch's cat familiar, spending your
+nine(-thousand) lives to solve her murder in the fog-bound city of Hollowmere.
 
 ## Vision
 
@@ -25,8 +27,12 @@ assets/          Card art, UI, audio (Midjourney images land here)
 
 ## Status
 
-**Phase 0 — Discovery.** Researching the market, monetization, and tech stack;
-brainstorming story and gameplay concepts. No engine chosen yet.
+**Phase 1 — Design.** Research complete (market, monetization, tech stack,
+tabletop mechanics — see `docs/research/`). Story, world, core gameplay, and
+monetization directions drafted in `docs/design/`. Decided so far: the Ashcat
+premise; wry-cute low-text tone; energy-deck + equipped-skills combat; free
+Chapter 1 + single unlock, fully offline. Engine recommendation (Godot 4 +
+GDScript) pending owner confirmation.
 
 ## Development rules
 
