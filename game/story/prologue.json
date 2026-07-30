@@ -3,6 +3,7 @@
     {
       "type": "story",
       "environment": "rooftop_dusk",
+      "portrait": "sc_ash_vole_gift",
       "lines": [
         "Dusk. The lamps going up. The fog coming in off the Mere.",
         "She puts the kettle on when the lamps go up. I am punctual. She is predictable. The arrangement works.",
@@ -105,6 +106,7 @@
     {
       "type": "story",
       "environment": "parlor_cold",
+      "portrait": "sc_elspeth_still",
       "lines": [
         "The parlor. The kettle, screaming on the stove.",
         "Elspeth in her chair. The light gone out of her hands.",

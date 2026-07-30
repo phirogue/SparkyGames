@@ -147,7 +147,10 @@ func _run_prologue_scene(index: int) -> void:
 		"story":
 			if scene.has("grant"):
 				_grant_skills(scene["grant"])
-			_show_story(_story_config(scene["environment"], scene["lines"]), next)
+			var config := _story_config(scene["environment"], scene["lines"])
+			if scene.has("portrait"):
+				config["portrait"] = scene["portrait"]
+			_show_story(config, next)
 		"battle":
 			_show_battle(scene["encounter"], func(state: CombatState) -> void:
 				_digest(state)
