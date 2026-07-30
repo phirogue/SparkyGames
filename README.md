@@ -29,10 +29,12 @@ assets/          Card art, UI, audio (Midjourney images land here)
 
 **Phase 1 — Design.** Research complete (market, monetization, tech stack,
 tabletop mechanics — see `docs/research/`). Story, world, core gameplay, and
-monetization directions drafted in `docs/design/`. Decided so far: the Ashcat
+monetization directions drafted in `docs/design/`. Decided: the Ashcat
 premise; wry-cute low-text tone; energy-deck + equipped-skills combat; free
-Chapter 1 + single unlock, fully offline. Engine recommendation (Godot 4 +
-GDScript) pending owner confirmation.
+Chapter 1 + single unlock, fully offline; **engine: Godot 4 + GDScript**.
+Prologue and Chapter 1 content designs are in `docs/design/chapters/`. Next:
+Godot project scaffold, art manifest, Google Play account creation (see
+`docs/publishing/`).
 
 ## Development rules
 
