@@ -3,6 +3,13 @@
 **Style locked 2026-07-29: Style A.** Rewritten 2026-07-30 for how Kling
 actually behaves.
 
+> **Canon update 2026-07-30:** both Batch 0 anchors are generated and
+> approved (`assets/incoming/ash_ref.png`, `elspeth_ref.png`). Kling rendered
+> Ash's collar as a **frayed red neckerchief** — adopted as canon (reads
+> better at phone size). All future Ash prompts should say *"frayed red
+> neckerchief"*, and ash_ref.png as the attached reference will carry the
+> look regardless.
+
 ## Ground rules (learned the hard way)
 
 1. **Every prompt is standalone.** Kling has no memory between generations —
@@ -95,7 +102,7 @@ engine-drawn cut-thread overlay sprites. One generation covers both.)*
 > A black cat with a red collar stretching up on its hind legs to push a steaming copper kettle off a small stove, moonlit kitchen, determined little face, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text
 
 ### `sc_collar` — Reference: —
-> A frayed red cat collar with a small brass bell lying on a wooden sewing table beside a pincushion and a spool of silver thread, thin moonlight, quiet still life, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text
+> A small frayed red neckerchief neatly folded on a wooden sewing table beside a pincushion and a spool of silver thread, thin moonlight, quiet still life, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text
 
 ### `sc_title` — Reference: **ash_ref.png** — AR 9:16
 > A black cat with glowing orange eyes and a red collar standing on a moonlit rooftop looking over a foggy gaslamp city, a single thin silver thread trailing from its chest out over the rooftops, lonely and brave, empty space in the upper third, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text
@@ -148,8 +155,8 @@ regenerate the odd one out):
 
 | id | batch | status |
 |---|---|---|
-| ash_ref | 0 | ☐ |
-| elspeth_ref | 0 | ☐ |
+| ash_ref | 0 | ☑ approved 2026-07-30 |
+| elspeth_ref | 0 | ☑ approved 2026-07-30 |
 | bg_rooftop_dusk | 1 | ☐ |
 | bg_needle_lane | 1 | ☐ |
 | bg_parlor | 1 | ☐ |
