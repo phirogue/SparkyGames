@@ -9,32 +9,76 @@
         "Tonight I bring a vole. Thoughtfully dead. She will say 'not on the table', and mean 'thank you'."
       ]
     },
-    { "type": "battle", "encounter": "prologue_wisp" },
+    {
+      "type": "story",
+      "environment": "rooftop_dusk",
+      "grant": ["pounce"],
+      "lines": [
+        "Something small and hungry is between me and home.",
+        "Claws, then. Claws, and one good idea."
+      ]
+    },
+    {
+      "type": "battle",
+      "encounter": "prologue_wisp",
+      "hints": {
+        "1": "Your hand is ENERGY. Pounce costs 2 Ferocity (red). Scratch is free — once per turn.",
+        "2": "The wisp telegraphs its next move up top. Spent energy is gone for the whole prowl.",
+        "3": "End your turn in the sun when you can — a sunbeam returns a spent card."
+      }
+    },
     {
       "type": "story",
       "environment": "rooftop_dusk",
       "lines": [
-        "The wisp wanted the vole. The vole was not up for discussion.",
+        "The wisp reconsidered. The vole and I proceed.",
         "Eight bells from the tower. There is no ninth bell. Someone should look into that."
       ]
     },
-    { "type": "battle", "encounter": "prologue_dog" },
     {
       "type": "story",
       "environment": "needle_lane",
+      "grant": ["slink"],
       "lines": [
         "Street level. Too quiet. No pigeons.",
         "The lamps on Needle Lane are lit wrong. The Lamplighters never miss.",
-        "Tonight, everyone is missing."
+        "The shadows here are deep enough to wear. So I will wear them."
       ]
     },
-    { "type": "battle", "encounter": "prologue_wraith" },
+    {
+      "type": "battle",
+      "encounter": "prologue_dog",
+      "hints": {
+        "1": "New skill: SLINK — Shadow energy, blocks 3. The fog makes Shadow cheaper here.",
+        "2": "Tap a hand card to BANK it for a big turn later. The dog's Bark can steal from you — spend or shield what matters.",
+        "3": "Its Lunge hits for 4. Block before it lands, not after."
+      }
+    },
+    {
+      "type": "story",
+      "environment": "needle_lane",
+      "grant": ["purr", "loaf"],
+      "lines": [
+        "The dog and I have agreed to disagree.",
+        "Something is wrong tonight and it is not the dog.",
+        "Lick the sting out. Loaf if I must. Dignity is negotiable at this hour."
+      ]
+    },
+    {
+      "type": "battle",
+      "encounter": "prologue_wraith",
+      "hints": {
+        "1": "New: PURR heals over two turns — but breaks if you take damage. LOAF blocks 6 and commits all paws.",
+        "2": "This one is above your weight. SLIP AWAY costs nothing but pride. A finished purr keeps you Warm into the next fight.",
+        "3": "You do not have to win this. You have to get home."
+      }
+    },
     {
       "type": "story",
       "environment": "needle_lane",
       "lines": [
         "Empty clothes, out walking. The owner missing. Not dead — missing.",
-        "Her window is dark. The kettle is screaming somewhere inside.",
+        "Her window is dark. The kettle is screaming inside.",
         "It does not stop."
       ]
     },
@@ -48,7 +92,15 @@
         "Something is standing in the parlor doorway, wearing the room."
       ]
     },
-    { "type": "battle", "encounter": "prologue_parlor" },
+    {
+      "type": "battle",
+      "encounter": "prologue_parlor",
+      "hints": {
+        "1": "Spend everything.",
+        "2": "It will not be enough.",
+        "3": "Spend it anyway."
+      }
+    },
     { "type": "hollow_court_if_died" },
     {
       "type": "story",

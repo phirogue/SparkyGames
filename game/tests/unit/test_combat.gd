@@ -34,19 +34,49 @@ func test_pounce_costs_energy_and_damages() -> void:
 
 func test_victory_ends_encounter() -> void:
 	var state := _wisp_fight()
-	# Pounce (4) + two Scratches (1+1) = 6 = wisp hp; scratch is always free,
-	# so this line is affordable regardless of the drawn hand.
+	# Pounce (4) + Scratch (1), enemy turn, Scratch (1) = 6 = wisp hp.
 	assert_ok(state.do_command({"type": "play_skill", "skill_id": "pounce"}))
 	assert_ok(state.do_command({"type": "play_skill", "skill_id": "scratch"}))
+	assert_ok(state.do_command({"type": "end_turn"}))
 	assert_ok(state.do_command({"type": "play_skill", "skill_id": "scratch"}))
 	assert_eq(state.outcome, CombatState.Outcome.VICTORY, "outcome")
 	assert_rejected(state.do_command({"type": "end_turn"}), "acting after victory")
 
-func test_instinct_needs_no_charges_or_energy() -> void:
+func test_instinct_once_per_turn() -> void:
 	var state := _wisp_fight()
-	for i in 3:
-		assert_ok(state.do_command({"type": "play_skill", "skill_id": "scratch"}), "scratch %d" % i)
-	assert_eq(state.enemy_hp, 3, "wisp hp after three scratches")
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "scratch"}), "first scratch")
+	assert_rejected(state.do_command({"type": "play_skill", "skill_id": "scratch"}),
+		"second scratch same turn")
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "scratch"}),
+		"scratch again next turn")
+	assert_eq(state.enemy_hp, 4, "wisp hp after two scratches across two turns")
+
+func test_lingering_warmed_and_sharpened() -> void:
+	var state := CombatState.create(catalog, 5, {
+		"player_hp": 10, "player_max_hp": 20,
+		"deck": ["ferocity_2", "ferocity_2", "guile_1", "guile_1", "shadow_1", "shadow_1"],
+		"skills": ["pounce"],
+		"enemy": "gutter_wisp",
+		"lingering": ["warmed", "sharpened"],
+		"shuffle": false,
+	})
+	assert_eq(state.player_hp, 12, "warmed grants +2 hp on entry")
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "pounce"}), "sharpened pounce")
+	assert_eq(state.enemy_hp, 6 - 5, "sharpened adds +1 to the first hit only")
+	assert_eq(state.sharpened, false, "sharpened is consumed")
+
+func test_lingering_out_from_flawless_win() -> void:
+	var state := _wisp_fight()
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "pounce"}))
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "scratch"}))
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "scratch"}))
+	assert_eq(state.outcome, CombatState.Outcome.VICTORY, "fixture wins")
+	# Seed 7 turn-1 intent for the wisp is Flicker Bite (2 damage) — so this
+	# win is NOT flawless and must not grant sharpened.
+	assert_eq(state.lingering_out().has("sharpened"), int(state.flags["damage_taken"]) == 0,
+		"sharpened only on flawless wins")
 
 func test_energy_never_reshuffles() -> void:
 	var state := _wisp_fight()

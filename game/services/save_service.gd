@@ -18,8 +18,13 @@ const DEFAULT_PROFILE := {
 		"shadow_1", "shadow_1", "shadow_2", "shadow_3",
 		"moonlight_1", "moonlight_1", "moonlight_2",
 	],
+	"skills": ["scratch"],
 	"achievements": {},
 }
+
+## Everything the prologue teaches; granted retroactively to saves that
+## predate progressive skill unlocks.
+const PROLOGUE_SKILLS := ["scratch", "pounce", "slink", "purr", "loaf"]
 
 
 static func load_profile() -> Dictionary:
@@ -48,7 +53,9 @@ static func save_profile(profile: Dictionary) -> void:
 
 static func _migrate(profile: Dictionary) -> Dictionary:
 	# One-step migration chain; never delete old migrators (tech-stack rules).
-	# v1 is current — nothing to do yet.
 	var merged := DEFAULT_PROFILE.duplicate(true)
 	merged.merge(profile, true)
+	# Pre-skill-unlock saves: a finished prologue implies its skill grants.
+	if merged["prologue_done"] and merged["skills"].size() <= 1:
+		merged["skills"] = PROLOGUE_SKILLS.duplicate()
 	return merged

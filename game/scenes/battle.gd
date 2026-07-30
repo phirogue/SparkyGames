@@ -17,12 +17,16 @@ var state: CombatState
 var encounter_def: Dictionary
 var environment_def: Dictionary
 var skill_ids: Array = []
+var hints: Dictionary = {}     # turn (string) -> tutorial hint text
 var log_lines: Array[String] = []
+var selected_skill := ""
 
 var backdrop: ColorRect
+var backdrop_art: TextureRect
 var title_label: Label
 var rule_label: Label
-var enemy_swatch: ColorRect
+var hint_label: Label
+var enemy_visual: CanvasItem   # TextureRect when art exists, ColorRect fallback
 var enemy_label: Label
 var enemy_hp_bar: ProgressBar
 var intent_label: Label
@@ -32,38 +36,56 @@ var player_label: Label
 var banked_row: HBoxContainer
 var hand_row: HBoxContainer
 var skills_grid: GridContainer
+var detail_panel: PanelContainer
+var detail_label: Label
+var detail_use: Button
 var overlay: ColorRect
 var overlay_label: Label
 var overlay_button: Button
 
 
-func setup(p_catalog: Catalog, config: Dictionary, encounter_id: String) -> void:
+func setup(p_catalog: Catalog, config: Dictionary, encounter_id: String, p_hints: Dictionary = {}) -> void:
 	catalog = p_catalog
 	encounter_def = catalog.encounters[encounter_id]
 	environment_def = catalog.environments[encounter_def["environment"]]
 	skill_ids = Array(config.get("skills", []))
+	hints = p_hints
 	var full_config := config.duplicate(true)
 	full_config["environment"] = environment_def
 	full_config["enemy"] = encounter_def["enemies"][0]
 	state = CombatState.create(catalog, int(Time.get_ticks_usec()) % 1000000007, full_config)
 
 
+## Loads project art if it exists (art lands incrementally; colors fall back).
+static func _art(image_id: String) -> Texture2D:
+	var path := "res://assets/%s.png" % image_id
+	if image_id != "" and ResourceLoader.exists(path):
+		return load(path)
+	return null
+
+
 func _ready() -> void:
 	_build_ui()
 	_log("— %s —" % encounter_def["name"])
+	for event in state.take_events():
+		match event:
+			"warmed":
+				_log("Still warm from the purr: +2 HP.")
+			"sharpened":
+				_log("Claws still keen from a clean fight: next hit +1.")
 	_refresh()
 	_start_ambient_animation()
 
 
 ## Programmatic life over static stand-ins (design rule in asset-pipeline.md):
-## the enemy swatch "breathes" continuously — faster and harsher when the
-## fight turns against you. Later this same tween drives real art.
+## the enemy visual "breathes" continuously. Works identically on the color
+## swatch fallback and on real art.
 func _start_ambient_animation() -> void:
 	var tween := create_tween().set_loops()
-	tween.tween_property(enemy_swatch, "modulate",
-		Color(1.25, 1.25, 1.25), 0.9).set_trans(Tween.TRANS_SINE)
-	tween.tween_property(enemy_swatch, "modulate",
-		Color(0.8, 0.8, 0.8), 0.9).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(enemy_visual, "modulate",
+		Color(1.15, 1.15, 1.15), 0.9).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(enemy_visual, "modulate",
+		Color(0.85, 0.85, 0.85), 0.9).set_trans(Tween.TRANS_SINE)
 
 
 func _flash(node: CanvasItem, color: Color, duration := 0.35) -> void:
@@ -74,13 +96,65 @@ func _flash(node: CanvasItem, color: Color, duration := 0.35) -> void:
 
 # ------------------------------------------------------------------ commands
 
-func _on_skill_pressed(skill_id: String) -> void:
+func _on_skill_selected(skill_id: String) -> void:
+	# First tap previews; Use commits (owner rule: see effects before playing).
+	selected_skill = skill_id
+	var def: Dictionary = catalog.skills[skill_id]
+	var cost := state.effective_cost(def.get("cost", {}))
+	var cost_parts: Array[String] = []
+	for humour in cost:
+		cost_parts.append("%d %s" % [cost[humour], String(humour).capitalize()])
+	var lines: Array[String] = [
+		"%s — %s" % [def["name"], "free, once per turn" if def.get("instinct", false)
+			else "costs " + (", ".join(cost_parts) if not cost_parts.is_empty() else "nothing")],
+		_effect_summary(def),
+		String(def.get("flavor", "")),
+	]
+	detail_label.text = "\n".join(lines)
+	detail_use.disabled = not _skill_playable(skill_id)
+	detail_panel.visible = true
+
+
+func _on_detail_use() -> void:
+	var skill_id := selected_skill
+	_close_detail()
 	var result := state.do_command({"type": "play_skill", "skill_id": skill_id})
 	if result["ok"]:
 		_log("Ash: %s." % catalog.skills[skill_id]["name"])
 	else:
 		_log(result["error"])
 	_after_command()
+
+
+func _close_detail() -> void:
+	selected_skill = ""
+	detail_panel.visible = false
+
+
+func _skill_playable(skill_id: String) -> bool:
+	var def: Dictionary = catalog.skills[skill_id]
+	var runtime := state.skill_state(skill_id)
+	if state.statuses.get("loafed", 0) > 0:
+		return false
+	if def.get("instinct", false):
+		return not state.instinct_used and state.can_pay(state.effective_cost(def.get("cost", {})))
+	return int(runtime.get("jammed_turns", 0)) == 0 \
+		and int(runtime.get("charges_left", 0)) > 0 \
+		and state.can_pay(state.effective_cost(def.get("cost", {})))
+
+
+func _effect_summary(def: Dictionary) -> String:
+	var parts: Array[String] = []
+	for effect in def.get("effects", []):
+		match effect.get("type", ""):
+			"damage": parts.append("Deal %d damage" % int(effect["amount"]))
+			"block": parts.append("Block %d" % int(effect["amount"]))
+			"heal": parts.append("Heal %d" % int(effect["amount"]))
+			"channel_heal": parts.append("Heal %d per turn for %d turns — breaks if you take damage" % [
+				int(effect["amount"]), int(effect.get("turns", 2))])
+			"draw": parts.append("Draw %d" % int(effect["amount"]))
+			"self_stun": parts.append("You cannot act next turn")
+	return " · ".join(parts)
 
 
 func _on_card_pressed(hand_index: int) -> void:
@@ -147,6 +221,19 @@ func _build_ui() -> void:
 	backdrop.color = Color(environment_def["color"]).darkened(0.25)
 	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(backdrop)
+	var art := _art(environment_def.get("image", ""))
+	if art != null:
+		backdrop_art = TextureRect.new()
+		backdrop_art.texture = art
+		backdrop_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		backdrop_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		backdrop_art.set_anchors_preset(Control.PRESET_FULL_RECT)
+		backdrop_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		# In-engine variant rule: tints turn one image into many moods.
+		var tint := Color(environment_def.get("image_tint", "#ffffff"))
+		backdrop_art.modulate = tint.darkened(0.15)
+		backdrop_art.self_modulate.a = 0.45  # keep UI readable over art
+		add_child(backdrop_art)
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -163,14 +250,28 @@ func _build_ui() -> void:
 	rule_label = _label(root, 15)
 	rule_label.text = environment_def.get("rule_text", "")
 	rule_label.modulate = Color(1, 1, 1, 0.7)
+	hint_label = _label(root, 17)
+	hint_label.modulate = Color(0.95, 0.85, 0.55)
+	hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint_label.visible = not hints.is_empty()
 
 	var enemy_row := HBoxContainer.new()
 	enemy_row.add_theme_constant_override("separation", 12)
 	root.add_child(enemy_row)
-	enemy_swatch = ColorRect.new()
-	enemy_swatch.custom_minimum_size = Vector2(72, 72)
-	enemy_swatch.color = Color(catalog.enemies[state.enemy_id].get("color", "#888888"))
-	enemy_row.add_child(enemy_swatch)
+	var enemy_art := _art(catalog.enemies[state.enemy_id].get("image", ""))
+	if enemy_art != null:
+		var portrait := TextureRect.new()
+		portrait.texture = enemy_art
+		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		portrait.custom_minimum_size = Vector2(110, 110)
+		enemy_visual = portrait
+	else:
+		var swatch := ColorRect.new()
+		swatch.custom_minimum_size = Vector2(72, 72)
+		swatch.color = Color(catalog.enemies[state.enemy_id].get("color", "#888888"))
+		enemy_visual = swatch
+	enemy_row.add_child(enemy_visual)
 	var enemy_col := VBoxContainer.new()
 	enemy_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	enemy_row.add_child(enemy_col)
@@ -209,6 +310,32 @@ func _build_ui() -> void:
 	skills_grid.add_theme_constant_override("h_separation", 8)
 	skills_grid.add_theme_constant_override("v_separation", 8)
 	root.add_child(skills_grid)
+
+	# Skill preview: tapping a skill shows what it does; Use commits it.
+	detail_panel = PanelContainer.new()
+	detail_panel.visible = false
+	root.add_child(detail_panel)
+	var detail_box := VBoxContainer.new()
+	detail_box.add_theme_constant_override("separation", 8)
+	detail_panel.add_child(detail_box)
+	detail_label = Label.new()
+	detail_label.add_theme_font_size_override("font_size", 17)
+	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	detail_box.add_child(detail_label)
+	var detail_buttons := HBoxContainer.new()
+	detail_buttons.add_theme_constant_override("separation", 10)
+	detail_box.add_child(detail_buttons)
+	detail_use = Button.new()
+	detail_use.text = "Use"
+	detail_use.custom_minimum_size = Vector2(0, 52)
+	detail_use.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_use.pressed.connect(_on_detail_use)
+	detail_buttons.add_child(detail_use)
+	var detail_cancel := Button.new()
+	detail_cancel.text = "Not now"
+	detail_cancel.custom_minimum_size = Vector2(140, 52)
+	detail_cancel.pressed.connect(_close_detail)
+	detail_buttons.add_child(detail_cancel)
 
 	var action_row := HBoxContainer.new()
 	action_row.add_theme_constant_override("separation", 10)
@@ -269,6 +396,8 @@ func _refresh() -> void:
 			else "Alarm %d / %d" % [state.alarm, state.stealth_threshold]
 	else:
 		alarm_label.visible = false
+	if hints.has(str(state.turn)):
+		hint_label.text = "❋ " + String(hints[str(state.turn)])
 	player_label.text = "Ash  HP %d/%d   Block %d   Deck %d   Turn %d" % [
 		state.player_hp, state.player_max_hp, state.player_block,
 		state.deck.size(), state.turn,
@@ -314,14 +443,15 @@ func _skill_button(skill_id: String) -> Button:
 	b.text = "%s  (%s | ×%s)" % [def["name"], cost_text, charges_text]
 	b.custom_minimum_size = Vector2(0, 52)
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	b.tooltip_text = String(def.get("flavor", ""))
 	var jammed: bool = not is_instinct and int(runtime.get("jammed_turns", 0)) > 0
-	var spent_out: bool = not is_instinct and int(runtime.get("charges_left", 0)) <= 0
-	b.disabled = jammed or spent_out or not state.can_pay(cost) \
-		or state.statuses.get("loafed", 0) > 0
 	if jammed:
 		b.text += "  [jammed]"
-	b.pressed.connect(_on_skill_pressed.bind(skill_id))
+	elif is_instinct and state.instinct_used:
+		b.text += "  [used]"
+	# Selecting is always allowed — the preview panel explains why a skill
+	# can't be used right now; only Use is gated.
+	b.modulate = Color(1, 1, 1, 1.0 if _skill_playable(skill_id) else 0.55)
+	b.pressed.connect(_on_skill_selected.bind(skill_id))
 	return b
 
 

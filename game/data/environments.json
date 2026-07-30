@@ -4,6 +4,7 @@
     "name": "The Rooftops, Dusk",
     "color": "#7a5233",
     "accent": "#e8b46a",
+    "image": "bg_rooftop_dusk",
     "sunbeam_turns": [2, 4],
     "cost_mod": {},
     "rule_text": "Last light: sunbeams on turns 2 and 4 return a spent card."
@@ -13,6 +14,7 @@
     "name": "Needle Lane, Night",
     "color": "#2e3a4e",
     "accent": "#9fb4d8",
+    "image": "bg_needle_lane",
     "sunbeam_turns": [],
     "cost_mod": { "shadow": -1 },
     "rule_text": "Deep fog: Shadow costs 1 less."
@@ -22,6 +24,8 @@
     "name": "The Parlor",
     "color": "#3a4350",
     "accent": "#b8c4d4",
+    "image": "bg_parlor",
+    "image_tint": "#8093b8",
     "sunbeam_turns": [],
     "cost_mod": { "moonlight": -1 },
     "rule_text": "Her room remembers her: Moonlight costs 1 less."
@@ -31,6 +35,7 @@
     "name": "The Hollow Court",
     "color": "#2c3833",
     "accent": "#8fae9c",
+    "image": "bg_hollow_court",
     "sunbeam_turns": [],
     "cost_mod": {},
     "rule_text": "No sun has ever reached this desk."

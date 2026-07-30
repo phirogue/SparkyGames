@@ -5,7 +5,8 @@
     "board_card": "The streets don't watch themselves. Someone ought to be paid for this. Someone is not.",
     "encounters": ["q_rounds_wisp", "q_rounds_wisps", "q_rounds_dog"],
     "reward_bonus": 8,
-    "repeatable": true
+    "repeatable": true,
+    "unlock_skill": "shelf_justice"
   },
   "garden_route": {
     "id": "garden_route",

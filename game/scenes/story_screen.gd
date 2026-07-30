@@ -20,15 +20,31 @@ var _choice_row: HBoxContainer
 var _tap_catcher: Button
 
 
+var image_id := ""
+var image_tint := Color.WHITE
+var portrait_id := ""
+
+
 func setup(config: Dictionary) -> void:
 	lines = config.get("lines", [])
 	choices = config.get("choices", [])
 	heading = config.get("heading", "")
 	big_style = config.get("big", false)
+	image_id = config.get("image", "")
+	portrait_id = config.get("portrait", "")
+	if config.has("image_tint"):
+		image_tint = Color(String(config["image_tint"]))
 	if config.has("color"):
 		backdrop_color = Color(String(config["color"])).darkened(0.35)
 	if config.has("accent"):
 		accent_color = Color(String(config["accent"]))
+
+
+static func _art(id: String) -> Texture2D:
+	var path := "res://assets/%s.png" % id
+	if id != "" and ResourceLoader.exists(path):
+		return load(path)
+	return null
 
 
 func _ready() -> void:
@@ -36,6 +52,16 @@ func _ready() -> void:
 	backdrop.color = backdrop_color
 	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(backdrop)
+	var art := _art(image_id)
+	if art != null:
+		var art_rect := TextureRect.new()
+		art_rect.texture = art
+		art_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		art_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		art_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+		art_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		art_rect.modulate = image_tint.darkened(0.35)  # keep text readable
+		add_child(art_rect)
 
 	_tap_catcher = Button.new()
 	_tap_catcher.flat = true
@@ -64,6 +90,16 @@ func _ready() -> void:
 	_heading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_heading_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(_heading_label)
+
+	var portrait := _art(portrait_id)
+	if portrait != null:
+		var portrait_rect := TextureRect.new()
+		portrait_rect.texture = portrait
+		portrait_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		portrait_rect.custom_minimum_size = Vector2(0, 340)
+		portrait_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.add_child(portrait_rect)
 
 	_line_label = Label.new()
 	_line_label.add_theme_font_size_override("font_size", 40 if big_style else 24)

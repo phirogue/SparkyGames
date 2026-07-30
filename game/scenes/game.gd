@@ -7,9 +7,6 @@ const StoryScreen := preload("res://scenes/story_screen.gd")
 const BattleScreen := preload("res://scenes/battle.gd")
 const HubScreen := preload("res://scenes/hub_screen.gd")
 
-const SKILLS: Array[String] = [
-	"pounce", "swat", "slink", "purr", "loaf", "shelf_justice",
-]
 const PRESS_ON_MULT := 0.25   # satchel multiplier growth per depth
 const TOLL_RATE := 0.25       # the Hollow Court's cut of banked gleam on death
 
@@ -59,12 +56,19 @@ func _story_config(environment_id: String, lines: Array) -> Dictionary:
 	var environment: Dictionary = catalog.environments.get(environment_id, {})
 	var all_lines := toasts + lines
 	toasts = []
-	return {
+	var config := {
 		"lines": all_lines,
 		"color": environment.get("color", "#22242a"),
 		"accent": environment.get("accent", "#d8ccb4"),
 		"heading": environment.get("name", ""),
 	}
+	if environment.has("image"):
+		config["image"] = environment["image"]
+	if environment.has("image_tint"):
+		config["image_tint"] = environment["image_tint"]
+	if environment_id == "hollow_court":
+		config["portrait"] = "npc_clerk"
+	return config
 
 
 func _show_story(config: Dictionary, on_done: Callable) -> void:
@@ -74,19 +78,32 @@ func _show_story(config: Dictionary, on_done: Callable) -> void:
 	_swap(screen)
 
 
-func _show_battle(encounter_id: String, on_done: Callable) -> void:
+func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {}) -> void:
 	var config := {
 		"player_max_hp": int(profile["max_hp"]),
 		"player_hp": carryover.get("hp", int(profile["max_hp"])),
 		"deck": carryover.get("deck", profile["deck"]),
-		"skills": SKILLS,
+		"skills": profile["skills"],
+		"lingering": carryover.get("lingering", []),
 	}
 	if carryover.has("skill_charges"):
 		config["skill_charges"] = carryover["skill_charges"]
 	var screen: Control = BattleScreen.new()
-	screen.setup(catalog, config, encounter_id)
+	screen.setup(catalog, config, encounter_id, hints)
 	screen.encounter_finished.connect(on_done)
 	_swap(screen)
+
+
+## Add a skill to the player's permanent kit, with a story-toast. The kit is
+## built over time (owner rule) — nobody starts with the full bar.
+func _grant_skills(skill_ids: Array) -> void:
+	for skill_id in skill_ids:
+		if profile["skills"].has(skill_id):
+			continue
+		profile["skills"].append(skill_id)
+		var def: Dictionary = catalog.skills[skill_id]
+		toasts.append("✦ New skill: %s — %s" % [def["name"], def.get("flavor", "")])
+	_save()
 
 
 func _digest(state: CombatState) -> void:
@@ -105,6 +122,7 @@ func _digest(state: CombatState) -> void:
 			"hp": state.player_hp,
 			"deck": state.deck + state.hand + state.banked,
 			"skill_charges": charges,
+			"lingering": state.lingering_out(),
 		}
 	_save()
 
@@ -127,11 +145,14 @@ func _run_prologue_scene(index: int) -> void:
 	var next := func(_arg: Variant = null) -> void: _run_prologue_scene(index + 1)
 	match scene["type"]:
 		"story":
+			if scene.has("grant"):
+				_grant_skills(scene["grant"])
 			_show_story(_story_config(scene["environment"], scene["lines"]), next)
 		"battle":
 			_show_battle(scene["encounter"], func(state: CombatState) -> void:
 				_digest(state)
-				_run_prologue_scene(index + 1))
+				_run_prologue_scene(index + 1),
+				scene.get("hints", {}))
 		"hollow_court_if_died":
 			if last_outcome == CombatState.Outcome.DEFEAT:
 				var lines: Array = story["hollow_court_first"] \
@@ -146,6 +167,7 @@ func _run_prologue_scene(index: int) -> void:
 			_show_story({
 				"lines": ["THE NINE LIVES OF ASHCAT", "Prologue complete. The Mantel is open."],
 				"color": "#1c2026", "accent": "#e8b46a", "big": true,
+				"portrait": "ash_ref",
 			}, next)
 
 
@@ -156,6 +178,10 @@ func _show_hub() -> void:
 	screen.setup(catalog, profile, tracker)
 	screen.quest_selected.connect(_start_quest)
 	screen.profile_changed.connect(_save)
+	screen.replay_prologue.connect(func() -> void:
+		carryover = {}
+		last_outcome = CombatState.Outcome.ONGOING
+		_run_prologue_scene(0))
 	_swap(screen)
 
 
@@ -218,6 +244,8 @@ func _finish_quest() -> void:
 	var bonus := int(quest.get("reward_bonus", 0))
 	var banked := satchel + bonus
 	profile["gleam"] = int(profile["gleam"]) + banked
+	if quest.has("unlock_skill") and not profile["skills"].has(quest["unlock_skill"]):
+		_grant_skills([quest["unlock_skill"]])
 	for id in tracker.increment("quests_completed"):
 		toasts.append("★ %s" % catalog.achievements[id]["name"])
 	for id in tracker.increment("gleam_banked", banked):

@@ -30,6 +30,8 @@ var spent: Array = []     # gone for the adventure — no reshuffle
 var skills: Array = []    # {id, charges_left, jammed_turns}
 var statuses: Dictionary = {}          # e.g. {"loafed": 1}
 var channel: Dictionary = {}           # active purr: {heal_per_turn, turns_left}
+var instinct_used: bool = false        # free instinct is once per turn
+var sharpened: bool = false            # lingering: next damage effect +1, once
 ## Encounter telemetry consumed by AchievementTracker.record_encounter().
 var flags: Dictionary = {
 	"damage_taken": 0,     # total hp lost to enemy attacks
@@ -86,10 +88,29 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 	state.cost_mod = environment.get("cost_mod", {})
 	state.sunbeam_turns = environment.get("sunbeam_turns", [])
 	state.stealth_threshold = int(environment.get("stealth_threshold", 0))
+	# Lingering effects carried in from the previous encounter of this prowl.
+	for lingering in config.get("lingering", []):
+		match lingering:
+			"warmed":  # a finished purr keeps its warmth
+				state.player_hp = mini(state.player_hp + 2, state.player_max_hp)
+				state._events.append("warmed")
+			"sharpened":  # a flawless fight leaves the claws keen
+				state.sharpened = true
+				state._events.append("sharpened")
 	if config.get("shuffle", true):
 		state.rng.shuffle(state.deck)
 	state._draw_up_to_limit()
 	return state
+
+
+## Lingering effects this encounter passes to the NEXT one in the prowl.
+func lingering_out() -> Array[String]:
+	var lingering: Array[String] = []
+	if flags["purr_completed"]:
+		lingering.append("warmed")
+	if outcome == Outcome.VICTORY and int(flags["damage_taken"]) == 0:
+		lingering.append("sharpened")
+	return lingering
 
 
 ## UI-facing event queue; returns and clears pending events.
@@ -167,7 +188,10 @@ func _cmd_play_skill(skill_id: String) -> Dictionary:
 	var def: Dictionary = catalog.skills[skill_id]
 	var is_instinct: bool = def.get("instinct", false)
 	var state := skill_state(skill_id)
-	if not is_instinct:
+	if is_instinct:
+		if instinct_used:
+			return _fail("Scratch has made its point this turn")
+	else:
 		if state.is_empty():
 			return _fail("skill '%s' is not equipped" % skill_id)
 		if state["jammed_turns"] > 0:
@@ -183,7 +207,9 @@ func _cmd_play_skill(skill_id: String) -> Dictionary:
 		if alarm >= stealth_threshold:
 			spotted = true
 			_events.append("spotted")
-	if not is_instinct:
+	if is_instinct:
+		instinct_used = true
+	else:
 		state["charges_left"] -= 1
 	var used: Dictionary = flags["skills_used"]
 	used[skill_id] = int(used.get(skill_id, 0)) + 1
@@ -211,6 +237,7 @@ func _cmd_end_turn() -> Dictionary:
 	# --- start of next player turn ---
 	turn += 1
 	player_block = 0
+	instinct_used = false
 	for s in skills:
 		if s["jammed_turns"] > 0:
 			s["jammed_turns"] -= 1
@@ -267,7 +294,12 @@ func _apply_effects(effects: Array) -> void:
 	for effect in effects:
 		match effect.get("type", ""):
 			"damage":
-				enemy_hp -= int(effect["amount"])
+				var amount := int(effect["amount"])
+				if sharpened:
+					amount += 1
+					sharpened = false
+					_events.append("sharpened_strike")
+				enemy_hp -= amount
 			"block":
 				player_block += int(effect["amount"])
 			"heal":

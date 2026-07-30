@@ -4,6 +4,7 @@ extends Control
 
 signal quest_selected(quest_id: String)
 signal profile_changed
+signal replay_prologue
 
 const ADD_CARD_COST := 12
 const REMOVE_CARD_COST := 15
@@ -89,6 +90,11 @@ func _ready() -> void:
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_child(spacer)
+	var replay := Button.new()
+	replay.text = "Relive the worst night (replay prologue)"
+	replay.custom_minimum_size = Vector2(0, 48)
+	replay.pressed.connect(func() -> void: replay_prologue.emit())
+	root.add_child(replay)
 	achievements_label = _label(root, 15)
 	achievements_label.modulate = Color(1, 1, 1, 0.6)
 	achievements_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -97,7 +103,11 @@ func _ready() -> void:
 
 
 func refresh() -> void:
-	gleam_label.text = "Gleam: %d      HP: %d" % [int(profile["gleam"]), int(profile["max_hp"])]
+	var skill_names: Array[String] = []
+	for skill_id in profile.get("skills", []):
+		skill_names.append(String(catalog.skills[skill_id]["name"]))
+	gleam_label.text = "Gleam: %d      HP: %d\nSkills: %s" % [
+		int(profile["gleam"]), int(profile["max_hp"]), ", ".join(skill_names)]
 	var counts := {}
 	for card_id in profile["deck"]:
 		var humour: String = catalog.energy_cards[card_id]["humour"]

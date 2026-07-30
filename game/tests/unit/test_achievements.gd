@@ -8,16 +8,20 @@ func _tracker() -> AchievementTracker:
 	return AchievementTracker.new(catalog)
 
 func _quick_win(seed_value: int = 7) -> CombatState:
+	# shuffle:false -> opening hand is the last five cards: two ferocity_2s,
+	# a ferocity_1, guile_1, shadow_1. Pounce (4) + Scratch (1) + Swat (2)
+	# kills the 6 hp wisp in one turn: flawless, no enemy action.
 	var state := CombatState.create(catalog, seed_value, {
 		"player_hp": 12,
-		"deck": ["ferocity_2", "ferocity_2", "ferocity_1", "shadow_1", "shadow_1",
-				"moonlight_1", "guile_1", "ferocity_2", "shadow_2", "guile_2"],
-		"skills": ["pounce", "slink", "purr", "loaf"],
+		"deck": ["moonlight_1", "guile_2", "shadow_2", "shadow_1", "guile_1",
+				"ferocity_1", "ferocity_2", "ferocity_2"],
+		"skills": ["pounce", "swat", "slink", "purr", "loaf"],
 		"enemy": "gutter_wisp",
+		"shuffle": false,
 	})
 	state.do_command({"type": "play_skill", "skill_id": "pounce"})
 	state.do_command({"type": "play_skill", "skill_id": "scratch"})
-	state.do_command({"type": "play_skill", "skill_id": "scratch"})
+	state.do_command({"type": "play_skill", "skill_id": "swat"})
 	return state
 
 func test_unlocks_at_threshold_once() -> void:

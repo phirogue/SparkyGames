@@ -68,10 +68,12 @@ func test_unspotted_stealth_win_counts() -> void:
 	var tracker := AchievementTracker.new(catalog)
 	var state := _fight({"stealth_threshold": 4}, "gutter_wisp",
 		["shadow_1", "shadow_1", "guile_1", "guile_1", "moonlight_1", "shadow_2"])
-	for i in 6:
+	for i in 12:
 		if state.outcome != CombatState.Outcome.ONGOING:
 			break
 		state.do_command({"type": "play_skill", "skill_id": "scratch"})
+		if state.outcome == CombatState.Outcome.ONGOING:
+			state.do_command({"type": "end_turn"})
 	assert_eq(state.outcome, CombatState.Outcome.VICTORY, "scratched the wisp down")
 	var newly := tracker.record_encounter(state)
 	assert_true(newly.has("nothing_woke"), "unspotted stealth win unlocks Nothing Woke")
