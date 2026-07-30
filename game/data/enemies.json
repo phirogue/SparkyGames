@@ -23,7 +23,7 @@
     "wisp_pair":  {
                       "id":  "wisp_pair",
                       "name":  "A Conspiracy of Wisps",
-                      "hp":  10,
+                      "hp":  12,
                       "gleam":  6,
                       "color":  "#8fc4e8",
                       "intents":  [
@@ -99,7 +99,7 @@
     "garden_watch_captain":  {
                                  "id":  "garden_watch_captain",
                                  "name":  "Captain of the Watch",
-                                 "hp":  11,
+                                 "hp":  16,
                                  "gleam":  8,
                                  "color":  "#8fb46f",
                                  "intents":  [
@@ -117,7 +117,7 @@
                                                  {
                                                      "name":  "Regulation Peck",
                                                      "target":  "health",
-                                                     "amount":  3
+                                                     "amount":  4
                                                  }
                                              ],
                                  "flavor":  "The goose has a chain of office. It is load-bearing."
@@ -132,7 +132,7 @@
                                        {
                                            "name":  "Empty Sleeve",
                                            "target":  "health",
-                                           "amount":  5
+                                           "amount":  6
                                        },
                                        {
                                            "name":  "Unravel",
@@ -170,12 +170,12 @@
                                          {
                                              "name":  "The Hem Comes Loose",
                                              "target":  "health",
-                                             "amount":  3
+                                             "amount":  5
                                          },
                                          {
                                              "name":  "Wear the Room",
                                              "target":  "health",
-                                             "amount":  4
+                                             "amount":  6
                                          }
                                      ],
                          "flavor":  "A shape wearing the room\u0027s unravelled threads. Prologue only: it is not meant to be beaten. Yet.",

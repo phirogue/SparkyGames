@@ -1,4 +1,35 @@
-# Core Gameplay Design — v0.1 (proposal)
+# Core Gameplay Design — v0.2
+
+> **v0.2 additions (2026-07-30, owner-directed, implemented):**
+>
+> - **The Approach.** Before turn 1 you may spend from your opening hand to
+>   choose how Ash enters: **Stalk** (Shadow 2 — begin hidden: the enemy's
+>   first move is wasted and your first hit is sharpened), **Ambush**
+>   (Ferocity 2 — open with 3 free damage, but its first hit comes back +2),
+>   **Case It** (Guile 2 — draw 2, even past the hand limit), **Ward**
+>   (Moonlight 2 — Block 4 that holds through the first enemy turn), or walk
+>   in free. Initiative is a *choice*, not a stat. Story scenes can also grant
+>   surprise (`start_hidden`) — arriving fast interrupts the Unpicked.
+> - **Long-rest loadouts (owner rule).** Deck composition and equipped skills
+>   change only at a long rest (the Mantel between prowls). Mid-prowl you are
+>   who you packed. Catnaps refresh charges but never re-fit the kit.
+> - **Decisions with consequences.** Story choices set flags that alter
+>   mechanics and later scenes (first one shipped: the prologue route-home
+>   choice — a Moonlight card of her stitching vs entering the boss with
+>   surprise). Choices are remembered by the world.
+> - **Multiple win paths, verified by data.** Simulated playtests (8,400 bot
+>   fights per pass — see [balance-notes.md](balance-notes.md)) confirm the
+>   stage-3 wraith can be out-tanked (94%), out-fled (banks progress), or
+>   died to (aggression: 2%) — and that tutorials are safe at 100% even for
+>   random play. Simple rules first; intricacy ramps by stage.
+> - **Escalation philosophy.** Each chapter adds ONE rule to the puzzle
+>   (prologue: approach + intents; Ch1: alarm + press-on; Ch2 onward: from
+>   the adopted shortlist) so encounters grow intricate without rules bloat.
+> - **Influences roadmap.** Genre research (D&D, Blades in the Dark, PbtA,
+>   Persona, recent indies) distilled into adopt/adapt/reject verdicts and a
+>   sequenced shortlist — The Flip, Devil's Bargains, Case→Expose, Boss
+>   Tempo, Flashbacks — in
+>   [2026-07-30-influences-research.md](../research/2026-07-30-influences-research.md).
 
 Status: **draft for owner review**. Synthesizes the owner's energy/skills
 concept (2026-07-29) with all four research reports. Numbers are starting
