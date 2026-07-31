@@ -44,34 +44,34 @@ func _ready() -> void:
 	root.add_theme_constant_override("separation", 14)
 	margin.add_child(root)
 
-	var title := _label(root, 32)
+	var title := _label(root, 48)
 	title.text = "The Mantel"
 	title.modulate = Color("#b8c4d4")
-	var subtitle := _label(root, 15)
+	var subtitle := _label(root, 24)
 	subtitle.text = "Her parlor. Cold, but still hers. The thread runs out under the window."
 	subtitle.modulate = Color(1, 1, 1, 0.6)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
-	gleam_label = _label(root, 22)
-	deck_label = _label(root, 15)
+	gleam_label = _label(root, 30)
+	deck_label = _label(root, 24)
 	deck_label.modulate = Color(1, 1, 1, 0.7)
 	root.add_child(HSeparator.new())
 
-	var board_title := _label(root, 20)
+	var board_title := _label(root, 32)
 	board_title.text = "Quests on the board"
 	for quest_id in catalog.quests:
 		var quest: Dictionary = catalog.quests[quest_id]
 		var b := Button.new()
 		b.text = "%s\n%s" % [quest["name"], quest["board_card"]]
-		b.custom_minimum_size = Vector2(0, 74)
+		b.custom_minimum_size = Vector2(0, 128)
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.pressed.connect(func() -> void: quest_selected.emit(quest_id))
 		root.add_child(b)
 
 	root.add_child(HSeparator.new())
-	var shop_title := _label(root, 20)
+	var shop_title := _label(root, 32)
 	shop_title.text = "The Magpie Exchange"
-	shop_status = _label(root, 15)
+	shop_status = _label(root, 24)
 	shop_status.modulate = Color(1, 1, 1, 0.7)
 	shop_status.text = "Brindle appraises you. 'Everything shines to somebody, pet.'"
 	shop_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -92,10 +92,10 @@ func _ready() -> void:
 	root.add_child(spacer)
 	var replay := Button.new()
 	replay.text = "Relive the worst night (replay prologue)"
-	replay.custom_minimum_size = Vector2(0, 48)
+	replay.custom_minimum_size = Vector2(0, 96)
 	replay.pressed.connect(func() -> void: replay_prologue.emit())
 	root.add_child(replay)
-	achievements_label = _label(root, 15)
+	achievements_label = _label(root, 22)
 	achievements_label.modulate = Color(1, 1, 1, 0.6)
 	achievements_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
@@ -132,7 +132,7 @@ func refresh() -> void:
 func _shop_button(parent: Container, text: String, mode: String) -> void:
 	var b := Button.new()
 	b.text = text
-	b.custom_minimum_size = Vector2(0, 56)
+	b.custom_minimum_size = Vector2(0, 100)
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b.pressed.connect(_on_shop_mode.bind(mode))
 	parent.add_child(b)

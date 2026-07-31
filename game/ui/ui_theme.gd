@@ -113,7 +113,9 @@ static func strip_stylebox() -> StyleBoxTexture:
 static func build() -> Theme:
 	var theme := Theme.new()
 	theme.default_font = body_font()
-	theme.default_font_size = 18
+	# 720-wide canvas ≈ 2x density: 30px ≈ 15sp, the mobile body-text
+	# standard (see docs/research/2026-07-30-mobile-ui-research.md).
+	theme.default_font_size = 30
 
 	# Buttons: parchment 9-patch, pressed/hover as tint variants.
 	theme.set_stylebox("normal", "Button", stylebox("ui_btn_parchment", 22))

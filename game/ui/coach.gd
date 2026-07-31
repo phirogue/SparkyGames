@@ -47,16 +47,16 @@ func _ready() -> void:
 	add_child(_text_panel)
 	_text_label = Label.new()
 	_text_label.add_theme_font_override("font", UITheme.italic_font())
-	_text_label.add_theme_font_size_override("font_size", 22)
+	_text_label.add_theme_font_size_override("font_size", 30)
 	_text_label.add_theme_color_override("font_color", UITheme.INK)
 	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_text_label.custom_minimum_size = Vector2(420, 0)
+	_text_label.custom_minimum_size = Vector2(560, 0)
 	_text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_text_panel.add_child(_text_label)
 	_skip = Button.new()
 	_skip.text = "skip lesson"
 	_skip.flat = true
-	_skip.add_theme_font_size_override("font_size", 14)
+	_skip.add_theme_font_size_override("font_size", 22)
 	_skip.pressed.connect(_finish)
 	add_child(_skip)
 	force_advance()

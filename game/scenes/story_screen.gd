@@ -59,19 +59,25 @@ func _ready() -> void:
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(box)
 
-	# Illustration in a thin ink frame, clipped, never touching the stitches.
+	# Illustration in a thin ink frame at its TRUE 3:4 aspect (art is
+	# generated 3:4; never crop it square).
+	var aspect := AspectRatioContainer.new()
+	aspect.ratio = 3.0 / 4.0
+	aspect.stretch_mode = AspectRatioContainer.STRETCH_FIT
+	aspect.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	aspect.size_flags_stretch_ratio = 2.6
+	aspect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(aspect)
 	var art_holder := PanelContainer.new()
 	var frame_style := StyleBoxFlat.new()
 	frame_style.bg_color = fallback_color
-	frame_style.set_border_width_all(3)
+	frame_style.set_border_width_all(4)
 	frame_style.border_color = UITheme.INK
 	frame_style.set_corner_radius_all(4)
 	art_holder.add_theme_stylebox_override("panel", frame_style)
-	art_holder.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	art_holder.size_flags_stretch_ratio = 2.2
 	art_holder.clip_contents = true
 	art_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_child(art_holder)
+	aspect.add_child(art_holder)
 	if image_id != "":
 		art_holder.add_child(UITheme.art_or_placeholder(image_id,
 			art_desc if art_desc != "" else "illustration pending"))
@@ -80,7 +86,7 @@ func _ready() -> void:
 		var heading_label := Label.new()
 		heading_label.text = heading
 		heading_label.add_theme_font_override("font", UITheme.smallcaps_font())
-		heading_label.add_theme_font_size_override("font_size", 24)
+		heading_label.add_theme_font_size_override("font_size", 32)
 		heading_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
 		heading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		heading_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -99,7 +105,7 @@ func _ready() -> void:
 		label.text = String(line)
 		label.add_theme_font_override("font",
 			UITheme.display_font() if big_style else UITheme.italic_font())
-		label.add_theme_font_size_override("font_size", 40 if big_style else 28)
+		label.add_theme_font_size_override("font_size", 54 if big_style else 37)
 		label.add_theme_color_override("font_color", UITheme.INK)
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -111,7 +117,7 @@ func _ready() -> void:
 	_hint_label = Label.new()
 	_hint_label.text = "—❋—  tap  —❋—"
 	_hint_label.add_theme_font_override("font", UITheme.italic_font())
-	_hint_label.add_theme_font_size_override("font_size", 17)
+	_hint_label.add_theme_font_size_override("font_size", 24)
 	_hint_label.add_theme_color_override("font_color", UITheme.INK_FADED)
 	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -124,9 +130,9 @@ func _ready() -> void:
 	for i in choices.size():
 		var b := Button.new()
 		b.text = String(choices[i])
-		b.add_theme_font_size_override("font_size", 21)
+		b.add_theme_font_size_override("font_size", 28)
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		b.custom_minimum_size = Vector2(0, 66)
+		b.custom_minimum_size = Vector2(0, 96)
 		b.pressed.connect(func() -> void: finished.emit(i))
 		_choice_box.add_child(b)
 

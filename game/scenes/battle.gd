@@ -280,19 +280,19 @@ func _build_ui() -> void:
 	ribbon.texture = UITheme.tex("ui/ui_ribbon")
 	ribbon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	ribbon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	ribbon.custom_minimum_size = Vector2(0, 50)
+	ribbon.custom_minimum_size = Vector2(0, 64)
 	root.add_child(ribbon)
 	title_label = Label.new()
 	title_label.text = environment_def["name"]
 	title_label.add_theme_font_override("font", UITheme.smallcaps_font())
-	title_label.add_theme_font_size_override("font_size", 26)
+	title_label.add_theme_font_size_override("font_size", 34)
 	title_label.add_theme_color_override("font_color", UITheme.INK)
 	title_label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	ribbon.add_child(title_label)
 
-	rule_label = _label(root, 14, UITheme.INK_SOFT)
+	rule_label = _label(root, 24, UITheme.INK_SOFT)
 	rule_label.text = environment_def.get("rule_text", "")
 	rule_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
@@ -309,7 +309,7 @@ func _build_ui() -> void:
 	scene_strip.add_child(UITheme.art_or_placeholder(
 		environment_def.get("image", ""), environment_def.get("name", "location art")))
 
-	hint_label = _label(root, 16, Color("8a5a20"))
+	hint_label = _label(root, 26, Color("8a5a20"))
 	hint_label.add_theme_font_override("font", UITheme.italic_font())
 	hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint_label.visible = not hints.is_empty()
@@ -326,7 +326,7 @@ func _build_ui() -> void:
 	enemy_col.add_theme_constant_override("separation", 6)
 	enemy_col.alignment = BoxContainer.ALIGNMENT_CENTER
 	enemy_row.add_child(enemy_col)
-	enemy_label = _label(enemy_col, 28, UITheme.INK)
+	enemy_label = _label(enemy_col, 38, UITheme.INK)
 	enemy_label.add_theme_font_override("font", UITheme.display_font())
 	thread_bar = ThreadBar.new()
 	thread_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -337,12 +337,12 @@ func _build_ui() -> void:
 	intent_icon = TextureRect.new()
 	intent_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	intent_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	intent_icon.custom_minimum_size = Vector2(34, 34)
+	intent_icon.custom_minimum_size = Vector2(48, 48)
 	intent_row.add_child(intent_icon)
-	intent_label = _label(intent_row, 17, Color("7a3b22"))
+	intent_label = _label(intent_row, 28, Color("7a3b22"))
 	intent_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	intent_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	alarm_label = _label(enemy_col, 16, Color("a03828"))
+	alarm_label = _label(enemy_col, 26, Color("a03828"))
 
 	# Log strip
 	var log_panel := PanelContainer.new()
@@ -350,9 +350,9 @@ func _build_ui() -> void:
 	root.add_child(log_panel)
 	log_label = Label.new()
 	log_label.add_theme_font_override("font", UITheme.italic_font())
-	log_label.add_theme_font_size_override("font_size", 15)
+	log_label.add_theme_font_size_override("font_size", 24)
 	log_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
-	log_label.custom_minimum_size = Vector2(0, 48)
+	log_label.custom_minimum_size = Vector2(0, 76)
 	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	log_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	log_panel.add_child(log_label)
@@ -369,7 +369,7 @@ func _build_ui() -> void:
 	hp_label = _status_chip(status_row, "ui/ui_heart_full")
 	block_label = _status_chip(status_row, "ui/ui_shield")
 	deck_label = _status_chip(status_row, "ui/ui_spool")
-	turn_label = _label(status_row, 16, UITheme.INK_SOFT)
+	turn_label = _label(status_row, 24, UITheme.INK_SOFT)
 
 	banked_row = HBoxContainer.new()
 	banked_row.add_theme_constant_override("separation", 8)
@@ -385,15 +385,21 @@ func _build_ui() -> void:
 	skills_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	root.add_child(skills_row)
 
-	# Skill detail / confirm panel
+	# Skill detail / confirm panel: floats above the action row so opening
+	# it never pushes the layout off the page.
 	detail_panel = PanelContainer.new()
 	detail_panel.visible = false
-	root.add_child(detail_panel)
+	add_child(detail_panel)
+	detail_panel.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	detail_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	detail_panel.offset_left = 40
+	detail_panel.offset_right = -40
+	detail_panel.offset_bottom = -190
 	var detail_box := VBoxContainer.new()
 	detail_box.add_theme_constant_override("separation", 8)
 	detail_panel.add_child(detail_box)
 	detail_label = Label.new()
-	detail_label.add_theme_font_size_override("font_size", 16)
+	detail_label.add_theme_font_size_override("font_size", 28)
 	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail_box.add_child(detail_label)
 	var detail_buttons := HBoxContainer.new()
@@ -401,7 +407,7 @@ func _build_ui() -> void:
 	detail_box.add_child(detail_buttons)
 	detail_use = Button.new()
 	detail_use.text = "Use"
-	detail_use.custom_minimum_size = Vector2(0, 50)
+	detail_use.custom_minimum_size = Vector2(0, 100)
 	detail_use.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	detail_use.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
 	detail_use.add_theme_stylebox_override("hover", UITheme.amber_stylebox(Color(1.08, 1.05, 1.0)))
@@ -410,7 +416,7 @@ func _build_ui() -> void:
 	detail_buttons.add_child(detail_use)
 	var detail_cancel := Button.new()
 	detail_cancel.text = "Not now"
-	detail_cancel.custom_minimum_size = Vector2(130, 50)
+	detail_cancel.custom_minimum_size = Vector2(210, 100)
 	detail_cancel.pressed.connect(_close_detail)
 	detail_buttons.add_child(detail_cancel)
 
@@ -420,10 +426,10 @@ func _build_ui() -> void:
 	root.add_child(action_row)
 	end_turn_button = Button.new()
 	end_turn_button.text = "End Turn"
-	end_turn_button.custom_minimum_size = Vector2(0, 56)
+	end_turn_button.custom_minimum_size = Vector2(0, 112)
 	end_turn_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	end_turn_button.add_theme_font_override("font", UITheme.display_font())
-	end_turn_button.add_theme_font_size_override("font_size", 26)
+	end_turn_button.add_theme_font_size_override("font_size", 36)
 	end_turn_button.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
 	end_turn_button.add_theme_stylebox_override("hover", UITheme.amber_stylebox(Color(1.08, 1.05, 1.0)))
 	end_turn_button.add_theme_stylebox_override("pressed", UITheme.amber_stylebox(Color(0.85, 0.8, 0.75)))
@@ -431,7 +437,7 @@ func _build_ui() -> void:
 	action_row.add_child(end_turn_button)
 	slip_button = Button.new()
 	slip_button.text = "Slip Away"
-	slip_button.custom_minimum_size = Vector2(150, 56)
+	slip_button.custom_minimum_size = Vector2(220, 112)
 	slip_button.add_theme_stylebox_override("normal", UITheme.dark_stylebox())
 	slip_button.add_theme_stylebox_override("hover", UITheme.dark_stylebox(Color(1.15, 1.15, 1.15)))
 	slip_button.add_theme_stylebox_override("pressed", UITheme.dark_stylebox(Color(0.8, 0.8, 0.8)))
@@ -462,7 +468,7 @@ func _build_approach_overlay() -> Control:
 	var title := Label.new()
 	title.text = "How does Ash go in?"
 	title.add_theme_font_override("font", UITheme.display_font())
-	title.add_theme_font_size_override("font_size", 30)
+	title.add_theme_font_size_override("font_size", 40)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
 	# Readability rule: at most 2 approaches + Walk In on screen.
@@ -479,7 +485,7 @@ func _build_approach_overlay() -> Control:
 
 func _approach_button(title_text: String, desc_text: String, mode: String) -> Button:
 	var b := Button.new()
-	b.custom_minimum_size = Vector2(0, 96)
+	b.custom_minimum_size = Vector2(0, 128)
 	b.pressed.connect(_on_approach.bind(mode))
 	var content := VBoxContainer.new()
 	content.add_theme_constant_override("separation", 4)
@@ -490,14 +496,14 @@ func _approach_button(title_text: String, desc_text: String, mode: String) -> Bu
 	var title := Label.new()
 	title.text = title_text
 	title.add_theme_font_override("font", UITheme.display_font())
-	title.add_theme_font_size_override("font_size", 26)
+	title.add_theme_font_size_override("font_size", 34)
 	title.add_theme_color_override("font_color", UITheme.INK)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(title)
 	var desc := Label.new()
 	desc.text = desc_text
-	desc.add_theme_font_size_override("font_size", 18)
+	desc.add_theme_font_size_override("font_size", 26)
 	desc.add_theme_color_override("font_color", UITheme.INK_SOFT)
 	desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -523,12 +529,12 @@ func _build_outcome_overlay() -> Control:
 	panel.add_child(box)
 	overlay_label = Label.new()
 	overlay_label.add_theme_font_override("font", UITheme.display_font())
-	overlay_label.add_theme_font_size_override("font_size", 24)
+	overlay_label.add_theme_font_size_override("font_size", 34)
 	overlay_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	overlay_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(overlay_label)
 	overlay_button = Button.new()
-	overlay_button.custom_minimum_size = Vector2(220, 58)
+	overlay_button.custom_minimum_size = Vector2(300, 104)
 	overlay_button.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
 	overlay_button.pressed.connect(_on_overlay_continue)
 	box.add_child(overlay_button)
@@ -566,9 +572,9 @@ func _status_chip(parent: Container, icon_id: String) -> Label:
 	icon.texture = UITheme.tex(icon_id)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.custom_minimum_size = Vector2(28, 28)
+	icon.custom_minimum_size = Vector2(40, 40)
 	chip.add_child(icon)
-	var label := _label(chip, 19, UITheme.INK)
+	var label := _label(chip, 28, UITheme.INK)
 	return label
 
 
@@ -636,7 +642,7 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	var humour: String = card["humour"]
 	var b := Button.new()
 	b.flat = true
-	b.custom_minimum_size = Vector2(92, 126) * scale
+	b.custom_minimum_size = Vector2(122, 168) * scale
 	var frame := TextureRect.new()
 	frame.texture = UITheme.tex(HUMOUR_CARD_FRAME.get(humour, ""))
 	frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -658,14 +664,14 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	var value := Label.new()
 	value.text = str(int(card["value"]))
 	value.add_theme_font_override("font", UITheme.display_font())
-	value.add_theme_font_size_override("font_size", int(24 * scale))
+	value.add_theme_font_size_override("font_size", int(34 * scale))
 	value.add_theme_color_override("font_color", UITheme.INK)
 	value.position = Vector2(12, 8) * scale
 	value.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(value)
 	var name_label := Label.new()
 	name_label.text = String(humour).capitalize()
-	name_label.add_theme_font_size_override("font_size", int(13 * scale))
+	name_label.add_theme_font_size_override("font_size", int(19 * scale))
 	name_label.add_theme_color_override("font_color", UITheme.INK)
 	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	name_label.set_offset(SIDE_TOP, -30 * scale)
@@ -680,7 +686,7 @@ func _skill_button(skill_id: String) -> Button:
 	var def: Dictionary = catalog.skills[skill_id]
 	var b := Button.new()
 	b.flat = true
-	b.custom_minimum_size = Vector2(90, 108)
+	b.custom_minimum_size = Vector2(102, 138)
 	var art := TextureRect.new()
 	art.texture = UITheme.tex("sk_" + skill_id)
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -713,7 +719,7 @@ func _skill_button(skill_id: String) -> Button:
 		for i in total:
 			pips += "●" if i < left else "○"
 	caption.text = "%s %s" % [def["name"], pips]
-	caption.add_theme_font_size_override("font_size", 13)
+	caption.add_theme_font_size_override("font_size", 19)
 	caption.add_theme_color_override("font_color", UITheme.INK)
 	caption.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	caption.set_offset(SIDE_TOP, -24)
