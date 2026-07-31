@@ -51,11 +51,19 @@ var skill_buttons: Dictionary = {}
 var end_turn_button: Button
 var slip_button: Button
 
+const HUMOUR_COLORS := {
+	"ferocity": Color("c2472e"),
+	"guile": Color("5a7a3a"),
+	"shadow": Color("4a4258"),
+	"moonlight": Color("6a82a8"),
+}
+
 var title_label: Label
 var rule_label: Label
 var hint_label: Label
 var enemy_art: Control
 var enemy_label: Label
+var enemy_hp_label: Label
 var thread_bar: ThreadBar
 var intent_icon: TextureRect
 var intent_label: Label
@@ -67,7 +75,7 @@ var deck_label: Label
 var turn_label: Label
 var banked_row: HBoxContainer
 var hand_row: HBoxContainer
-var skills_row: HBoxContainer
+var skills_row: GridContainer
 var detail_panel: PanelContainer
 var detail_label: Label
 var detail_use: Button
@@ -258,6 +266,16 @@ func _on_overlay_continue() -> void:
 
 # ------------------------------------------------------------------ ui build
 
+## LAYOUT CONTRACT — 720x1280 canvas, content width 652 (margins 34/34).
+## Zones top to bottom (heights are budgets; spacer absorbs tall screens):
+##   A Header    112px  ribbon 64 + rule 26
+##   B Opponent  360px  portrait 260x340 | name 44 / hp 40 / thread 28 / intent 90
+##   C Chronicle  56px  2-line log strip
+##   D Status     44px  hearts · shield · spool · turn
+##   E Hand      150px  energy cards 100x136 (small: they're all alike)
+##   F Actions   320px  3x2 grid of 200x150 skill cards (big: they're choices)
+##   G Buttons   112px  End Turn (amber) | Slip Away (dark)
+## Total ≈ 1202 + page margins 64 ≈ 1266 of 1280.
 func _build_ui() -> void:
 	var page := Panel.new()
 	page.add_theme_stylebox_override("panel", UITheme.page_stylebox())
@@ -296,19 +314,6 @@ func _build_ui() -> void:
 	rule_label.text = environment_def.get("rule_text", "")
 	rule_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
-	# Scene art strip: the location, image-heavy per the owner's direction.
-	var scene_strip := PanelContainer.new()
-	var strip_frame := StyleBoxFlat.new()
-	strip_frame.bg_color = Color(environment_def.get("color", "#333"))
-	strip_frame.set_border_width_all(2)
-	strip_frame.border_color = UITheme.INK
-	scene_strip.add_theme_stylebox_override("panel", strip_frame)
-	scene_strip.custom_minimum_size = Vector2(0, 84)
-	scene_strip.clip_contents = true
-	root.add_child(scene_strip)
-	scene_strip.add_child(UITheme.art_or_placeholder(
-		environment_def.get("image", ""), environment_def.get("name", "location art")))
-
 	hint_label = _label(root, 26, Color("8a5a20"))
 	hint_label.add_theme_font_override("font", UITheme.italic_font())
 	hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -316,18 +321,22 @@ func _build_ui() -> void:
 
 	# Enemy block
 	var enemy_row := HBoxContainer.new()
-	enemy_row.add_theme_constant_override("separation", 14)
+	enemy_row.add_theme_constant_override("separation", 16)
+	enemy_row.custom_minimum_size = Vector2(0, 360)
 	root.add_child(enemy_row)
 	enemy_art = _framed_portrait(catalog.enemies[state.enemy_id].get("image", ""),
 		String(catalog.enemies[state.enemy_id]["name"]))
 	enemy_row.add_child(enemy_art)
 	var enemy_col := VBoxContainer.new()
 	enemy_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	enemy_col.add_theme_constant_override("separation", 6)
+	enemy_col.add_theme_constant_override("separation", 10)
 	enemy_col.alignment = BoxContainer.ALIGNMENT_CENTER
 	enemy_row.add_child(enemy_col)
-	enemy_label = _label(enemy_col, 38, UITheme.INK)
+	enemy_label = _label(enemy_col, 40, UITheme.INK)
 	enemy_label.add_theme_font_override("font", UITheme.display_font())
+	enemy_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	enemy_hp_label = _label(enemy_col, 34, Color("8a2f22"))
+	enemy_hp_label.add_theme_font_override("font", UITheme.display_font())
 	thread_bar = ThreadBar.new()
 	thread_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	enemy_col.add_child(thread_bar)
@@ -350,9 +359,9 @@ func _build_ui() -> void:
 	root.add_child(log_panel)
 	log_label = Label.new()
 	log_label.add_theme_font_override("font", UITheme.italic_font())
-	log_label.add_theme_font_size_override("font_size", 24)
+	log_label.add_theme_font_size_override("font_size", 22)
 	log_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
-	log_label.custom_minimum_size = Vector2(0, 76)
+	log_label.custom_minimum_size = Vector2(0, 48)
 	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	log_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	log_panel.add_child(log_label)
@@ -380,9 +389,10 @@ func _build_ui() -> void:
 	hand_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	root.add_child(hand_row)
 
-	skills_row = HBoxContainer.new()
-	skills_row.add_theme_constant_override("separation", 8)
-	skills_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	skills_row = GridContainer.new()
+	skills_row.columns = 3
+	skills_row.add_theme_constant_override("h_separation", 10)
+	skills_row.add_theme_constant_override("v_separation", 10)
 	root.add_child(skills_row)
 
 	# Skill detail / confirm panel: floats above the action row so opening
@@ -543,13 +553,15 @@ func _build_outcome_overlay() -> Control:
 
 func _framed_portrait(image_id: String, description: String) -> Control:
 	var holder := Control.new()
-	holder.custom_minimum_size = Vector2(164, 212)
+	holder.custom_minimum_size = Vector2(260, 340)
+	# Inset matches the frame texture's visible border (it carries outer
+	# transparent padding), so art never pokes past the wood.
 	var art := UITheme.art_or_placeholder(image_id, description)
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for side in [SIDE_LEFT, SIDE_TOP]:
-		art.set_offset(side, 10)
+		art.set_offset(side, 34)
 	for side in [SIDE_RIGHT, SIDE_BOTTOM]:
-		art.set_offset(side, -10)
+		art.set_offset(side, -34)
 	if art is TextureRect:
 		art.clip_contents = true
 	holder.add_child(art)
@@ -591,6 +603,7 @@ func _label(parent: Container, size: int, color: Color = UITheme.INK) -> Label:
 func _refresh() -> void:
 	var enemy: Dictionary = catalog.enemies[state.enemy_id]
 	enemy_label.text = enemy["name"]
+	enemy_hp_label.text = "%d / %d" % [maxi(state.enemy_hp, 0), state.enemy_max_hp]
 	thread_bar.set_health(maxi(state.enemy_hp, 0), state.enemy_max_hp)
 	var intent := state.current_intent()
 	intent_icon.texture = UITheme.tex(INTENT_ICON.get(intent["target"], ""))
@@ -642,7 +655,7 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	var humour: String = card["humour"]
 	var b := Button.new()
 	b.flat = true
-	b.custom_minimum_size = Vector2(122, 168) * scale
+	b.custom_minimum_size = Vector2(100, 136) * scale
 	var frame := TextureRect.new()
 	frame.texture = UITheme.tex(HUMOUR_CARD_FRAME.get(humour, ""))
 	frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -683,20 +696,22 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 
 
 func _skill_button(skill_id: String) -> Button:
+	# Zone F card, 200x150: art on top, name below, pips in the color of the
+	# skill's energy (owner rule: pips match the corresponding energy).
 	var def: Dictionary = catalog.skills[skill_id]
 	var b := Button.new()
 	b.flat = true
-	b.custom_minimum_size = Vector2(102, 138)
+	b.custom_minimum_size = Vector2(200, 150)
 	var art := TextureRect.new()
 	art.texture = UITheme.tex("sk_" + skill_id)
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	art.clip_contents = true
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	art.set_offset(SIDE_LEFT, 8)
-	art.set_offset(SIDE_RIGHT, -8)
-	art.set_offset(SIDE_TOP, 8)
-	art.set_offset(SIDE_BOTTOM, -30)
+	art.set_offset(SIDE_LEFT, 10)
+	art.set_offset(SIDE_RIGHT, -10)
+	art.set_offset(SIDE_TOP, 10)
+	art.set_offset(SIDE_BOTTOM, -56)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(art)
 	var frame := TextureRect.new()
@@ -704,31 +719,51 @@ func _skill_button(skill_id: String) -> Button:
 	frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	frame.stretch_mode = TextureRect.STRETCH_SCALE
 	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
-	frame.set_offset(SIDE_BOTTOM, -24)
+	frame.set_offset(SIDE_BOTTOM, -50)
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(frame)
-	var caption := Label.new()
+
 	var runtime := state.skill_state(skill_id)
 	var is_instinct: bool = def.get("instinct", false)
-	var pips := ""
-	if is_instinct:
-		pips = "free" if not state.instinct_used else "used"
-	else:
-		var left := int(runtime.get("charges_left", 0))
-		var total := int(def.get("charges", 0))
-		for i in total:
-			pips += "●" if i < left else "○"
-	caption.text = "%s %s" % [def["name"], pips]
-	caption.add_theme_font_size_override("font_size", 19)
-	caption.add_theme_color_override("font_color", UITheme.INK)
-	caption.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	caption.set_offset(SIDE_TOP, -24)
-	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	b.add_child(caption)
+	var humour := ""
+	for key in def.get("cost", {}):
+		humour = key
+		break
+	var pip_color: Color = HUMOUR_COLORS.get(humour, UITheme.INK_SOFT)
+
+	var name_label := Label.new()
+	name_label.text = String(def["name"])
+	name_label.add_theme_font_override("font", UITheme.smallcaps_font())
+	name_label.add_theme_font_size_override("font_size", 24)
+	name_label.add_theme_color_override("font_color", UITheme.INK)
+	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	name_label.set_offset(SIDE_TOP, -52)
+	name_label.set_offset(SIDE_BOTTOM, -26)
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(name_label)
+
+	var pips_label := Label.new()
 	var jammed: bool = not is_instinct and int(runtime.get("jammed_turns", 0)) > 0
 	if jammed:
-		caption.text = def["name"] + " [jammed]"
+		pips_label.text = "jammed"
+	elif is_instinct:
+		pips_label.text = "free · 1/turn" if not state.instinct_used else "spent this turn"
+	else:
+		var left := int(runtime.get("charges_left", 0))
+		var pips := ""
+		for i in int(def.get("charges", 0)):
+			pips += "●" if i < left else "○"
+		pips_label.text = pips
+	pips_label.add_theme_font_size_override("font_size", 22)
+	pips_label.add_theme_color_override("font_color", pip_color)
+	pips_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	pips_label.set_offset(SIDE_TOP, -26)
+	pips_label.set_offset(SIDE_BOTTOM, -6)
+	pips_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pips_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(pips_label)
+
 	b.modulate = Color(1, 1, 1, 1.0 if _skill_playable(skill_id) else 0.45)
 	b.pressed.connect(_on_skill_selected.bind(skill_id))
 	return b
@@ -739,11 +774,14 @@ func _skill_playable(skill_id: String) -> bool:
 	var runtime := state.skill_state(skill_id)
 	if state.statuses.get("loafed", 0) > 0:
 		return false
+	var cost := state.effective_cost(def.get("cost", {}))
 	if def.get("instinct", false):
-		return not state.instinct_used and state.can_pay(state.effective_cost(def.get("cost", {})))
+		return not state.instinct_used and state.can_pay(cost)
+	if cost.is_empty() and runtime.get("free_used", false):
+		return false
 	return int(runtime.get("jammed_turns", 0)) == 0 \
 		and int(runtime.get("charges_left", 0)) > 0 \
-		and state.can_pay(state.effective_cost(def.get("cost", {})))
+		and state.can_pay(cost)
 
 
 func _effect_summary(def: Dictionary) -> String:

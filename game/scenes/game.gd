@@ -6,6 +6,8 @@ extends Control
 const StoryScreen := preload("res://scenes/story_screen.gd")
 const BattleScreen := preload("res://scenes/battle.gd")
 const HubScreen := preload("res://scenes/hub_screen.gd")
+const SplashScreen := preload("res://scenes/splash_screen.gd")
+const JournalScreen := preload("res://scenes/journal_screen.gd")
 
 const PRESS_ON_MULT := 0.25   # satchel multiplier growth per depth
 const TOLL_RATE := 0.25       # the Hollow Court's cut of banked gleam on death
@@ -45,10 +47,14 @@ func _ready() -> void:
 	if tour_mode:
 		add_child(load("res://tests/tour.gd").new())
 		_run_prologue_scene(0)
-	elif profile["prologue_done"]:
-		_show_hub()
 	else:
-		_run_prologue_scene(0)
+		var splash: Control = SplashScreen.new()
+		splash.finished.connect(func() -> void:
+			if profile["prologue_done"]:
+				_show_hub()
+			else:
+				_run_prologue_scene(0))
+		_swap(splash)
 
 
 # ------------------------------------------------------------------ helpers
@@ -92,6 +98,7 @@ func _show_story(config: Dictionary, on_done: Callable) -> void:
 
 func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {},
 		extra: Dictionary = {}, coach: Array = []) -> void:
+	_last_encounter_env = catalog.encounters[encounter_id]["environment"]
 	var config := {
 		"player_max_hp": int(profile["max_hp"]),
 		"player_hp": carryover.get("hp", int(profile["max_hp"])),
@@ -120,8 +127,21 @@ func _grant_skills(skill_ids: Array) -> void:
 	_save()
 
 
+var _last_encounter_env := ""
+
+
 func _digest(state: CombatState) -> void:
 	last_outcome = state.outcome
+	# The Casebook observes: creatures met and places prowled.
+	var codex: Dictionary = profile["codex"]
+	if not codex["enemies"].has(state.enemy_id):
+		codex["enemies"].append(state.enemy_id)
+		toasts.append("✎ Casebook: %s" % catalog.enemies[state.enemy_id]["name"])
+	if _last_encounter_env != "" and not codex["places"].has(_last_encounter_env):
+		codex["places"].append(_last_encounter_env)
+	if state.outcome == CombatState.Outcome.DEFEAT:
+		profile["journal"].append("Spent a life to %s. The Court noted it." %
+			catalog.enemies[state.enemy_id]["name"])
 	for id in tracker.record_encounter(state):
 		toasts.append("★ %s — %s" % [
 			catalog.achievements[id]["name"], catalog.achievements[id]["description"],
@@ -153,7 +173,10 @@ func _save() -> void:
 func _run_prologue_scene(index: int) -> void:
 	var scenes: Array = story["scenes"]
 	if index >= scenes.size():
-		profile["prologue_done"] = true
+		if not profile["prologue_done"]:
+			profile["prologue_done"] = true
+			# Endowed progress: the Casebook opens already inscribed.
+			profile["journal"].append("The night the kettle screamed. Elspeth is gone. The thread leads into the city.")
 		_save()
 		_show_hub()
 		return
@@ -196,6 +219,7 @@ func _run_prologue_scene(index: int) -> void:
 				_show_story(config, func(choice: int) -> void:
 					if scene.has("flag"):
 						profile["flags"][scene["flag"]] = choice
+						profile["journal"].append("Chose: %s" % String(scene["choices"][choice]))
 						_save()
 					_run_prologue_scene(index + 1))
 			else:
@@ -243,10 +267,18 @@ func _show_hub() -> void:
 	screen.setup(catalog, profile, tracker)
 	screen.quest_selected.connect(_start_quest)
 	screen.profile_changed.connect(_save)
+	screen.open_journal.connect(_show_journal)
 	screen.replay_prologue.connect(func() -> void:
 		carryover = {}
 		last_outcome = CombatState.Outcome.ONGOING
 		_run_prologue_scene(0))
+	_swap(screen)
+
+
+func _show_journal() -> void:
+	var screen: Control = JournalScreen.new()
+	screen.setup(catalog, profile)
+	screen.closed.connect(_show_hub)
 	_swap(screen)
 
 
@@ -309,6 +341,7 @@ func _finish_quest() -> void:
 	var bonus := int(quest.get("reward_bonus", 0))
 	var banked := satchel + bonus
 	profile["gleam"] = int(profile["gleam"]) + banked
+	profile["journal"].append("%s: done. %d gleam banked." % [quest["name"], banked])
 	if quest.has("unlock_skill") and not profile["skills"].has(quest["unlock_skill"]):
 		_grant_skills([quest["unlock_skill"]])
 	for id in tracker.increment("quests_completed"):
@@ -324,6 +357,8 @@ func _finish_quest() -> void:
 
 func _prowl_retreat() -> void:
 	profile["gleam"] = int(profile["gleam"]) + satchel
+	if not quest.is_empty():
+		profile["journal"].append("Withdrew from %s. The quest keeps." % quest["name"])
 	if satchel > 0:
 		for id in tracker.increment("gleam_banked", satchel):
 			toasts.append("★ %s" % catalog.achievements[id]["name"])

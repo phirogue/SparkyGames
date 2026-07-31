@@ -43,6 +43,17 @@ static func body_font() -> FontFile:
 	return font("Alegreya.ttf")
 
 
+## Measures wrapped text so panels can size themselves from content instead
+## of guessed constants (reusable: coach boxes, tooltips, toasts).
+static func measure_text(text: String, text_font: Font, font_size: int,
+		max_width: float) -> Vector2:
+	if text_font == null:
+		text_font = ThemeDB.fallback_font
+	var size := text_font.get_multiline_string_size(
+		text, HORIZONTAL_ALIGNMENT_LEFT, max_width, font_size)
+	return Vector2(minf(size.x, max_width), size.y)
+
+
 ## Art slot filler: the real image when it exists, else a black box with
 ## white text describing the missing image (owner rule — placeholders make
 ## gaps visible instead of invisible).

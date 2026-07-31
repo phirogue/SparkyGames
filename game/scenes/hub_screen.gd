@@ -5,6 +5,7 @@ extends Control
 signal quest_selected(quest_id: String)
 signal profile_changed
 signal replay_prologue
+signal open_journal
 
 const ADD_CARD_COST := 12
 const REMOVE_CARD_COST := 15
@@ -90,6 +91,11 @@ func _ready() -> void:
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_child(spacer)
+	var casebook := Button.new()
+	casebook.text = "The Casebook — deeds & knowledge"
+	casebook.custom_minimum_size = Vector2(0, 100)
+	casebook.pressed.connect(func() -> void: open_journal.emit())
+	root.add_child(casebook)
 	var replay := Button.new()
 	replay.text = "Relive the worst night (replay prologue)"
 	replay.custom_minimum_size = Vector2(0, 96)

@@ -23,6 +23,12 @@ func test_cost_mod_reduces_cost() -> void:
 	assert_eq(state.effective_cost({"shadow": 1}).size(), 0, "shadow 1 reduced to nothing")
 	assert_ok(state.do_command({"type": "play_skill", "skill_id": "slink"}), "free slink")
 	assert_eq(state.player_block, 3, "slink still blocks")
+	# Free never means spam: a cost-free skill locks until next turn.
+	assert_rejected(state.do_command({"type": "play_skill", "skill_id": "slink"}),
+		"second free slink same turn")
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "slink"}),
+		"free slink again next turn")
 
 func test_cost_mod_increases_cost() -> void:
 	var state := _fight({"cost_mod": {"ferocity": 1}})

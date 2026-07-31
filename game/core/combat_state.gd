@@ -95,6 +95,7 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 			"id": skill_id,
 			"charges_left": int(charge_overrides.get(skill_id, def.get("charges", 0))),
 			"jammed_turns": 0,
+			"free_used": false,  # cost-free plays are once per turn
 		})
 	state.enemy_id = String(config.get("enemy", ""))
 	var enemy_def: Dictionary = p_catalog.enemies[state.enemy_id]
@@ -260,9 +261,15 @@ func _cmd_play_skill(skill_id: String) -> Dictionary:
 		if state["charges_left"] <= 0:
 			return _fail("skill '%s' has no charges left" % skill_id)
 	var cost: Dictionary = effective_cost(def.get("cost", {}))
+	# Anything that costs nothing (instinct, or discounted to free by the
+	# environment) is once per turn — free never means spam.
+	if cost.is_empty() and not is_instinct and state.get("free_used", false):
+		return _fail("'%s' needs a breath between free uses" % skill_id)
 	if not can_pay(cost):
 		return _fail("not enough energy for '%s'" % skill_id)
 	_pay(cost)
+	if cost.is_empty() and not is_instinct:
+		state["free_used"] = true
 	if stealth_threshold > 0 and not spotted and cost.has("ferocity"):
 		alarm += int(cost["ferocity"])  # loud cards raise the alarm
 		if alarm >= stealth_threshold:
@@ -303,6 +310,7 @@ func _cmd_end_turn() -> Dictionary:
 		player_block = 0
 	instinct_used = false
 	for s in skills:
+		s["free_used"] = false
 		if s["jammed_turns"] > 0:
 			s["jammed_turns"] -= 1
 	if statuses.get("loafed", 0) > 0:

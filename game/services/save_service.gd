@@ -20,6 +20,8 @@ const DEFAULT_PROFILE := {
 	],
 	"skills": ["scratch"],
 	"flags": {},
+	"journal": [],
+	"codex": { "enemies": [], "places": [] },
 	"achievements": {},
 }
 

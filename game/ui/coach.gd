@@ -47,10 +47,9 @@ func _ready() -> void:
 	add_child(_text_panel)
 	_text_label = Label.new()
 	_text_label.add_theme_font_override("font", UITheme.italic_font())
-	_text_label.add_theme_font_size_override("font_size", 30)
+	_text_label.add_theme_font_size_override("font_size", TEXT_FONT_SIZE)
 	_text_label.add_theme_color_override("font_color", UITheme.INK)
 	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_text_label.custom_minimum_size = Vector2(560, 0)
 	_text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_text_panel.add_child(_text_label)
 	_skip = Button.new()
@@ -78,13 +77,22 @@ func notify(action_key: String) -> void:
 		force_advance()
 
 
+const TEXT_FONT_SIZE := 30
+const TEXT_MAX_WIDTH := 560.0
+const TEXT_PADDING := Vector2(48, 40)
+
 func force_advance() -> void:
 	index += 1
 	if not active():
 		_finish()
 		return
 	_tap_zone.visible = current_target() == ""
-	_text_label.text = String(steps[index].get("text", ""))
+	var text := String(steps[index].get("text", ""))
+	_text_label.text = text
+	# Size the box from the text itself — no guessed constants.
+	var measured := UITheme.measure_text(text, UITheme.italic_font(),
+		TEXT_FONT_SIZE, TEXT_MAX_WIDTH)
+	_text_panel.custom_minimum_size = measured + TEXT_PADDING
 	queue_redraw()
 
 
