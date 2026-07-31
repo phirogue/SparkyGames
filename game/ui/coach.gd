@@ -89,10 +89,11 @@ func force_advance() -> void:
 	_tap_zone.visible = current_target() == ""
 	var text := String(steps[index].get("text", ""))
 	_text_label.text = text
-	# Size the box from the text itself — no guessed constants.
+	# Size the LABEL from measured text; the panel then derives its own size
+	# from label + stylebox margins (no double-counted padding).
 	var measured := UITheme.measure_text(text, UITheme.italic_font(),
 		TEXT_FONT_SIZE, TEXT_MAX_WIDTH)
-	_text_panel.custom_minimum_size = measured + TEXT_PADDING
+	_text_label.custom_minimum_size = measured + Vector2(8, 4)
 	queue_redraw()
 
 
@@ -122,7 +123,9 @@ func _process(_delta: float) -> void:
 	_dims[3].position = Vector2(hole.end.x, hole.position.y)
 	_dims[3].size = Vector2(maxf(full.size.x - hole.end.x, 0), hole.size.y)
 	# Instruction sits above the hole when there's room, else below.
+	# Pin the panel to its minimum every frame — no layout drift possible.
 	var panel_size := _text_panel.get_combined_minimum_size()
+	_text_panel.size = panel_size
 	var x: float = clampf(hole.get_center().x - panel_size.x / 2.0, 16, full.size.x - panel_size.x - 16)
 	var y: float = hole.position.y - panel_size.y - 18
 	if y < 16 or current_target() == "":

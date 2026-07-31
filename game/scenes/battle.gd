@@ -1,7 +1,18 @@
 extends Control
-## Battle screen, styled per reference/battle screen - v2.png: the fight is a
-## page in the casebook. Real template art with color fallbacks; all rules
-## stay in CombatState.
+## Battle screen, matched to assets/incoming/ui_objective.png:
+## banner header + rule card · framed portrait beside a name-plate holding the
+## thread-of-life · framed intent chip · chronicle strip · icon status strip ·
+## fanned energy hand · skill cards in a parchment tray · amber End Turn with
+## a dark Slip Away card. All rules live in CombatState.
+##
+## LAYOUT CONTRACT — 720x1280 canvas, content width 652:
+##   A Header    88px   location banner (left) + rule card (right)
+##   B Opponent 372px   portrait 280x360 | name-plate(thread) + intent chip
+##   C Chronicle 56px
+##   D Status    64px   heart · shield · spool · turn, with dividers
+##   E Hand     180px   fanned energy cards 112x152
+##   F Skills  160-312  tray, 4-per-row ink-bordered cards 152x148
+##   G Buttons  100px
 
 signal encounter_finished(state: CombatState)
 
@@ -21,6 +32,12 @@ const INTENT_ICON := {
 	"health": "ui/ui_icon_intent_attack",
 	"skills": "ui/ui_icon_intent_skills",
 	"hand": "ui/ui_icon_intent_hand",
+}
+const HUMOUR_COLORS := {
+	"ferocity": Color("c2472e"),
+	"guile": Color("5a7a3a"),
+	"shadow": Color("4a4258"),
+	"moonlight": Color("6a82a8"),
 }
 ## Max 3 options ever shown (owner readability rule): 2 approaches + Walk In.
 const APPROACH_TITLE := {
@@ -51,15 +68,6 @@ var skill_buttons: Dictionary = {}
 var end_turn_button: Button
 var slip_button: Button
 
-const HUMOUR_COLORS := {
-	"ferocity": Color("c2472e"),
-	"guile": Color("5a7a3a"),
-	"shadow": Color("4a4258"),
-	"moonlight": Color("6a82a8"),
-}
-
-var title_label: Label
-var rule_label: Label
 var hint_label: Label
 var enemy_art: Control
 var enemy_label: Label
@@ -74,8 +82,8 @@ var block_label: Label
 var deck_label: Label
 var turn_label: Label
 var banked_row: HBoxContainer
-var hand_row: HBoxContainer
-var skills_row: GridContainer
+var hand_fan: Control
+var skills_grid: GridContainer
 var detail_panel: PanelContainer
 var detail_label: Label
 var detail_use: Button
@@ -101,6 +109,11 @@ func setup(p_catalog: Catalog, config: Dictionary, encounter_id: String,
 	state = CombatState.create(catalog, int(Time.get_ticks_usec()) % 1000000007, full_config)
 
 
+## Loads project art if it exists (art lands incrementally; placeholders fall back).
+static func _art(image_id: String) -> Texture2D:
+	return UITheme.tex(image_id)
+
+
 func _ready() -> void:
 	_build_ui()
 	if not coach_steps.is_empty():
@@ -121,7 +134,7 @@ func _coach_target(key: String) -> Control:
 		"use": return detail_use
 		"end_turn": return end_turn_button
 		"slip": return slip_button
-		"hand": return hand_row
+		"hand": return hand_fan
 	return null
 
 
@@ -266,16 +279,22 @@ func _on_overlay_continue() -> void:
 
 # ------------------------------------------------------------------ ui build
 
-## LAYOUT CONTRACT — 720x1280 canvas, content width 652 (margins 34/34).
-## Zones top to bottom (heights are budgets; spacer absorbs tall screens):
-##   A Header    112px  ribbon 64 + rule 26
-##   B Opponent  360px  portrait 260x340 | name 44 / hp 40 / thread 28 / intent 90
-##   C Chronicle  56px  2-line log strip
-##   D Status     44px  hearts · shield · spool · turn
-##   E Hand      150px  energy cards 100x136 (small: they're all alike)
-##   F Actions   320px  3x2 grid of 200x150 skill cards (big: they're choices)
-##   G Buttons   112px  End Turn (amber) | Slip Away (dark)
-## Total ≈ 1202 + page margins 64 ≈ 1266 of 1280.
+func _plate(min_height: float = 0.0) -> PanelContainer:
+	# Parchment plate (flat stylebox — the strip texture carries transparent
+	# padding that breaks 9-patch fills, so plates are drawn, not textured).
+	var plate := PanelContainer.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("efe0c2")
+	style.set_border_width_all(2)
+	style.border_color = Color("4a3b2c")
+	style.set_corner_radius_all(10)
+	style.set_content_margin_all(12)
+	plate.add_theme_stylebox_override("panel", style)
+	if min_height > 0:
+		plate.custom_minimum_size = Vector2(0, min_height)
+	return plate
+
+
 func _build_ui() -> void:
 	var page := Panel.new()
 	page.add_theme_stylebox_override("panel", UITheme.page_stylebox())
@@ -286,117 +305,169 @@ func _build_ui() -> void:
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right"]:
 		margin.add_theme_constant_override("margin_" + side, 34)
-	margin.add_theme_constant_override("margin_top", 24)
-	margin.add_theme_constant_override("margin_bottom", 40)
+	margin.add_theme_constant_override("margin_top", 34)
+	margin.add_theme_constant_override("margin_bottom", 28)
 	add_child(margin)
 	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 6)
+	root.add_theme_constant_override("separation", 8)
 	margin.add_child(root)
 
-	# Location ribbon
-	var ribbon := TextureRect.new()
-	ribbon.texture = UITheme.tex("ui/ui_ribbon")
-	ribbon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	ribbon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	ribbon.custom_minimum_size = Vector2(0, 64)
-	root.add_child(ribbon)
-	title_label = Label.new()
-	title_label.text = environment_def["name"]
-	title_label.add_theme_font_override("font", UITheme.smallcaps_font())
-	title_label.add_theme_font_size_override("font_size", 34)
-	title_label.add_theme_color_override("font_color", UITheme.INK)
-	title_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	ribbon.add_child(title_label)
-
-	rule_label = _label(root, 24, UITheme.INK_SOFT)
+	# --- Zone A: header — location banner left, rule card right -----------
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 12)
+	header.custom_minimum_size = Vector2(0, 88)
+	root.add_child(header)
+	var banner := _plate()
+	banner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(banner)
+	var loc := Label.new()
+	loc.text = environment_def["name"]
+	loc.add_theme_font_override("font", UITheme.display_font())
+	loc.add_theme_font_size_override("font_size", 38)
+	loc.add_theme_color_override("font_color", UITheme.INK)
+	loc.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	banner.add_child(loc)
+	var rule_card := PanelContainer.new()
+	rule_card.custom_minimum_size = Vector2(210, 0)
+	header.add_child(rule_card)
+	var rule_label := Label.new()
 	rule_label.text = environment_def.get("rule_text", "")
-	rule_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	rule_label.add_theme_font_size_override("font_size", 19)
+	rule_label.add_theme_color_override("font_color", UITheme.INK)
+	rule_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	rule_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	rule_card.add_child(rule_label)
 
-	hint_label = _label(root, 26, Color("8a5a20"))
+	hint_label = Label.new()
 	hint_label.add_theme_font_override("font", UITheme.italic_font())
+	hint_label.add_theme_font_size_override("font_size", 24)
+	hint_label.add_theme_color_override("font_color", Color("8a5a20"))
 	hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint_label.visible = not hints.is_empty()
+	root.add_child(hint_label)
 
-	# Enemy block
+	# --- Zone B: opponent -------------------------------------------------
 	var enemy_row := HBoxContainer.new()
 	enemy_row.add_theme_constant_override("separation", 16)
-	enemy_row.custom_minimum_size = Vector2(0, 360)
+	enemy_row.custom_minimum_size = Vector2(0, 340)
 	root.add_child(enemy_row)
 	enemy_art = _framed_portrait(catalog.enemies[state.enemy_id].get("image", ""),
 		String(catalog.enemies[state.enemy_id]["name"]))
 	enemy_row.add_child(enemy_art)
 	var enemy_col := VBoxContainer.new()
 	enemy_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	enemy_col.add_theme_constant_override("separation", 10)
+	enemy_col.add_theme_constant_override("separation", 14)
 	enemy_col.alignment = BoxContainer.ALIGNMENT_CENTER
 	enemy_row.add_child(enemy_col)
-	enemy_label = _label(enemy_col, 40, UITheme.INK)
+
+	var name_plate := _plate(120)
+	enemy_col.add_child(name_plate)
+	var name_box := VBoxContainer.new()
+	name_box.add_theme_constant_override("separation", 8)
+	name_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	name_plate.add_child(name_box)
+	enemy_label = Label.new()
 	enemy_label.add_theme_font_override("font", UITheme.display_font())
+	enemy_label.add_theme_font_size_override("font_size", 38)
+	enemy_label.add_theme_color_override("font_color", UITheme.INK)
+	enemy_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	enemy_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	enemy_hp_label = _label(enemy_col, 34, Color("8a2f22"))
-	enemy_hp_label.add_theme_font_override("font", UITheme.display_font())
+	name_box.add_child(enemy_label)
 	thread_bar = ThreadBar.new()
 	thread_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	enemy_col.add_child(thread_bar)
-	var intent_row := HBoxContainer.new()
-	intent_row.add_theme_constant_override("separation", 8)
-	enemy_col.add_child(intent_row)
+	name_box.add_child(thread_bar)
+	enemy_hp_label = Label.new()
+	enemy_hp_label.add_theme_font_size_override("font_size", 22)
+	enemy_hp_label.add_theme_color_override("font_color", Color("8a2f22"))
+	enemy_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	name_box.add_child(enemy_hp_label)
+
+	var intent_plate := _plate(112)
+	enemy_col.add_child(intent_plate)
+	var intent_box := VBoxContainer.new()
+	intent_box.add_theme_constant_override("separation", 6)
+	intent_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	intent_plate.add_child(intent_box)
+	var icon_center := CenterContainer.new()
+	intent_box.add_child(icon_center)
+	var icon_frame := PanelContainer.new()
+	var icon_style := StyleBoxFlat.new()
+	icon_style.bg_color = Color("e8d9bd")
+	icon_style.set_border_width_all(3)
+	icon_style.border_color = UITheme.INK
+	icon_style.set_corner_radius_all(8)
+	icon_style.set_content_margin_all(6)
+	icon_frame.add_theme_stylebox_override("panel", icon_style)
+	icon_center.add_child(icon_frame)
 	intent_icon = TextureRect.new()
 	intent_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	intent_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	intent_icon.custom_minimum_size = Vector2(48, 48)
-	intent_row.add_child(intent_icon)
-	intent_label = _label(intent_row, 28, Color("7a3b22"))
+	intent_icon.custom_minimum_size = Vector2(52, 52)
+	icon_frame.add_child(intent_icon)
+	intent_label = Label.new()
+	intent_label.add_theme_font_size_override("font_size", 25)
+	intent_label.add_theme_color_override("font_color", UITheme.INK)
+	intent_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	intent_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	intent_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	alarm_label = _label(enemy_col, 26, Color("a03828"))
+	intent_box.add_child(intent_label)
+	alarm_label = Label.new()
+	alarm_label.add_theme_font_size_override("font_size", 24)
+	alarm_label.add_theme_color_override("font_color", Color("a03828"))
+	alarm_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	enemy_col.add_child(alarm_label)
 
-	# Log strip
-	var log_panel := PanelContainer.new()
-	log_panel.add_theme_stylebox_override("panel", UITheme.strip_stylebox())
-	root.add_child(log_panel)
+	# --- Zone C: chronicle strip ------------------------------------------
+	var log_plate := _plate(48)
+	root.add_child(log_plate)
 	log_label = Label.new()
 	log_label.add_theme_font_override("font", UITheme.italic_font())
-	log_label.add_theme_font_size_override("font_size", 22)
+	log_label.add_theme_font_size_override("font_size", 21)
 	log_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
-	log_label.custom_minimum_size = Vector2(0, 48)
 	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	log_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	log_panel.add_child(log_label)
+	log_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	log_plate.add_child(log_label)
 
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_child(spacer)
 
-	# Status row: icon + number pairs
+	# --- Zone D: status strip ---------------------------------------------
+	var status_plate := _plate(56)
+	root.add_child(status_plate)
 	var status_row := HBoxContainer.new()
-	status_row.add_theme_constant_override("separation", 18)
+	status_row.add_theme_constant_override("separation", 14)
 	status_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	root.add_child(status_row)
+	status_plate.add_child(status_row)
 	hp_label = _status_chip(status_row, "ui/ui_heart_full")
+	_divider(status_row)
 	block_label = _status_chip(status_row, "ui/ui_shield")
+	_divider(status_row)
 	deck_label = _status_chip(status_row, "ui/ui_spool")
-	turn_label = _label(status_row, 24, UITheme.INK_SOFT)
+	_divider(status_row)
+	turn_label = Label.new()
+	turn_label.add_theme_font_size_override("font_size", 22)
+	turn_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
+	status_row.add_child(turn_label)
 
+	# --- Zone E: fanned hand ----------------------------------------------
 	banked_row = HBoxContainer.new()
-	banked_row.add_theme_constant_override("separation", 8)
+	banked_row.add_theme_constant_override("separation", 6)
 	banked_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	root.add_child(banked_row)
-	hand_row = HBoxContainer.new()
-	hand_row.add_theme_constant_override("separation", 6)
-	hand_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	root.add_child(hand_row)
+	hand_fan = Control.new()
+	hand_fan.custom_minimum_size = Vector2(0, 168)
+	root.add_child(hand_fan)
 
-	skills_row = GridContainer.new()
-	skills_row.columns = 3
-	skills_row.add_theme_constant_override("h_separation", 10)
-	skills_row.add_theme_constant_override("v_separation", 10)
-	root.add_child(skills_row)
+	# --- Zone F: skills tray ----------------------------------------------
+	var tray := PanelContainer.new()
+	root.add_child(tray)
+	skills_grid = GridContainer.new()
+	skills_grid.columns = 4
+	skills_grid.add_theme_constant_override("h_separation", 8)
+	skills_grid.add_theme_constant_override("v_separation", 8)
+	tray.add_child(skills_grid)
 
-	# Skill detail / confirm panel: floats above the action row so opening
-	# it never pushes the layout off the page.
+	# Detail panel floats above the action row.
 	detail_panel = PanelContainer.new()
 	detail_panel.visible = false
 	add_child(detail_panel)
@@ -404,12 +475,12 @@ func _build_ui() -> void:
 	detail_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	detail_panel.offset_left = 40
 	detail_panel.offset_right = -40
-	detail_panel.offset_bottom = -190
+	detail_panel.offset_bottom = -150
 	var detail_box := VBoxContainer.new()
 	detail_box.add_theme_constant_override("separation", 8)
 	detail_panel.add_child(detail_box)
 	detail_label = Label.new()
-	detail_label.add_theme_font_size_override("font_size", 28)
+	detail_label.add_theme_font_size_override("font_size", 26)
 	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail_box.add_child(detail_label)
 	var detail_buttons := HBoxContainer.new()
@@ -417,7 +488,7 @@ func _build_ui() -> void:
 	detail_box.add_child(detail_buttons)
 	detail_use = Button.new()
 	detail_use.text = "Use"
-	detail_use.custom_minimum_size = Vector2(0, 100)
+	detail_use.custom_minimum_size = Vector2(0, 96)
 	detail_use.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	detail_use.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
 	detail_use.add_theme_stylebox_override("hover", UITheme.amber_stylebox(Color(1.08, 1.05, 1.0)))
@@ -426,20 +497,20 @@ func _build_ui() -> void:
 	detail_buttons.add_child(detail_use)
 	var detail_cancel := Button.new()
 	detail_cancel.text = "Not now"
-	detail_cancel.custom_minimum_size = Vector2(210, 100)
+	detail_cancel.custom_minimum_size = Vector2(200, 96)
 	detail_cancel.pressed.connect(_close_detail)
 	detail_buttons.add_child(detail_cancel)
 
-	# Actions
+	# --- Zone G: actions ---------------------------------------------------
 	var action_row := HBoxContainer.new()
-	action_row.add_theme_constant_override("separation", 10)
+	action_row.add_theme_constant_override("separation", 12)
+	action_row.custom_minimum_size = Vector2(0, 92)
 	root.add_child(action_row)
 	end_turn_button = Button.new()
 	end_turn_button.text = "End Turn"
-	end_turn_button.custom_minimum_size = Vector2(0, 112)
 	end_turn_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	end_turn_button.add_theme_font_override("font", UITheme.display_font())
-	end_turn_button.add_theme_font_size_override("font_size", 36)
+	end_turn_button.add_theme_font_size_override("font_size", 38)
 	end_turn_button.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
 	end_turn_button.add_theme_stylebox_override("hover", UITheme.amber_stylebox(Color(1.08, 1.05, 1.0)))
 	end_turn_button.add_theme_stylebox_override("pressed", UITheme.amber_stylebox(Color(0.85, 0.8, 0.75)))
@@ -447,16 +518,34 @@ func _build_ui() -> void:
 	action_row.add_child(end_turn_button)
 	slip_button = Button.new()
 	slip_button.text = "Slip Away"
-	slip_button.custom_minimum_size = Vector2(220, 112)
-	slip_button.add_theme_stylebox_override("normal", UITheme.dark_stylebox())
-	slip_button.add_theme_stylebox_override("hover", UITheme.dark_stylebox(Color(1.15, 1.15, 1.15)))
-	slip_button.add_theme_stylebox_override("pressed", UITheme.dark_stylebox(Color(0.8, 0.8, 0.8)))
+	slip_button.custom_minimum_size = Vector2(190, 92)
+	slip_button.add_theme_font_size_override("font_size", 24)
+	var slip_style := StyleBoxFlat.new()
+	slip_style.bg_color = Color("2e3446")
+	slip_style.set_border_width_all(3)
+	slip_style.border_color = Color("1a1d28")
+	slip_style.set_corner_radius_all(12)
+	slip_button.add_theme_stylebox_override("normal", slip_style)
+	var slip_hover: StyleBoxFlat = slip_style.duplicate()
+	slip_hover.bg_color = Color("3a4258")
+	slip_button.add_theme_stylebox_override("hover", slip_hover)
+	var slip_pressed: StyleBoxFlat = slip_style.duplicate()
+	slip_pressed.bg_color = Color("232838")
+	slip_button.add_theme_stylebox_override("pressed", slip_pressed)
 	slip_button.add_theme_color_override("font_color", Color("e8e4d8"))
 	slip_button.pressed.connect(_on_slip_away)
 	action_row.add_child(slip_button)
 
 	approach_overlay = _build_approach_overlay()
 	overlay = _build_outcome_overlay()
+
+
+func _divider(parent: Container) -> void:
+	var divider := Label.new()
+	divider.text = "|"
+	divider.add_theme_font_size_override("font_size", 30)
+	divider.add_theme_color_override("font_color", UITheme.INK_FADED)
+	parent.add_child(divider)
 
 
 func _build_approach_overlay() -> Control:
@@ -469,7 +558,7 @@ func _build_approach_overlay() -> Control:
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dim.add_child(center)
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(560, 0)
+	panel.custom_minimum_size = Vector2(600, 0)
 	center.add_child(panel)
 	approach_panel = panel
 	var box := VBoxContainer.new()
@@ -481,7 +570,6 @@ func _build_approach_overlay() -> Control:
 	title.add_theme_font_size_override("font_size", 40)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
-	# Readability rule: at most 2 approaches + Walk In on screen.
 	var affordable: Array[String] = []
 	for mode in CombatState.APPROACHES:
 		if affordable.size() < 2 and \
@@ -553,9 +641,7 @@ func _build_outcome_overlay() -> Control:
 
 func _framed_portrait(image_id: String, description: String) -> Control:
 	var holder := Control.new()
-	holder.custom_minimum_size = Vector2(260, 340)
-	# Inset matches the frame texture's visible border (it carries outer
-	# transparent padding), so art never pokes past the wood.
+	holder.custom_minimum_size = Vector2(270, 340)
 	var art := UITheme.art_or_placeholder(image_id, description)
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for side in [SIDE_LEFT, SIDE_TOP]:
@@ -578,23 +664,18 @@ func _framed_portrait(image_id: String, description: String) -> Control:
 
 func _status_chip(parent: Container, icon_id: String) -> Label:
 	var chip := HBoxContainer.new()
-	chip.add_theme_constant_override("separation", 4)
+	chip.add_theme_constant_override("separation", 6)
 	parent.add_child(chip)
 	var icon := TextureRect.new()
 	icon.texture = UITheme.tex(icon_id)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.custom_minimum_size = Vector2(40, 40)
+	icon.custom_minimum_size = Vector2(38, 38)
 	chip.add_child(icon)
-	var label := _label(chip, 28, UITheme.INK)
-	return label
-
-
-func _label(parent: Container, size: int, color: Color = UITheme.INK) -> Label:
 	var label := Label.new()
-	label.add_theme_font_size_override("font_size", size)
-	label.add_theme_color_override("font_color", color)
-	parent.add_child(label)
+	label.add_theme_font_size_override("font_size", 28)
+	label.add_theme_color_override("font_color", UITheme.INK)
+	chip.add_child(label)
 	return label
 
 
@@ -608,9 +689,9 @@ func _refresh() -> void:
 	var intent := state.current_intent()
 	intent_icon.texture = UITheme.tex(INTENT_ICON.get(intent["target"], ""))
 	if state.hidden:
-		intent_label.text = "It hasn't seen you. Its plan: %s" % intent["name"]
+		intent_label.text = "Unaware. Its plan: %s" % intent["name"]
 	elif state.spotted:
-		intent_label.text = "%s! — it sees you; expect worse" % intent["name"]
+		intent_label.text = "%s! — it sees you" % intent["name"]
 	else:
 		intent_label.text = "Next: %s — %s" % [intent["name"], _intent_text(intent)]
 	if state.stealth_threshold > 0:
@@ -629,16 +710,11 @@ func _refresh() -> void:
 
 	_clear(banked_row)
 	for card_id in state.banked:
-		var b := _card_button(card_id, 0.8)
+		var b := _card_button(card_id, 0.62)
 		b.disabled = true
 		banked_row.add_child(b)
-	_clear(hand_row)
-	for i in state.hand.size():
-		var b := _card_button(state.hand[i], 1.0)
-		b.tooltip_text = "Tap to bank for later (enemies can steal it)"
-		b.pressed.connect(_on_card_pressed.bind(i))
-		hand_row.add_child(b)
-	_clear(skills_row)
+	_refresh_hand_fan()
+	_clear(skills_grid)
 	skill_buttons.clear()
 	var shown: Array[String] = []
 	for skill_id in skill_ids + ["scratch"]:
@@ -647,7 +723,32 @@ func _refresh() -> void:
 	for skill_id in shown:
 		var button := _skill_button(skill_id)
 		skill_buttons[skill_id] = button
-		skills_row.add_child(button)
+		skills_grid.add_child(button)
+
+
+## The hand as a fan (objective mock): overlapped, slightly rotated cards.
+func _refresh_hand_fan() -> void:
+	_clear(hand_fan)
+	var n := state.hand.size()
+	if n == 0:
+		return
+	var card_size := Vector2(106, 144)
+	var overlap_step := 96.0
+	var total_width := overlap_step * (n - 1) + card_size.x
+	var start_x: float = (hand_fan.size.x - total_width) / 2.0
+	if hand_fan.size.x <= 1:  # first layout pass: estimate from zone width
+		start_x = (652.0 - total_width) / 2.0
+	var center := (n - 1) / 2.0
+	for i in n:
+		var b := _card_button(state.hand[i], 1.0)
+		b.tooltip_text = "Tap to bank for later (enemies can steal it)"
+		b.pressed.connect(_on_card_pressed.bind(i))
+		hand_fan.add_child(b)
+		var offset := i - center
+		b.position = Vector2(start_x + overlap_step * i,
+			4.0 + 5.0 * absf(offset) * absf(offset))
+		b.rotation_degrees = offset * 4.0
+		b.pivot_offset = card_size / 2.0
 
 
 func _card_button(card_id: String, scale := 1.0) -> Button:
@@ -655,7 +756,8 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	var humour: String = card["humour"]
 	var b := Button.new()
 	b.flat = true
-	b.custom_minimum_size = Vector2(100, 136) * scale
+	b.custom_minimum_size = Vector2(106, 144) * scale
+	b.size = b.custom_minimum_size
 	var frame := TextureRect.new()
 	frame.texture = UITheme.tex(HUMOUR_CARD_FRAME.get(humour, ""))
 	frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -668,27 +770,27 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	glyph.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	glyph.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	glyph.set_anchors_preset(Control.PRESET_FULL_RECT)
-	glyph.set_offset(SIDE_LEFT, 22 * scale)
-	glyph.set_offset(SIDE_RIGHT, -22 * scale)
-	glyph.set_offset(SIDE_TOP, 26 * scale)
-	glyph.set_offset(SIDE_BOTTOM, -40 * scale)
+	glyph.set_offset(SIDE_LEFT, 20 * scale)
+	glyph.set_offset(SIDE_RIGHT, -20 * scale)
+	glyph.set_offset(SIDE_TOP, 24 * scale)
+	glyph.set_offset(SIDE_BOTTOM, -44 * scale)
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(glyph)
 	var value := Label.new()
 	value.text = str(int(card["value"]))
 	value.add_theme_font_override("font", UITheme.display_font())
-	value.add_theme_font_size_override("font_size", int(34 * scale))
+	value.add_theme_font_size_override("font_size", int(30 * scale))
 	value.add_theme_color_override("font_color", UITheme.INK)
-	value.position = Vector2(12, 8) * scale
+	value.position = Vector2(14, 8) * scale
 	value.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(value)
 	var name_label := Label.new()
 	name_label.text = String(humour).capitalize()
-	name_label.add_theme_font_size_override("font_size", int(19 * scale))
+	name_label.add_theme_font_size_override("font_size", int(17 * scale))
 	name_label.add_theme_color_override("font_color", UITheme.INK)
 	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	name_label.set_offset(SIDE_TOP, -30 * scale)
-	name_label.set_offset(SIDE_BOTTOM, -12 * scale)
+	name_label.set_offset(SIDE_TOP, -34 * scale)
+	name_label.set_offset(SIDE_BOTTOM, -14 * scale)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(name_label)
@@ -696,32 +798,36 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 
 
 func _skill_button(skill_id: String) -> Button:
-	# Zone F card, 200x150: art on top, name below, pips in the color of the
-	# skill's energy (owner rule: pips match the corresponding energy).
+	# Objective mock: rounded ink-bordered card, art on top, grey→colored
+	# pips overlapping the art's bottom edge, name below.
 	var def: Dictionary = catalog.skills[skill_id]
 	var b := Button.new()
 	b.flat = true
-	b.custom_minimum_size = Vector2(200, 150)
+	b.custom_minimum_size = Vector2(150, 132)
+	var card := PanelContainer.new()
+	var card_style := StyleBoxFlat.new()
+	card_style.bg_color = Color("f4e7cd")
+	card_style.set_border_width_all(3)
+	card_style.border_color = UITheme.INK
+	card_style.set_corner_radius_all(14)
+	card_style.set_content_margin_all(0)
+	card.add_theme_stylebox_override("panel", card_style)
+	card.set_anchors_preset(Control.PRESET_FULL_RECT)
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(card)
+
 	var art := TextureRect.new()
 	art.texture = UITheme.tex("sk_" + skill_id)
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	art.clip_contents = true
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	art.set_offset(SIDE_LEFT, 10)
-	art.set_offset(SIDE_RIGHT, -10)
-	art.set_offset(SIDE_TOP, 10)
-	art.set_offset(SIDE_BOTTOM, -56)
+	art.set_offset(SIDE_LEFT, 6)
+	art.set_offset(SIDE_RIGHT, -6)
+	art.set_offset(SIDE_TOP, 6)
+	art.set_offset(SIDE_BOTTOM, -40)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(art)
-	var frame := TextureRect.new()
-	frame.texture = UITheme.tex("ui/ui_frame_skill")
-	frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	frame.stretch_mode = TextureRect.STRETCH_SCALE
-	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
-	frame.set_offset(SIDE_BOTTOM, -50)
-	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	b.add_child(frame)
 
 	var runtime := state.skill_state(skill_id)
 	var is_instinct: bool = def.get("instinct", false)
@@ -731,38 +837,38 @@ func _skill_button(skill_id: String) -> Button:
 		break
 	var pip_color: Color = HUMOUR_COLORS.get(humour, UITheme.INK_SOFT)
 
-	var name_label := Label.new()
-	name_label.text = String(def["name"])
-	name_label.add_theme_font_override("font", UITheme.smallcaps_font())
-	name_label.add_theme_font_size_override("font_size", 24)
-	name_label.add_theme_color_override("font_color", UITheme.INK)
-	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	name_label.set_offset(SIDE_TOP, -52)
-	name_label.set_offset(SIDE_BOTTOM, -26)
-	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	b.add_child(name_label)
-
 	var pips_label := Label.new()
 	var jammed: bool = not is_instinct and int(runtime.get("jammed_turns", 0)) > 0
 	if jammed:
 		pips_label.text = "jammed"
 	elif is_instinct:
-		pips_label.text = "free · 1/turn" if not state.instinct_used else "spent this turn"
+		pips_label.text = "free" if not state.instinct_used else "spent"
 	else:
 		var left := int(runtime.get("charges_left", 0))
 		var pips := ""
 		for i in int(def.get("charges", 0)):
 			pips += "●" if i < left else "○"
 		pips_label.text = pips
-	pips_label.add_theme_font_size_override("font_size", 22)
+	pips_label.add_theme_font_size_override("font_size", 24)
 	pips_label.add_theme_color_override("font_color", pip_color)
 	pips_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	pips_label.set_offset(SIDE_TOP, -26)
-	pips_label.set_offset(SIDE_BOTTOM, -6)
+	pips_label.set_offset(SIDE_TOP, -50)
+	pips_label.set_offset(SIDE_BOTTOM, -28)
 	pips_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	pips_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(pips_label)
+
+	var name_label := Label.new()
+	name_label.text = String(def["name"])
+	name_label.add_theme_font_override("font", UITheme.smallcaps_font())
+	name_label.add_theme_font_size_override("font_size", 22)
+	name_label.add_theme_color_override("font_color", UITheme.INK)
+	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	name_label.set_offset(SIDE_TOP, -28)
+	name_label.set_offset(SIDE_BOTTOM, -6)
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(name_label)
 
 	b.modulate = Color(1, 1, 1, 1.0 if _skill_playable(skill_id) else 0.45)
 	b.pressed.connect(_on_skill_selected.bind(skill_id))
@@ -801,7 +907,7 @@ func _effect_summary(def: Dictionary) -> String:
 func _intent_text(intent: Dictionary) -> String:
 	match intent["target"]:
 		"health": return "%d damage" % int(intent["amount"])
-		"skills": return "burns a skill charge" if intent.get("mode", "jam") == "burn" else "jams a skill"
+		"skills": return "burns a charge" if intent.get("mode", "jam") == "burn" else "jams a skill"
 		"hand": return "steals %d card(s)" % int(intent["amount"])
 	return "?"
 
@@ -816,13 +922,13 @@ func _start_ambient_animation() -> void:
 
 func _log(line: String) -> void:
 	log_lines.append(line)
-	while log_lines.size() > 3:
+	while log_lines.size() > 2:
 		log_lines.remove_at(0)
 	if log_label != null:
 		log_label.text = "\n".join(log_lines)
 
 
-func _clear(container: Container) -> void:
+func _clear(container: Control) -> void:
 	for child in container.get_children():
 		container.remove_child(child)
 		child.queue_free()

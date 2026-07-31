@@ -32,6 +32,7 @@ var tour_mode := false
 
 
 func _ready() -> void:
+	RenderingServer.set_default_clear_color(Color("100e0c"))  # the book's dark edge
 	theme = UITheme.build()  # storybook theme; every child screen inherits
 	catalog = DataLoader.load_catalog()
 	tour_mode = OS.get_cmdline_user_args().has("--tour")
