@@ -43,6 +43,40 @@ static func body_font() -> FontFile:
 	return font("Alegreya.ttf")
 
 
+## Art slot filler: the real image when it exists, else a black box with
+## white text describing the missing image (owner rule — placeholders make
+## gaps visible instead of invisible).
+static func art_or_placeholder(id: String, description: String) -> Control:
+	var art := tex(id)
+	if art != null:
+		var rect := TextureRect.new()
+		rect.texture = art
+		rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		return rect
+	var holder := Panel.new()
+	var black := StyleBoxFlat.new()
+	black.bg_color = Color.BLACK
+	holder.add_theme_stylebox_override("panel", black)
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var label := Label.new()
+	label.text = "[ %s ]\n%s" % [id, description]
+	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_color_override("font_color", Color.WHITE)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	for side in [SIDE_LEFT, SIDE_TOP]:
+		label.set_offset(side, 14)
+	for side in [SIDE_RIGHT, SIDE_BOTTOM]:
+		label.set_offset(side, -14)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.add_child(label)
+	return holder
+
+
 static func stylebox(id: String, margin: int, modulate := Color.WHITE) -> StyleBoxTexture:
 	var box := StyleBoxTexture.new()
 	box.texture = tex("ui/" + id)

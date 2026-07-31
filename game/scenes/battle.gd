@@ -22,11 +22,18 @@ const INTENT_ICON := {
 	"skills": "ui/ui_icon_intent_skills",
 	"hand": "ui/ui_icon_intent_hand",
 }
-const APPROACH_TEXT := {
-	"stalk": "Stalk — spend Shadow 2. Begin hidden: its first move finds nothing, and your claws stay keen (+1 first hit).",
-	"ambush": "Ambush — spend Ferocity 2. Strike first for 3, but it comes up angry (+2 on its first hit).",
-	"case": "Case It — spend Guile 2. Study the target: draw 2 extra cards.",
-	"ward": "Ward — spend Moonlight 2. Stitch a ward: Block 4 that holds through its first turn.",
+## Max 3 options ever shown (owner readability rule): 2 approaches + Walk In.
+const APPROACH_TITLE := {
+	"stalk": "Stalk — Shadow 2",
+	"ambush": "Ambush — Ferocity 2",
+	"case": "Case It — Guile 2",
+	"ward": "Ward — Moonlight 2",
+}
+const APPROACH_DESC := {
+	"stalk": "Begin hidden. Its first move misses. First hit +1.",
+	"ambush": "Strike first for 3. It comes up angry.",
+	"case": "Study the target. Draw 2 cards.",
+	"ward": "Block 4 that holds through its first turn.",
 }
 
 var catalog: Catalog
@@ -35,8 +42,14 @@ var encounter_def: Dictionary
 var environment_def: Dictionary
 var skill_ids: Array = []
 var hints: Dictionary = {}
+var coach_steps: Array = []
+var no_approach := false
 var log_lines: Array[String] = []
 var selected_skill := ""
+var coach: Coach = null
+var skill_buttons: Dictionary = {}
+var end_turn_button: Button
+var slip_button: Button
 
 var title_label: Label
 var rule_label: Label
@@ -59,17 +72,21 @@ var detail_panel: PanelContainer
 var detail_label: Label
 var detail_use: Button
 var approach_overlay: Control
+var approach_panel: Control
 var overlay: Control
 var overlay_label: Label
 var overlay_button: Button
 
 
-func setup(p_catalog: Catalog, config: Dictionary, encounter_id: String, p_hints: Dictionary = {}) -> void:
+func setup(p_catalog: Catalog, config: Dictionary, encounter_id: String,
+		p_hints: Dictionary = {}, p_coach: Array = []) -> void:
 	catalog = p_catalog
 	encounter_def = catalog.encounters[encounter_id]
 	environment_def = catalog.environments[encounter_def["environment"]]
 	skill_ids = Array(config.get("skills", []))
 	hints = p_hints
+	coach_steps = p_coach
+	no_approach = config.get("no_approach", false)
 	var full_config := config.duplicate(true)
 	full_config["environment"] = environment_def
 	full_config["enemy"] = encounter_def["enemies"][0]
@@ -78,6 +95,9 @@ func setup(p_catalog: Catalog, config: Dictionary, encounter_id: String, p_hints
 
 func _ready() -> void:
 	_build_ui()
+	if not coach_steps.is_empty():
+		coach = Coach.new(coach_steps, _coach_target)
+		add_child(coach)
 	_log("— %s —" % encounter_def["name"])
 	_drain_events()
 	_refresh()
@@ -85,10 +105,24 @@ func _ready() -> void:
 	_start_ambient_animation()
 
 
+func _coach_target(key: String) -> Control:
+	if key.begins_with("skill:"):
+		return skill_buttons.get(key.trim_prefix("skill:"), null)
+	match key:
+		"approach": return approach_panel if approach_overlay.visible else null
+		"use": return detail_use
+		"end_turn": return end_turn_button
+		"slip": return slip_button
+		"hand": return hand_row
+	return null
+
+
 # ------------------------------------------------------------------ commands
 
 func _on_approach(mode: String) -> void:
 	approach_overlay.visible = false
+	if coach != null:
+		coach.notify("approach")
 	if mode == "":
 		_log("Walked in. Sometimes the front door is the trick.")
 	else:
@@ -102,6 +136,8 @@ func _on_approach(mode: String) -> void:
 
 
 func _on_skill_selected(skill_id: String) -> void:
+	if coach != null:
+		coach.notify("skill:" + skill_id)
 	selected_skill = skill_id
 	var def: Dictionary = catalog.skills[skill_id]
 	var cost := state.effective_cost(def.get("cost", {}))
@@ -120,6 +156,8 @@ func _on_skill_selected(skill_id: String) -> void:
 
 
 func _on_detail_use() -> void:
+	if coach != null:
+		coach.notify("use")
 	var skill_id := selected_skill
 	_close_detail()
 	var result := state.do_command({"type": "play_skill", "skill_id": skill_id})
@@ -136,6 +174,8 @@ func _close_detail() -> void:
 
 
 func _on_card_pressed(hand_index: int) -> void:
+	if coach != null:
+		coach.notify("hand")
 	var card_id: String = state.hand[hand_index]
 	var result := state.do_command({"type": "bank", "hand_index": hand_index})
 	if result["ok"]:
@@ -146,6 +186,8 @@ func _on_card_pressed(hand_index: int) -> void:
 
 
 func _on_end_turn() -> void:
+	if coach != null:
+		coach.notify("end_turn")
 	_close_detail()
 	var intent := state.current_intent()
 	var was_spotted := state.spotted
@@ -158,6 +200,8 @@ func _on_end_turn() -> void:
 
 
 func _on_slip_away() -> void:
+	if coach != null:
+		coach.notify("slip")
 	_close_detail()
 	state.do_command({"type": "slip_away"})
 	_after_command()
@@ -186,15 +230,12 @@ func _drain_events() -> void:
 
 
 func _maybe_offer_approach() -> void:
-	if not state.can_approach():
+	if no_approach or not state.can_approach():
 		return
-	var any_affordable := false
 	for mode in CombatState.APPROACHES:
 		if state.can_pay(state.effective_cost(CombatState.APPROACHES[mode]["cost"])):
-			any_affordable = true
-			break
-	if any_affordable:
-		approach_overlay.visible = true
+			approach_overlay.visible = true
+			return
 
 
 func _show_outcome() -> void:
@@ -227,11 +268,11 @@ func _build_ui() -> void:
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right"]:
 		margin.add_theme_constant_override("margin_" + side, 34)
-	margin.add_theme_constant_override("margin_top", 26)
-	margin.add_theme_constant_override("margin_bottom", 30)
+	margin.add_theme_constant_override("margin_top", 24)
+	margin.add_theme_constant_override("margin_bottom", 40)
 	add_child(margin)
 	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 8)
+	root.add_theme_constant_override("separation", 6)
 	margin.add_child(root)
 
 	# Location ribbon
@@ -239,7 +280,7 @@ func _build_ui() -> void:
 	ribbon.texture = UITheme.tex("ui/ui_ribbon")
 	ribbon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	ribbon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	ribbon.custom_minimum_size = Vector2(0, 58)
+	ribbon.custom_minimum_size = Vector2(0, 50)
 	root.add_child(ribbon)
 	title_label = Label.new()
 	title_label.text = environment_def["name"]
@@ -255,6 +296,19 @@ func _build_ui() -> void:
 	rule_label.text = environment_def.get("rule_text", "")
 	rule_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
+	# Scene art strip: the location, image-heavy per the owner's direction.
+	var scene_strip := PanelContainer.new()
+	var strip_frame := StyleBoxFlat.new()
+	strip_frame.bg_color = Color(environment_def.get("color", "#333"))
+	strip_frame.set_border_width_all(2)
+	strip_frame.border_color = UITheme.INK
+	scene_strip.add_theme_stylebox_override("panel", strip_frame)
+	scene_strip.custom_minimum_size = Vector2(0, 84)
+	scene_strip.clip_contents = true
+	root.add_child(scene_strip)
+	scene_strip.add_child(UITheme.art_or_placeholder(
+		environment_def.get("image", ""), environment_def.get("name", "location art")))
+
 	hint_label = _label(root, 16, Color("8a5a20"))
 	hint_label.add_theme_font_override("font", UITheme.italic_font())
 	hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -265,7 +319,7 @@ func _build_ui() -> void:
 	enemy_row.add_theme_constant_override("separation", 14)
 	root.add_child(enemy_row)
 	enemy_art = _framed_portrait(catalog.enemies[state.enemy_id].get("image", ""),
-		Color(catalog.enemies[state.enemy_id].get("color", "#888888")))
+		String(catalog.enemies[state.enemy_id]["name"]))
 	enemy_row.add_child(enemy_art)
 	var enemy_col := VBoxContainer.new()
 	enemy_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -298,7 +352,7 @@ func _build_ui() -> void:
 	log_label.add_theme_font_override("font", UITheme.italic_font())
 	log_label.add_theme_font_size_override("font_size", 15)
 	log_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
-	log_label.custom_minimum_size = Vector2(0, 64)
+	log_label.custom_minimum_size = Vector2(0, 48)
 	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	log_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	log_panel.add_child(log_label)
@@ -364,26 +418,26 @@ func _build_ui() -> void:
 	var action_row := HBoxContainer.new()
 	action_row.add_theme_constant_override("separation", 10)
 	root.add_child(action_row)
-	var end_turn := Button.new()
-	end_turn.text = "End Turn"
-	end_turn.custom_minimum_size = Vector2(0, 62)
-	end_turn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	end_turn.add_theme_font_override("font", UITheme.display_font())
-	end_turn.add_theme_font_size_override("font_size", 26)
-	end_turn.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
-	end_turn.add_theme_stylebox_override("hover", UITheme.amber_stylebox(Color(1.08, 1.05, 1.0)))
-	end_turn.add_theme_stylebox_override("pressed", UITheme.amber_stylebox(Color(0.85, 0.8, 0.75)))
-	end_turn.pressed.connect(_on_end_turn)
-	action_row.add_child(end_turn)
-	var slip := Button.new()
-	slip.text = "Slip Away"
-	slip.custom_minimum_size = Vector2(150, 62)
-	slip.add_theme_stylebox_override("normal", UITheme.dark_stylebox())
-	slip.add_theme_stylebox_override("hover", UITheme.dark_stylebox(Color(1.15, 1.15, 1.15)))
-	slip.add_theme_stylebox_override("pressed", UITheme.dark_stylebox(Color(0.8, 0.8, 0.8)))
-	slip.add_theme_color_override("font_color", Color("e8e4d8"))
-	slip.pressed.connect(_on_slip_away)
-	action_row.add_child(slip)
+	end_turn_button = Button.new()
+	end_turn_button.text = "End Turn"
+	end_turn_button.custom_minimum_size = Vector2(0, 56)
+	end_turn_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	end_turn_button.add_theme_font_override("font", UITheme.display_font())
+	end_turn_button.add_theme_font_size_override("font_size", 26)
+	end_turn_button.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
+	end_turn_button.add_theme_stylebox_override("hover", UITheme.amber_stylebox(Color(1.08, 1.05, 1.0)))
+	end_turn_button.add_theme_stylebox_override("pressed", UITheme.amber_stylebox(Color(0.85, 0.8, 0.75)))
+	end_turn_button.pressed.connect(_on_end_turn)
+	action_row.add_child(end_turn_button)
+	slip_button = Button.new()
+	slip_button.text = "Slip Away"
+	slip_button.custom_minimum_size = Vector2(150, 56)
+	slip_button.add_theme_stylebox_override("normal", UITheme.dark_stylebox())
+	slip_button.add_theme_stylebox_override("hover", UITheme.dark_stylebox(Color(1.15, 1.15, 1.15)))
+	slip_button.add_theme_stylebox_override("pressed", UITheme.dark_stylebox(Color(0.8, 0.8, 0.8)))
+	slip_button.add_theme_color_override("font_color", Color("e8e4d8"))
+	slip_button.pressed.connect(_on_slip_away)
+	action_row.add_child(slip_button)
 
 	approach_overlay = _build_approach_overlay()
 	overlay = _build_outcome_overlay()
@@ -401,29 +455,55 @@ func _build_approach_overlay() -> Control:
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = Vector2(560, 0)
 	center.add_child(panel)
+	approach_panel = panel
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 10)
 	panel.add_child(box)
 	var title := Label.new()
 	title.text = "How does Ash go in?"
 	title.add_theme_font_override("font", UITheme.display_font())
-	title.add_theme_font_size_override("font_size", 24)
+	title.add_theme_font_size_override("font_size", 30)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
+	# Readability rule: at most 2 approaches + Walk In on screen.
+	var affordable: Array[String] = []
 	for mode in CombatState.APPROACHES:
-		var b := Button.new()
-		b.text = APPROACH_TEXT[mode]
-		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		b.custom_minimum_size = Vector2(0, 64)
-		b.disabled = not state.can_pay(state.effective_cost(CombatState.APPROACHES[mode]["cost"]))
-		b.pressed.connect(_on_approach.bind(mode))
-		box.add_child(b)
-	var walk := Button.new()
-	walk.text = "Walk in — spend nothing. A door is a door."
-	walk.custom_minimum_size = Vector2(0, 56)
-	walk.pressed.connect(_on_approach.bind(""))
-	box.add_child(walk)
+		if affordable.size() < 2 and \
+				state.can_pay(state.effective_cost(CombatState.APPROACHES[mode]["cost"])):
+			affordable.append(mode)
+	for mode in affordable:
+		box.add_child(_approach_button(APPROACH_TITLE[mode], APPROACH_DESC[mode], mode))
+	box.add_child(_approach_button("Walk In", "Spend nothing. A door is a door.", ""))
 	return dim
+
+
+func _approach_button(title_text: String, desc_text: String, mode: String) -> Button:
+	var b := Button.new()
+	b.custom_minimum_size = Vector2(0, 96)
+	b.pressed.connect(_on_approach.bind(mode))
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 4)
+	content.set_anchors_preset(Control.PRESET_FULL_RECT)
+	content.alignment = BoxContainer.ALIGNMENT_CENTER
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(content)
+	var title := Label.new()
+	title.text = title_text
+	title.add_theme_font_override("font", UITheme.display_font())
+	title.add_theme_font_size_override("font_size", 26)
+	title.add_theme_color_override("font_color", UITheme.INK)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(title)
+	var desc := Label.new()
+	desc.text = desc_text
+	desc.add_theme_font_size_override("font_size", 18)
+	desc.add_theme_color_override("font_color", UITheme.INK_SOFT)
+	desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(desc)
+	return b
 
 
 func _build_outcome_overlay() -> Control:
@@ -455,32 +535,18 @@ func _build_outcome_overlay() -> Control:
 	return dim
 
 
-func _framed_portrait(image_id: String, fallback: Color) -> Control:
+func _framed_portrait(image_id: String, description: String) -> Control:
 	var holder := Control.new()
-	holder.custom_minimum_size = Vector2(150, 196)
-	var art := UITheme.tex(image_id)
-	if art != null:
-		var art_rect := TextureRect.new()
-		art_rect.texture = art
-		art_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		art_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		art_rect.clip_contents = true
-		art_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
-		art_rect.set_offsets_preset(Control.PRESET_FULL_RECT)
-		for side in [SIDE_LEFT, SIDE_TOP]:
-			art_rect.set_offset(side, 10)
-		for side in [SIDE_RIGHT, SIDE_BOTTOM]:
-			art_rect.set_offset(side, -10)
-		holder.add_child(art_rect)
-	else:
-		var swatch := ColorRect.new()
-		swatch.color = fallback
-		swatch.set_anchors_preset(Control.PRESET_FULL_RECT)
-		for side in [SIDE_LEFT, SIDE_TOP]:
-			swatch.set_offset(side, 10)
-		for side in [SIDE_RIGHT, SIDE_BOTTOM]:
-			swatch.set_offset(side, -10)
-		holder.add_child(swatch)
+	holder.custom_minimum_size = Vector2(164, 212)
+	var art := UITheme.art_or_placeholder(image_id, description)
+	art.set_anchors_preset(Control.PRESET_FULL_RECT)
+	for side in [SIDE_LEFT, SIDE_TOP]:
+		art.set_offset(side, 10)
+	for side in [SIDE_RIGHT, SIDE_BOTTOM]:
+		art.set_offset(side, -10)
+	if art is TextureRect:
+		art.clip_contents = true
+	holder.add_child(art)
 	var frame := UITheme.tex("ui/ui_frame_portrait")
 	if frame != null:
 		var frame_rect := TextureRect.new()
@@ -554,8 +620,15 @@ func _refresh() -> void:
 		b.pressed.connect(_on_card_pressed.bind(i))
 		hand_row.add_child(b)
 	_clear(skills_row)
+	skill_buttons.clear()
+	var shown: Array[String] = []
 	for skill_id in skill_ids + ["scratch"]:
-		skills_row.add_child(_skill_button(skill_id))
+		if not shown.has(skill_id):
+			shown.append(skill_id)
+	for skill_id in shown:
+		var button := _skill_button(skill_id)
+		skill_buttons[skill_id] = button
+		skills_row.add_child(button)
 
 
 func _card_button(card_id: String, scale := 1.0) -> Button:
@@ -563,7 +636,7 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	var humour: String = card["humour"]
 	var b := Button.new()
 	b.flat = true
-	b.custom_minimum_size = Vector2(104, 142) * scale
+	b.custom_minimum_size = Vector2(92, 126) * scale
 	var frame := TextureRect.new()
 	frame.texture = UITheme.tex(HUMOUR_CARD_FRAME.get(humour, ""))
 	frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -583,7 +656,7 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(glyph)
 	var value := Label.new()
-	value.text = str(card["value"])
+	value.text = str(int(card["value"]))
 	value.add_theme_font_override("font", UITheme.display_font())
 	value.add_theme_font_size_override("font_size", int(24 * scale))
 	value.add_theme_color_override("font_color", UITheme.INK)
@@ -607,7 +680,7 @@ func _skill_button(skill_id: String) -> Button:
 	var def: Dictionary = catalog.skills[skill_id]
 	var b := Button.new()
 	b.flat = true
-	b.custom_minimum_size = Vector2(96, 118)
+	b.custom_minimum_size = Vector2(90, 108)
 	var art := TextureRect.new()
 	art.texture = UITheme.tex("sk_" + skill_id)
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -633,7 +706,7 @@ func _skill_button(skill_id: String) -> Button:
 	var is_instinct: bool = def.get("instinct", false)
 	var pips := ""
 	if is_instinct:
-		pips = "∞" if not state.instinct_used else "—"
+		pips = "free" if not state.instinct_used else "used"
 	else:
 		var left := int(runtime.get("charges_left", 0))
 		var total := int(def.get("charges", 0))

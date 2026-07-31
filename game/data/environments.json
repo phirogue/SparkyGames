@@ -24,11 +24,30 @@
     "name": "The Parlor",
     "color": "#3a4350",
     "accent": "#b8c4d4",
-    "image": "bg_parlor",
-    "image_tint": "#8093b8",
+    "image": "bg_parlor_cold",
     "sunbeam_turns": [],
     "cost_mod": { "moonlight": -1 },
     "rule_text": "Her room remembers her: Moonlight costs 1 less."
+  },
+  "parlor_warm": {
+    "id": "parlor_warm",
+    "name": "The Parlor, Before",
+    "color": "#5c4433",
+    "accent": "#e8c48a",
+    "image": "bg_parlor_warm",
+    "sunbeam_turns": [2, 4],
+    "cost_mod": { "moonlight": -1 },
+    "rule_text": "Warm, and hers."
+  },
+  "needle_lane_wrong": {
+    "id": "needle_lane_wrong",
+    "name": "Needle Lane, Wrong",
+    "color": "#232c3d",
+    "accent": "#8fa4c8",
+    "image": "bg_needle_lane_wrong",
+    "sunbeam_turns": [],
+    "cost_mod": { "shadow": -1 },
+    "rule_text": "The lamps are out. The dark is deeper than it should be."
   },
   "hollow_court": {
     "id": "hollow_court",
@@ -45,6 +64,7 @@
     "name": "The Back Gardens",
     "color": "#33402e",
     "accent": "#a8c48a",
+    "image": "bg_gardens",
     "sunbeam_turns": [],
     "cost_mod": { "ferocity": 1 },
     "stealth_threshold": 5,
@@ -55,6 +75,7 @@
     "name": "The Shambles, After Hours",
     "color": "#4a3a2e",
     "accent": "#d8a25f",
+    "image": "bg_shambles",
     "sunbeam_turns": [3],
     "cost_mod": { "guile": -1 },
     "rule_text": "Everything is negotiable: Guile costs 1 less."

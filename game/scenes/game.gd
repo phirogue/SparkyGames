@@ -26,15 +26,26 @@ var carryover: Dictionary = {}
 var last_outcome := CombatState.Outcome.ONGOING
 
 
+var tour_mode := false
+
+
 func _ready() -> void:
 	theme = UITheme.build()  # storybook theme; every child screen inherits
 	catalog = DataLoader.load_catalog()
-	profile = SaveService.load_profile()
+	tour_mode = OS.get_cmdline_user_args().has("--tour")
+	if tour_mode:
+		# Screenshot tour: throwaway profile, never touches the real save.
+		profile = SaveService.DEFAULT_PROFILE.duplicate(true)
+	else:
+		profile = SaveService.load_profile()
 	tracker = AchievementTracker.new(catalog)
 	tracker.from_dict(profile.get("achievements", {}))
 	var file := FileAccess.open("res://story/prologue.json", FileAccess.READ)
 	story = JSON.parse_string(file.get_as_text())
-	if profile["prologue_done"]:
+	if tour_mode:
+		add_child(load("res://tests/tour.gd").new())
+		_run_prologue_scene(0)
+	elif profile["prologue_done"]:
 		_show_hub()
 	else:
 		_run_prologue_scene(0)
@@ -79,7 +90,8 @@ func _show_story(config: Dictionary, on_done: Callable) -> void:
 	_swap(screen)
 
 
-func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {}, extra: Dictionary = {}) -> void:
+func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {},
+		extra: Dictionary = {}, coach: Array = []) -> void:
 	var config := {
 		"player_max_hp": int(profile["max_hp"]),
 		"player_hp": carryover.get("hp", int(profile["max_hp"])),
@@ -91,7 +103,7 @@ func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {
 		config["skill_charges"] = carryover["skill_charges"]
 	config.merge(extra, true)
 	var screen: Control = BattleScreen.new()
-	screen.setup(catalog, config, encounter_id, hints)
+	screen.setup(catalog, config, encounter_id, hints, coach)
 	screen.encounter_finished.connect(on_done)
 	_swap(screen)
 
@@ -130,6 +142,8 @@ func _digest(state: CombatState) -> void:
 
 
 func _save() -> void:
+	if tour_mode:
+		return
 	profile["achievements"] = tracker.to_dict()
 	SaveService.save_profile(profile)
 
@@ -145,10 +159,19 @@ func _run_prologue_scene(index: int) -> void:
 		return
 	var scene: Dictionary = scenes[index]
 	var next := func(_arg: Variant = null) -> void: _run_prologue_scene(index + 1)
-	# Branch gate: scenes marked when_flag only play on the matching choice.
+	# Branch gates: choice flags and last-battle outcomes both route scenes.
 	if scene.has("when_flag"):
 		var gate: Dictionary = scene["when_flag"]
 		if int(profile["flags"].get(gate["flag"], -1)) != int(gate["value"]):
+			next.call()
+			return
+	if scene.has("when_outcome"):
+		var wanted: int = {
+			"victory": CombatState.Outcome.VICTORY,
+			"defeat": CombatState.Outcome.DEFEAT,
+			"retreat": CombatState.Outcome.RETREATED,
+		}.get(scene["when_outcome"], -1)
+		if last_outcome != wanted:
 			next.call()
 			return
 	match scene["type"]:
@@ -166,6 +189,8 @@ func _run_prologue_scene(index: int) -> void:
 			var config := _story_config(scene["environment"], scene["lines"])
 			if scene.has("portrait"):
 				config["portrait"] = scene["portrait"]
+			if scene.has("art_desc"):
+				config["art_desc"] = scene["art_desc"]
 			if scene.has("choices"):
 				config["choices"] = scene["choices"]
 				_show_story(config, func(choice: int) -> void:
@@ -181,10 +206,18 @@ func _run_prologue_scene(index: int) -> void:
 				var gate: Dictionary = scene["start_hidden_if_flag"]
 				if int(profile["flags"].get(gate["flag"], -1)) == int(gate["value"]):
 					extra["start_hidden"] = true
+			if scene.has("deck"):
+				# Tutorial stage: fixed teaching deck, fresh charges.
+				extra["deck"] = scene["deck"]
+				extra["skill_charges"] = {}
+			if scene.has("shuffle"):
+				extra["shuffle"] = scene["shuffle"]
+			if scene.get("no_approach", false):
+				extra["no_approach"] = true
 			_show_battle(scene["encounter"], func(state: CombatState) -> void:
 				_digest(state)
 				_run_prologue_scene(index + 1),
-				scene.get("hints", {}), extra)
+				scene.get("hints", {}), extra, scene.get("coach", []))
 		"hollow_court_if_died":
 			if last_outcome == CombatState.Outcome.DEFEAT:
 				var lines: Array = story["hollow_court_first"] \
