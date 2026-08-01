@@ -19,7 +19,9 @@ static func _content_region(tex: Texture2D, key: String) -> Rect2:
 
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(0, 26)
+	# Tall enough for a fray drawn at DOUBLE the rope height (owner rule):
+	# the rope band sits centered; the fray fills the full control height.
+	custom_minimum_size = Vector2(0, 44)
 	# Nothing this bar draws may ever leave its rect (a wide fray texture
 	# once shot the rope clean off the screen edge).
 	clip_contents = true
@@ -49,27 +51,33 @@ func _notification(what: int) -> void:
 func _draw() -> void:
 	var h := size.y
 	var mid := h / 2.0
+	# The rope band is HALF the control height, centered — leaving room for
+	# the fray to be drawn at double the rope's height (owner rule: stretch
+	# the fray vertically, not horizontally).
+	var rope_h := h * 0.5
+	var rope_top := mid - rope_h / 2.0
 	var rope_w := size.x * _shown
 	var segment := UITheme.tex("ui/ui_thread_segment")
 	var fray := UITheme.tex("ui/ui_thread_fray")
 	if segment != null and rope_w > 4.0:
 		# The REAL rope art (owner requirement), content-cropped and tiled.
 		var src := _content_region(segment, "segment")
-		var tile_w: float = h * src.size.x / src.size.y
+		var tile_w: float = rope_h * src.size.x / src.size.y
 		var x := 0.0
 		while x < rope_w:
 			var w := minf(tile_w, rope_w - x)
-			draw_texture_rect_region(segment, Rect2(x, 0, w, h),
+			draw_texture_rect_region(segment, Rect2(x, rope_top, w, rope_h),
 				Rect2(src.position.x, src.position.y,
 					src.size.x * (w / tile_w), src.size.y))
 			x += tile_w
 		var dash_start: float = rope_w + 8.0
 		if fray != null and _shown < 0.999:
 			var fray_src := _content_region(fray, "fray")
-			var fray_h := h * 1.5
-			# The fray art's aspect is whatever the generator felt like; cap
-			# its width so the tip stays a tip and never leaves the bar.
-			var fray_w: float = minf(fray_h * fray_src.size.x / fray_src.size.y, h * 2.5)
+			var fray_h := rope_h * 2.0  # double the rope height
+			# Width stays keyed to the ROPE height (unchanged look), capped
+			# so the tip stays a tip and never leaves the bar.
+			var fray_w: float = minf(rope_h * 1.5 * fray_src.size.x / fray_src.size.y,
+				rope_h * 2.5)
 			# Tuck the fray a third of its width UNDER the rope's cut end so
 			# the two textures read as one thread, not a butt joint.
 			var fray_x := rope_w - fray_w * 0.35

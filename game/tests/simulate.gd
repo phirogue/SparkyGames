@@ -12,7 +12,7 @@ const STARTER_DECK := [
 	"ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1",
 	"guile_1", "guile_1", "guile_1",
 	"shadow_1", "shadow_1", "shadow_1", "shadow_1",
-	"moonlight_1", "moonlight_1", "moonlight_1",
+	"mysticism_1", "mysticism_1", "mysticism_1",
 ]
 
 ## Tutorial-stage scenarios mirror what the player actually has at that

@@ -64,10 +64,16 @@ comes from Midjourney, provided by the project owner.
    Set-Content** — PS 5.1 misdecodes UTF-8 and mints mojibake (—, ●, ❋
    destroyed once already). Use
    `[IO.File]::ReadAllText/WriteAllText($f, $c, UTF8-no-BOM)`.
-5. **Layout is a zone contract.** The battle screen documents pixel budgets
-   per zone summing under 1280; keep it updated when sizes change. The page
-   art's stitching insets are EMPIRICAL: side 64, top 54, bottom 92 — not
-   the 9-patch margins.
+5. **Layout is calibrated, never guessed (owner's method).** Steps:
+   (1) black rectangle tuned until snug inside the page's dashed stitching
+   → `UITheme.PAGE_MARGIN_*` = 68/40/70/136, content 582x1104;
+   (2) colored zone boxes divide the content area per screen type BEFORE
+   real widgets go in (`tests/calibrate.gd -- zones battle|story|choice|hub`
+   — keep the maps in sync with each screen's layout contract);
+   (3) for each text box, calibrate font size and character budget with
+   measure_text so everything fits BEFORE placement;
+   (4) only then place final objects. Re-run step 1 whenever the page art
+   changes. Screens read the constants — never hand-edit margins.
 6. **Tutorial promises must be deterministic.** If a coach step tells the
    player to do X, the scene data must guarantee X is possible
    (`shuffle: false` + ordered deck). Every post-battle story scene needs

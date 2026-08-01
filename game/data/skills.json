@@ -35,7 +35,7 @@
   "purr": {
     "id": "purr",
     "name": "Purr",
-    "cost": { "moonlight": 1 },
+    "cost": { "guile": 1 },
     "charges": 2,
     "effects": [{ "type": "channel_heal", "amount": 2, "turns": 2 }],
     "flavor": "Self-repair, audible from the next room."

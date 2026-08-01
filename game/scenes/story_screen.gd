@@ -49,11 +49,11 @@ func _ready() -> void:
 	# Everything lives INSIDE the stitched border of the page.
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	# The page art's stitching insets are EMPIRICAL (law #5): 64/54/92.
-	for side in ["left", "right"]:
-		margin.add_theme_constant_override("margin_" + side, 64)
-	margin.add_theme_constant_override("margin_top", 54)
-	margin.add_theme_constant_override("margin_bottom", 92)
+	# Calibrated stitch boundaries (UITheme.PAGE_MARGIN_*).
+	margin.add_theme_constant_override("margin_left", UITheme.PAGE_MARGIN_LEFT)
+	margin.add_theme_constant_override("margin_right", UITheme.PAGE_MARGIN_RIGHT)
+	margin.add_theme_constant_override("margin_top", UITheme.PAGE_MARGIN_TOP)
+	margin.add_theme_constant_override("margin_bottom", UITheme.PAGE_MARGIN_BOTTOM)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(margin)
 	var box := VBoxContainer.new()
@@ -156,7 +156,7 @@ func _advance() -> void:
 ## inside the text zone (fixed art means text gets a fixed budget; a
 ## count cap can't see how far each line wraps — pixels can).
 func _retire_overflow() -> void:
-	var budget := 1280.0 - 54.0 - 92.0 - 680.0 - 40.0 - 60.0
+	var budget := float(UITheme.CONTENT_HEIGHT) - 680.0 - 40.0 - 60.0
 	if heading != "":
 		budget -= 50.0
 	if not choices.is_empty():
@@ -166,8 +166,8 @@ func _retire_overflow() -> void:
 	while _first_visible < _revealed - 1:
 		var total := 0.0
 		for i in range(_first_visible, _revealed):
-			total += UITheme.measure_text(
-				_line_labels[i].text, line_font, line_size, 616.0).y + 18.0
+			total += UITheme.measure_text(_line_labels[i].text, line_font,
+				line_size, float(UITheme.CONTENT_WIDTH)).y + 18.0
 		if total <= budget:
 			break
 		_line_labels[_first_visible].visible = false

@@ -50,7 +50,7 @@ const APPROACHES := {
 	"stalk": {"cost": {"shadow": 2}, "name": "Stalk"},
 	"ambush": {"cost": {"ferocity": 2}, "name": "Ambush"},
 	"case": {"cost": {"guile": 2}, "name": "Case It"},
-	"ward": {"cost": {"moonlight": 2}, "name": "Ward"},
+	"ward": {"cost": {"mysticism": 2}, "name": "Ward"},
 }
 var approach := ""                     # chosen mode, "" until locked
 var approach_locked: bool = false
@@ -196,17 +196,32 @@ func skill_powered(skill_id: String) -> bool:
 	return remaining_cost(skill_id).is_empty()
 
 
-## Can the cost be paid from hand + banked right now?
+## Mysticism is WILD (owner rule 2026-08-01): it can pay any energy cost.
+## A cost keyed "mysticism" is the reverse — only true mysticism pays it
+## (reserved for the very special actions of later chapters).
+const WILD_HUMOUR := "mysticism"
+
+
+## Can the cost be paid from hand + banked right now? Specific energy pays
+## first; mysticism covers any shortfall (shared across the whole cost).
 func can_pay(cost: Dictionary) -> bool:
+	var wild_available := 0
+	for card_id in hand + banked:
+		if catalog.energy_cards[card_id]["humour"] == WILD_HUMOUR:
+			wild_available += int(catalog.energy_cards[card_id]["value"])
+	var wild_needed := 0
 	for humour in cost:
+		var required := int(cost[humour])
+		if humour == WILD_HUMOUR:
+			wild_needed += required
+			continue
 		var available := 0
 		for card_id in hand + banked:
 			var card: Dictionary = catalog.energy_cards[card_id]
 			if card["humour"] == humour:
 				available += int(card["value"])
-		if available < int(cost[humour]):
-			return false
-	return true
+		wild_needed += maxi(required - available, 0)
+	return wild_available >= wild_needed
 
 
 ## Entry point for ALL player actions. Returns {ok: bool, error: String}.
@@ -312,13 +327,18 @@ func _cmd_charge_skill(skill_id: String, source: String, index: int) -> Dictiona
 	var card: Dictionary = catalog.energy_cards[pool[index]]
 	var humour := String(card["humour"])
 	var remaining := remaining_cost(skill_id)
-	if not remaining.has(humour):
-		return _fail("'%s' has no use for %s" % [def["name"], humour])
+	# A wild (mysticism) card powers whatever the skill still needs.
+	var target_humour := humour
+	if not remaining.has(target_humour):
+		if humour == WILD_HUMOUR and not remaining.is_empty():
+			target_humour = remaining.keys()[0]
+		else:
+			return _fail("'%s' has no use for %s" % [def["name"], humour])
 	if paws_left < 1:
 		return _fail("no paws left this turn")
 	paws_left -= 1
 	var powered: Dictionary = s["powered"]
-	powered[humour] = int(powered.get(humour, 0)) + int(card["value"])
+	powered[target_humour] = int(powered.get(target_humour, 0)) + int(card["value"])
 	spent.append(pool[index])
 	pool.remove_at(index)
 	flags["energy_paid"] = int(flags["energy_paid"]) + 1
@@ -454,7 +474,9 @@ func _cmd_end_turn() -> Dictionary:
 		if channel["turns_left"] <= 0:
 			channel = {}
 			flags["purr_completed"] = true
-	_draw_up_to_limit()
+	# ONE energy recovers per turn (owner rule 2026-08-01) — the hand grows
+	# slowly; the opening three plus one a turn is the whole allowance.
+	_draw_one()
 	if sunbeam_turns.has(turn) and not spent.is_empty():
 		# A patch of sun: one spent card returns to the bottom of the deck —
 		# the fuel gauge ticks back up.
@@ -473,50 +495,55 @@ func _pay_card_count(cost: Dictionary) -> int:
 	var count := 0
 	for humour in cost:
 		var remaining := int(cost[humour])
-		for pool: Array in [hand, banked]:  # hand pays before bank, like _pay
-			if remaining <= 0:
-				break
-			var values: Array = []
-			for card_id in pool:
-				var card: Dictionary = catalog.energy_cards[card_id]
-				if card["humour"] == humour:
-					values.append(int(card["value"]))
-			values.sort()
-			values.reverse()
-			for value in values:
+		var passes: Array = [humour] if humour == WILD_HUMOUR else [humour, WILD_HUMOUR]
+		for match_humour in passes:
+			for pool: Array in [hand, banked]:  # hand pays before bank, like _pay
 				if remaining <= 0:
 					break
-				remaining -= value
-				count += 1
+				var values: Array = []
+				for card_id in pool:
+					var card: Dictionary = catalog.energy_cards[card_id]
+					if card["humour"] == match_humour:
+						values.append(int(card["value"]))
+				values.sort()
+				values.reverse()
+				for value in values:
+					if remaining <= 0:
+						break
+					remaining -= value
+					count += 1
 	return count
 
 
 func _pay(cost: Dictionary) -> void:
-	# Auto-payment: largest cards first (fewest cards spent; overpay is wasted).
-	# Hand pays before bank so saved combos survive when possible.
+	# Auto-payment: exact humour first, largest cards first (fewest spent);
+	# mysticism wilds cover any shortfall. Hand pays before bank so saved
+	# combos survive when possible.
 	for humour in cost:
 		var remaining := int(cost[humour])
-		for pool: Array in [hand, banked]:
-			if remaining <= 0:
-				break
-			var candidates: Array = []
-			for i in pool.size():
-				var card: Dictionary = catalog.energy_cards[pool[i]]
-				if card["humour"] == humour:
-					candidates.append({"index": i, "value": int(card["value"])})
-			candidates.sort_custom(func(a, b): return a["value"] > b["value"])
-			var to_remove: Array = []
-			for c in candidates:
+		var passes: Array = [humour] if humour == WILD_HUMOUR else [humour, WILD_HUMOUR]
+		for match_humour in passes:
+			for pool: Array in [hand, banked]:
 				if remaining <= 0:
 					break
-				remaining -= c["value"]
-				to_remove.append(c["index"])
-			to_remove.sort()
-			to_remove.reverse()
-			for i in to_remove:
-				spent.append(pool[i])
-				pool.remove_at(i)
-				flags["energy_paid"] = int(flags["energy_paid"]) + 1
+				var candidates: Array = []
+				for i in pool.size():
+					var card: Dictionary = catalog.energy_cards[pool[i]]
+					if card["humour"] == match_humour:
+						candidates.append({"index": i, "value": int(card["value"])})
+				candidates.sort_custom(func(a, b): return a["value"] > b["value"])
+				var to_remove: Array = []
+				for c in candidates:
+					if remaining <= 0:
+						break
+					remaining -= c["value"]
+					to_remove.append(c["index"])
+				to_remove.sort()
+				to_remove.reverse()
+				for i in to_remove:
+					spent.append(pool[i])
+					pool.remove_at(i)
+					flags["energy_paid"] = int(flags["energy_paid"]) + 1
 
 
 func _apply_effects(effects: Array) -> void:
@@ -592,11 +619,6 @@ func _enemy_act() -> void:
 				pool.remove_at(index)
 				flags["hand_lost"] = int(flags["hand_lost"]) + 1
 	_check_end()
-
-
-func _draw_up_to_limit() -> void:
-	while hand.size() < HAND_LIMIT and not deck.is_empty():
-		_draw_one()
 
 
 func _draw_one() -> void:

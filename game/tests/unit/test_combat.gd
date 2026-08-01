@@ -8,7 +8,7 @@ func _wisp_fight(seed_value: int = 7) -> CombatState:
 	return CombatState.create(catalog, seed_value, {
 		"player_hp": 12,
 		"deck": ["ferocity_2", "ferocity_2", "ferocity_1", "shadow_1", "shadow_1",
-				"moonlight_1", "guile_1", "ferocity_2", "shadow_2", "guile_2"],
+				"mysticism_1", "guile_1", "ferocity_2", "shadow_2", "guile_2"],
 		"skills": ["pounce", "slink", "purr", "loaf"],
 		"enemy": "gutter_wisp",
 	})
@@ -19,13 +19,13 @@ func test_determinism_same_seed_same_state() -> void:
 	assert_eq(a.hand, b.hand, "hands from same seed")
 	assert_eq(a.deck, b.deck, "decks from same seed")
 
-func test_opening_hand_is_small_then_refills() -> void:
+func test_opening_hand_then_one_draw_per_turn() -> void:
 	var state := _wisp_fight()
 	assert_eq(state.hand.size(), CombatState.OPENING_HAND, "battles open with 3 cards")
 	assert_eq(state.deck.size(), 7, "deck after opening draw")
 	assert_ok(state.do_command({"type": "end_turn"}))
-	assert_eq(state.hand.size(), CombatState.HAND_LIMIT,
-		"the turn-over draw refills toward the full hand")
+	assert_eq(state.hand.size(), CombatState.OPENING_HAND + 1,
+		"exactly ONE energy recovers per turn")
 
 func test_pounce_costs_energy_and_damages() -> void:
 	var state := _wisp_fight()
@@ -101,7 +101,7 @@ func test_slip_away_always_available() -> void:
 func test_purr_heals_and_is_interrupted_by_damage() -> void:
 	var state := CombatState.create(catalog, 3, {
 		"player_hp": 20,
-		"deck": ["moonlight_1", "moonlight_1", "shadow_1", "shadow_1", "guile_1", "guile_1"],
+		"deck": ["mysticism_1", "mysticism_1", "shadow_1", "shadow_1", "guile_1", "guile_1"],
 		"skills": ["purr", "slink"],
 		"enemy": "chained_dog",  # intent order: hand, health, health
 	})
@@ -185,8 +185,8 @@ func test_defeat_by_boss() -> void:
 func _charge_fixture() -> CombatState:
 	return CombatState.create(catalog, 7, {
 		"player_hp": 20,
-		"deck": ["guile_1", "guile_1", "guile_1", "guile_1", "ferocity_1",
-				"guile_1", "guile_1", "guile_1", "guile_1", "ferocity_1"],
+		"deck": ["guile_1", "guile_1", "guile_1", "guile_1", "guile_1",
+				"guile_1", "ferocity_1", "guile_1", "guile_1", "ferocity_1"],
 		"skills": ["pounce"],
 		"enemy": "gutter_wisp",
 		"shuffle": false,
@@ -201,7 +201,7 @@ func test_charge_powers_skill_across_turns() -> void:
 		"cannot fire half-powered with no ferocity left in hand")
 	assert_ok(state.do_command({"type": "end_turn"}))
 	assert_ok(state.do_command({"type": "charge_skill", "skill_id": "pounce",
-		"source": "hand", "index": 4}), "feed the drawn ferocity next turn")
+		"source": "hand", "index": 2}), "feed the drawn ferocity next turn")
 	assert_eq(state.skill_powered("pounce"), true, "power persists across turns")
 	assert_ok(state.do_command({"type": "play_skill", "skill_id": "pounce"}), "fire when full")
 	assert_eq(state.enemy_hp, 2, "pounce lands for 4")
@@ -244,7 +244,7 @@ func test_discard_is_gone_until_home() -> void:
 
 func test_concentrate_wills_energy_back_and_costs_the_turn() -> void:
 	var state := _charge_fixture()
-	assert_rejected(state.do_command({"type": "concentrate", "humour": "moonlight"}),
+	assert_rejected(state.do_command({"type": "concentrate", "humour": "mysticism"}),
 		"nothing spent yet to will back")
 	assert_ok(state.do_command({"type": "discard", "hand_index": 0}), "spend the ferocity")
 	var turn_before := state.turn

@@ -171,8 +171,8 @@
       "type": "story",
       "environment": "needle_lane_wrong",
       "lines": [
-        "Last of the four: MOONLIGHT. Hers. Borrowed. Spend it gently.",
-        "With it, the oldest medicine: the PURR.",
+        "Last of the four: MYSTICISM. Hers. It becomes whatever the moment needs.",
+        "Rare, and rarer to spend well. With it, the oldest medicine: the PURR.",
         "Four is all a cat carries. The claws stay home — you cannot scratch an absence."
       ]
     },
@@ -182,8 +182,8 @@
       "shuffle": false,
       "skills": ["slink", "purr", "loaf"],
       "deck": ["ferocity_1", "ferocity_1", "shadow_1", "shadow_1", "guile_1",
-        "guile_1", "shadow_1", "moonlight_1", "moonlight_1", "shadow_1",
-        "guile_1", "moonlight_1", "shadow_1", "guile_1", "moonlight_1"],
+        "guile_1", "shadow_1", "mysticism_1", "mysticism_1", "shadow_1",
+        "guile_1", "mysticism_1", "shadow_1", "guile_1", "mysticism_1"],
       "coach": [
         { "target": "", "text": "A RAG-WRAITH: clothes whose owner is missing. Not dead — missing. It is above your weight." },
         { "target": "skill:purr", "text": "PURR heals 2 a turn for two turns — but breaks if you're hit. Purr behind a block." },
@@ -208,14 +208,14 @@
       "type": "story",
       "environment": "needle_lane_wrong",
       "when_flag": { "flag": "prologue_route", "value": 0 },
-      "add_card": "moonlight_2",
+      "add_card": "mysticism_2",
       "portrait": "sc_lamplighters_hall",
       "art_desc": "Lamplighters' guild hall interior, abandoned mid-shift: racked ladders, cold kettle, one silver thread glinting on a lamp-hook",
       "lines": [
         "The Lamplighters' hall: door open, ladders racked, kettle cold. Nobody.",
         "Caught on a lamp-hook: a thread of silver. HER stitching. She was here tonight. Why was she HERE?",
         "I take the thread. It hums against my teeth like a struck bell.",
-        "(Her Stitching joins your deck — Moonlight 2.)"
+        "(Her Stitching joins your deck — Mysticism 2.)"
       ]
     },
     {

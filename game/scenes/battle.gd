@@ -5,14 +5,18 @@ extends Control
 ## fanned energy hand · skill cards in a parchment tray · amber End Turn with
 ## a dark Slip Away card. All rules live in CombatState.
 ##
-## LAYOUT CONTRACT — 720x1280 canvas, content width 652:
-##   A Header    88px   location banner (left) + rule card (right)
-##   B Opponent 372px   portrait 280x360 | name-plate(thread) + intent chip
-##   C Chronicle 56px
-##   D Status    64px   heart · shield · spool · turn, with dividers
-##   E Hand     180px   fanned energy cards 112x152
-##   F Skills  160-312  tray, 4-per-row ink-bordered cards 152x148
+## LAYOUT CONTRACT — 720x1280 canvas, content 582x1104 inside the
+## calibrated stitch margins (UITheme.PAGE_MARGIN_* = 68/40/70/136).
+## Zone heights are REAL heights (content + plate margins), verified with
+## tests/calibrate.gd -- zones battle:
+##   A Header   120px   banner 34px font | rule card 260 wide, 22px text
+##   B Opponent 400px   portrait 340x400 | name-plate(thread) + intent chip
+##   C Chronicle 52px   1 log line at 26px, plate margin 8
+##   D Status    64px   heart · shield · spool · paw+count · turn, margin 8
+##   E Hand     168px   fanned energy cards 113x154 (base x1.2)
+##   F Skills   150px   tray margin 8, 4-per-row cards 134x134
 ##   G Buttons  100px
+##   Sum 1054 + 8 separations(48) = 1102 <= 1104
 
 signal encounter_finished(state: CombatState)
 
@@ -67,26 +71,26 @@ const HUMOUR_CARD_FRAME := {
 	"ferocity": "ui/ui_frame_card_red",
 	"guile": "ui/ui_frame_card_green",
 	"shadow": "ui/ui_frame_card_black",
-	"moonlight": "ui/ui_frame_card_blue",
+	"mysticism": "ui/ui_frame_card_blue",
 }
 const HUMOUR_GLYPH := {
 	"ferocity": "energy_claw",
 	"guile": "energy_eye",
 	"shadow": "energy_shade",
-	"moonlight": "energy_moon",
+	"mysticism": "energy_moon",
 }
 const HUMOUR_COLORS := {
 	"ferocity": Color("c2472e"),
 	"guile": Color("5a7a3a"),
 	"shadow": Color("4a4258"),
-	"moonlight": Color("6a82a8"),
+	"mysticism": Color("6a82a8"),
 }
 ## Max 3 options ever shown (owner readability rule): 2 approaches + Walk In.
 const APPROACH_TITLE := {
 	"stalk": "Stalk — Shadow 2",
 	"ambush": "Ambush — Ferocity 2",
 	"case": "Case It — Guile 2",
-	"ward": "Ward — Moonlight 2",
+	"ward": "Ward — Mysticism 2",
 }
 const APPROACH_DESC := {
 	"stalk": "Begin hidden. Its first move misses. First hit +1.",
@@ -288,17 +292,23 @@ func _refresh_detail() -> void:
 
 
 ## The best card to feed: smallest matching value wastes the least on
-## overshoot; hand is preferred over bank on ties.
+## overshoot; hand is preferred over bank on ties. Exact humour beats a
+## mysticism wild — wilds are too precious to spend when a match exists.
 func _charge_pick(humour: String) -> Dictionary:
 	var best := {}
+	var best_wild := {}
 	for source in ["hand", "bank"]:
 		var pool: Array = state.hand if source == "hand" else state.banked
 		for i in pool.size():
 			var card: Dictionary = catalog.energy_cards[pool[i]]
+			var pick := {"source": source, "index": i, "value": int(card["value"])}
 			if card["humour"] == humour and \
 					(best.is_empty() or int(card["value"]) < int(best["value"])):
-				best = {"source": source, "index": i, "value": int(card["value"])}
-	return best
+				best = pick
+			elif card["humour"] == CombatState.WILD_HUMOUR and \
+					(best_wild.is_empty() or int(card["value"]) < int(best_wild["value"])):
+				best_wild = pick
+	return best if not best.is_empty() else best_wild
 
 
 func _on_detail_charge() -> void:
@@ -515,7 +525,7 @@ func _on_overlay_continue() -> void:
 
 # ------------------------------------------------------------------ ui build
 
-func _plate(min_height: float = 0.0) -> PanelContainer:
+func _plate(min_height: float = 0.0, content_margin: float = 12.0) -> PanelContainer:
 	# Parchment plate (flat stylebox — the strip texture carries transparent
 	# padding that breaks 9-patch fills, so plates are drawn, not textured).
 	var plate := PanelContainer.new()
@@ -524,7 +534,7 @@ func _plate(min_height: float = 0.0) -> PanelContainer:
 	style.set_border_width_all(2)
 	style.border_color = Color("4a3b2c")
 	style.set_corner_radius_all(10)
-	style.set_content_margin_all(12)
+	style.set_content_margin_all(content_margin)
 	plate.add_theme_stylebox_override("panel", style)
 	if min_height > 0:
 		plate.custom_minimum_size = Vector2(0, min_height)
@@ -539,10 +549,12 @@ func _build_ui() -> void:
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right"]:
-		margin.add_theme_constant_override("margin_" + side, 64)
-	margin.add_theme_constant_override("margin_top", 54)
-	margin.add_theme_constant_override("margin_bottom", 92)
+	# Calibrated stitch boundaries (UITheme.PAGE_MARGIN_*, measured with
+	# tests/calibrate.gd) — the dashes stay visible all around.
+	margin.add_theme_constant_override("margin_left", UITheme.PAGE_MARGIN_LEFT)
+	margin.add_theme_constant_override("margin_right", UITheme.PAGE_MARGIN_RIGHT)
+	margin.add_theme_constant_override("margin_top", UITheme.PAGE_MARGIN_TOP)
+	margin.add_theme_constant_override("margin_bottom", UITheme.PAGE_MARGIN_BOTTOM)
 	add_child(margin)
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 6)
@@ -560,12 +572,12 @@ func _build_ui() -> void:
 	var loc := Label.new()
 	loc.text = environment_def["name"]
 	loc.add_theme_font_override("font", UITheme.display_font())
-	loc.add_theme_font_size_override("font_size", 38)
+	loc.add_theme_font_size_override("font_size", 34)
 	loc.add_theme_color_override("font_color", UITheme.INK)
 	loc.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	banner.add_child(loc)
 	var rule_card := PanelContainer.new()
-	rule_card.custom_minimum_size = Vector2(240, 0)
+	rule_card.custom_minimum_size = Vector2(260, 0)
 	header.add_child(rule_card)
 	rule_plate = rule_card
 	var rule_label := Label.new()
@@ -575,8 +587,8 @@ func _build_ui() -> void:
 	rule_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	rule_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	# Label width is pinned EQUAL to the measured wrap width (law #2): the
-	# panel's flat stylebox has 16px margins each side, so 240 - 32.
-	var rule_wrap := 240.0 - 32.0
+	# panel's flat stylebox has 16px margins each side, so 260 - 32.
+	var rule_wrap := 260.0 - 32.0
 	var rule_measured := UITheme.measure_text(
 		rule_label.text, UITheme.body_font(), 22, rule_wrap)
 	rule_label.custom_minimum_size = Vector2(rule_wrap, rule_measured.y + 6)
@@ -592,8 +604,8 @@ func _build_ui() -> void:
 
 	# --- Zone B: opponent -------------------------------------------------
 	var enemy_row := HBoxContainer.new()
-	enemy_row.add_theme_constant_override("separation", 16)
-	enemy_row.custom_minimum_size = Vector2(0, 366)
+	enemy_row.add_theme_constant_override("separation", 14)
+	enemy_row.custom_minimum_size = Vector2(0, 400)
 	root.add_child(enemy_row)
 	enemy_art = _framed_portrait(catalog.enemies[state.enemy_id].get("image", ""),
 		String(catalog.enemies[state.enemy_id]["name"]))
@@ -612,7 +624,7 @@ func _build_ui() -> void:
 	name_plate.add_child(name_box)
 	enemy_label = Label.new()
 	enemy_label.add_theme_font_override("font", UITheme.display_font())
-	enemy_label.add_theme_font_size_override("font_size", 38)
+	enemy_label.add_theme_font_size_override("font_size", 34)
 	enemy_label.add_theme_color_override("font_color", UITheme.INK)
 	enemy_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	enemy_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -644,7 +656,7 @@ func _build_ui() -> void:
 	enemy_col.add_child(alarm_label)
 
 	# --- Zone C: chronicle strip ------------------------------------------
-	log_plate = _plate(40)
+	log_plate = _plate(0, 8)
 	root.add_child(log_plate)
 	log_label = Label.new()
 	log_label.add_theme_font_override("font", UITheme.italic_font())
@@ -663,7 +675,7 @@ func _build_ui() -> void:
 	# under 592 or the parent VBox stretches EVERY plate past the right
 	# stitching (the all-boxes-overflow bug). Icons 48, separation 8,
 	# one paw + a count (owner rule), short labels.
-	status_plate = _plate(56)
+	status_plate = _plate(0, 8)
 	root.add_child(status_plate)
 	var status_row := HBoxContainer.new()
 	status_row.add_theme_constant_override("separation", 8)
@@ -697,11 +709,14 @@ func _build_ui() -> void:
 	banked_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	root.add_child(banked_row)
 	hand_fan = Control.new()
-	hand_fan.custom_minimum_size = Vector2(0, 144)
+	hand_fan.custom_minimum_size = Vector2(0, 168)
 	root.add_child(hand_fan)
 
 	# --- Zone F: skills tray ----------------------------------------------
+	# WIDTH BUDGET: 4 cards at 134 + 3x8 sep + 2x8 tray margin = 566 <= 582.
 	var tray := PanelContainer.new()
+	var tray_style := UITheme.panel_stylebox(8)
+	tray.add_theme_stylebox_override("panel", tray_style)
 	root.add_child(tray)
 	skills_grid = GridContainer.new()
 	skills_grid.columns = 4
@@ -806,8 +821,8 @@ func _build_ui() -> void:
 
 	# --- Zone G: actions ---------------------------------------------------
 	var action_row := HBoxContainer.new()
-	action_row.add_theme_constant_override("separation", 12)
-	action_row.custom_minimum_size = Vector2(0, 108)
+	action_row.add_theme_constant_override("separation", 10)
+	action_row.custom_minimum_size = Vector2(0, 100)
 	root.add_child(action_row)
 	end_turn_button = Button.new()
 	end_turn_button.text = "End Turn"
@@ -821,14 +836,14 @@ func _build_ui() -> void:
 	action_row.add_child(end_turn_button)
 	concentrate_button = Button.new()
 	concentrate_button.text = "Concentrate"
-	concentrate_button.custom_minimum_size = Vector2(170, 108)
-	concentrate_button.add_theme_font_size_override("font_size", 22)
+	concentrate_button.custom_minimum_size = Vector2(148, 100)
+	concentrate_button.add_theme_font_size_override("font_size", 20)
 	concentrate_button.tooltip_text = "Give up the turn to will one spent energy back"
 	concentrate_button.pressed.connect(_on_concentrate_pressed)
 	action_row.add_child(concentrate_button)
 	slip_button = Button.new()
 	slip_button.text = "Slip Away"
-	slip_button.custom_minimum_size = Vector2(170, 108)
+	slip_button.custom_minimum_size = Vector2(148, 100)
 	slip_button.add_theme_font_size_override("font_size", 24)
 	var slip_style := StyleBoxFlat.new()
 	slip_style.bg_color = Color("2e3446")
@@ -1059,14 +1074,16 @@ func _build_concentrate_overlay() -> Control:
 
 
 func _framed_portrait(image_id: String, description: String) -> Control:
+	# The opponent is the biggest thing on the page (owner rule, twice now).
 	var holder := Control.new()
-	holder.custom_minimum_size = Vector2(300, 366)
+	holder.custom_minimum_size = Vector2(340, 400)
 	var art := UITheme.art_or_placeholder(image_id, description)
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	art.set_offset(SIDE_LEFT, 38)
-	art.set_offset(SIDE_TOP, 36)
-	art.set_offset(SIDE_RIGHT, -38)
-	art.set_offset(SIDE_BOTTOM, -52)
+	# Frame-art insets scale with the frame (was 38/36/38/52 at 300x366).
+	art.set_offset(SIDE_LEFT, 43)
+	art.set_offset(SIDE_TOP, 39)
+	art.set_offset(SIDE_RIGHT, -43)
+	art.set_offset(SIDE_BOTTOM, -57)
 	if art is TextureRect:
 		art.clip_contents = true
 	holder.add_child(art)
@@ -1131,7 +1148,7 @@ func _refresh() -> void:
 
 	_clear(banked_row)
 	for card_id in state.banked:
-		var b := _card_button(card_id, 0.62)
+		var b := _card_button(card_id, 0.75)
 		b.disabled = true
 		banked_row.add_child(b)
 	_refresh_hand_fan()
@@ -1158,15 +1175,15 @@ func _refresh_hand_fan() -> void:
 	var n := state.hand.size()
 	if n == 0:
 		return
-	var card_size := Vector2(94, 128)
-	var overlap_step := 82.0
+	var card_size := Vector2(94, 128) * 1.2  # owner: cards 20% bigger
+	var overlap_step := 98.0
 	var total_width := overlap_step * (n - 1) + card_size.x
 	var start_x: float = (hand_fan.size.x - total_width) / 2.0
 	if hand_fan.size.x <= 1:  # first layout pass: estimate from zone width
-		start_x = (592.0 - total_width) / 2.0
+		start_x = (float(UITheme.CONTENT_WIDTH) - total_width) / 2.0
 	var center := (n - 1) / 2.0
 	for i in n:
-		var b := _card_button(state.hand[i], 1.0)
+		var b := _card_button(state.hand[i], 1.2)
 		b.tooltip_text = "Tap to bank for later (enemies can steal it)"
 		b.pressed.connect(_on_card_pressed.bind(i))
 		hand_fan.add_child(b)
@@ -1229,7 +1246,7 @@ func _skill_button(skill_id: String) -> Button:
 	var def: Dictionary = catalog.skills[skill_id]
 	var b := Button.new()
 	b.flat = true
-	b.custom_minimum_size = Vector2(142, 112)
+	b.custom_minimum_size = Vector2(134, 134)
 	var card := PanelContainer.new()
 	var card_style := StyleBoxFlat.new()
 	card_style.bg_color = Color("f4e7cd")

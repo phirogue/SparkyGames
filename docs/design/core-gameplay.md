@@ -21,6 +21,16 @@
 >   will one spent energy back (best card of a chosen humour → top of deck;
 >   the enemy acts). Cats staring at nothing, finally explained.
 >
+> - **Three energies + the wild (owner, 2026-08-01 later).** The humours
+>   are FEROCITY, GUILE, SHADOW — and **MYSTICISM**, the fourth card type,
+>   which is WILD: it pays any energy cost (exact matches spend first;
+>   wilds cover shortfall). Costs keyed `mysticism` demand the real thing
+>   — reserved for very special actions acquired later. Renamed from
+>   moonlight; saves migrate automatically.
+> - **The slow-draw economy.** Opening hand 3; exactly ONE energy recovers
+>   from the deck per turn. Concentrate's willed-back card is always your
+>   next draw.
+>
 > Still proposed, not built: **potent energy as rarity** (starter decks skew
 > to 1s; 2–3-value cards become level-up/chapter rewards; gilded 4s later),
 > and **budget growth** for paws with progression.

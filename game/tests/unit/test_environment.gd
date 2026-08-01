@@ -5,7 +5,7 @@ var catalog: Catalog = DataLoader.load_catalog()
 
 func _fight(environment: Dictionary, enemy: String = "gutter_wisp", deck: Array = []) -> CombatState:
 	if deck.is_empty():
-		deck = ["ferocity_2", "ferocity_2", "guile_1", "guile_1", "moonlight_1", "shadow_1"]
+		deck = ["ferocity_2", "ferocity_2", "guile_1", "guile_1", "mysticism_1", "shadow_1"]
 	# shuffle: false -> draws come from the BACK of the deck array, so tests
 	# control the opening hand exactly.
 	return CombatState.create(catalog, 13, {
@@ -66,14 +66,14 @@ func test_alarm_and_spotted() -> void:
 
 func test_quiet_skills_raise_no_alarm() -> void:
 	var state := _fight({"stealth_threshold": 4}, "garden_watch",
-		["shadow_1", "shadow_1", "guile_1", "guile_1", "moonlight_1", "shadow_2"])
+		["shadow_1", "shadow_1", "guile_1", "guile_1", "mysticism_1", "shadow_2"])
 	assert_ok(state.do_command({"type": "play_skill", "skill_id": "slink"}), "quiet slink")
 	assert_eq(state.alarm, 0, "shadow raises no alarm")
 
 func test_unspotted_stealth_win_counts() -> void:
 	var tracker := AchievementTracker.new(catalog)
 	var state := _fight({"stealth_threshold": 4}, "gutter_wisp",
-		["shadow_1", "shadow_1", "guile_1", "guile_1", "moonlight_1", "shadow_2"])
+		["shadow_1", "shadow_1", "guile_1", "guile_1", "mysticism_1", "shadow_2"])
 	for i in 12:
 		if state.outcome != CombatState.Outcome.ONGOING:
 			break

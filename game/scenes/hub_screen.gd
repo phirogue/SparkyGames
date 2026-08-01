@@ -40,10 +40,11 @@ func _ready() -> void:
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right"]:
-		margin.add_theme_constant_override("margin_" + side, 64)
-	margin.add_theme_constant_override("margin_top", 54)
-	margin.add_theme_constant_override("margin_bottom", 92)
+	# Calibrated stitch boundaries (UITheme.PAGE_MARGIN_*).
+	margin.add_theme_constant_override("margin_left", UITheme.PAGE_MARGIN_LEFT)
+	margin.add_theme_constant_override("margin_right", UITheme.PAGE_MARGIN_RIGHT)
+	margin.add_theme_constant_override("margin_top", UITheme.PAGE_MARGIN_TOP)
+	margin.add_theme_constant_override("margin_bottom", UITheme.PAGE_MARGIN_BOTTOM)
 	add_child(margin)
 	# The Mantel holds more than one screen of things; it scrolls.
 	var scroll := ScrollContainer.new()
@@ -128,7 +129,7 @@ func refresh() -> void:
 		var humour: String = catalog.energy_cards[card_id]["humour"]
 		counts[humour] = int(counts.get(humour, 0)) + 1
 	var parts: Array[String] = []
-	for humour in ["ferocity", "guile", "shadow", "moonlight"]:
+	for humour in ["ferocity", "guile", "shadow", "mysticism"]:
 		parts.append("%s %d" % [humour.capitalize(), int(counts.get(humour, 0))])
 	deck_label.text = "Deck (%d): %s" % [profile["deck"].size(), " · ".join(parts)]
 	var visible_total := 0
@@ -163,7 +164,7 @@ func _on_shop_mode(mode: String) -> void:
 			if int(profile["gleam"]) < ADD_CARD_COST:
 				return _say_broke()
 			shop_status.text = "'An appetite for what, exactly?'"
-			for humour in ["ferocity", "guile", "shadow", "moonlight"]:
+			for humour in ["ferocity", "guile", "shadow", "mysticism"]:
 				var b := Button.new()
 				b.text = humour.capitalize() + " 2"
 				b.custom_minimum_size = Vector2(0, 48)

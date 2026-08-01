@@ -49,7 +49,7 @@ func test_case_hand_math_exact() -> void:
 	assert_eq(state.hand.size(), 6, "case over-draws past the hand limit")
 
 func test_ward_block_survives_one_turn() -> void:
-	var state := _fight(["guile_1", "shadow_1", "guile_1", "moonlight_2", "ferocity_1", "shadow_1"])
+	var state := _fight(["guile_1", "shadow_1", "guile_1", "mysticism_2", "ferocity_1", "shadow_1"])
 	assert_ok(state.do_command({"type": "approach", "mode": "ward"}), "ward")
 	assert_eq(state.player_block, 4, "warded")
 	assert_ok(state.do_command({"type": "end_turn"}))

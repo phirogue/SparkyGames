@@ -20,7 +20,7 @@ const DEFAULT_PROFILE := {
 		"ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1",
 		"guile_1", "guile_1", "guile_1",
 		"shadow_1", "shadow_1", "shadow_1", "shadow_1",
-		"moonlight_1", "moonlight_1", "moonlight_1",
+		"mysticism_1", "mysticism_1", "mysticism_1",
 	],
 	"skills": ["scratch"],
 	"flags": {},
@@ -66,4 +66,9 @@ static func _migrate(profile: Dictionary) -> Dictionary:
 	# Pre-skill-unlock saves: a finished prologue implies its skill grants.
 	if merged["prologue_done"] and merged["skills"].size() <= 1:
 		merged["skills"] = PROLOGUE_SKILLS.duplicate()
+	# 2026-08-01 energy rename: moonlight became mysticism (the wild).
+	var migrated_deck: Array = []
+	for card_id in merged["deck"]:
+		migrated_deck.append(String(card_id).replace("moonlight", "mysticism"))
+	merged["deck"] = migrated_deck
 	return merged

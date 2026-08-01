@@ -13,7 +13,7 @@ func _quick_win(seed_value: int = 7) -> CombatState:
 	# kills the 6 hp wisp in one turn: flawless, no enemy action.
 	var state := CombatState.create(catalog, seed_value, {
 		"player_hp": 12,
-		"deck": ["moonlight_1", "guile_2", "shadow_2", "shadow_1", "guile_1",
+		"deck": ["mysticism_1", "guile_2", "shadow_2", "shadow_1", "guile_1",
 				"ferocity_1", "ferocity_2", "ferocity_2"],
 		"skills": ["pounce", "swat", "slink", "purr", "loaf"],
 		"enemy": "gutter_wisp",

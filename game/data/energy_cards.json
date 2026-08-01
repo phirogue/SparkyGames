@@ -8,7 +8,7 @@
   "shadow_1": { "id": "shadow_1", "humour": "shadow", "value": 1, "name": "Dusk" },
   "shadow_2": { "id": "shadow_2", "humour": "shadow", "value": 2, "name": "Alley Dark" },
   "shadow_3": { "id": "shadow_3", "humour": "shadow", "value": 3, "name": "New Moon" },
-  "moonlight_1": { "id": "moonlight_1", "humour": "moonlight", "value": 1, "name": "Thin Thread" },
-  "moonlight_2": { "id": "moonlight_2", "humour": "moonlight", "value": 2, "name": "Her Stitching" },
-  "moonlight_3": { "id": "moonlight_3", "humour": "moonlight", "value": 3, "name": "Needle's Eye" }
+  "mysticism_1": { "id": "mysticism_1", "humour": "mysticism", "value": 1, "name": "Thin Thread" },
+  "mysticism_2": { "id": "mysticism_2", "humour": "mysticism", "value": 2, "name": "Her Stitching" },
+  "mysticism_3": { "id": "mysticism_3", "humour": "mysticism", "value": 3, "name": "Needle's Eye" }
 }

@@ -4,6 +4,18 @@ extends RefCounted
 ## (game/assets/ui/*) per docs/design/ui-style-guide.md. All screens inherit
 ## it from the game root; special styleboxes are exposed as helpers.
 
+## Stitch-boundary margins, MEASURED with tests/calibrate.gd (owner method,
+## 2026-08-01): a black rectangle at these insets sits snugly inside the
+## page art's dotted lines with the dashes fully visible. Every screen's
+## content margin comes from here — never from guessed numbers.
+const PAGE_MARGIN_LEFT := 68
+const PAGE_MARGIN_TOP := 40
+const PAGE_MARGIN_RIGHT := 70
+const PAGE_MARGIN_BOTTOM := 136
+## Content area inside the stitching on the 720x1280 canvas.
+const CONTENT_WIDTH := 720 - PAGE_MARGIN_LEFT - PAGE_MARGIN_RIGHT  # 582
+const CONTENT_HEIGHT := 1280 - PAGE_MARGIN_TOP - PAGE_MARGIN_BOTTOM  # 1104
+
 const INK := Color("2b2320")
 const INK_SOFT := Color("6b5747")
 const INK_FADED := Color("2b232080")

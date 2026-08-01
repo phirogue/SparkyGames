@@ -3,9 +3,9 @@ extends RefCounted
 ## Immutable content definitions, keyed by stable string id. Built from JSON
 ## by DataLoader (services layer); core never touches the filesystem.
 ##
-## Humours (energy types): "ferocity", "guile", "shadow", "moonlight".
+## Humours (energy types): "ferocity", "guile", "shadow", "mysticism".
 
-const HUMOURS: Array[String] = ["ferocity", "guile", "shadow", "moonlight"]
+const HUMOURS: Array[String] = ["ferocity", "guile", "shadow", "mysticism"]
 
 var energy_cards: Dictionary = {}   # id -> {id, humour, value}
 var skills: Dictionary = {}         # id -> {id, name, cost, charges, effects, instinct}

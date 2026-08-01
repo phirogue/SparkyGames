@@ -1,5 +1,29 @@
 # Balance Notes — Simulated Playtests
 
+## Pass 3 — draw-1 economy + mysticism wilds (2026-08-01, later)
+
+Changes: exactly ONE card drawn per turn (opening 3 stays); moonlight
+renamed MYSTICISM and made WILD (pays any cost; costs keyed "mysticism"
+demand the real thing); purr recosted to guile 1; vole hp 5.
+
+| Scenario | brawler | defender | stalker | random |
+|---|---|---|---|---|
+| Vole | 100% | 100% | 100% | 100% |
+| Wisp | 100% | 100% | 100% | 95% |
+| Dog | 39% | 99% | 54% (40% flee) | 11% |
+| Wraith | 0% | 0% | 0%, 80% flee | 0% |
+| Unpicked | 0% | 0% | 0%, 61% flee | 0% |
+| Watch Captain | 68% | 100% | 99% | 34% |
+| Wisp Pair | 97% | 100% | 99% | 52% |
+
+The slow-draw economy IMPROVED the doctrine fit: tutorials safe, the dog
+gives three differentiated answers, the watch captain approaches the
+three-loadouts rule (brawler now viable at 68%), and random-player
+baselines are clearly punished on quests without being hopeless. Wraith
+remains the intended retreat lesson.
+
+---
+
 ## Pass 2 — level-1 calibration (2026-08-01)
 
 Owner recalibration: **10 max HP**, 15-card all-value-1 starter deck,

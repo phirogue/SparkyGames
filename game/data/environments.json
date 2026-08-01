@@ -26,8 +26,8 @@
     "accent": "#b8c4d4",
     "image": "bg_parlor_cold",
     "sunbeam_turns": [],
-    "cost_mod": { "moonlight": -1 },
-    "rule_text": "Her room remembers her: Moonlight costs 1 less."
+    "cost_mod": { "mysticism": -1 },
+    "rule_text": "Her room remembers her: Mysticism costs 1 less."
   },
   "parlor_warm": {
     "id": "parlor_warm",
@@ -36,7 +36,7 @@
     "accent": "#e8c48a",
     "image": "bg_parlor_warm",
     "sunbeam_turns": [2, 4],
-    "cost_mod": { "moonlight": -1 },
+    "cost_mod": { "mysticism": -1 },
     "rule_text": "Warm, and hers."
   },
   "needle_lane_wrong": {
