@@ -1,5 +1,26 @@
 # Core Gameplay Design — v0.2
 
+> **v0.3 proposals (owner, 2026-07-31 — design next, sim-test before build):**
+>
+> - **Concentration** (new universal action): forfeit the rest of your turn
+>   to *call* a chosen energy type — cards of that type rise to the top of
+>   the deck for next turn's draw. A patience verb: turns a bad hand into a
+>   planned one at the cost of tempo. (Cats staring at nothing, finally
+>   explained.) Interacts deliciously with The Flip roadmap item — stacking
+>   your own deck stacks your own "dice."
+> - **Potent energy cards**: rare cards worth 2–3 of their type in a single
+>   card already exist (values 1–3); formalize them as RARITY — starter
+>   decks skew to 1s, potent cards become level-up/chapter rewards and
+>   long-rest deck-surgery purchases. Later: gilded 4s as chase rewards.
+> - **Action Points (the Paw system)**: a per-turn action budget shown as
+>   paw icons; placing each energy card onto a skill costs one action, so a
+>   3-cost skill takes 3 actions to charge. Budget grows with progression.
+>   This is a MAJOR pacing change (charging across turns = built-in windup
+>   mechanic; hand-attacks could knock loaded energy off skills — synergy
+>   with existing intent design). Needs: sim-bot support for multi-turn
+>   charging, tutorial rework, and a decision on whether bank remains.
+>   Prototype in simulate.gd with a 3-paw budget before any UI work.
+
 > **v0.2 additions (2026-07-30, owner-directed, implemented):**
 >
 > - **The Approach.** Before turn 1 you may spend from your opening hand to

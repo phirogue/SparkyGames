@@ -35,6 +35,53 @@ comes from Midjourney, provided by the project owner.
 - Tests: add a `test_*` method to `game/tests/unit/` for every new rule or
   bug fix; register new test files in `tests/run_tests.gd`.
 
+## Hard-won engineering laws (each of these cost a review cycle — obey)
+
+1. **See it before you say it's done.** Any visually-affecting change MUST be
+   verified by running the screenshot tour and Reading the key shots BEFORE
+   claiming completion:
+   `& "C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe" --path game -- --tour`
+   Shots land in `screenshots/`. Compare against `assets/incoming/ui_objective.png`
+   and `reference/`. Use the /uitour skill.
+2. **No guessed text boxes.** Every container that holds text sizes itself
+   via `UITheme.measure_text` with the label's wrap width EQUAL to the
+   measured width (a narrower wrap adds lines the measurement never saw —
+   the too-small-bubble bug). When containers fight you, set both panel and
+   label rects explicitly (see Coach).
+3. **Never trust generated textures' geometry.** AI-generated assets carry
+   opaque backgrounds and/or transparent padding. Consequences already paid:
+   textured button styleboxes rendered smaller than their buttons (use the
+   DRAWN styleboxes in UITheme); the rope "texture" was 15% rope, 85%
+   transparent canvas (use `ThreadBar._content_region`-style opaque-band
+   detection before region-drawing any art). Read every processed asset
+   image before wiring it.
+4. **Never round-trip .gd/.md files through PowerShell Get-Content/
+   Set-Content** — PS 5.1 misdecodes UTF-8 and mints mojibake (—, ●, ❋
+   destroyed once already). Use
+   `[IO.File]::ReadAllText/WriteAllText($f, $c, UTF8-no-BOM)`.
+5. **Layout is a zone contract.** The battle screen documents pixel budgets
+   per zone summing under 1280; keep it updated when sizes change. The page
+   art's stitching insets are EMPIRICAL: side 64, top 54, bottom 92 — not
+   the 9-patch margins.
+6. **Tutorial promises must be deterministic.** If a coach step tells the
+   player to do X, the scene data must guarantee X is possible
+   (`shuffle: false` + ordered deck). Every post-battle story scene needs
+   `when_outcome` variants — victory text after a retreat is a canon bug.
+7. **New profile keys need DEFAULT_PROFILE + a migration thought** — old
+   saves merge against defaults; a finished prologue implies its grants.
+8. **After touching enemies/skills/costs, run the sim** and eyeball the
+   table against docs/design/balance-notes.md:
+   `godot --headless --path game -s tests/simulate.gd`
+9. **Failed Godot API call? Diagnose, don't thrash.** Write a 10-line
+   SceneTree diagnostic (see tests/smoke_boot.gd's origin) instead of
+   guessing variants. Known traps already hit: `set_anchors_preset` keeps
+   the rect (use `set_anchors_and_offsets_preset`); `StyleBoxTexture` has
+   `set_texture_margin_all` not `set_texture_margin_size`; tiled
+   `draw_texture_rect` needs `texture_repeat` or manual region tiling;
+   autowrap Labels reserve no height inside H/VBox.
+10. **Background agents that stall get one SendMessage nudge** telling them
+    to finish from what they have with minimal extra searching.
+
 ## Project conventions
 
 - Design decisions live in `docs/design/`; one topic per file. When a decision
