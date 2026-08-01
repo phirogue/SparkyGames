@@ -88,6 +88,47 @@ static func art_or_placeholder(id: String, description: String) -> Control:
 	return holder
 
 
+## Opaque-content bounds of a texture (alpha > 0.2), cached. Generated art
+## floats in transparent padding; anything that must fill its box (icons,
+## tiled strips) draws from this region, not the raw canvas.
+static func content_region(texture: Texture2D, key: String) -> Rect2:
+	var cache_key := "region:" + key
+	if _cache.has(cache_key):
+		return _cache[cache_key]
+	var img := texture.get_image()
+	var min_x := img.get_width()
+	var min_y := img.get_height()
+	var max_x := -1
+	var max_y := -1
+	for y in img.get_height():
+		for x in img.get_width():
+			if img.get_pixel(x, y).a > 0.2:
+				min_x = mini(min_x, x)
+				min_y = mini(min_y, y)
+				max_x = maxi(max_x, x)
+				max_y = maxi(max_y, y)
+	var region := Rect2(0, 0, img.get_width(), img.get_height())
+	if max_x >= 0:
+		region = Rect2(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
+	_cache[cache_key] = region
+	return region
+
+
+## The texture cropped to its opaque content, so a 56px icon box shows a
+## 56px glyph instead of a glyph drowning in its own padding.
+static func cropped_tex(id: String) -> Texture2D:
+	var source := tex(id)
+	if source == null:
+		return null
+	var cache_key := "crop:" + id
+	if not _cache.has(cache_key):
+		var atlas := AtlasTexture.new()
+		atlas.atlas = source
+		atlas.region = content_region(source, id)
+		_cache[cache_key] = atlas
+	return _cache[cache_key]
+
+
 static func stylebox(id: String, margin: int, modulate := Color.WHITE) -> StyleBoxTexture:
 	var box := StyleBoxTexture.new()
 	box.texture = tex("ui/" + id)
@@ -142,6 +183,20 @@ static func parchment_button_stylebox(modulate := Color.WHITE) -> StyleBoxFlat:
 	return box
 
 
+## Parchment plate for panels and dialogs — DRAWN, like the buttons. The
+## textured ui_panel carries transparent padding, so as a theme default it
+## rendered smaller than every panel's rect (contents visibly "escaping"
+## their box: outcome dialog, approach chooser, rule card, skill popup).
+static func panel_stylebox(margin := 16) -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color("efe0c2")
+	box.set_border_width_all(2)
+	box.border_color = Color("4a3b2c")
+	box.set_corner_radius_all(12)
+	box.set_content_margin_all(margin)
+	return box
+
+
 static func strip_stylebox() -> StyleBoxTexture:
 	var box := stylebox("ui_strip", 14)
 	for side in [SIDE_TOP, SIDE_BOTTOM]:
@@ -169,7 +224,7 @@ static func build() -> Theme:
 	theme.set_color("font_pressed_color", "Button", INK)
 	theme.set_color("font_disabled_color", "Button", INK_FADED)
 
-	theme.set_stylebox("panel", "PanelContainer", stylebox("ui_panel", 24))
+	theme.set_stylebox("panel", "PanelContainer", panel_stylebox())
 	theme.set_color("font_color", "Label", INK)
 	theme.set_color("default_color", "RichTextLabel", INK)
 	return theme

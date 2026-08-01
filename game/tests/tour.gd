@@ -11,6 +11,9 @@ var game: Node
 var shot_index := 0
 var _last_screen: Control = null
 var _story_taps := 0
+var _did_card_modal := false
+var _did_concentrate := false
+var _battle_taps := 0
 
 @onready var out_dir: String = ProjectSettings.globalize_path("res://") + "../screenshots/"
 
@@ -31,7 +34,10 @@ func _run() -> void:
 		if fresh:
 			_story_taps = 0
 		var script_path: String = screen.get_script().resource_path
-		if script_path.ends_with("story_screen.gd"):
+		if script_path.ends_with("splash_screen.gd"):
+			await _shot("splash")
+			screen.finished.emit()
+		elif script_path.ends_with("story_screen.gd"):
 			await _tour_story(screen, fresh)
 		elif script_path.ends_with("battle.gd"):
 			await _tour_battle(screen, fresh)
@@ -70,7 +76,14 @@ func _tour_story(screen: Control, fresh: bool) -> void:
 
 func _tour_battle(screen: Control, fresh: bool) -> void:
 	if fresh:
+		_battle_taps = 0
 		await _shot("battle_open_" + screen.state.enemy_id)
+	_battle_taps += 1
+	if _battle_taps > 80:  # failsafe: a looping battle ends, not the disk
+		push_warning("tour: battle %s exceeded tap budget, slipping away" % screen.state.enemy_id)
+		screen._close_detail()
+		screen._on_slip_away()
+		return
 	if screen.approach_overlay != null and screen.approach_overlay.visible:
 		await _shot("battle_approach_" + screen.state.enemy_id)
 		screen._on_approach("")
@@ -83,10 +96,39 @@ func _tour_battle(screen: Control, fresh: bool) -> void:
 		await _shot("battle_outcome_" + screen.state.enemy_id)
 		screen._on_overlay_continue()
 		return
-	if screen.detail_panel != null and screen.detail_panel.visible:
+	if screen.detail_overlay != null and screen.detail_overlay.visible:
 		await _shot("battle_skill_detail")
-		screen._on_detail_use()
+		# Power the card fully (owner mechanic), then fire if ready.
+		var guard := 0
+		while screen.detail_charge.visible and not screen.detail_charge.disabled and guard < 8:
+			screen._on_detail_charge()
+			guard += 1
+		if not screen.detail_use.disabled:
+			screen._on_detail_use()
+		else:
+			screen._close_detail()
 		return
+	if screen.card_overlay != null and screen.card_overlay.visible:
+		await _shot("battle_card_detail")
+		if not screen.card_bank.disabled:
+			screen._on_card_bank()
+		else:
+			screen._close_card()
+		return
+	if screen.concentrate_overlay != null and screen.concentrate_overlay.visible:
+		await _shot("battle_concentrate")
+		screen.concentrate_overlay.visible = false
+		return
+	# Show the two new modals once each, in the dog fight.
+	if screen.state.enemy_id == "chained_dog":
+		if not _did_card_modal and not screen.state.hand.is_empty():
+			_did_card_modal = true
+			screen._on_card_pressed(0)
+			return
+		if not _did_concentrate and not screen.state.spent.is_empty():
+			_did_concentrate = true
+			screen._on_concentrate_pressed()
+			return
 	# Play one sensible action: best damage skill else end turn.
 	var acted := false
 	for entry in screen.state.skills:

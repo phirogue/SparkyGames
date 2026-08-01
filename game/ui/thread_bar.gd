@@ -12,34 +12,17 @@ var max_value := 20
 var _shown := 1.0
 var _target := 1.0
 
-## Generated art often floats in transparent padding; find the real pixels
-## once so region-drawing uses the rope, not the empty canvas around it.
-static var _regions: Dictionary = {}
-
+## Generated art often floats in transparent padding; region-drawing uses
+## the rope's real pixels (UITheme.content_region), not the empty canvas.
 static func _content_region(tex: Texture2D, key: String) -> Rect2:
-	if _regions.has(key):
-		return _regions[key]
-	var img := tex.get_image()
-	var min_x := img.get_width()
-	var min_y := img.get_height()
-	var max_x := -1
-	var max_y := -1
-	for y in img.get_height():
-		for x in img.get_width():
-			if img.get_pixel(x, y).a > 0.2:
-				min_x = mini(min_x, x)
-				min_y = mini(min_y, y)
-				max_x = maxi(max_x, x)
-				max_y = maxi(max_y, y)
-	var region := Rect2(0, 0, img.get_width(), img.get_height())
-	if max_x >= 0:
-		region = Rect2(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
-	_regions[key] = region
-	return region
+	return UITheme.content_region(tex, "thread_" + key)
 
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(0, 26)
+	# Nothing this bar draws may ever leave its rect (a wide fray texture
+	# once shot the rope clean off the screen edge).
+	clip_contents = true
 
 
 func set_health(value: int, p_max: int) -> void:
@@ -80,14 +63,19 @@ func _draw() -> void:
 				Rect2(src.position.x, src.position.y,
 					src.size.x * (w / tile_w), src.size.y))
 			x += tile_w
+		var dash_start: float = rope_w + 8.0
 		if fray != null and _shown < 0.999:
 			var fray_src := _content_region(fray, "fray")
 			var fray_h := h * 1.5
-			var fray_w: float = fray_h * fray_src.size.x / fray_src.size.y
-			draw_texture_rect_region(fray,
-				Rect2(rope_w - 4, mid - fray_h / 2.0, fray_w, fray_h), fray_src)
+			# The fray art's aspect is whatever the generator felt like; cap
+			# its width so the tip stays a tip and never leaves the bar.
+			var fray_w: float = minf(fray_h * fray_src.size.x / fray_src.size.y, h * 2.5)
+			fray_w = minf(fray_w, size.x - (rope_w - 4.0))
+			if fray_w > 2.0:
+				draw_texture_rect_region(fray,
+					Rect2(rope_w - 4, mid - fray_h / 2.0, fray_w, fray_h), fray_src)
+				dash_start = rope_w - 4.0 + fray_w + 6.0
 		if _shown < 0.999:
-			var dash_start: float = rope_w + (26.0 if fray != null else 8.0)
 			draw_dashed_line(Vector2(dash_start, mid), Vector2(size.x - 6, mid), DASH, 2.0, 8.0)
 			draw_line(Vector2(size.x - 3, mid - 6), Vector2(size.x - 3, mid + 6), DASH, 2.0)
 		return

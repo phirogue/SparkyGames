@@ -19,7 +19,14 @@ Generate at the largest size offered — I downscale on import.
 
 ## A. Branding (do these first — the game literally opens with them)
 
-**`logo_sparkygames`** — the studio splash:
+**`logo_sparkygames`** — ✅ GENERATED 2026-08-01, wired into the splash.
+
+**`logo_ashcat_title`** — ⚠️ REGENERATE: the 2026-08-01 version reads "The
+Nine Lives of **of** Ashcat" (doubled "of") — unusable for store/title.
+Re-run the prompt below; consider adding: 'exactly the words "The Nine
+Lives of Ashcat", check spelling carefully'.
+
+**`logo_sparkygames`** original prompt — the studio splash:
 > A charming hand-drawn studio logo emblem for a game studio called SparkyGames: a small ember-orange spark or flame with a curled cat tail silhouette wrapped around it, inside a simple round ink-drawn badge, warm amber and charcoal palette, storybook ink and watercolor style, clean readable silhouette that works small, centered on a plain dark background, no text. Aspect ratio: 1:1.
 
 **`logo_ashcat_title`** — the game's title treatment (for the title card and store listing; text IS wanted here, ChatGPT handles short text well):

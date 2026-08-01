@@ -14,6 +14,10 @@ enum Outcome { ONGOING, VICTORY, DEFEAT, RETREATED }
 
 const HAND_LIMIT := 5
 const BANK_LIMIT := 2
+## Paw action points (owner mechanic 2026-08-01): every energy card PLACED
+## — fed onto a skill, or banked — costs one paw. Free skills, discards and
+## slipping away cost none. Paws refill at the start of each turn.
+const DEFAULT_PAWS := 3
 
 var catalog: Catalog
 var rng: CoreRng
@@ -32,6 +36,8 @@ var statuses: Dictionary = {}          # e.g. {"loafed": 1}
 var channel: Dictionary = {}           # active purr: {heal_per_turn, turns_left}
 var instinct_used: bool = false        # free instinct is once per turn
 var sharpened: bool = false            # lingering: next damage effect +1, once
+var paw_limit: int = DEFAULT_PAWS      # energy placements allowed per turn
+var paws_left: int = DEFAULT_PAWS
 
 # --- The Approach (how Ash enters the fight; owner concept 2026-07-30) ---
 ## Locked once any other command is taken. Initiative emerges from the
@@ -96,7 +102,11 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 			"charges_left": int(charge_overrides.get(skill_id, def.get("charges", 0))),
 			"jammed_turns": 0,
 			"free_used": false,  # cost-free plays are once per turn
+			"powered": {},  # humour -> energy fed onto the card (owner rule:
+			                # skills fire only once fully powered)
 		})
+	state.paw_limit = int(config.get("paws", DEFAULT_PAWS))
+	state.paws_left = state.paw_limit
 	state.enemy_id = String(config.get("enemy", ""))
 	var enemy_def: Dictionary = p_catalog.enemies[state.enemy_id]
 	state.enemy_max_hp = int(enemy_def["hp"])
@@ -163,6 +173,24 @@ func skill_state(skill_id: String) -> Dictionary:
 	return {}
 
 
+## Cost still unpaid after the energy already fed onto the card.
+func remaining_cost(skill_id: String) -> Dictionary:
+	var def: Dictionary = catalog.skills.get(skill_id, {})
+	var cost := effective_cost(def.get("cost", {}))
+	var powered: Dictionary = skill_state(skill_id).get("powered", {})
+	var remaining := {}
+	for humour in cost:
+		var short: int = int(cost[humour]) - int(powered.get(humour, 0))
+		if short > 0:
+			remaining[humour] = short
+	return remaining
+
+
+## Fully powered and ready to fire?
+func skill_powered(skill_id: String) -> bool:
+	return remaining_cost(skill_id).is_empty()
+
+
 ## Can the cost be paid from hand + banked right now?
 func can_pay(cost: Dictionary) -> bool:
 	for humour in cost:
@@ -187,9 +215,19 @@ func do_command(command: Dictionary) -> Dictionary:
 		"play_skill":
 			approach_locked = true
 			result = _cmd_play_skill(String(command.get("skill_id", "")))
+		"charge_skill":
+			approach_locked = true
+			result = _cmd_charge_skill(String(command.get("skill_id", "")),
+				String(command.get("source", "hand")), int(command.get("index", -1)))
 		"bank":
 			approach_locked = true
 			result = _cmd_bank(int(command.get("hand_index", -1)))
+		"discard":
+			approach_locked = true
+			result = _cmd_discard(int(command.get("hand_index", -1)))
+		"concentrate":
+			approach_locked = true
+			result = _cmd_concentrate(String(command.get("humour", "")))
 		"end_turn":
 			approach_locked = true
 			result = _cmd_end_turn()
@@ -242,6 +280,51 @@ func _cmd_approach(mode: String) -> Dictionary:
 
 # ------------------------------------------------------------------ commands
 
+## Feed one energy card onto a skill (owner mechanic 2026-08-01): skills are
+## powered a card at a time and only fire once fully powered. The card is
+## spent immediately; power on the card persists across turns until the
+## skill is used.
+func _cmd_charge_skill(skill_id: String, source: String, index: int) -> Dictionary:
+	if statuses.get("loafed", 0) > 0:
+		return _fail("loafed: all paws are committed")
+	if not catalog.skills.has(skill_id):
+		return _fail("unknown skill '%s'" % skill_id)
+	var def: Dictionary = catalog.skills[skill_id]
+	if def.get("instinct", false):
+		return _fail("instincts need no powering")
+	var s := skill_state(skill_id)
+	if s.is_empty():
+		return _fail("skill '%s' is not equipped" % skill_id)
+	if s["jammed_turns"] > 0:
+		return _fail("skill '%s' is jammed" % skill_id)
+	if s["charges_left"] <= 0:
+		return _fail("skill '%s' has no charges left" % skill_id)
+	if source != "hand" and source != "bank":
+		return _fail("unknown energy source '%s'" % source)
+	var pool: Array = hand if source == "hand" else banked
+	if index < 0 or index >= pool.size():
+		return _fail("no card at %s index %d" % [source, index])
+	var card: Dictionary = catalog.energy_cards[pool[index]]
+	var humour := String(card["humour"])
+	var remaining := remaining_cost(skill_id)
+	if not remaining.has(humour):
+		return _fail("'%s' has no use for %s" % [def["name"], humour])
+	if paws_left < 1:
+		return _fail("no paws left this turn")
+	paws_left -= 1
+	var powered: Dictionary = s["powered"]
+	powered[humour] = int(powered.get(humour, 0)) + int(card["value"])
+	spent.append(pool[index])
+	pool.remove_at(index)
+	flags["energy_paid"] = int(flags["energy_paid"]) + 1
+	if stealth_threshold > 0 and not spotted and humour == "ferocity":
+		alarm += int(card["value"])  # loud energy is loud however it's spent
+		if alarm >= stealth_threshold:
+			spotted = true
+			_events.append("spotted")
+	return {"ok": true, "error": ""}
+
+
 func _cmd_play_skill(skill_id: String) -> Dictionary:
 	if statuses.get("loafed", 0) > 0:
 		return _fail("loafed: all paws are committed")
@@ -265,13 +348,23 @@ func _cmd_play_skill(skill_id: String) -> Dictionary:
 	# environment) is once per turn — free never means spam.
 	if cost.is_empty() and not is_instinct and state.get("free_used", false):
 		return _fail("'%s' needs a breath between free uses" % skill_id)
-	if not can_pay(cost):
+	# Power already fed onto the card counts first; any remainder is paid
+	# from hand/bank in one go (equivalent to charging it fully right now)
+	# — so the auto-payment consumes one paw per card it places.
+	var remaining := remaining_cost(skill_id) if not is_instinct else cost
+	if not can_pay(remaining):
 		return _fail("not enough energy for '%s'" % skill_id)
-	_pay(cost)
+	var cards_needed := _pay_card_count(remaining)
+	if cards_needed > paws_left:
+		return _fail("not enough paws for '%s' this turn" % skill_id)
+	paws_left -= cards_needed
+	_pay(remaining)
+	if not is_instinct:
+		state["powered"] = {}  # the stored energy discharges into the strike
 	if cost.is_empty() and not is_instinct:
 		state["free_used"] = true
-	if stealth_threshold > 0 and not spotted and cost.has("ferocity"):
-		alarm += int(cost["ferocity"])  # loud cards raise the alarm
+	if stealth_threshold > 0 and not spotted and remaining.has("ferocity"):
+		alarm += int(remaining["ferocity"])  # loud cards raise the alarm
 		if alarm >= stealth_threshold:
 			spotted = true
 			_events.append("spotted")
@@ -293,9 +386,43 @@ func _cmd_bank(hand_index: int) -> Dictionary:
 		return _fail("no card at hand index %d" % hand_index)
 	if banked.size() >= BANK_LIMIT:
 		return _fail("bank is full")
+	if paws_left < 1:
+		return _fail("no paws left this turn")
+	paws_left -= 1
 	banked.append(hand[hand_index])
 	hand.remove_at(hand_index)
 	return {"ok": true, "error": ""}
+
+
+## Toss energy you don't want (owner mechanic 2026-08-01). Free — but the
+## card is GONE until the long rest at home, like all spent energy.
+func _cmd_discard(hand_index: int) -> Dictionary:
+	if hand_index < 0 or hand_index >= hand.size():
+		return _fail("no card at hand index %d" % hand_index)
+	spent.append(hand[hand_index])
+	hand.remove_at(hand_index)
+	return {"ok": true, "error": ""}
+
+
+## Concentrate (owner mechanic 2026-08-01): give up the whole turn to will
+## one spent energy back. The chosen humour's best spent card goes to the
+## top of the deck, then the enemy acts — this IS your turn.
+func _cmd_concentrate(humour: String) -> Dictionary:
+	if statuses.get("loafed", 0) > 0:
+		return _fail("loafed: all paws are committed")
+	var best_index := -1
+	var best_value := -1
+	for i in spent.size():
+		var card: Dictionary = catalog.energy_cards[spent[i]]
+		if card["humour"] == humour and int(card["value"]) > best_value:
+			best_index = i
+			best_value = int(card["value"])
+	if best_index < 0:
+		return _fail("no spent %s to will back" % humour)
+	deck.push_back(spent[best_index])  # top of the deck: first draw next turn
+	spent.remove_at(best_index)
+	_events.append("concentrated")
+	return _cmd_end_turn()
 
 
 func _cmd_end_turn() -> Dictionary:
@@ -304,6 +431,7 @@ func _cmd_end_turn() -> Dictionary:
 		return {"ok": true, "error": ""}
 	# --- start of next player turn ---
 	turn += 1
+	paws_left = paw_limit
 	if _ward_holds:
 		_ward_holds = false  # a stitched ward outlasts the moment
 	else:
@@ -333,6 +461,30 @@ func _cmd_end_turn() -> Dictionary:
 
 
 # ------------------------------------------------------------------ internals
+
+## How many cards _pay() would consume for this cost — mirrors its greedy
+## largest-first selection so paw checks can run before anything mutates.
+func _pay_card_count(cost: Dictionary) -> int:
+	var count := 0
+	for humour in cost:
+		var remaining := int(cost[humour])
+		for pool: Array in [hand, banked]:  # hand pays before bank, like _pay
+			if remaining <= 0:
+				break
+			var values: Array = []
+			for card_id in pool:
+				var card: Dictionary = catalog.energy_cards[card_id]
+				if card["humour"] == humour:
+					values.append(int(card["value"]))
+			values.sort()
+			values.reverse()
+			for value in values:
+				if remaining <= 0:
+					break
+				remaining -= value
+				count += 1
+	return count
+
 
 func _pay(cost: Dictionary) -> void:
 	# Auto-payment: largest cards first (fewest cards spent; overpay is wasted).

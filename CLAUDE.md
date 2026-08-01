@@ -81,6 +81,10 @@ comes from Midjourney, provided by the project owner.
    autowrap Labels reserve no height inside H/VBox.
 10. **Background agents that stall get one SendMessage nudge** telling them
     to finish from what they have with minimal extra searching.
+11. **New asset files need an import pass before they render.** The game
+    binary never imports; after adding images to `game/assets/`, run
+    `godot --headless --path game --import` once or the tour shows black
+    placeholders for files that exist (cost one full tour cycle).
 
 ## Project conventions
 

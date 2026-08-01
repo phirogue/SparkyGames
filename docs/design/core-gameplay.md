@@ -1,25 +1,29 @@
-# Core Gameplay Design — v0.2
+# Core Gameplay Design — v0.3
 
-> **v0.3 proposals (owner, 2026-07-31 — design next, sim-test before build):**
+> **v0.3 — IMPLEMENTED (owner-directed, 2026-08-01):**
 >
-> - **Concentration** (new universal action): forfeit the rest of your turn
->   to *call* a chosen energy type — cards of that type rise to the top of
->   the deck for next turn's draw. A patience verb: turns a bad hand into a
->   planned one at the cost of tempo. (Cats staring at nothing, finally
->   explained.) Interacts deliciously with The Flip roadmap item — stacking
->   your own deck stacks your own "dice."
-> - **Potent energy cards**: rare cards worth 2–3 of their type in a single
->   card already exist (values 1–3); formalize them as RARITY — starter
->   decks skew to 1s, potent cards become level-up/chapter rewards and
->   long-rest deck-surgery purchases. Later: gilded 4s as chase rewards.
-> - **Action Points (the Paw system)**: a per-turn action budget shown as
->   paw icons; placing each energy card onto a skill costs one action, so a
->   3-cost skill takes 3 actions to charge. Budget grows with progression.
->   This is a MAJOR pacing change (charging across turns = built-in windup
->   mechanic; hand-attacks could knock loaded energy off skills — synergy
->   with existing intent design). Needs: sim-bot support for multi-turn
->   charging, tutorial rework, and a decision on whether bank remains.
->   Prototype in simulate.gd with a 3-paw budget before any UI work.
+> - **Charge-to-power skills.** Skills no longer fire in one tap: energy is
+>   fed onto the card one placement at a time (`charge_skill` command; the
+>   popup shows the cost as humour-colored pips that fill as you feed). A
+>   skill is usable only once fully powered. Power PERSISTS across turns —
+>   the built-in windup mechanic. `play_skill` still auto-pays any remainder
+>   in one go (equivalent to charging fully right now), which keeps bots and
+>   tests on the old path valid.
+> - **The Paw system (action points).** `paws` per turn (default 3, config
+>   key `"paws"`); every energy placement — feeding a skill, banking — costs
+>   one paw. Discards, instincts and free skills cost none. Shown as paw
+>   icons in the status strip. Sim pass after implementation: balance table
+>   unchanged within noise (bots rarely placed >3/turn) — wraith puzzle and
+>   tutorial floors intact.
+> - **Discard.** Tap a hand card → Bank / Discard / Not now. Discarding is
+>   free but the card is SPENT — gone until the long rest at home.
+> - **Concentrate.** A third action-row button: give up the whole turn to
+>   will one spent energy back (best card of a chosen humour → top of deck;
+>   the enemy acts). Cats staring at nothing, finally explained.
+>
+> Still proposed, not built: **potent energy as rarity** (starter decks skew
+> to 1s; 2–3-value cards become level-up/chapter rewards; gilded 4s later),
+> and **budget growth** for paws with progression.
 
 > **v0.2 additions (2026-07-30, owner-directed, implemented):**
 >

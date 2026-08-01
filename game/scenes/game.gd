@@ -47,7 +47,11 @@ func _ready() -> void:
 	story = JSON.parse_string(file.get_as_text())
 	if tour_mode:
 		add_child(load("res://tests/tour.gd").new())
-		_run_prologue_scene(0)
+		# The tour walks the splash too, so the logo gets screenshot-verified.
+		var tour_splash: Control = SplashScreen.new()
+		tour_splash.finished.connect(func() -> void:
+			_run_prologue_scene(0), CONNECT_ONE_SHOT)
+		_swap(tour_splash)
 	else:
 		var splash: Control = SplashScreen.new()
 		splash.finished.connect(func() -> void:

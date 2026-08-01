@@ -175,6 +175,79 @@ func test_defeat_by_boss() -> void:
 		state.do_command({"type": "end_turn"})
 	assert_eq(state.outcome, CombatState.Outcome.DEFEAT, "the Unpicked wins the prologue")
 
+## Ordered fixture (shuffle false, draws pop from the BACK): opening hand is
+## one ferocity + four guile; one more ferocity arrives on the turn-2 draw.
+func _charge_fixture() -> CombatState:
+	return CombatState.create(catalog, 7, {
+		"player_hp": 20,
+		"deck": ["guile_1", "guile_1", "guile_1", "guile_1", "ferocity_1",
+				"guile_1", "guile_1", "guile_1", "guile_1", "ferocity_1"],
+		"skills": ["pounce"],
+		"enemy": "gutter_wisp",
+		"shuffle": false,
+	})
+
+func test_charge_powers_skill_across_turns() -> void:
+	var state := _charge_fixture()
+	assert_ok(state.do_command({"type": "charge_skill", "skill_id": "pounce",
+		"source": "hand", "index": 0}), "feed first ferocity")
+	assert_eq(state.skill_powered("pounce"), false, "one of two pips filled")
+	assert_rejected(state.do_command({"type": "play_skill", "skill_id": "pounce"}),
+		"cannot fire half-powered with no ferocity left in hand")
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_ok(state.do_command({"type": "charge_skill", "skill_id": "pounce",
+		"source": "hand", "index": 4}), "feed the drawn ferocity next turn")
+	assert_eq(state.skill_powered("pounce"), true, "power persists across turns")
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "pounce"}), "fire when full")
+	assert_eq(state.enemy_hp, 2, "pounce lands for 4")
+	assert_eq(state.spent.size(), 2, "only the two fed cards were consumed")
+
+func test_charge_rejects_wrong_humour() -> void:
+	var state := _charge_fixture()
+	assert_rejected(state.do_command({"type": "charge_skill", "skill_id": "pounce",
+		"source": "hand", "index": 1}), "pounce has no use for guile")
+
+func test_paws_limit_energy_placements() -> void:
+	var state := CombatState.create(catalog, 7, {
+		"player_hp": 20,
+		"deck": ["ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1",
+				"ferocity_1", "ferocity_1"],
+		"skills": ["pounce"],
+		"enemy": "gutter_wisp",
+		"shuffle": false,
+	})
+	assert_ok(state.do_command({"type": "bank", "hand_index": 0}), "paw 1: bank")
+	assert_ok(state.do_command({"type": "bank", "hand_index": 0}), "paw 2: bank")
+	assert_ok(state.do_command({"type": "charge_skill", "skill_id": "pounce",
+		"source": "hand", "index": 0}), "paw 3: charge")
+	assert_rejected(state.do_command({"type": "charge_skill", "skill_id": "pounce",
+		"source": "hand", "index": 0}), "fourth placement: out of paws")
+	assert_ok(state.do_command({"type": "discard", "hand_index": 0}),
+		"discarding is free — it only hurts you")
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_eq(state.paws_left, state.paw_limit, "paws refill each turn")
+	assert_ok(state.do_command({"type": "charge_skill", "skill_id": "pounce",
+		"source": "hand", "index": 0}), "fresh paws, fresh charge")
+
+func test_discard_is_gone_until_home() -> void:
+	var state := _charge_fixture()
+	var hand_before := state.hand.size()
+	assert_ok(state.do_command({"type": "discard", "hand_index": 1}))
+	assert_eq(state.hand.size(), hand_before - 1, "card left the hand")
+	assert_eq(state.spent.size(), 1, "discard is spent, not recycled")
+
+func test_concentrate_wills_energy_back_and_costs_the_turn() -> void:
+	var state := _charge_fixture()
+	assert_rejected(state.do_command({"type": "concentrate", "humour": "moonlight"}),
+		"nothing spent yet to will back")
+	assert_ok(state.do_command({"type": "discard", "hand_index": 0}), "spend the ferocity")
+	var turn_before := state.turn
+	assert_ok(state.do_command({"type": "concentrate", "humour": "ferocity"}))
+	assert_eq(state.turn, turn_before + 1, "concentrating IS the turn")
+	assert_eq(state.spent.size(), 0, "the ferocity came back")
+	var total := state.deck.size() + state.hand.size() + state.banked.size() + state.spent.size()
+	assert_eq(total, 10, "cards conserved through the recall")
+
 func test_command_log_records_only_successes() -> void:
 	var state := _wisp_fight()
 	state.do_command({"type": "play_skill", "skill_id": "no_such_skill"})

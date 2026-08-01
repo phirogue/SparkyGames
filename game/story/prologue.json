@@ -27,9 +27,16 @@
       "no_approach": true,
       "deck": ["ferocity_1", "ferocity_2", "ferocity_1", "ferocity_2", "ferocity_2", "ferocity_3", "ferocity_1", "ferocity_2"],
       "coach": [
-        { "target": "", "text": "Your hand is ENERGY — tonight, all Ferocity. Spend it on skills. Spent energy is gone for the whole prowl." },
+        { "target": "banner", "text": "Where you are. Places have rules; rooftops mostly have wind." },
+        { "target": "portrait", "text": "The opposition. Tonight: one vole of tremendous conviction." },
+        { "target": "thread", "text": "Its life is a red thread. Claws do the unstitching." },
+        { "target": "intent", "text": "It telegraphs its next move here. Honesty is its one virtue." },
+        { "target": "chronicle", "text": "The chronicle. What just happened, one line at a time." },
+        { "target": "status", "text": "Your heart, your guard, your energy left in the deck." },
+        { "target": "paws", "text": "Paws are actions. Placing an energy anywhere spends one." },
+        { "target": "hand", "text": "Your hand is ENERGY — tonight, all Ferocity. Spent energy stays spent." },
         { "target": "skill:pounce", "text": "Tap POUNCE." },
-        { "target": "use", "text": "Every skill shows what it does before you commit. Tap USE." },
+        { "target": "use", "text": "Feed it Ferocity until every pip fills. A full card is a willing card — tap USE." },
         { "target": "end_turn", "text": "Claws thrown. Tap END TURN and let the night answer." }
       ]
     },

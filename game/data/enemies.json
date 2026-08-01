@@ -43,7 +43,8 @@
                                           "amount":  2
                                       }
                                   ],
-                      "flavor":  "Two wisps. One shared opinion about your belongings."
+                      "flavor":  "Two wisps. One shared opinion about your belongings.",
+                      "image":  "en_wisp_pair"
                   },
     "chained_dog":  {
                         "id":  "chained_dog",
@@ -94,7 +95,8 @@
                                              "amount":  2
                                          }
                                      ],
-                         "flavor":  "A goose. Nobody warned you about the goose."
+                         "flavor":  "A goose. Nobody warned you about the goose.",
+                         "image":  "en_garden_watch"
                      },
     "garden_watch_captain":  {
                                  "id":  "garden_watch_captain",
@@ -120,7 +122,8 @@
                                                      "amount":  4
                                                  }
                                              ],
-                                 "flavor":  "The goose has a chain of office. It is load-bearing."
+                                 "flavor":  "The goose has a chain of office. It is load-bearing.",
+                                 "image":  "en_garden_watch_captain"
                              },
     "rag_wraith":  {
                        "id":  "rag_wraith",
@@ -189,7 +192,7 @@
                      "color":  "#9e8a6f",
                      "intents":  [
                                      {
-                                         "name":  "Freeze",
+                                         "name":  "Hold Very Still",
                                          "target":  "health",
                                          "amount":  0
                                      },
@@ -199,6 +202,7 @@
                                          "amount":  1
                                      }
                                  ],
-                     "flavor":  "It holds very still. It believes this is working."
+                     "flavor":  "It holds very still. It believes this is working.",
+                     "image":  "en_the_vole"
                  }
 }
