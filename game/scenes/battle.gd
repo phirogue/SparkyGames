@@ -304,9 +304,9 @@ func _build_ui() -> void:
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right"]:
-		margin.add_theme_constant_override("margin_" + side, 34)
-	margin.add_theme_constant_override("margin_top", 34)
-	margin.add_theme_constant_override("margin_bottom", 28)
+		margin.add_theme_constant_override("margin_" + side, 48)
+	margin.add_theme_constant_override("margin_top", 54)
+	margin.add_theme_constant_override("margin_bottom", 92)
 	add_child(margin)
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 8)
@@ -328,14 +328,19 @@ func _build_ui() -> void:
 	loc.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	banner.add_child(loc)
 	var rule_card := PanelContainer.new()
-	rule_card.custom_minimum_size = Vector2(210, 0)
+	rule_card.custom_minimum_size = Vector2(232, 0)
 	header.add_child(rule_card)
 	var rule_label := Label.new()
 	rule_label.text = environment_def.get("rule_text", "")
-	rule_label.add_theme_font_size_override("font_size", 19)
+	rule_label.add_theme_font_size_override("font_size", 22)
 	rule_label.add_theme_color_override("font_color", UITheme.INK)
 	rule_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	rule_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	# Autowrap labels don't reserve height in HBoxes: measure explicitly so
+	# the card grows to fit its text (reusable-fit rule).
+	var rule_wrap := 232.0 - 40.0
+	rule_label.custom_minimum_size = UITheme.measure_text(
+		rule_label.text, UITheme.body_font(), 22, rule_wrap) + Vector2(0, 6)
 	rule_card.add_child(rule_label)
 
 	hint_label = Label.new()
@@ -349,7 +354,7 @@ func _build_ui() -> void:
 	# --- Zone B: opponent -------------------------------------------------
 	var enemy_row := HBoxContainer.new()
 	enemy_row.add_theme_constant_override("separation", 16)
-	enemy_row.custom_minimum_size = Vector2(0, 340)
+	enemy_row.custom_minimum_size = Vector2(0, 330)
 	root.add_child(enemy_row)
 	enemy_art = _framed_portrait(catalog.enemies[state.enemy_id].get("image", ""),
 		String(catalog.enemies[state.enemy_id]["name"]))
@@ -382,33 +387,36 @@ func _build_ui() -> void:
 	enemy_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	name_box.add_child(enemy_hp_label)
 
+	# Intent chip: BIG icon on the left, what-it-does text on the right
+	# (owner-directed layout).
 	var intent_plate := _plate(112)
 	enemy_col.add_child(intent_plate)
-	var intent_box := VBoxContainer.new()
-	intent_box.add_theme_constant_override("separation", 6)
+	var intent_box := HBoxContainer.new()
+	intent_box.add_theme_constant_override("separation", 14)
 	intent_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	intent_plate.add_child(intent_box)
-	var icon_center := CenterContainer.new()
-	intent_box.add_child(icon_center)
 	var icon_frame := PanelContainer.new()
 	var icon_style := StyleBoxFlat.new()
 	icon_style.bg_color = Color("e8d9bd")
 	icon_style.set_border_width_all(3)
 	icon_style.border_color = UITheme.INK
-	icon_style.set_corner_radius_all(8)
-	icon_style.set_content_margin_all(6)
+	icon_style.set_corner_radius_all(10)
+	icon_style.set_content_margin_all(8)
 	icon_frame.add_theme_stylebox_override("panel", icon_style)
-	icon_center.add_child(icon_frame)
+	icon_frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	intent_box.add_child(icon_frame)
 	intent_icon = TextureRect.new()
 	intent_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	intent_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	intent_icon.custom_minimum_size = Vector2(52, 52)
+	intent_icon.custom_minimum_size = Vector2(84, 84)
 	icon_frame.add_child(intent_icon)
 	intent_label = Label.new()
-	intent_label.add_theme_font_size_override("font_size", 25)
+	intent_label.add_theme_font_size_override("font_size", 26)
 	intent_label.add_theme_color_override("font_color", UITheme.INK)
-	intent_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	intent_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	intent_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	intent_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	intent_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	intent_box.add_child(intent_label)
 	alarm_label = Label.new()
 	alarm_label.add_theme_font_size_override("font_size", 24)
@@ -417,11 +425,11 @@ func _build_ui() -> void:
 	enemy_col.add_child(alarm_label)
 
 	# --- Zone C: chronicle strip ------------------------------------------
-	var log_plate := _plate(48)
+	var log_plate := _plate(42)
 	root.add_child(log_plate)
 	log_label = Label.new()
 	log_label.add_theme_font_override("font", UITheme.italic_font())
-	log_label.add_theme_font_size_override("font_size", 21)
+	log_label.add_theme_font_size_override("font_size", 20)
 	log_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
 	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	log_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -455,7 +463,7 @@ func _build_ui() -> void:
 	banked_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	root.add_child(banked_row)
 	hand_fan = Control.new()
-	hand_fan.custom_minimum_size = Vector2(0, 168)
+	hand_fan.custom_minimum_size = Vector2(0, 150)
 	root.add_child(hand_fan)
 
 	# --- Zone F: skills tray ----------------------------------------------
@@ -504,13 +512,13 @@ func _build_ui() -> void:
 	# --- Zone G: actions ---------------------------------------------------
 	var action_row := HBoxContainer.new()
 	action_row.add_theme_constant_override("separation", 12)
-	action_row.custom_minimum_size = Vector2(0, 92)
+	action_row.custom_minimum_size = Vector2(0, 108)
 	root.add_child(action_row)
 	end_turn_button = Button.new()
 	end_turn_button.text = "End Turn"
 	end_turn_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	end_turn_button.add_theme_font_override("font", UITheme.display_font())
-	end_turn_button.add_theme_font_size_override("font_size", 38)
+	end_turn_button.add_theme_font_size_override("font_size", 44)
 	end_turn_button.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
 	end_turn_button.add_theme_stylebox_override("hover", UITheme.amber_stylebox(Color(1.08, 1.05, 1.0)))
 	end_turn_button.add_theme_stylebox_override("pressed", UITheme.amber_stylebox(Color(0.85, 0.8, 0.75)))
@@ -518,7 +526,7 @@ func _build_ui() -> void:
 	action_row.add_child(end_turn_button)
 	slip_button = Button.new()
 	slip_button.text = "Slip Away"
-	slip_button.custom_minimum_size = Vector2(190, 92)
+	slip_button.custom_minimum_size = Vector2(190, 108)
 	slip_button.add_theme_font_size_override("font_size", 24)
 	var slip_style := StyleBoxFlat.new()
 	slip_style.bg_color = Color("2e3446")
@@ -641,13 +649,13 @@ func _build_outcome_overlay() -> Control:
 
 func _framed_portrait(image_id: String, description: String) -> Control:
 	var holder := Control.new()
-	holder.custom_minimum_size = Vector2(270, 340)
+	holder.custom_minimum_size = Vector2(258, 330)
 	var art := UITheme.art_or_placeholder(image_id, description)
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	for side in [SIDE_LEFT, SIDE_TOP]:
-		art.set_offset(side, 34)
-	for side in [SIDE_RIGHT, SIDE_BOTTOM]:
-		art.set_offset(side, -34)
+	art.set_offset(SIDE_LEFT, 38)
+	art.set_offset(SIDE_TOP, 36)
+	art.set_offset(SIDE_RIGHT, -38)
+	art.set_offset(SIDE_BOTTOM, -52)
 	if art is TextureRect:
 		art.clip_contents = true
 	holder.add_child(art)
@@ -732,12 +740,12 @@ func _refresh_hand_fan() -> void:
 	var n := state.hand.size()
 	if n == 0:
 		return
-	var card_size := Vector2(106, 144)
-	var overlap_step := 96.0
+	var card_size := Vector2(100, 136)
+	var overlap_step := 88.0
 	var total_width := overlap_step * (n - 1) + card_size.x
 	var start_x: float = (hand_fan.size.x - total_width) / 2.0
 	if hand_fan.size.x <= 1:  # first layout pass: estimate from zone width
-		start_x = (652.0 - total_width) / 2.0
+		start_x = (624.0 - total_width) / 2.0
 	var center := (n - 1) / 2.0
 	for i in n:
 		var b := _card_button(state.hand[i], 1.0)
@@ -756,7 +764,7 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	var humour: String = card["humour"]
 	var b := Button.new()
 	b.flat = true
-	b.custom_minimum_size = Vector2(106, 144) * scale
+	b.custom_minimum_size = Vector2(100, 136) * scale
 	b.size = b.custom_minimum_size
 	var frame := TextureRect.new()
 	frame.texture = UITheme.tex(HUMOUR_CARD_FRAME.get(humour, ""))
@@ -803,7 +811,7 @@ func _skill_button(skill_id: String) -> Button:
 	var def: Dictionary = catalog.skills[skill_id]
 	var b := Button.new()
 	b.flat = true
-	b.custom_minimum_size = Vector2(150, 132)
+	b.custom_minimum_size = Vector2(148, 118)
 	var card := PanelContainer.new()
 	var card_style := StyleBoxFlat.new()
 	card_style.bg_color = Color("f4e7cd")
