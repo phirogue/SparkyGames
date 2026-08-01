@@ -33,8 +33,15 @@ func _run() -> void:
 		_last_screen = screen
 		if fresh:
 			_story_taps = 0
-		var script_path: String = screen.get_script().resource_path
-		if script_path.ends_with("splash_screen.gd"):
+		var script_ref: Variant = screen.get_script()
+		var script_path: String = script_ref.resource_path if script_ref != null else ""
+		if screen.name == "TitleScreen":
+			await _shot("title")
+			for child in screen.get_children():
+				if child is Button:
+					child.pressed.emit()
+					break
+		elif script_path.ends_with("splash_screen.gd"):
 			await _shot("splash")
 			screen.finished.emit()
 		elif script_path.ends_with("story_screen.gd"):
@@ -43,6 +50,9 @@ func _run() -> void:
 			await _tour_battle(screen, fresh)
 		elif script_path.ends_with("hub_screen.gd"):
 			await _shot("hub")
+			game._open_settings()
+			await _shot("settings")
+			game.settings_overlay.visible = false
 			break
 		else:
 			await _shot("unknown_screen")

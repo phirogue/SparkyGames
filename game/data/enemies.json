@@ -187,7 +187,7 @@
     "the_vole":  {
                      "id":  "the_vole",
                      "name":  "The Vole",
-                     "hp":  3,
+                     "hp":  5,
                      "gleam":  1,
                      "color":  "#9e8a6f",
                      "intents":  [

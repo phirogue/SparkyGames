@@ -31,31 +31,43 @@ func setup(p_catalog: Catalog, p_profile: Dictionary, p_tracker: AchievementTrac
 
 
 func _ready() -> void:
-	var backdrop := ColorRect.new()
-	backdrop.color = Color("#3a4350").darkened(0.35)
-	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(backdrop)
+	# Same stitched page as every other screen; the hub was the last holdout
+	# (and its unwrapped labels forced the whole layout past the stitching).
+	var page := Panel.new()
+	page.add_theme_stylebox_override("panel", UITheme.page_stylebox())
+	page.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(page)
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 26)
+	for side in ["left", "right"]:
+		margin.add_theme_constant_override("margin_" + side, 64)
+	margin.add_theme_constant_override("margin_top", 54)
+	margin.add_theme_constant_override("margin_bottom", 92)
 	add_child(margin)
+	# The Mantel holds more than one screen of things; it scrolls.
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	margin.add_child(scroll)
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 14)
-	margin.add_child(root)
+	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(root)
 
 	var title := _label(root, 48)
 	title.text = "The Mantel"
-	title.modulate = Color("#b8c4d4")
+	title.add_theme_font_override("font", UITheme.display_font())
+	title.add_theme_color_override("font_color", UITheme.INK)
 	var subtitle := _label(root, 24)
 	subtitle.text = "Her parlor. Cold, but still hers. The thread runs out under the window."
-	subtitle.modulate = Color(1, 1, 1, 0.6)
+	subtitle.add_theme_color_override("font_color", UITheme.INK_SOFT)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 	gleam_label = _label(root, 30)
+	gleam_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	deck_label = _label(root, 24)
-	deck_label.modulate = Color(1, 1, 1, 0.7)
+	deck_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
+	deck_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	root.add_child(HSeparator.new())
 
 	var board_title := _label(root, 32)
@@ -73,7 +85,7 @@ func _ready() -> void:
 	var shop_title := _label(root, 32)
 	shop_title.text = "The Magpie Exchange"
 	shop_status = _label(root, 24)
-	shop_status.modulate = Color(1, 1, 1, 0.7)
+	shop_status.add_theme_color_override("font_color", UITheme.INK_SOFT)
 	shop_status.text = "Brindle appraises you. 'Everything shines to somebody, pet.'"
 	shop_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
@@ -88,9 +100,6 @@ func _ready() -> void:
 	shop_detail.add_theme_constant_override("separation", 6)
 	root.add_child(shop_detail)
 
-	var spacer := Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root.add_child(spacer)
 	var casebook := Button.new()
 	casebook.text = "The Casebook — deeds & knowledge"
 	casebook.custom_minimum_size = Vector2(0, 100)
@@ -102,7 +111,7 @@ func _ready() -> void:
 	replay.pressed.connect(func() -> void: replay_prologue.emit())
 	root.add_child(replay)
 	achievements_label = _label(root, 22)
-	achievements_label.modulate = Color(1, 1, 1, 0.6)
+	achievements_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
 	achievements_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 	refresh()
@@ -140,6 +149,8 @@ func _shop_button(parent: Container, text: String, mode: String) -> void:
 	b.text = text
 	b.custom_minimum_size = Vector2(0, 100)
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b.add_theme_font_size_override("font_size", 24)
+	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	b.pressed.connect(_on_shop_mode.bind(mode))
 	parent.add_child(b)
 

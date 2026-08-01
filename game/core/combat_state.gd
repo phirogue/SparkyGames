@@ -18,6 +18,9 @@ const BANK_LIMIT := 2
 ## — fed onto a skill, or banked — costs one paw. Free skills, discards and
 ## slipping away cost none. Paws refill at the start of each turn.
 const DEFAULT_PAWS := 3
+## Battles open with a small hand (owner rule 2026-08-01): 3 cards, then
+## the end-of-turn draw refills toward HAND_LIMIT as before.
+const OPENING_HAND := 3
 
 var catalog: Catalog
 var rng: CoreRng
@@ -129,7 +132,9 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 				state._events.append("sharpened")
 	if config.get("shuffle", true):
 		state.rng.shuffle(state.deck)
-	state._draw_up_to_limit()
+	var opening := mini(int(config.get("opening_hand", OPENING_HAND)), HAND_LIMIT)
+	for i in opening:
+		state._draw_one()
 	return state
 
 

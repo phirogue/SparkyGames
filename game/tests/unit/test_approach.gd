@@ -10,6 +10,9 @@ func _fight(deck: Array, enemy: String = "chained_dog", extra: Dictionary = {}) 
 		"skills": ["pounce", "slink"],
 		"enemy": enemy,
 		"shuffle": false,
+		# These scenarios were authored around a full opening hand; the
+		# 3-card opening rule is covered in test_combat.
+		"opening_hand": 5,
 	}
 	config.merge(extra, true)
 	return CombatState.create(catalog, 21, config)

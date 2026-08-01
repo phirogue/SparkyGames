@@ -1,5 +1,30 @@
 # Balance Notes — Simulated Playtests
 
+## Pass 2 — level-1 calibration (2026-08-01)
+
+Owner recalibration: **10 max HP**, 15-card all-value-1 starter deck,
+3-card opening hand, 3 paws, loadout capped at 4 abilities incl. Scratch.
+Doctrine now in difficulty-and-progression.md (random baseline, wins via
+specialized loadouts, three-loadouts rule for standard quests).
+
+| Scenario | brawler | defender | stalker | random | Verdict |
+|---|---|---|---|---|---|
+| Vole (tutorial) | 100% | 100% | 100% | 100% | ✔ safe (hp 3→5 so Pounce alone can't finish — Scratch is taught) |
+| Wisp (tutorial) | 100% | 100% | 100% | 84% | ✔ tactic bots safe; pure-random deaths are shuffled-deck artifacts — the real tutorial deck is ordered+coached |
+| Dog (stage 2) | 22% | 94% | 74% (23% flee) | 22% | ✔ first true lesson: block or bleed. Specialized-loadout doctrine in action |
+| Wraith (stage 3) | 0% | 0% | 0%, 66% flee | 0% | ✔ NOW A TRUE RETREAT LESSON: "you do not have to win this" is honest. Retreat banks progress; death shows the Hollow Court |
+| Unpicked (boss) | 0% | 0% | 0%, 45% flee | 0% | ✔ designed loss, unchanged |
+| Watch Captain (quest, 12hp) | 26% | 98% | 95% | 29% | ⚠ two strong answers, not three — needs a third path or reclassify as stealth lesson |
+| Wisp Pair (quest, 12hp) | 68% | 100% | 96% | 71% | ✔ healthy spread |
+
+Notes: the wraith stopped being tankable when the 4-slot loadout forced a
+choice between Loaf and Pounce at 10 HP — no kit both survives 6-damage
+sleeves and deals 18 damage from a 15×1 deck. Accepted as the prologue's
+retreat lesson (its coach literally teaches Slip Away). Revisit if Ch1
+rewards make a return match winnable — that's a satisfying loop.
+
+---
+
 *2026-07-30. Data from `game/tests/simulate.gd`: 4 bot strategies × 7
 scenarios × 300 seeded runs each (8,400 full fights per pass). Run it any
 time with:*

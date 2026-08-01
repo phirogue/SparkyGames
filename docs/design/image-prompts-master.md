@@ -17,6 +17,63 @@ Generate at the largest size offered — I downscale on import.
 
 ---
 
+## NEW REQUESTS — 2026-08-01 batch (current priority order)
+
+**1. `logo_ashcat_title`** — REGENERATE (current art reads "The Nine Lives
+of of Ashcat"). Prompt in section A below; append: *exactly the words
+"The Nine Lives of Ashcat", check the spelling carefully.* Until this
+lands the title screen shows a typeset stand-in.
+
+**2. `bg_mantel`** — the hub's home backdrop (the Mantel screen is plain
+parchment right now):
+> A cozy witch's parlor at night seen from a cat's height: a stone
+> fireplace with a wooden mantelpiece holding small objects (a key, a
+> sealed letter, a little bell), embers glowing low, an armchair with a
+> knitted blanket, moonlight through a window, warm amber and blue-grey,
+> hand-drawn storybook ink and watercolor, no people, no cat, no text.
+> Aspect ratio: 9:16.
+
+**3. `ui_paw_solid`** — solid paw icon (the generated paw came out as a
+faint outline; the game currently draws its own):
+> A single cat paw print icon, SOLID dark walnut-brown ink fill like a
+> real inked paw stamp, slightly rough hand-pressed edges, on a plain
+> white background, simple and readable at small sizes, no outline-only
+> areas, no text. Aspect ratio: 1:1.
+
+**4. `ui_paw_stamp`** — inked pawprint for Casebook entries (Ash "signs"
+his deeds; can double as ui_paw_solid source if the fill is solid):
+> A black cat's paw print stamped in dark ink on aged parchment, slightly
+> smudged at one edge as if the paw lifted quickly, storybook style.
+> Aspect ratio: 1:1.
+
+**5. `npc_brindle_magpie`** — the Magpie Exchange's proprietor (shop
+screen face; merchant gating quest coming):
+> A sly, charming magpie perched on a heap of buttons, keys, rings and
+> one pocket-watch, head tilted appraisingly, one eye catching lantern
+> light, inside a cluttered night-market stall, hand-drawn storybook ink
+> and watercolor, cozy-gothic, no text. Aspect ratio: 3:4.
+
+**6. `npc_rat_boss`** — the Rats Under the Floor need a face for Chapter 1:
+> A portly, dignified old rat in a waistcoat made of stitched scraps,
+> seated on a cotton-reel throne under the floorboards, candle-lit,
+> holding a grain of wheat like a scepter, wry not sinister, storybook
+> ink and watercolor, no text. Aspect ratio: 3:4.
+
+**7. `npc_pigeon_postmaster`** — the Pigeon Post's representative:
+> A rumpled city pigeon wearing a tiny leather message-satchel, standing
+> at attention on a rooftop ledge post among sleeping pigeons, dawn fog,
+> one nervous eye, storybook ink and watercolor, no text.
+> Aspect ratio: 3:4.
+
+**8. `ui_case_board`** — the Case (Clue) board backing for the Casebook:
+> An old corkboard page inside a leather casebook: three empty rectangular
+> portrait spaces at top connected by red thread and brass pins, smaller
+> empty note spaces below, ink annotations too small to read, aged
+> parchment, hand-drawn storybook style, no faces, no readable text.
+> Aspect ratio: 3:4.
+
+---
+
 ## A. Branding (do these first — the game literally opens with them)
 
 **`logo_sparkygames`** — ✅ GENERATED 2026-08-01, wired into the splash.

@@ -11,18 +11,23 @@ const DEFAULT_PROFILE := {
 	"schema_version": 1,
 	"prologue_done": false,
 	"gleam": 0,
-	"max_hp": 20,
+	# Level-1 Ash (owner calibration 2026-08-01): 10 HP; growth comes as
+	# mission rewards, never as visible numbers.
+	"max_hp": 10,
+	# Starter deck: 15 cards, ALL value 1 — potent 2s/3s are rewards, not
+	# starting kit (owner rarity rule).
 	"deck": [
-		"ferocity_1", "ferocity_1", "ferocity_2", "ferocity_2", "ferocity_3",
-		"guile_1", "guile_1", "guile_2", "guile_2",
-		"shadow_1", "shadow_1", "shadow_2", "shadow_3",
-		"moonlight_1", "moonlight_1", "moonlight_2",
+		"ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1",
+		"guile_1", "guile_1", "guile_1",
+		"shadow_1", "shadow_1", "shadow_1", "shadow_1",
+		"moonlight_1", "moonlight_1", "moonlight_1",
 	],
 	"skills": ["scratch"],
 	"flags": {},
 	"journal": [],
 	"codex": { "enemies": [], "places": [] },
 	"achievements": {},
+	"settings": { "volume": 1.0 },
 }
 
 ## Everything the prologue teaches; granted retroactively to saves that

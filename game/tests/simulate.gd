@@ -7,23 +7,25 @@ extends SceneTree
 const RUNS_PER_CELL := 300
 const TURN_CAP := 25
 
+## Level-1 starter (owner calibration 2026-08-01): 15 cards, all value 1.
 const STARTER_DECK := [
-	"ferocity_1", "ferocity_1", "ferocity_2", "ferocity_2", "ferocity_3",
-	"guile_1", "guile_1", "guile_2", "guile_2",
-	"shadow_1", "shadow_1", "shadow_2", "shadow_3",
-	"moonlight_1", "moonlight_1", "moonlight_2",
+	"ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1",
+	"guile_1", "guile_1", "guile_1",
+	"shadow_1", "shadow_1", "shadow_1", "shadow_1",
+	"moonlight_1", "moonlight_1", "moonlight_1",
 ]
 
-## Tutorial-stage scenarios mirror what the player actually has at that point.
+## Tutorial-stage scenarios mirror what the player actually has at that
+## point: 10 max HP at level 1, loadout max 4 with Scratch.
 var scenarios := [
-	{"name": "vole (stage 1)", "enemy": "the_vole", "skills": ["scratch", "pounce"], "hp": 20},
-	{"name": "wisp (stage 1)", "enemy": "gutter_wisp", "skills": ["scratch", "pounce"], "hp": 20},
-	{"name": "dog (stage 2)", "enemy": "chained_dog", "skills": ["scratch", "pounce", "slink"], "hp": 18},
-	{"name": "wraith (stage 3)", "enemy": "rag_wraith", "skills": ["scratch", "pounce", "slink", "purr", "loaf"], "hp": 16},
-	{"name": "unpicked (boss)", "enemy": "the_unpicked", "skills": ["scratch", "pounce", "slink", "purr", "loaf"], "hp": 16},
-	{"name": "watch captain (quest)", "enemy": "garden_watch_captain", "skills": ["scratch", "pounce", "slink", "purr", "loaf", "shelf_justice"], "hp": 20,
+	{"name": "vole (stage 1)", "enemy": "the_vole", "skills": ["scratch", "pounce"], "hp": 10},
+	{"name": "wisp (stage 1)", "enemy": "gutter_wisp", "skills": ["scratch", "pounce"], "hp": 10},
+	{"name": "dog (stage 2)", "enemy": "chained_dog", "skills": ["scratch", "pounce", "slink"], "hp": 10},
+	{"name": "wraith (stage 3)", "enemy": "rag_wraith", "skills": ["scratch", "slink", "purr", "loaf"], "hp": 10},
+	{"name": "unpicked (boss)", "enemy": "the_unpicked", "skills": ["scratch", "slink", "purr", "loaf"], "hp": 10},
+	{"name": "watch captain (quest)", "enemy": "garden_watch_captain", "skills": ["scratch", "pounce", "slink", "shelf_justice"], "hp": 12,
 		"environment": {"stealth_threshold": 5, "cost_mod": {"ferocity": 1}}},
-	{"name": "wisp pair (quest)", "enemy": "wisp_pair", "skills": ["scratch", "pounce", "slink", "purr", "loaf", "shelf_justice"], "hp": 20},
+	{"name": "wisp pair (quest)", "enemy": "wisp_pair", "skills": ["scratch", "pounce", "slink", "purr"], "hp": 12},
 ]
 
 var bots := ["brawler", "defender", "stalker", "random"]

@@ -20,6 +20,33 @@ signal encounter_finished(state: CombatState)
 ## outline over a transparent interior — no modulate can make it read at
 ## 44px on parchment — so the pips are drawn (swap in art when a solid
 ## version exists).
+## Drawn energy-cost pips: one circle per point of cost, X-marked once that
+## point of energy is allocated onto the card (owner rule 2026-08-01).
+class CostPips extends Control:
+	var total := 0
+	var marked := 0
+	var color := Color.BLACK
+	var radius := 9.0
+	func _init(p_total: int, p_marked: int, p_color: Color, p_radius := 9.0) -> void:
+		total = p_total
+		marked = mini(p_marked, p_total)
+		color = p_color
+		radius = p_radius
+		custom_minimum_size = Vector2(
+			total * (radius * 2.0 + 8.0), radius * 2.0 + 6.0)
+	func _draw() -> void:
+		var step := radius * 2.0 + 8.0
+		var start_x := (size.x - (step * total - 8.0)) / 2.0 + radius
+		var cy := size.y / 2.0
+		for i in total:
+			var c := Vector2(start_x + step * i, cy)
+			draw_arc(c, radius, 0.0, TAU, 24, color, 2.0, true)
+			if i < marked:
+				var d := radius * 0.55
+				draw_line(c + Vector2(-d, -d), c + Vector2(d, d), color, 2.0)
+				draw_line(c + Vector2(-d, d), c + Vector2(d, -d), color, 2.0)
+
+
 class PawIcon extends Control:
 	var filled := true
 	func _init(p_filled: bool) -> void:
@@ -96,6 +123,7 @@ var intent_plate: Control
 var log_plate: Control
 var status_plate: Control
 var paws_row: HBoxContainer
+var paws_label: Label
 var concentrate_button: Button
 var concentrate_overlay: Control
 var concentrate_box: VBoxContainer
@@ -237,12 +265,8 @@ func _refresh_detail() -> void:
 	var runtime := state.skill_state(skill_id)
 	for humour in cost:
 		var powered := int(runtime.get("powered", {}).get(humour, 0))
-		var pips := Label.new()
-		var filled := mini(powered, int(cost[humour]))
-		pips.text = "●".repeat(filled) + "○".repeat(int(cost[humour]) - filled)
-		pips.add_theme_font_size_override("font_size", 40)
-		pips.add_theme_color_override("font_color", HUMOUR_COLORS.get(humour, UITheme.INK_SOFT))
-		detail_pips.add_child(pips)
+		detail_pips.add_child(CostPips.new(int(cost[humour]),
+			powered, HUMOUR_COLORS.get(humour, UITheme.INK_SOFT), 15.0))
 	detail_pips.visible = not cost.is_empty()
 	var body_text := "%s\n%s" % [_effect_summary(def), String(def.get("flavor", ""))]
 	detail_label.text = body_text
@@ -624,7 +648,7 @@ func _build_ui() -> void:
 	root.add_child(log_plate)
 	log_label = Label.new()
 	log_label.add_theme_font_override("font", UITheme.italic_font())
-	log_label.add_theme_font_size_override("font_size", 20)
+	log_label.add_theme_font_size_override("font_size", 26)
 	log_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
 	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	log_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -635,10 +659,14 @@ func _build_ui() -> void:
 	root.add_child(spacer)
 
 	# --- Zone D: status strip ---------------------------------------------
+	# WIDTH BUDGET: the strip is the widest zone; its minimum width must stay
+	# under 592 or the parent VBox stretches EVERY plate past the right
+	# stitching (the all-boxes-overflow bug). Icons 48, separation 8,
+	# one paw + a count (owner rule), short labels.
 	status_plate = _plate(56)
 	root.add_child(status_plate)
 	var status_row := HBoxContainer.new()
-	status_row.add_theme_constant_override("separation", 12)
+	status_row.add_theme_constant_override("separation", 8)
 	status_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	status_plate.add_child(status_row)
 	hp_label = _status_chip(status_row, "ui/ui_heart_full")
@@ -647,10 +675,16 @@ func _build_ui() -> void:
 	_divider(status_row)
 	deck_label = _status_chip(status_row, "ui/ui_spool")
 	_divider(status_row)
-	# Paw action points: one paw per energy placement this turn.
+	# Paw action points: one paw icon + how many placements remain.
 	paws_row = HBoxContainer.new()
-	paws_row.add_theme_constant_override("separation", 4)
+	paws_row.add_theme_constant_override("separation", 6)
+	paws_row.tooltip_text = "Actions left this turn — each energy placed costs a paw"
 	status_row.add_child(paws_row)
+	paws_row.add_child(PawIcon.new(true))
+	paws_label = Label.new()
+	paws_label.add_theme_font_size_override("font_size", 32)
+	paws_label.add_theme_color_override("font_color", UITheme.INK)
+	paws_row.add_child(paws_label)
 	_divider(status_row)
 	turn_label = Label.new()
 	turn_label.add_theme_font_size_override("font_size", 26)
@@ -752,6 +786,16 @@ func _build_ui() -> void:
 	detail_use.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
 	detail_use.add_theme_stylebox_override("hover", UITheme.amber_stylebox(Color(1.08, 1.05, 1.0)))
 	detail_use.add_theme_stylebox_override("pressed", UITheme.amber_stylebox(Color(0.85, 0.8, 0.75)))
+	# Unpowered = unmistakably inactive: grey plate, faded label (the amber
+	# disabled fallback read as tappable).
+	var use_off := StyleBoxFlat.new()
+	use_off.bg_color = Color("cfc4ab")
+	use_off.set_border_width_all(3)
+	use_off.border_color = Color("a99c82")
+	use_off.set_corner_radius_all(14)
+	use_off.set_content_margin_all(14)
+	detail_use.add_theme_stylebox_override("disabled", use_off)
+	detail_use.add_theme_color_override("font_disabled_color", UITheme.INK_FADED)
 	detail_use.pressed.connect(_on_detail_use)
 	detail_buttons.add_child(detail_use)
 	var detail_cancel := Button.new()
@@ -1081,11 +1125,7 @@ func _refresh() -> void:
 	hp_label.text = "%d/%d" % [state.player_hp, state.player_max_hp]
 	block_label.text = str(state.player_block)
 	deck_label.text = str(state.deck.size())
-	_clear(paws_row)
-	for i in state.paw_limit:
-		var paw := PawIcon.new(i < state.paws_left)
-		paw.tooltip_text = "Actions left this turn — each energy placed costs a paw"
-		paws_row.add_child(paw)
+	paws_label.text = str(state.paws_left)
 	turn_label.text = "turn %d" % state.turn
 	log_label.text = "\n".join(log_lines)
 
@@ -1101,6 +1141,11 @@ func _refresh() -> void:
 	for skill_id in skill_ids + ["scratch"]:
 		if not shown.has(skill_id):
 			shown.append(skill_id)
+	# Loadout law (owner 2026-08-01): at most 4 abilities out at a time,
+	# Scratch included. Battle configs must respect this; clamp defensively.
+	if shown.size() > 4:
+		push_warning("battle: %d abilities configured, loadout max is 4" % shown.size())
+		shown = shown.slice(0, 4)
 	for skill_id in shown:
 		var button := _skill_button(skill_id)
 		skill_buttons[skill_id] = button
@@ -1206,7 +1251,9 @@ func _skill_button(skill_id: String) -> Button:
 	art.set_offset(SIDE_LEFT, 6)
 	art.set_offset(SIDE_RIGHT, -6)
 	art.set_offset(SIDE_TOP, 6)
-	art.set_offset(SIDE_BOTTOM, -40)
+	# Art must STOP above the pips band — art bleeding behind the hollow
+	# circles read as phantom X marks.
+	art.set_offset(SIDE_BOTTOM, -56)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(art)
 
@@ -1218,26 +1265,51 @@ func _skill_button(skill_id: String) -> Button:
 		break
 	var pip_color: Color = HUMOUR_COLORS.get(humour, UITheme.INK_SOFT)
 
-	var pips_label := Label.new()
 	var jammed: bool = not is_instinct and int(runtime.get("jammed_turns", 0)) > 0
-	if jammed:
-		pips_label.text = "jammed"
-	elif is_instinct:
-		pips_label.text = "free" if not state.instinct_used else "spent"
+	var cost := state.effective_cost(def.get("cost", {}))
+	if jammed or is_instinct or cost.is_empty():
+		var pips_label := Label.new()
+		if jammed:
+			pips_label.text = "jammed"
+		elif is_instinct:
+			pips_label.text = "free" if not state.instinct_used else "spent"
+		else:
+			pips_label.text = "free" if not runtime.get("free_used", false) else "spent"
+		pips_label.add_theme_font_size_override("font_size", 24)
+		pips_label.add_theme_color_override("font_color", pip_color)
+		pips_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+		pips_label.set_offset(SIDE_TOP, -50)
+		pips_label.set_offset(SIDE_BOTTOM, -28)
+		pips_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		pips_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		b.add_child(pips_label)
 	else:
-		var left := int(runtime.get("charges_left", 0))
-		var pips := ""
-		for i in int(def.get("charges", 0)):
-			pips += "●" if i < left else "○"
-		pips_label.text = pips
-	pips_label.add_theme_font_size_override("font_size", 24)
-	pips_label.add_theme_color_override("font_color", pip_color)
-	pips_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	pips_label.set_offset(SIDE_TOP, -50)
-	pips_label.set_offset(SIDE_BOTTOM, -28)
-	pips_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	pips_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	b.add_child(pips_label)
+		# Cost pips: circles = energy needed, X = already allocated.
+		var cost_total := 0
+		var allocated := 0
+		var powered: Dictionary = runtime.get("powered", {})
+		for key in cost:
+			cost_total += int(cost[key])
+			allocated += mini(int(powered.get(key, 0)), int(cost[key]))
+		var pips := CostPips.new(cost_total, allocated, pip_color)
+		pips.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+		pips.set_offset(SIDE_TOP, -50)
+		pips.set_offset(SIDE_BOTTOM, -28)
+		pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		b.add_child(pips)
+		# Remaining uses as a small corner badge (was ambiguous as circles).
+		var uses := Label.new()
+		uses.text = "×%d" % int(runtime.get("charges_left", 0))
+		uses.add_theme_font_size_override("font_size", 20)
+		uses.add_theme_color_override("font_color", UITheme.INK_SOFT)
+		uses.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		uses.set_offset(SIDE_LEFT, -40)
+		uses.set_offset(SIDE_RIGHT, -8)
+		uses.set_offset(SIDE_TOP, 4)
+		uses.set_offset(SIDE_BOTTOM, 28)
+		uses.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		uses.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		b.add_child(uses)
 
 	var name_label := Label.new()
 	name_label.text = String(def["name"])

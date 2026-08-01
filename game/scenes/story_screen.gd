@@ -14,6 +14,7 @@ var art_desc := ""
 var fallback_color := Color(0.2, 0.2, 0.24)
 
 var _revealed := 0
+var _first_visible := 0
 var _line_labels: Array[Label] = []
 var _lines_box: VBoxContainer
 var _hint_label: Label
@@ -48,10 +49,11 @@ func _ready() -> void:
 	# Everything lives INSIDE the stitched border of the page.
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	# The page art's stitching insets are EMPIRICAL (law #5): 64/54/92.
 	for side in ["left", "right"]:
-		margin.add_theme_constant_override("margin_" + side, 52)
-	margin.add_theme_constant_override("margin_top", 48)
-	margin.add_theme_constant_override("margin_bottom", 52)
+		margin.add_theme_constant_override("margin_" + side, 64)
+	margin.add_theme_constant_override("margin_top", 54)
+	margin.add_theme_constant_override("margin_bottom", 92)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(margin)
 	var box := VBoxContainer.new()
@@ -59,16 +61,14 @@ func _ready() -> void:
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(box)
 
-	# Illustration in a thin ink frame at its TRUE 3:4 aspect (art is
-	# generated 3:4; never crop it square).
-	var aspect := AspectRatioContainer.new()
-	aspect.ratio = 3.0 / 4.0
-	aspect.stretch_mode = AspectRatioContainer.STRETCH_FIT
-	aspect.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	aspect.size_flags_stretch_ratio = 2.6
-	aspect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_child(aspect)
+	# Illustration in a thin ink frame at its TRUE 3:4 aspect, at a FIXED
+	# size (owner rule 2026-08-01): the picture is the constant; text gets
+	# whatever remains. Never let prose shrink the art.
+	var art_center := CenterContainer.new()
+	art_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(art_center)
 	var art_holder := PanelContainer.new()
+	art_holder.custom_minimum_size = Vector2(510, 680)
 	var frame_style := StyleBoxFlat.new()
 	frame_style.bg_color = fallback_color
 	frame_style.set_border_width_all(4)
@@ -77,7 +77,7 @@ func _ready() -> void:
 	art_holder.add_theme_stylebox_override("panel", frame_style)
 	art_holder.clip_contents = true
 	art_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	aspect.add_child(art_holder)
+	art_center.add_child(art_holder)
 	if image_id != "":
 		art_holder.add_child(UITheme.art_or_placeholder(image_id,
 			art_desc if art_desc != "" else "illustration pending"))
@@ -145,10 +145,33 @@ func _advance() -> void:
 		_revealed += 1
 		var tween := create_tween()
 		tween.tween_property(label, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
+		_retire_overflow()
 		if _revealed == _line_labels.size():
 			_on_all_revealed()
 	elif choices.is_empty():
 		finished.emit(-1)
+
+
+## Retire the oldest visible narration lines until what remains MEASURES
+## inside the text zone (fixed art means text gets a fixed budget; a
+## count cap can't see how far each line wraps — pixels can).
+func _retire_overflow() -> void:
+	var budget := 1280.0 - 54.0 - 92.0 - 680.0 - 40.0 - 60.0
+	if heading != "":
+		budget -= 50.0
+	if not choices.is_empty():
+		budget -= choices.size() * 108.0
+	var line_font: Font = UITheme.display_font() if big_style else UITheme.italic_font()
+	var line_size := 54 if big_style else 37
+	while _first_visible < _revealed - 1:
+		var total := 0.0
+		for i in range(_first_visible, _revealed):
+			total += UITheme.measure_text(
+				_line_labels[i].text, line_font, line_size, 616.0).y + 18.0
+		if total <= budget:
+			break
+		_line_labels[_first_visible].visible = false
+		_first_visible += 1
 
 
 func _on_all_revealed() -> void:

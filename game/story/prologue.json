@@ -25,19 +25,21 @@
       "type": "battle",
       "encounter": "prologue_vole",
       "no_approach": true,
-      "deck": ["ferocity_1", "ferocity_2", "ferocity_1", "ferocity_2", "ferocity_2", "ferocity_3", "ferocity_1", "ferocity_2"],
+      "deck": ["ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1"],
       "coach": [
         { "target": "banner", "text": "Where you are. Places have rules; rooftops mostly have wind." },
         { "target": "portrait", "text": "The opposition. Tonight: one vole of tremendous conviction." },
         { "target": "thread", "text": "Its life is a red thread. Claws do the unstitching." },
         { "target": "intent", "text": "It telegraphs its next move here. Honesty is its one virtue." },
         { "target": "chronicle", "text": "The chronicle. What just happened, one line at a time." },
-        { "target": "status", "text": "Your heart, your guard, your energy left in the deck." },
+        { "target": "hp", "text": "The heart: your lives-worth of tonight. Guard it." },
+        { "target": "guard", "text": "The shield: GUARD soaks a hit, then fades at turn's end." },
+        { "target": "deck", "text": "The spool: energy still wound in your deck. Spent stays spent." },
         { "target": "paws", "text": "Paws are actions. Placing an energy anywhere spends one." },
-        { "target": "hand", "text": "Your hand is ENERGY — tonight, all Ferocity. Spent energy stays spent." },
+        { "target": "hand", "text": "Your hand is ENERGY — tonight, all Ferocity." },
         { "target": "skill:pounce", "text": "Tap POUNCE." },
-        { "target": "use", "text": "Feed it Ferocity until every pip fills. A full card is a willing card — tap USE." },
-        { "target": "end_turn", "text": "Claws thrown. Tap END TURN and let the night answer." }
+        { "target": "use", "text": "Feed it Ferocity until every pip is crossed. A full card is a willing card — tap USE." },
+        { "target": "skill:scratch", "text": "A breath left in it. SCRATCH — free, once a turn. Finish politely." }
       ]
     },
     {
@@ -47,6 +49,7 @@
       "portrait": "sc_ash_vole_gift",
       "lines": [
         "Acquired. Thoughtfully dead.",
+        "The thrill of a clean hunt sings in every muscle — the whole deck of me, wound fresh.",
         "She will say 'not on the table', and mean 'thank you'."
       ]
     },
@@ -66,8 +69,16 @@
       "lines": [
         "Below: the Shambles. By day the whole city trades here — fish, buttons, gossip, gossip about fish.",
         "By night, other markets open. I don't shop there. Often.",
-        "Eight bells from the tower. There is no ninth bell. There used to be. Nobody remembers when that changed.",
-        "And between the chimneys: a thread of silver light, thin as a hair, humming. Not mine. Not hers.",
+        "Eight bells from the tower. There is no ninth bell. There used to be."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "shambles_market",
+      "art_desc": "The Shambles at night: market stalls sleeping under canvas, crooked timber shopfronts, one lit lantern",
+      "lines": [
+        "Between the chimneys: a thread of silver light, thin as a hair, humming.",
+        "Not mine. Not hers.",
         "I did not chase it. I am a professional."
       ]
     },
@@ -77,8 +88,15 @@
       "grant": ["slink"],
       "lines": [
         "Street level. The fog rolls up from the Mere, and the shadows deepen — deep enough to wear.",
-        "New tonight: SHADOW. Spend it to be somewhere else, quietly.",
-        "Ahead, something small and hungry rises from the gutter: a GUTTER-WISP. Bottle-sized. Grown wherever secrets get spilled. It eats small lies — and covets shiny things.",
+        "New tonight: SHADOW. Spend it to be somewhere else, quietly."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "needle_lane",
+      "lines": [
+        "Ahead, something small and hungry rises from the gutter: a GUTTER-WISP.",
+        "Bottle-sized. It eats small lies — and covets shiny things.",
         "It has noticed the vole."
       ]
     },
@@ -86,11 +104,13 @@
       "type": "battle",
       "encounter": "prologue_wisp",
       "shuffle": false,
-      "deck": ["ferocity_1", "shadow_1", "ferocity_2", "ferocity_1", "ferocity_3", "shadow_1", "shadow_2", "ferocity_2", "ferocity_2"],
+      "deck": ["ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "shadow_1", "ferocity_1", "shadow_1", "shadow_1", "shadow_1"],
       "coach": [
         { "target": "approach", "text": "Every fight opens with the going-in. STALK it — spend Shadow to begin unseen." },
-        { "target": "", "text": "Its next move shows up top. The little hand icon means it steals CARDS from your hand." },
-        { "target": "skill:slink", "text": "SLINK blocks 3 — and Shadow is cheaper in this fog. Try it when a bite is coming." }
+        { "target": "hand", "text": "SHADOW, the black energy. Ferocity is the claw; Shadow is the fog — it hides and wards." },
+        { "target": "", "text": "Its next move shows up top. 'Steals a card' means your HAND is the target." },
+        { "target": "skill:slink", "text": "SLINK blocks 3 — and Shadow is cheaper in this fog. Try it when a bite is coming." },
+        { "target": "end_turn", "text": "When your paws are spent, END TURN. The night moves too." }
       ]
     },
     {
@@ -117,15 +137,22 @@
       "grant": ["loaf"],
       "lines": [
         "The lamps on Needle Lane are lit wrong — and the Lamplighters never miss.",
-        "Third lesson, then, because tonight insists: GUILE, the green energy of patience and timing.",
-        "And the deepest defense a cat knows: the LOAF. All paws in. Immovable.",
+        "Third lesson, then: GUILE, the green energy of patience and timing.",
+        "And the deepest defense a cat knows: the LOAF. All paws in. Immovable."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "needle_lane",
+      "lines": [
         "The dog at Number Twelve is awake. Of course it is."
       ]
     },
     {
       "type": "battle",
       "encounter": "prologue_dog",
-      "deck": ["ferocity_1", "ferocity_2", "ferocity_2", "ferocity_3", "shadow_1", "shadow_1", "shadow_2", "guile_1", "guile_1", "guile_2"],
+      "shuffle": false,
+      "deck": ["ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "shadow_1", "shadow_1", "shadow_1", "guile_1", "guile_1", "guile_1"],
       "coach": [
         { "target": "", "text": "Its LUNGE hits for 4. Block BEFORE it lands — or bank a card now and go big later." },
         { "target": "skill:loaf", "text": "LOAF: Block 6, but all paws are committed — you can't act next turn. Time it." }
@@ -137,18 +164,26 @@
       "grant": ["purr"],
       "lines": [
         "The dog and I have agreed to disagree.",
-        "Her window is ahead now. Dark. Her window is never dark.",
+        "Her window is ahead now. Dark. Her window is never dark."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "needle_lane_wrong",
+      "lines": [
         "Last of the four: MOONLIGHT. Hers. Borrowed. Spend it gently.",
-        "And with it, the oldest medicine: the PURR."
+        "With it, the oldest medicine: the PURR.",
+        "Four is all a cat carries. The claws stay home — you cannot scratch an absence."
       ]
     },
     {
       "type": "battle",
       "encounter": "prologue_wraith",
-      "deck": ["ferocity_1", "ferocity_1", "ferocity_2", "ferocity_2", "ferocity_3",
-        "guile_1", "guile_1", "guile_2", "guile_2",
-        "shadow_1", "shadow_1", "shadow_2", "shadow_3",
-        "moonlight_1", "moonlight_1", "moonlight_2"],
+      "shuffle": false,
+      "skills": ["slink", "purr", "loaf"],
+      "deck": ["ferocity_1", "ferocity_1", "shadow_1", "shadow_1", "guile_1",
+        "guile_1", "shadow_1", "moonlight_1", "moonlight_1", "shadow_1",
+        "guile_1", "moonlight_1", "shadow_1", "guile_1", "moonlight_1"],
       "coach": [
         { "target": "", "text": "A RAG-WRAITH: clothes whose owner is missing. Not dead — missing. It is above your weight." },
         { "target": "skill:purr", "text": "PURR heals 2 a turn for two turns — but breaks if you're hit. Purr behind a block." },
@@ -209,6 +244,7 @@
     {
       "type": "battle",
       "encounter": "prologue_parlor",
+      "skills": ["slink", "purr", "loaf"],
       "start_hidden_if_flag": { "flag": "prologue_route", "value": 1 },
       "hints": {
         "1": "Spend everything.",

@@ -29,6 +29,19 @@ var last_outcome := CombatState.Outcome.ONGOING
 
 
 var tour_mode := false
+var settings_layer: CanvasLayer
+var settings_overlay: Control
+var volume_slider: HSlider
+
+
+## Drawn hamburger glyph for the always-available settings button (no
+## generated art dependency; glyph fonts are unreliable for ☰).
+class MenuGlyph extends Control:
+	func _draw() -> void:
+		for i in 3:
+			var y := size.y * (0.3 + 0.2 * i)
+			draw_line(Vector2(size.x * 0.25, y), Vector2(size.x * 0.75, y),
+				Color("e8dcc0"), 3.0)
 
 
 func _ready() -> void:
@@ -45,21 +58,66 @@ func _ready() -> void:
 	tracker.from_dict(profile.get("achievements", {}))
 	var file := FileAccess.open("res://story/prologue.json", FileAccess.READ)
 	story = JSON.parse_string(file.get_as_text())
-	if tour_mode:
+	_build_settings_layer()
+	var dev_scene := _cmdline_value("--scene")
+	if dev_scene != "":
+		# Component runner (owner rule 2026-08-01): jump straight to one
+		# piece of the game on a throwaway profile — no full playthrough
+		# needed to test one screen. See CLAUDE.md for specs.
+		profile = SaveService.DEFAULT_PROFILE.duplicate(true)
+		_dev_launch(dev_scene)
+	elif tour_mode:
 		add_child(load("res://tests/tour.gd").new())
-		# The tour walks the splash too, so the logo gets screenshot-verified.
+		# The tour walks the splash and title too, for screenshot coverage.
 		var tour_splash: Control = SplashScreen.new()
 		tour_splash.finished.connect(func() -> void:
-			_run_prologue_scene(0), CONNECT_ONE_SHOT)
+			_show_title(func() -> void: _run_prologue_scene(0)), CONNECT_ONE_SHOT)
 		_swap(tour_splash)
 	else:
 		var splash: Control = SplashScreen.new()
 		splash.finished.connect(func() -> void:
-			if profile["prologue_done"]:
-				_show_hub()
-			else:
-				_run_prologue_scene(0))
+			_show_title(func() -> void:
+				if profile["prologue_done"]:
+					_show_hub()
+				else:
+					_run_prologue_scene(0)), CONNECT_ONE_SHOT)
 		_swap(splash)
+
+
+func _cmdline_value(flag: String) -> String:
+	var args := OS.get_cmdline_user_args()
+	var index := args.find(flag)
+	if index >= 0 and index + 1 < args.size():
+		return args[index + 1]
+	return ""
+
+
+## Jump straight into one component: "hub", "title", "journal",
+## "story:<scene index>", or "battle:<encounter_id>[:skill,skill,...]".
+func _dev_launch(spec: String) -> void:
+	var parts := spec.split(":")
+	match parts[0]:
+		"hub":
+			profile["prologue_done"] = true
+			_show_hub()
+		"title":
+			_show_title(func() -> void: get_tree().quit())
+		"journal":
+			_show_journal()
+		"story":
+			_run_prologue_scene(int(parts[1]) if parts.size() > 1 else 0)
+		"battle":
+			var encounter := parts[1] if parts.size() > 1 else "prologue_vole"
+			if parts.size() > 2:
+				profile["skills"] = Array(parts[2].split(","))
+			else:
+				profile["skills"] = ["pounce", "slink", "purr"]
+			_show_battle(encounter, func(state: CombatState) -> void:
+				print("dev battle outcome: ", state.outcome)
+				get_tree().quit())
+		_:
+			push_error("unknown --scene spec '%s'" % spec)
+			get_tree().quit(1)
 
 
 # ------------------------------------------------------------------ helpers
@@ -92,6 +150,140 @@ func _story_config(environment_id: String, lines: Array) -> Dictionary:
 	if environment_id == "hollow_court":
 		config["portrait"] = "npc_clerk"
 	return config
+
+
+## Settings live on a CanvasLayer so they are reachable from ANY screen
+## (owner rule 2026-08-01) — the layer floats above whatever is swapped in.
+func _build_settings_layer() -> void:
+	settings_layer = CanvasLayer.new()
+	settings_layer.layer = 10
+	add_child(settings_layer)
+	var gear := Button.new()
+	gear.flat = true
+	gear.custom_minimum_size = Vector2(52, 52)
+	gear.position = Vector2(8, 8)
+	gear.size = Vector2(52, 52)
+	gear.tooltip_text = "Settings"
+	gear.pressed.connect(_open_settings)
+	var glyph := MenuGlyph.new()
+	glyph.set_anchors_preset(Control.PRESET_FULL_RECT)
+	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	gear.add_child(glyph)
+	settings_layer.add_child(gear)
+	var dim := ColorRect.new()
+	dim.color = Color(0.08, 0.07, 0.06, 0.72)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.visible = false
+	settings_layer.add_child(dim)
+	settings_overlay = dim
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.add_child(center)
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(540, 0)
+	panel.theme = UITheme.build()
+	center.add_child(panel)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 16)
+	panel.add_child(box)
+	var title := Label.new()
+	title.text = "Settings"
+	title.add_theme_font_override("font", UITheme.display_font())
+	title.add_theme_font_size_override("font_size", 40)
+	title.add_theme_color_override("font_color", UITheme.INK)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(title)
+	var vol_label := Label.new()
+	vol_label.text = "Sound"
+	vol_label.add_theme_font_size_override("font_size", 28)
+	vol_label.add_theme_color_override("font_color", UITheme.INK)
+	box.add_child(vol_label)
+	volume_slider = HSlider.new()
+	volume_slider.min_value = 0.0
+	volume_slider.max_value = 1.0
+	volume_slider.step = 0.05
+	volume_slider.custom_minimum_size = Vector2(0, 48)
+	volume_slider.value_changed.connect(func(value: float) -> void:
+		_apply_volume(value))
+	box.add_child(volume_slider)
+	var close := Button.new()
+	close.text = "Back to the night"
+	close.custom_minimum_size = Vector2(0, 96)
+	close.pressed.connect(func() -> void:
+		var settings: Dictionary = profile.get("settings", {})
+		settings["volume"] = volume_slider.value
+		profile["settings"] = settings
+		_save()
+		settings_overlay.visible = false)
+	box.add_child(close)
+	_apply_volume(float(profile.get("settings", {}).get("volume", 1.0)))
+
+
+func _open_settings() -> void:
+	volume_slider.set_value_no_signal(
+		float(profile.get("settings", {}).get("volume", 1.0)))
+	settings_overlay.visible = true
+
+
+func _apply_volume(value: float) -> void:
+	AudioServer.set_bus_volume_db(0, linear_to_db(maxf(value, 0.0001)))
+	AudioServer.set_bus_mute(0, value <= 0.0)
+
+
+## Title card between the studio splash and the game. Uses the painted
+## title logo once it exists (regen pending: current art reads "of of");
+## until then the title is typeset live.
+func _show_title(on_continue: Callable) -> void:
+	var screen := Control.new()
+	screen.name = "TitleScreen"
+	var bg := ColorRect.new()
+	bg.color = Color("14110e")
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	screen.add_child(bg)
+	var tap := Button.new()
+	tap.flat = true
+	tap.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tap.pressed.connect(func() -> void: on_continue.call(), CONNECT_ONE_SHOT)
+	screen.add_child(tap)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	screen.add_child(center)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 24)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.add_child(box)
+	var title_art := UITheme.tex("ui/logo_ashcat_title")
+	if title_art != null:
+		var art := TextureRect.new()
+		art.texture = title_art
+		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		art.custom_minimum_size = Vector2(600, 340)
+		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.add_child(art)
+	else:
+		for part in [["The Nine Lives", 64], ["of ASHCAT", 88]]:
+			var line := Label.new()
+			line.text = part[0]
+			line.add_theme_font_override("font", UITheme.display_font())
+			line.add_theme_font_size_override("font_size", part[1])
+			line.add_theme_color_override("font_color", Color("e8dcc0"))
+			line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			box.add_child(line)
+	var hint := Label.new()
+	hint.text = "— tap to begin —"
+	hint.add_theme_font_override("font", UITheme.italic_font())
+	hint.add_theme_font_size_override("font_size", 30)
+	hint.add_theme_color_override("font_color", Color("8f8577"))
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(hint)
+	var tween := screen.create_tween().set_loops()
+	tween.tween_property(hint, "modulate:a", 0.4, 1.0).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(hint, "modulate:a", 1.0, 1.0).set_trans(Tween.TRANS_SINE)
+	_swap(screen)
 
 
 func _show_story(config: Dictionary, on_done: Callable) -> void:
@@ -241,6 +433,10 @@ func _run_prologue_scene(index: int) -> void:
 				extra["skill_charges"] = {}
 			if scene.has("shuffle"):
 				extra["shuffle"] = scene["shuffle"]
+			if scene.has("skills"):
+				# Loadout law: a battle can pin the carried kit (max 4 with
+				# Scratch) even when the profile owns more skills.
+				extra["skills"] = scene["skills"]
 			if scene.get("no_approach", false):
 				extra["no_approach"] = true
 			_show_battle(scene["encounter"], func(state: CombatState) -> void:

@@ -21,6 +21,11 @@ comes from Midjourney, provided by the project owner.
 - Local Godot binary: `C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe`
 - Run tests after any change to `game/`:
   `& "C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe" --headless --path game -s tests/run_tests.gd`
+- Component runner — test ONE piece without a full playthrough (throwaway
+  profile): `godot --path game -- --scene <spec>` where spec is `hub`,
+  `title`, `journal`, `story:<index>`, or
+  `battle:<encounter_id>[:skill,skill,...]`
+  (e.g. `--scene battle:prologue_wraith:pounce,slink,purr`).
 - **`game/core/` is pure rules**: RefCounted classes only — no Node, no
   rendering, no FileAccess, no global RNG. All randomness goes through
   `CoreRng`; all player actions go through `CombatState.do_command()` and are

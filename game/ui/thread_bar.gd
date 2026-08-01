@@ -70,11 +70,14 @@ func _draw() -> void:
 			# The fray art's aspect is whatever the generator felt like; cap
 			# its width so the tip stays a tip and never leaves the bar.
 			var fray_w: float = minf(fray_h * fray_src.size.x / fray_src.size.y, h * 2.5)
-			fray_w = minf(fray_w, size.x - (rope_w - 4.0))
+			# Tuck the fray a third of its width UNDER the rope's cut end so
+			# the two textures read as one thread, not a butt joint.
+			var fray_x := rope_w - fray_w * 0.35
+			fray_w = minf(fray_w, size.x - fray_x)
 			if fray_w > 2.0:
 				draw_texture_rect_region(fray,
-					Rect2(rope_w - 4, mid - fray_h / 2.0, fray_w, fray_h), fray_src)
-				dash_start = rope_w - 4.0 + fray_w + 6.0
+					Rect2(fray_x, mid - fray_h / 2.0, fray_w, fray_h), fray_src)
+				dash_start = fray_x + fray_w + 6.0
 		if _shown < 0.999:
 			draw_dashed_line(Vector2(dash_start, mid), Vector2(size.x - 6, mid), DASH, 2.0, 8.0)
 			draw_line(Vector2(size.x - 3, mid - 6), Vector2(size.x - 3, mid + 6), DASH, 2.0)

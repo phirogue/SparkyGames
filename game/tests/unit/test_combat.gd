@@ -19,10 +19,13 @@ func test_determinism_same_seed_same_state() -> void:
 	assert_eq(a.hand, b.hand, "hands from same seed")
 	assert_eq(a.deck, b.deck, "decks from same seed")
 
-func test_draws_up_to_hand_limit() -> void:
+func test_opening_hand_is_small_then_refills() -> void:
 	var state := _wisp_fight()
-	assert_eq(state.hand.size(), CombatState.HAND_LIMIT, "opening hand")
-	assert_eq(state.deck.size(), 5, "deck after opening draw")
+	assert_eq(state.hand.size(), CombatState.OPENING_HAND, "battles open with 3 cards")
+	assert_eq(state.deck.size(), 7, "deck after opening draw")
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_eq(state.hand.size(), CombatState.HAND_LIMIT,
+		"the turn-over draw refills toward the full hand")
 
 func test_pounce_costs_energy_and_damages() -> void:
 	var state := _wisp_fight()
@@ -60,6 +63,7 @@ func test_lingering_warmed_and_sharpened() -> void:
 		"enemy": "gutter_wisp",
 		"lingering": ["warmed", "sharpened"],
 		"shuffle": false,
+		"opening_hand": 5,
 	})
 	assert_eq(state.player_hp, 12, "warmed grants +2 hp on entry")
 	assert_ok(state.do_command({"type": "play_skill", "skill_id": "pounce"}), "sharpened pounce")
@@ -118,6 +122,7 @@ func test_hand_attack_discards_cards() -> void:
 		"deck": ["guile_1", "guile_1", "guile_1", "guile_1", "guile_1"],
 		"skills": ["loaf"],
 		"enemy": "chained_dog",  # first intent: Bark (hand, 1)
+		"opening_hand": 5,
 	})
 	assert_eq(state.hand.size(), 5, "opening hand")
 	assert_ok(state.do_command({"type": "end_turn"}))
@@ -215,6 +220,7 @@ func test_paws_limit_energy_placements() -> void:
 		"skills": ["pounce"],
 		"enemy": "gutter_wisp",
 		"shuffle": false,
+		"opening_hand": 5,
 	})
 	assert_ok(state.do_command({"type": "bank", "hand_index": 0}), "paw 1: bank")
 	assert_ok(state.do_command({"type": "bank", "hand_index": 0}), "paw 2: bank")
