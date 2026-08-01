@@ -106,12 +106,40 @@ static func page_stylebox() -> StyleBoxTexture:
 	return box
 
 
-static func amber_stylebox(modulate := Color.WHITE) -> StyleBoxTexture:
-	return stylebox("ui_btn_amber", 26, modulate)
+## Buttons are DRAWN, not textured: the generated button art carries
+## transparent padding that makes textured styleboxes render smaller than
+## the button rect (text escaping its box). Flat boxes always encase.
+static func amber_stylebox(modulate := Color.WHITE) -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color("e0913a") * modulate
+	box.set_border_width_all(3)
+	box.border_color = Color("5e3a1a")
+	box.set_corner_radius_all(14)
+	box.set_content_margin_all(14)
+	return box
 
 
-static func dark_stylebox(modulate := Color.WHITE) -> StyleBoxTexture:
-	return stylebox("ui_btn_dark", 22, modulate)
+static func dark_stylebox(modulate := Color.WHITE) -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color("2e3446") * modulate
+	box.set_border_width_all(3)
+	box.border_color = Color("1a1d28")
+	box.set_corner_radius_all(12)
+	box.set_content_margin_all(12)
+	return box
+
+
+static func parchment_button_stylebox(modulate := Color.WHITE) -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color("f0e2c4") * modulate
+	box.set_border_width_all(3)
+	box.border_color = Color("4a3b2c")
+	box.set_corner_radius_all(12)
+	box.set_content_margin(SIDE_LEFT, 18)
+	box.set_content_margin(SIDE_RIGHT, 18)
+	box.set_content_margin(SIDE_TOP, 12)
+	box.set_content_margin(SIDE_BOTTOM, 12)
+	return box
 
 
 static func strip_stylebox() -> StyleBoxTexture:
@@ -128,11 +156,13 @@ static func build() -> Theme:
 	# standard (see docs/research/2026-07-30-mobile-ui-research.md).
 	theme.default_font_size = 30
 
-	# Buttons: parchment 9-patch, pressed/hover as tint variants.
-	theme.set_stylebox("normal", "Button", stylebox("ui_btn_parchment", 22))
-	theme.set_stylebox("hover", "Button", stylebox("ui_btn_parchment", 22, Color(1.05, 1.02, 0.95)))
-	theme.set_stylebox("pressed", "Button", stylebox("ui_btn_parchment", 22, Color(0.88, 0.84, 0.76)))
-	theme.set_stylebox("disabled", "Button", stylebox("ui_btn_parchment", 22, Color(1, 1, 1, 0.5)))
+	# Buttons: drawn parchment (see parchment_button_stylebox note).
+	theme.set_stylebox("normal", "Button", parchment_button_stylebox())
+	theme.set_stylebox("hover", "Button", parchment_button_stylebox(Color(1.05, 1.02, 0.95)))
+	theme.set_stylebox("pressed", "Button", parchment_button_stylebox(Color(0.88, 0.84, 0.76)))
+	var disabled_box := parchment_button_stylebox()
+	disabled_box.bg_color.a = 0.5
+	theme.set_stylebox("disabled", "Button", disabled_box)
 	theme.set_stylebox("focus", "Button", StyleBoxEmpty.new())
 	theme.set_color("font_color", "Button", INK)
 	theme.set_color("font_hover_color", "Button", INK)
