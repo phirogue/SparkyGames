@@ -135,10 +135,8 @@ func _swap(screen: Control) -> void:
 
 func _story_config(environment_id: String, lines: Array) -> Dictionary:
 	var environment: Dictionary = catalog.environments.get(environment_id, {})
-	var all_lines := toasts + lines
-	toasts = []
 	var config := {
-		"lines": all_lines,
+		"lines": lines,
 		"color": environment.get("color", "#22242a"),
 		"accent": environment.get("accent", "#d8ccb4"),
 		"heading": environment.get("name", ""),
@@ -259,7 +257,8 @@ func _show_title(on_continue: Callable) -> void:
 		art.texture = title_art
 		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		art.custom_minimum_size = Vector2(600, 340)
+		# The painted title is a tall poster; give it most of the screen.
+		art.custom_minimum_size = Vector2(560, 960)
 		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		box.add_child(art)
 	else:
@@ -287,9 +286,69 @@ func _show_title(on_continue: Callable) -> void:
 
 
 func _show_story(config: Dictionary, on_done: Callable) -> void:
+	# Notices (skills, achievements, casebook) get their OWN view first —
+	# mixed into narration they read as story and confused it (owner fix).
+	if not toasts.is_empty():
+		var pending := toasts.duplicate()
+		toasts = []
+		_show_notices(pending, func() -> void: _show_story(config, on_done))
+		return
 	var screen: Control = StoryScreen.new()
 	screen.setup(config)
 	screen.finished.connect(on_done)
+	_swap(screen)
+
+
+## A parchment interstitial listing what the night just granted — skill
+## notes in the warm accent color so they never read as story text.
+func _show_notices(lines: Array, on_done: Callable) -> void:
+	var screen := Control.new()
+	screen.name = "NoticeScreen"
+	var page := Panel.new()
+	page.add_theme_stylebox_override("panel", UITheme.page_stylebox())
+	page.set_anchors_preset(Control.PRESET_FULL_RECT)
+	screen.add_child(page)
+	var tap := Button.new()
+	tap.flat = true
+	tap.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tap.pressed.connect(func() -> void: on_done.call(), CONNECT_ONE_SHOT)
+	screen.add_child(tap)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	screen.add_child(center)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 22)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.add_child(box)
+	var title := Label.new()
+	title.text = "Noted, with interest"
+	title.add_theme_font_override("font", UITheme.smallcaps_font())
+	title.add_theme_font_size_override("font_size", 40)
+	title.add_theme_color_override("font_color", UITheme.INK)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(title)
+	var wrap := float(UITheme.CONTENT_WIDTH)
+	for line in lines:
+		var note := Label.new()
+		note.text = String(line)
+		note.add_theme_font_size_override("font_size", 28)
+		note.add_theme_color_override("font_color", UITheme.ACCENT_WARM)
+		note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		note.custom_minimum_size = Vector2(wrap, UITheme.measure_text(
+			String(line), UITheme.body_font(), 28, wrap).y)
+		note.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.add_child(note)
+	var hint := Label.new()
+	hint.text = "— tap to continue —"
+	hint.add_theme_font_override("font", UITheme.italic_font())
+	hint.add_theme_font_size_override("font_size", 24)
+	hint.add_theme_color_override("font_color", UITheme.INK_FADED)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(hint)
 	_swap(screen)
 
 
@@ -349,9 +408,22 @@ func _digest(state: CombatState) -> void:
 		var charges := {}
 		for s in state.skills:
 			charges[s["id"]] = s["charges_left"]
+		# The pool persists between encounters (owner rule: no reset until
+		# a rest); spent stays spent — EXCEPT one breath back with a win.
+		var pool: Array = state.deck + state.hand + state.banked
+		var spent_pool: Array = state.spent.duplicate()
+		if state.outcome == CombatState.Outcome.VICTORY and not spent_pool.is_empty():
+			var best_i := 0
+			for i in spent_pool.size():
+				if int(catalog.energy_cards[spent_pool[i]]["value"]) > \
+						int(catalog.energy_cards[spent_pool[best_i]]["value"]):
+					best_i = i
+			pool.append(spent_pool[best_i])
+			spent_pool.remove_at(best_i)
 		carryover = {
 			"hp": state.player_hp,
-			"deck": state.deck + state.hand + state.banked,
+			"deck": pool,
+			"spent": spent_pool,
 			"skill_charges": charges,
 			"lingering": state.lingering_out(),
 		}
@@ -398,6 +470,13 @@ func _run_prologue_scene(index: int) -> void:
 		"story":
 			if scene.has("grant"):
 				_grant_skills(scene["grant"])
+			if scene.get("refresh_spent", false):
+				# Story-granted second wind: everything spent rejoins the
+				# pool (the vole hunt's "wound fresh" excitement).
+				var refreshed: Array = carryover.get("deck", [])
+				refreshed.append_array(carryover.get("spent", []))
+				carryover["deck"] = refreshed
+				carryover["spent"] = []
 			if scene.has("add_card"):
 				# Story finds join the prowl deck immediately and the
 				# permanent deck forever.
@@ -428,9 +507,15 @@ func _run_prologue_scene(index: int) -> void:
 				if int(profile["flags"].get(gate["flag"], -1)) == int(gate["value"]):
 					extra["start_hidden"] = true
 			if scene.has("deck"):
-				# Tutorial stage: fixed teaching deck, fresh charges.
+				# Tutorial opener: fixed teaching deck, fresh charges.
 				extra["deck"] = scene["deck"]
 				extra["skill_charges"] = {}
+			elif scene.has("add_cards"):
+				# New energy joins the CARRIED pool (appended last so an
+				# unshuffled battle opens with exactly these cards).
+				var pool: Array = carryover.get("deck", profile["deck"].duplicate())
+				pool.append_array(scene["add_cards"])
+				carryover["deck"] = pool
 			if scene.has("shuffle"):
 				extra["shuffle"] = scene["shuffle"]
 			if scene.has("skills"):

@@ -56,6 +56,7 @@ var approach := ""                     # chosen mode, "" until locked
 var approach_locked: bool = false
 var hidden: bool = false               # stalk: enemy's first act is wasted
 var _enemy_enraged: bool = false       # ambush: enemy's first hit +2
+var _case_watched: bool = false        # case: it studied you back (+1 first hit)
 var _ward_holds: bool = false          # ward: block survives the next turn-over
 ## Encounter telemetry consumed by AchievementTracker.record_encounter().
 var flags: Dictionary = {
@@ -252,8 +253,7 @@ func do_command(command: Dictionary) -> Dictionary:
 			approach_locked = true
 			result = _cmd_end_turn()
 		"slip_away":
-			outcome = Outcome.RETREATED
-			result = {"ok": true, "error": ""}
+			result = _cmd_slip_away()
 		_:
 			result = _fail("unknown command '%s'" % command.get("type", ""))
 	if result["ok"]:
@@ -290,6 +290,9 @@ func _cmd_approach(mode: String) -> Dictionary:
 			for i in 2:
 				if not deck.is_empty():
 					hand.append(deck.pop_back())  # study allows over-draw
+			# Every approach has a price (owner rule): the moment spent
+			# studying is a moment given — it studies you back.
+			_case_watched = true
 			_events.append("approach_case")
 		"ward":
 			player_block += 4
@@ -406,6 +409,21 @@ func _cmd_play_skill(skill_id: String) -> Dictionary:
 	return {"ok": true, "error": ""}
 
 
+## Retreat is never free (owner rule 2026-08-02): turning tail gives the
+## enemy one parting strike — its telegraphed move lands on your back when
+## it targets health (block still counts; from hiding you exit clean).
+func _cmd_slip_away() -> Dictionary:
+	var intent := current_intent()
+	if not hidden and intent["target"] == "health":
+		var damage := maxi(int(intent.get("amount", 0)) - player_block, 0)
+		player_hp -= damage
+		flags["damage_taken"] = int(flags["damage_taken"]) + damage
+		if damage > 0:
+			_events.append("parting_shot")
+	outcome = Outcome.DEFEAT if player_hp <= 0 else Outcome.RETREATED
+	return {"ok": true, "error": ""}
+
+
 func _cmd_bank(hand_index: int) -> Dictionary:
 	if hand_index < 0 or hand_index >= hand.size():
 		return _fail("no card at hand index %d" % hand_index)
@@ -457,6 +475,8 @@ func _cmd_end_turn() -> Dictionary:
 	# --- start of next player turn ---
 	turn += 1
 	paws_left = paw_limit
+	if turn == 8:
+		_events.append("night_presses")
 	if _ward_holds:
 		_ward_holds = false  # a stitched ward outlasts the moment
 	else:
@@ -583,6 +603,12 @@ func _enemy_act() -> void:
 		return
 	var rage_bonus := 2 if _enemy_enraged else 0
 	_enemy_enraged = false
+	if _case_watched:
+		rage_bonus += 1
+		_case_watched = false
+	# The night presses (pacing rule 2026-08-02): from turn 8 every enemy
+	# strike hits harder — fights END by ~turn 10, one way or the other.
+	rage_bonus += maxi(turn - 7, 0) * 2
 	var intent := current_intent()
 	_intent_index += 1
 	if spotted:

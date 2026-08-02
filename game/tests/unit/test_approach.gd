@@ -48,6 +48,15 @@ func test_case_hand_math_exact() -> void:
 	# Pays with guile_2 (largest first), draws 2 (ferocity_1, shadow_1): 4+2=6.
 	assert_eq(state.hand.size(), 6, "case over-draws past the hand limit")
 
+func test_case_studies_you_back() -> void:
+	# Every approach has a price: Case draws 2 but the enemy's first strike
+	# gains +1 (wraith turn 1: Empty Sleeve 6 -> 7).
+	var state := _fight(["shadow_1", "ferocity_1", "guile_1", "guile_1",
+		"shadow_1", "guile_1"], "rag_wraith")
+	assert_ok(state.do_command({"type": "approach", "mode": "case"}), "case")
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_eq(int(state.flags["damage_taken"]), 7, "it studied you back")
+
 func test_ward_block_survives_one_turn() -> void:
 	var state := _fight(["guile_1", "shadow_1", "guile_1", "mysticism_2", "ferocity_1", "shadow_1"])
 	assert_ok(state.do_command({"type": "approach", "mode": "ward"}), "ward")

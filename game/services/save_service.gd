@@ -8,7 +8,7 @@ const TEMP_PATH := "user://profile.tmp"
 const BACKUP_PATH := "user://profile.bak"
 
 const DEFAULT_PROFILE := {
-	"schema_version": 1,
+	"schema_version": 2,
 	"prologue_done": false,
 	"gleam": 0,
 	# Level-1 Ash (owner calibration 2026-08-01): 10 HP; growth comes as
@@ -71,4 +71,10 @@ static func _migrate(profile: Dictionary) -> Dictionary:
 	for card_id in merged["deck"]:
 		migrated_deck.append(String(card_id).replace("moonlight", "mysticism"))
 	merged["deck"] = migrated_deck
+	# v2 (2026-08-02): the level-1 recalibration. Old saves carried 20 HP
+	# and potent starter cards into a 10-HP, all-1s world.
+	if int(profile.get("schema_version", 1)) < 2:
+		merged["max_hp"] = mini(int(merged["max_hp"]), 10)
+		merged["deck"] = DEFAULT_PROFILE["deck"].duplicate()
+		merged["schema_version"] = 2
 	return merged

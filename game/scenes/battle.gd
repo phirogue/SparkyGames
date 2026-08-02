@@ -5,18 +5,26 @@ extends Control
 ## fanned energy hand · skill cards in a parchment tray · amber End Turn with
 ## a dark Slip Away card. All rules live in CombatState.
 ##
-## LAYOUT CONTRACT — 720x1280 canvas, content 582x1104 inside the
-## calibrated stitch margins (UITheme.PAGE_MARGIN_* = 68/40/70/136).
-## Zone heights are REAL heights (content + plate margins), verified with
-## tests/calibrate.gd -- zones battle:
-##   A Header   120px   banner 34px font | rule card 260 wide, 22px text
-##   B Opponent 400px   portrait 340x400 | name-plate(thread) + intent chip
-##   C Chronicle 52px   1 log line at 26px, plate margin 8
-##   D Status    64px   heart · shield · spool · paw+count · turn, margin 8
-##   E Hand     168px   fanned energy cards 113x154 (base x1.2)
-##   F Skills   150px   tray margin 8, 4-per-row cards 134x134
-##   G Buttons  100px
-##   Sum 1054 + 8 separations(48) = 1102 <= 1104
+## ZONE TEMPLATE (owner rule: fixed template, nothing moves again).
+## Content is 576x1104 inside the calibrated stitch margins
+## (UITheme.PAGE_MARGIN_* = 68/40/76/136). Zone heights are REAL heights
+## (content + plate margins); the sum plus separations must equal
+## CONTENT_HEIGHT exactly. Verified with tests/calibrate.gd -- zones battle.
+const ZONE_SEP := 3        # root VBox separation (6 gaps)
+const ZONE_HEADER := 98    # banner 30px | rule card 300 wide, 20px text
+const ZONE_OPPONENT := 396 # portrait 364x396 | name(thread)+intent col 200
+const ZONE_CHRONICLE := 150 # last 5 log lines at 22px, plate margin 5
+const ZONE_STATUS := 56    # icons 40, labels 28, margin 8
+const ZONE_HAND := 140     # fanned cards 113x154 tuck up over the gap
+const ZONE_SKILLS := 150   # tray margin 8, 4-per-row cards 134x134
+const ZONE_ACTIONS := 96   # tap-target floor
+# 98+396+150+56+140+150+96 = 1086; + 6*3 = 1104 = CONTENT_HEIGHT
+
+const PORTRAIT_SIZE := Vector2(364, 396)
+const RULE_CARD_WIDTH := 300.0
+const LOG_LINES := 5       # owner: the chronicle shows the last 5 actions
+const CARD_SCALE := 1.2    # energy cards (base 94x128, owner +20%)
+const SKILL_CARD_SIZE := Vector2(134, 134)
 
 signal encounter_finished(state: CombatState)
 
@@ -24,18 +32,22 @@ signal encounter_finished(state: CombatState)
 ## outline over a transparent interior — no modulate can make it read at
 ## 44px on parchment — so the pips are drawn (swap in art when a solid
 ## version exists).
-## Drawn energy-cost pips: one circle per point of cost, X-marked once that
-## point of energy is allocated onto the card (owner rule 2026-08-01).
+## Drawn energy-cost pips: one circle per point of cost. An allocated point
+## shows the ENERGY'S OWN GLYPH inside its circle (owner rule 2026-08-02 —
+## clearer than an X); the X remains only as a no-glyph fallback.
 class CostPips extends Control:
 	var total := 0
 	var marked := 0
 	var color := Color.BLACK
 	var radius := 9.0
-	func _init(p_total: int, p_marked: int, p_color: Color, p_radius := 9.0) -> void:
+	var glyph: Texture2D = null
+	func _init(p_total: int, p_marked: int, p_color: Color, p_radius := 9.0,
+			p_glyph: Texture2D = null) -> void:
 		total = p_total
 		marked = mini(p_marked, p_total)
 		color = p_color
 		radius = p_radius
+		glyph = p_glyph
 		custom_minimum_size = Vector2(
 			total * (radius * 2.0 + 8.0), radius * 2.0 + 6.0)
 	func _draw() -> void:
@@ -46,9 +58,14 @@ class CostPips extends Control:
 			var c := Vector2(start_x + step * i, cy)
 			draw_arc(c, radius, 0.0, TAU, 24, color, 2.0, true)
 			if i < marked:
-				var d := radius * 0.55
-				draw_line(c + Vector2(-d, -d), c + Vector2(d, d), color, 2.0)
-				draw_line(c + Vector2(-d, d), c + Vector2(d, -d), color, 2.0)
+				if glyph != null:
+					var g := radius * 1.6
+					draw_texture_rect(glyph,
+						Rect2(c - Vector2(g, g) / 2.0, Vector2(g, g)), false)
+				else:
+					var d := radius * 0.55
+					draw_line(c + Vector2(-d, -d), c + Vector2(d, d), color, 2.0)
+					draw_line(c + Vector2(-d, d), c + Vector2(d, -d), color, 2.0)
 
 
 class PawIcon extends Control:
@@ -95,7 +112,7 @@ const APPROACH_TITLE := {
 const APPROACH_DESC := {
 	"stalk": "Begin hidden. Its first move misses. First hit +1.",
 	"ambush": "Strike first for 3. It comes up angry.",
-	"case": "Study the target. Draw 2 cards.",
+	"case": "Study it, draw 2 — it studies you back: +1 first hit.",
 	"ward": "Block 4 that holds through its first turn.",
 }
 
@@ -110,11 +127,12 @@ var no_approach := false
 var log_lines: Array[String] = []
 var selected_skill := ""
 var coach: Coach = null
+var _coach_pending := false
 var skill_buttons: Dictionary = {}
 var end_turn_button: Button
 var slip_button: Button
 
-var hint_label: Label
+var _last_hint_turn := -1
 var enemy_art: Control
 var enemy_label: Label
 var enemy_hp_label: Label
@@ -152,6 +170,7 @@ var detail_panel: PanelContainer
 var detail_title: Label
 var detail_pips: HBoxContainer
 var detail_label: Label
+var detail_flavor: Label
 var detail_art: TextureRect
 var detail_charge: Button
 var detail_use: Button
@@ -184,16 +203,27 @@ static func _art(image_id: String) -> Texture2D:
 
 func _ready() -> void:
 	_build_ui()
-	if not coach_steps.is_empty():
-		coach = Coach.new(coach_steps, _coach_target)
-		add_child(coach)
 	# The strip under the portrait opens with WHO this is (owner request);
 	# combat lines take the strip over once the action starts.
 	_log(String(catalog.enemies[state.enemy_id].get("flavor", encounter_def["name"])))
 	_drain_events()
 	_refresh()
 	_maybe_offer_approach()
+	# Coach starts AFTER the approach is chosen (owner fix: the loaf tip
+	# used to cover the approach chooser) — unless it teaches the approach.
+	if not coach_steps.is_empty():
+		var first_target := String(coach_steps[0].get("target", ""))
+		if approach_overlay.visible and first_target != "approach":
+			_coach_pending = true
+		else:
+			_start_coach()
 	_start_ambient_animation()
+
+
+func _start_coach() -> void:
+	_coach_pending = false
+	coach = Coach.new(coach_steps, _coach_target)
+	add_child(coach)
 
 
 func _coach_target(key: String) -> Control:
@@ -224,6 +254,8 @@ func _on_approach(mode: String) -> void:
 	approach_overlay.visible = false
 	if coach != null:
 		coach.notify("approach")
+	if _coach_pending:
+		_start_coach()
 	if mode == "":
 		_log("Walked in. Sometimes the front door is the trick.")
 	else:
@@ -270,13 +302,19 @@ func _refresh_detail() -> void:
 	for humour in cost:
 		var powered := int(runtime.get("powered", {}).get(humour, 0))
 		detail_pips.add_child(CostPips.new(int(cost[humour]),
-			powered, HUMOUR_COLORS.get(humour, UITheme.INK_SOFT), 15.0))
+			powered, HUMOUR_COLORS.get(humour, UITheme.INK_SOFT), 15.0,
+			UITheme.cropped_tex(HUMOUR_GLYPH.get(humour, ""))))
 	detail_pips.visible = not cost.is_empty()
-	var body_text := "%s\n%s" % [_effect_summary(def), String(def.get("flavor", ""))]
-	detail_label.text = body_text
 	var wrap := 620.0 - 32.0 - 200.0 - 16.0
+	var effect_text := _effect_summary(def)
+	detail_label.text = effect_text
 	detail_label.custom_minimum_size = Vector2(wrap, UITheme.measure_text(
-		body_text, UITheme.body_font(), 26, wrap).y + 8)
+		effect_text, UITheme.body_font(), 26, wrap).y + 4)
+	var flavor_text := String(def.get("flavor", ""))
+	detail_flavor.text = flavor_text
+	detail_flavor.visible = flavor_text != ""
+	detail_flavor.custom_minimum_size = Vector2(wrap, UITheme.measure_text(
+		flavor_text, UITheme.italic_font(), 24, wrap).y + 4)
 	detail_art.texture = UITheme.tex("sk_" + skill_id)
 	var next_humour := ""
 	for humour in state.remaining_cost(skill_id):
@@ -487,6 +525,8 @@ func _drain_events() -> void:
 			"approach_ambush": _log("Claws first. Questions never.")
 			"approach_case": _log("You watch. You learn. You draw.")
 			"approach_ward": _log("A ward, stitched quick and holding.")
+			"parting_shot": _log("It gets one in as you go.")
+			"night_presses": _log("The night presses. It grows bolder.")
 			"concentrated": pass  # the chooser handler already narrates it
 
 
@@ -557,13 +597,13 @@ func _build_ui() -> void:
 	margin.add_theme_constant_override("margin_bottom", UITheme.PAGE_MARGIN_BOTTOM)
 	add_child(margin)
 	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 6)
+	root.add_theme_constant_override("separation", ZONE_SEP)
 	margin.add_child(root)
 
 	# --- Zone A: header — location banner left, rule card right -----------
 	var header := HBoxContainer.new()
 	header.add_theme_constant_override("separation", 12)
-	header.custom_minimum_size = Vector2(0, 88)
+	header.custom_minimum_size = Vector2(0, ZONE_HEADER)
 	root.add_child(header)
 	var banner := _plate()
 	banner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -572,40 +612,33 @@ func _build_ui() -> void:
 	var loc := Label.new()
 	loc.text = environment_def["name"]
 	loc.add_theme_font_override("font", UITheme.display_font())
-	loc.add_theme_font_size_override("font_size", 34)
+	loc.add_theme_font_size_override("font_size", 30)
 	loc.add_theme_color_override("font_color", UITheme.INK)
 	loc.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	banner.add_child(loc)
 	var rule_card := PanelContainer.new()
-	rule_card.custom_minimum_size = Vector2(260, 0)
+	rule_card.custom_minimum_size = Vector2(RULE_CARD_WIDTH, 0)
 	header.add_child(rule_card)
 	rule_plate = rule_card
 	var rule_label := Label.new()
 	rule_label.text = environment_def.get("rule_text", "")
-	rule_label.add_theme_font_size_override("font_size", 22)
+	rule_label.add_theme_font_size_override("font_size", 20)
 	rule_label.add_theme_color_override("font_color", UITheme.INK)
 	rule_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	rule_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	# Label width is pinned EQUAL to the measured wrap width (law #2): the
-	# panel's flat stylebox has 16px margins each side, so 260 - 32.
-	var rule_wrap := 260.0 - 32.0
+	# panel's flat stylebox has 16px margins each side.
+	var rule_wrap := RULE_CARD_WIDTH - 32.0
 	var rule_measured := UITheme.measure_text(
-		rule_label.text, UITheme.body_font(), 22, rule_wrap)
-	rule_label.custom_minimum_size = Vector2(rule_wrap, rule_measured.y + 6)
+		rule_label.text, UITheme.body_font(), 20, rule_wrap)
+	rule_label.custom_minimum_size = Vector2(rule_wrap, rule_measured.y + 4)
 	rule_card.add_child(rule_label)
 
-	hint_label = Label.new()
-	hint_label.add_theme_font_override("font", UITheme.italic_font())
-	hint_label.add_theme_font_size_override("font_size", 24)
-	hint_label.add_theme_color_override("font_color", Color("8a5a20"))
-	hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hint_label.visible = not hints.is_empty()
-	root.add_child(hint_label)
-
 	# --- Zone B: opponent -------------------------------------------------
+	# (Hints render as chronicle lines — a floating label broke the budget.)
 	var enemy_row := HBoxContainer.new()
-	enemy_row.add_theme_constant_override("separation", 14)
-	enemy_row.custom_minimum_size = Vector2(0, 400)
+	enemy_row.add_theme_constant_override("separation", 12)
+	enemy_row.custom_minimum_size = Vector2(0, ZONE_OPPONENT)
 	root.add_child(enemy_row)
 	enemy_art = _framed_portrait(catalog.enemies[state.enemy_id].get("image", ""),
 		String(catalog.enemies[state.enemy_id]["name"]))
@@ -624,7 +657,7 @@ func _build_ui() -> void:
 	name_plate.add_child(name_box)
 	enemy_label = Label.new()
 	enemy_label.add_theme_font_override("font", UITheme.display_font())
-	enemy_label.add_theme_font_size_override("font_size", 34)
+	enemy_label.add_theme_font_size_override("font_size", 30)
 	enemy_label.add_theme_color_override("font_color", UITheme.INK)
 	enemy_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	enemy_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -655,20 +688,17 @@ func _build_ui() -> void:
 	alarm_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	enemy_col.add_child(alarm_label)
 
-	# --- Zone C: chronicle strip ------------------------------------------
-	log_plate = _plate(0, 8)
+	# --- Zone C: chronicle — the last LOG_LINES actions ------------------
+	log_plate = _plate(ZONE_CHRONICLE, 6)
 	root.add_child(log_plate)
 	log_label = Label.new()
 	log_label.add_theme_font_override("font", UITheme.italic_font())
-	log_label.add_theme_font_size_override("font_size", 26)
+	log_label.add_theme_font_size_override("font_size", 22)
 	log_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
 	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	log_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	log_label.clip_contents = true
+	log_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	log_plate.add_child(log_label)
-
-	var spacer := Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root.add_child(spacer)
 
 	# --- Zone D: status strip ---------------------------------------------
 	# WIDTH BUDGET: the strip is the widest zone; its minimum width must stay
@@ -694,7 +724,7 @@ func _build_ui() -> void:
 	status_row.add_child(paws_row)
 	paws_row.add_child(PawIcon.new(true))
 	paws_label = Label.new()
-	paws_label.add_theme_font_size_override("font_size", 32)
+	paws_label.add_theme_font_size_override("font_size", 28)
 	paws_label.add_theme_color_override("font_color", UITheme.INK)
 	paws_row.add_child(paws_label)
 	_divider(status_row)
@@ -703,14 +733,14 @@ func _build_ui() -> void:
 	turn_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
 	status_row.add_child(turn_label)
 
-	# --- Zone E: fanned hand ----------------------------------------------
-	banked_row = HBoxContainer.new()
-	banked_row.add_theme_constant_override("separation", 6)
-	banked_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	root.add_child(banked_row)
+	# --- Zone E: fanned hand (banked cards overlay its top-left corner) ---
 	hand_fan = Control.new()
-	hand_fan.custom_minimum_size = Vector2(0, 168)
+	hand_fan.custom_minimum_size = Vector2(0, ZONE_HAND)
 	root.add_child(hand_fan)
+	banked_row = HBoxContainer.new()
+	banked_row.add_theme_constant_override("separation", 4)
+	banked_row.position = Vector2(2, -6)
+	hand_fan.add_child(banked_row)
 
 	# --- Zone F: skills tray ----------------------------------------------
 	# WIDTH BUDGET: 4 cards at 134 + 3x8 sep + 2x8 tray margin = 566 <= 582.
@@ -728,21 +758,10 @@ func _build_ui() -> void:
 	# is the only bright thing on screen (owner rule). Magnified art left,
 	# measured text right, energy-requirement pips, and the powering flow:
 	# feed energy onto the card; Use unlocks only once fully powered.
-	var detail_dim := ColorRect.new()
-	detail_dim.color = Color(0.08, 0.07, 0.06, 0.72)
-	detail_dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	detail_dim.visible = false
-	add_child(detail_dim)
-	detail_overlay = detail_dim
-	var detail_center := CenterContainer.new()
-	detail_center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	detail_dim.add_child(detail_center)
-	detail_panel = PanelContainer.new()
-	detail_panel.custom_minimum_size = Vector2(620, 0)
-	detail_center.add_child(detail_panel)
-	var detail_box := VBoxContainer.new()
-	detail_box.add_theme_constant_override("separation", 14)
-	detail_panel.add_child(detail_box)
+	var detail_modal := UITheme.modal(self, 620.0)
+	detail_overlay = detail_modal["overlay"]
+	detail_panel = detail_modal["panel"]
+	var detail_box: VBoxContainer = detail_modal["box"]
 	detail_title = Label.new()
 	detail_title.add_theme_font_override("font", UITheme.display_font())
 	detail_title.add_theme_font_size_override("font_size", 34)
@@ -773,91 +792,58 @@ func _build_ui() -> void:
 	detail_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	detail_art.clip_contents = true
 	art_holder.add_child(detail_art)
+	var detail_text_col := VBoxContainer.new()
+	detail_text_col.add_theme_constant_override("separation", 10)
+	detail_text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_text_col.alignment = BoxContainer.ALIGNMENT_CENTER
+	detail_body.add_child(detail_text_col)
 	detail_label = Label.new()
 	detail_label.add_theme_font_size_override("font_size", 26)
 	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	detail_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	detail_body.add_child(detail_label)
+	detail_text_col.add_child(detail_label)
+	# Flavor is ITALIC and softer — clearly voice, not rules (owner rule).
+	detail_flavor = Label.new()
+	detail_flavor.add_theme_font_override("font", UITheme.italic_font())
+	detail_flavor.add_theme_font_size_override("font_size", 24)
+	detail_flavor.add_theme_color_override("font_color", UITheme.INK_SOFT)
+	detail_flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	detail_text_col.add_child(detail_flavor)
 	var detail_buttons := HBoxContainer.new()
 	detail_buttons.add_theme_constant_override("separation", 12)
 	detail_box.add_child(detail_buttons)
-	detail_charge = Button.new()
-	detail_charge.custom_minimum_size = Vector2(0, 96)
+	detail_charge = UITheme.amber_button("", 30)
 	detail_charge.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_charge.add_theme_font_override("font", UITheme.display_font())
-	detail_charge.add_theme_font_size_override("font_size", 30)
-	detail_charge.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
-	detail_charge.add_theme_stylebox_override("hover", UITheme.amber_stylebox(Color(1.08, 1.05, 1.0)))
-	detail_charge.add_theme_stylebox_override("pressed", UITheme.amber_stylebox(Color(0.85, 0.8, 0.75)))
 	detail_charge.pressed.connect(_on_detail_charge)
 	detail_buttons.add_child(detail_charge)
-	detail_use = Button.new()
-	detail_use.text = "Use"
-	detail_use.custom_minimum_size = Vector2(150, 96)
+	detail_use = UITheme.amber_button("Use", 34, Vector2(150, UITheme.BUTTON_HEIGHT))
 	detail_use.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_use.add_theme_font_override("font", UITheme.display_font())
-	detail_use.add_theme_font_size_override("font_size", 34)
-	detail_use.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
-	detail_use.add_theme_stylebox_override("hover", UITheme.amber_stylebox(Color(1.08, 1.05, 1.0)))
-	detail_use.add_theme_stylebox_override("pressed", UITheme.amber_stylebox(Color(0.85, 0.8, 0.75)))
-	# Unpowered = unmistakably inactive: grey plate, faded label (the amber
-	# disabled fallback read as tappable).
-	var use_off := StyleBoxFlat.new()
-	use_off.bg_color = Color("cfc4ab")
-	use_off.set_border_width_all(3)
-	use_off.border_color = Color("a99c82")
-	use_off.set_corner_radius_all(14)
-	use_off.set_content_margin_all(14)
-	detail_use.add_theme_stylebox_override("disabled", use_off)
-	detail_use.add_theme_color_override("font_disabled_color", UITheme.INK_FADED)
 	detail_use.pressed.connect(_on_detail_use)
 	detail_buttons.add_child(detail_use)
 	var detail_cancel := Button.new()
 	detail_cancel.text = "Not now"
-	detail_cancel.custom_minimum_size = Vector2(170, 96)
+	detail_cancel.custom_minimum_size = Vector2(170, UITheme.BUTTON_HEIGHT)
 	detail_cancel.pressed.connect(_close_detail)
 	detail_buttons.add_child(detail_cancel)
 
 	# --- Zone G: actions ---------------------------------------------------
 	var action_row := HBoxContainer.new()
 	action_row.add_theme_constant_override("separation", 10)
-	action_row.custom_minimum_size = Vector2(0, 100)
+	action_row.custom_minimum_size = Vector2(0, ZONE_ACTIONS)
 	root.add_child(action_row)
-	end_turn_button = Button.new()
-	end_turn_button.text = "End Turn"
+	end_turn_button = UITheme.amber_button("End Turn", 40, Vector2(0, ZONE_ACTIONS))
 	end_turn_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	end_turn_button.add_theme_font_override("font", UITheme.display_font())
-	end_turn_button.add_theme_font_size_override("font_size", 44)
-	end_turn_button.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
-	end_turn_button.add_theme_stylebox_override("hover", UITheme.amber_stylebox(Color(1.08, 1.05, 1.0)))
-	end_turn_button.add_theme_stylebox_override("pressed", UITheme.amber_stylebox(Color(0.85, 0.8, 0.75)))
 	end_turn_button.pressed.connect(_on_end_turn)
 	action_row.add_child(end_turn_button)
 	concentrate_button = Button.new()
 	concentrate_button.text = "Concentrate"
-	concentrate_button.custom_minimum_size = Vector2(148, 100)
-	concentrate_button.add_theme_font_size_override("font_size", 20)
+	concentrate_button.custom_minimum_size = Vector2(148, ZONE_ACTIONS)
+	concentrate_button.add_theme_font_override("font", UITheme.smallcaps_font())
+	concentrate_button.add_theme_font_size_override("font_size", 22)
 	concentrate_button.tooltip_text = "Give up the turn to will one spent energy back"
 	concentrate_button.pressed.connect(_on_concentrate_pressed)
 	action_row.add_child(concentrate_button)
-	slip_button = Button.new()
-	slip_button.text = "Slip Away"
-	slip_button.custom_minimum_size = Vector2(148, 100)
-	slip_button.add_theme_font_size_override("font_size", 24)
-	var slip_style := StyleBoxFlat.new()
-	slip_style.bg_color = Color("2e3446")
-	slip_style.set_border_width_all(3)
-	slip_style.border_color = Color("1a1d28")
-	slip_style.set_corner_radius_all(12)
-	slip_button.add_theme_stylebox_override("normal", slip_style)
-	var slip_hover: StyleBoxFlat = slip_style.duplicate()
-	slip_hover.bg_color = Color("3a4258")
-	slip_button.add_theme_stylebox_override("hover", slip_hover)
-	var slip_pressed: StyleBoxFlat = slip_style.duplicate()
-	slip_pressed.bg_color = Color("232838")
-	slip_button.add_theme_stylebox_override("pressed", slip_pressed)
-	slip_button.add_theme_color_override("font_color", Color("e8e4d8"))
+	slip_button = UITheme.dark_button("Slip Away", 24, Vector2(148, ZONE_ACTIONS))
+	slip_button.add_theme_font_override("font", UITheme.smallcaps_font())
 	slip_button.pressed.connect(_on_slip_away)
 	action_row.add_child(slip_button)
 
@@ -876,21 +862,9 @@ func _divider(parent: Container) -> void:
 
 
 func _build_approach_overlay() -> Control:
-	var dim := ColorRect.new()
-	dim.color = Color(0.08, 0.07, 0.06, 0.75)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.visible = false
-	add_child(dim)
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.add_child(center)
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(600, 0)
-	center.add_child(panel)
-	approach_panel = panel
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 10)
-	panel.add_child(box)
+	var modal := UITheme.modal(self, 560.0, 10)
+	approach_panel = modal["panel"]
+	var box: VBoxContainer = modal["box"]
 	var title := Label.new()
 	title.text = "How does Ash go in?"
 	title.add_theme_font_override("font", UITheme.display_font())
@@ -905,7 +879,7 @@ func _build_approach_overlay() -> Control:
 	for mode in affordable:
 		box.add_child(_approach_button(APPROACH_TITLE[mode], APPROACH_DESC[mode], mode))
 	box.add_child(_approach_button("Walk In", "Spend nothing. A door is a door.", ""))
-	return dim
+	return modal["overlay"]
 
 
 func _approach_button(title_text: String, desc_text: String, mode: String) -> Button:
@@ -938,50 +912,24 @@ func _approach_button(title_text: String, desc_text: String, mode: String) -> Bu
 
 
 func _build_outcome_overlay() -> Control:
-	var dim := ColorRect.new()
-	dim.color = Color(0.08, 0.07, 0.06, 0.82)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.visible = false
-	add_child(dim)
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.add_child(center)
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(480, 0)
-	center.add_child(panel)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 20)
-	panel.add_child(box)
+	var modal := UITheme.modal(self, 480.0, 20)
 	overlay_label = Label.new()
 	overlay_label.add_theme_font_override("font", UITheme.display_font())
 	overlay_label.add_theme_font_size_override("font_size", 34)
+	overlay_label.add_theme_color_override("font_color", UITheme.INK)
 	overlay_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	overlay_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(overlay_label)
-	overlay_button = Button.new()
-	overlay_button.custom_minimum_size = Vector2(300, 104)
-	overlay_button.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
+	modal["box"].add_child(overlay_label)
+	overlay_button = UITheme.amber_button("", 30, Vector2(300, 104))
 	overlay_button.pressed.connect(_on_overlay_continue)
-	box.add_child(overlay_button)
-	return dim
+	modal["box"].add_child(overlay_button)
+	return modal["overlay"]
 
 
 ## Close-up for a tapped hand card: Bank it, Discard it, or back out.
 func _build_card_overlay() -> Control:
-	var dim := ColorRect.new()
-	dim.color = Color(0.08, 0.07, 0.06, 0.72)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.visible = false
-	add_child(dim)
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.add_child(center)
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(560, 0)
-	center.add_child(panel)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 14)
-	panel.add_child(box)
+	var modal := UITheme.modal(self, 560.0)
+	var box: VBoxContainer = modal["box"]
 	card_title = Label.new()
 	card_title.add_theme_font_override("font", UITheme.display_font())
 	card_title.add_theme_font_size_override("font_size", 34)
@@ -1000,51 +948,26 @@ func _build_card_overlay() -> Control:
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 12)
 	box.add_child(buttons)
-	card_bank = Button.new()
-	card_bank.text = "Bank"
-	card_bank.custom_minimum_size = Vector2(0, 96)
+	card_bank = UITheme.amber_button("Bank", 30)
 	card_bank.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card_bank.add_theme_font_override("font", UITheme.display_font())
-	card_bank.add_theme_font_size_override("font_size", 30)
-	card_bank.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
-	card_bank.add_theme_stylebox_override("hover", UITheme.amber_stylebox(Color(1.08, 1.05, 1.0)))
-	card_bank.add_theme_stylebox_override("pressed", UITheme.amber_stylebox(Color(0.85, 0.8, 0.75)))
 	card_bank.pressed.connect(_on_card_bank)
 	buttons.add_child(card_bank)
-	card_discard = Button.new()
-	card_discard.text = "Discard"
-	card_discard.custom_minimum_size = Vector2(150, 96)
+	card_discard = UITheme.dark_button("Discard")
 	card_discard.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card_discard.add_theme_stylebox_override("normal", UITheme.dark_stylebox())
-	card_discard.add_theme_stylebox_override("hover", UITheme.dark_stylebox(Color(1.2, 1.2, 1.2)))
-	card_discard.add_theme_stylebox_override("pressed", UITheme.dark_stylebox(Color(0.8, 0.8, 0.8)))
-	card_discard.add_theme_color_override("font_color", Color("e8e4d8"))
 	card_discard.pressed.connect(_on_card_discard)
 	buttons.add_child(card_discard)
 	var cancel := Button.new()
 	cancel.text = "Not now"
-	cancel.custom_minimum_size = Vector2(150, 96)
+	cancel.custom_minimum_size = Vector2(150, UITheme.BUTTON_HEIGHT)
 	cancel.pressed.connect(_close_card)
 	buttons.add_child(cancel)
-	return dim
+	return modal["overlay"]
 
 
 ## Concentrate chooser: which spent energy does Ash stare back into being?
 func _build_concentrate_overlay() -> Control:
-	var dim := ColorRect.new()
-	dim.color = Color(0.08, 0.07, 0.06, 0.72)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.visible = false
-	add_child(dim)
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.add_child(center)
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(560, 0)
-	center.add_child(panel)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 12)
-	panel.add_child(box)
+	var modal := UITheme.modal(self, 560.0, 12)
+	var box: VBoxContainer = modal["box"]
 	var title := Label.new()
 	title.text = "Stare at nothing?"
 	title.add_theme_font_override("font", UITheme.display_font())
@@ -1052,38 +975,34 @@ func _build_concentrate_overlay() -> Control:
 	title.add_theme_color_override("font_color", UITheme.INK)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
-	var blurb := Label.new()
-	blurb.text = "Will one spent energy back to the top of the deck. It costs the whole turn — the enemy acts."
-	blurb.add_theme_font_size_override("font_size", 26)
-	blurb.add_theme_color_override("font_color", UITheme.INK_SOFT)
-	blurb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var blurb := UITheme.measured_label(
+		"Will one spent energy back to the top of the deck. It costs the whole turn — the enemy acts.",
+		26, 560.0 - 32.0, null, UITheme.INK_SOFT)
 	blurb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	var blurb_wrap := 560.0 - 32.0
-	blurb.custom_minimum_size = Vector2(blurb_wrap, UITheme.measure_text(
-		blurb.text, UITheme.body_font(), 26, blurb_wrap).y)
 	box.add_child(blurb)
 	concentrate_box = VBoxContainer.new()
 	concentrate_box.add_theme_constant_override("separation", 10)
 	box.add_child(concentrate_box)
 	var cancel := Button.new()
 	cancel.text = "Not now"
-	cancel.custom_minimum_size = Vector2(0, 96)
+	cancel.custom_minimum_size = Vector2(0, UITheme.BUTTON_HEIGHT)
 	cancel.pressed.connect(func() -> void: concentrate_overlay.visible = false)
 	box.add_child(cancel)
-	return dim
+	return modal["overlay"]
 
 
 func _framed_portrait(image_id: String, description: String) -> Control:
-	# The opponent is the biggest thing on the page (owner rule, twice now).
+	# The opponent is the biggest thing on the page (owner rule, thrice now).
 	var holder := Control.new()
-	holder.custom_minimum_size = Vector2(340, 400)
+	holder.custom_minimum_size = PORTRAIT_SIZE
 	var art := UITheme.art_or_placeholder(image_id, description)
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	# Frame-art insets scale with the frame (was 38/36/38/52 at 300x366).
-	art.set_offset(SIDE_LEFT, 43)
-	art.set_offset(SIDE_TOP, 39)
-	art.set_offset(SIDE_RIGHT, -43)
-	art.set_offset(SIDE_BOTTOM, -57)
+	# Frame-art insets scale with the frame (base 38/36/38/52 at 300x366).
+	var inset_scale := PORTRAIT_SIZE.x / 300.0
+	art.set_offset(SIDE_LEFT, 38 * inset_scale)
+	art.set_offset(SIDE_TOP, 36 * inset_scale)
+	art.set_offset(SIDE_RIGHT, -38 * inset_scale)
+	art.set_offset(SIDE_BOTTOM, -52 * inset_scale)
 	if art is TextureRect:
 		art.clip_contents = true
 	holder.add_child(art)
@@ -1108,10 +1027,10 @@ func _status_chip(parent: Container, icon_id: String) -> Label:
 	icon.texture = UITheme.cropped_tex(icon_id)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.custom_minimum_size = Vector2(52, 52)
+	icon.custom_minimum_size = Vector2(40, 40)
 	chip.add_child(icon)
 	var label := Label.new()
-	label.add_theme_font_size_override("font_size", 32)
+	label.add_theme_font_size_override("font_size", 28)
 	label.add_theme_color_override("font_color", UITheme.INK)
 	chip.add_child(label)
 	return label
@@ -1121,7 +1040,9 @@ func _status_chip(parent: Container, icon_id: String) -> Label:
 
 func _refresh() -> void:
 	var enemy: Dictionary = catalog.enemies[state.enemy_id]
-	enemy_label.text = enemy["name"]
+	# display_name may carry a deliberate line break (e.g. "The Dog\n(On a
+	# Chain)") — autowrap alone broke names badly.
+	enemy_label.text = String(enemy.get("display_name", enemy["name"]))
 	enemy_hp_label.text = "%d / %d" % [maxi(state.enemy_hp, 0), state.enemy_max_hp]
 	thread_bar.set_health(maxi(state.enemy_hp, 0), state.enemy_max_hp)
 	var intent := state.current_intent()
@@ -1137,8 +1058,11 @@ func _refresh() -> void:
 			else "Alarm %d / %d" % [state.alarm, state.stealth_threshold]
 	else:
 		alarm_label.visible = false
-	if hints.has(str(state.turn)):
-		hint_label.text = "❋ " + String(hints[str(state.turn)])
+	# Hints join the chronicle (a floating label broke the zone budget).
+	var hint_key := str(state.turn)
+	if hints.has(hint_key) and _last_hint_turn != state.turn:
+		_last_hint_turn = state.turn
+		_log("❋ " + String(hints[hint_key]))
 	hp_label.text = "%d/%d" % [state.player_hp, state.player_max_hp]
 	block_label.text = str(state.player_block)
 	deck_label.text = str(state.deck.size())
@@ -1175,7 +1099,7 @@ func _refresh_hand_fan() -> void:
 	var n := state.hand.size()
 	if n == 0:
 		return
-	var card_size := Vector2(94, 128) * 1.2  # owner: cards 20% bigger
+	var card_size := Vector2(94, 128) * CARD_SCALE
 	var overlap_step := 98.0
 	var total_width := overlap_step * (n - 1) + card_size.x
 	var start_x: float = (hand_fan.size.x - total_width) / 2.0
@@ -1183,14 +1107,16 @@ func _refresh_hand_fan() -> void:
 		start_x = (float(UITheme.CONTENT_WIDTH) - total_width) / 2.0
 	var center := (n - 1) / 2.0
 	for i in n:
-		var b := _card_button(state.hand[i], 1.2)
-		b.tooltip_text = "Tap to bank for later (enemies can steal it)"
+		var b := _card_button(state.hand[i], CARD_SCALE)
+		b.tooltip_text = "Tap to bank or discard"
 		b.pressed.connect(_on_card_pressed.bind(i))
 		hand_fan.add_child(b)
 		var offset := i - center
+		# Tucked up slightly: the cards may overhang the zone gap above,
+		# never the tray below.
 		b.position = Vector2(start_x + overlap_step * i,
-			4.0 + 5.0 * absf(offset) * absf(offset))
-		b.rotation_degrees = offset * 4.0
+			-10.0 + 3.0 * absf(offset) * absf(offset))
+		b.rotation_degrees = offset * 3.0
 		b.pivot_offset = card_size / 2.0
 
 
@@ -1246,7 +1172,7 @@ func _skill_button(skill_id: String) -> Button:
 	var def: Dictionary = catalog.skills[skill_id]
 	var b := Button.new()
 	b.flat = true
-	b.custom_minimum_size = Vector2(134, 134)
+	b.custom_minimum_size = SKILL_CARD_SIZE
 	var card := PanelContainer.new()
 	var card_style := StyleBoxFlat.new()
 	card_style.bg_color = Color("f4e7cd")
@@ -1308,7 +1234,8 @@ func _skill_button(skill_id: String) -> Button:
 		for key in cost:
 			cost_total += int(cost[key])
 			allocated += mini(int(powered.get(key, 0)), int(cost[key]))
-		var pips := CostPips.new(cost_total, allocated, pip_color)
+		var pips := CostPips.new(cost_total, allocated, pip_color, 9.0,
+			UITheme.cropped_tex(HUMOUR_GLYPH.get(humour, "")))
 		pips.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 		pips.set_offset(SIDE_TOP, -50)
 		pips.set_offset(SIDE_BOTTOM, -28)
@@ -1412,7 +1339,7 @@ func _start_ambient_animation() -> void:
 
 func _log(line: String) -> void:
 	log_lines.append(line)
-	while log_lines.size() > 1:
+	while log_lines.size() > LOG_LINES:
 		log_lines.remove_at(0)
 	if log_label != null:
 		log_label.text = "\n".join(log_lines)

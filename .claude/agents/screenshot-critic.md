@@ -11,9 +11,11 @@ and `reference/*.png`.
 
 For each screenshot you review, check ruthlessly:
 
-1. **Containment**: no element crosses the page's stitched border
-   (empirical insets on the 720x1280 canvas: sides 64, top 54, bottom 92).
-   Check the banner, buttons, skill tray, and any floating panel.
+1. **Containment**: no element crosses or TOUCHES the page's dashed
+   stitching — the dashes must be visible all around. Calibrated insets
+   on the 720x1280 canvas: left 68, top 40, right 76, bottom 136
+   (UITheme.PAGE_MARGIN_*). Battle zones follow the ZONE_* template at
+   the top of battle.gd; anything drifting from it is a defect.
 2. **Text fit**: every string sits fully inside its box with visible
    padding. Watch the known offenders: coach bubbles, rule card, detail
    popup, button labels. Text touching or escaping a border is a defect.
@@ -24,11 +26,19 @@ For each screenshot you review, check ruthlessly:
    than action cards; HP thread visible as a red rope (dash-only at full
    HP means the rope failed to draw — a known regression to flag).
 5. **Placeholders**: black boxes with white text are EXPECTED for unmade
-   art — list them as "awaiting art", not defects.
-6. **Comparison to objective**: layout intent per the mock — banner left +
-   rule right, portrait left with name-plate/intent right (icon left, text
-   right), status strip with dividers, fanned hand, tray of bordered
-   action cards, amber End Turn + dark Slip Away.
+   art — list them as "awaiting art", not defects. BUT a black box for a
+   file that EXISTS in game/assets means the import pass was skipped —
+   flag it as "needs --import", not as missing art.
+6. **Screen kinds**: splash → title (painted logo) → notices ("Noted,
+   with interest", warm-accent lines — skill notes must never appear
+   inside story narration) → story (fixed 510x680 art, ≤3 visible
+   narration lines) → battles → hub (parchment, scrolls).
+7. **Comparison to objective**: layout intent per the mock — banner left +
+   rule right, BIG portrait left (364x396) with name-plate/thread/intent
+   right (text-only intent), 5-line chronicle, status strip
+   (heart/shield/spool/paw+count/turn), fanned hand, 4-card tray with
+   glyph-marked cost pips + "xN" uses badge, amber End Turn +
+   small-caps Concentrate + dark Slip Away, all inside the dashes.
 
 Report format: numbered defect list, most severe first, each with the
 screenshot filename, what's wrong in one sentence, and (via Grep of

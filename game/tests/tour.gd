@@ -35,8 +35,8 @@ func _run() -> void:
 			_story_taps = 0
 		var script_ref: Variant = screen.get_script()
 		var script_path: String = script_ref.resource_path if script_ref != null else ""
-		if screen.name == "TitleScreen":
-			await _shot("title")
+		if screen.name == "TitleScreen" or screen.name == "NoticeScreen":
+			await _shot("title" if screen.name == "TitleScreen" else "notices")
 			for child in screen.get_children():
 				if child is Button:
 					child.pressed.emit()

@@ -19,9 +19,9 @@ static func _content_region(tex: Texture2D, key: String) -> Rect2:
 
 
 func _ready() -> void:
-	# Tall enough for a fray drawn at DOUBLE the rope height (owner rule):
-	# the rope band sits centered; the fray fills the full control height.
-	custom_minimum_size = Vector2(0, 44)
+	# Tall enough for a fray at 4x the rope band's height (owner asked for
+	# the fray stretched vertically twice, twice): rope band 20, fray 80.
+	custom_minimum_size = Vector2(0, 84)
 	# Nothing this bar draws may ever leave its rect (a wide fray texture
 	# once shot the rope clean off the screen edge).
 	clip_contents = true
@@ -51,10 +51,10 @@ func _notification(what: int) -> void:
 func _draw() -> void:
 	var h := size.y
 	var mid := h / 2.0
-	# The rope band is HALF the control height, centered — leaving room for
-	# the fray to be drawn at double the rope's height (owner rule: stretch
-	# the fray vertically, not horizontally).
-	var rope_h := h * 0.5
+	# The rope band is a quarter of the control height, centered — leaving
+	# room for the fray drawn at 4x the rope's height (owner rule, applied
+	# twice: stretch the fray vertically, never horizontally).
+	var rope_h := h * 0.25
 	var rope_top := mid - rope_h / 2.0
 	var rope_w := size.x * _shown
 	var segment := UITheme.tex("ui/ui_thread_segment")
@@ -73,7 +73,7 @@ func _draw() -> void:
 		var dash_start: float = rope_w + 8.0
 		if fray != null and _shown < 0.999:
 			var fray_src := _content_region(fray, "fray")
-			var fray_h := rope_h * 2.0  # double the rope height
+			var fray_h := rope_h * 4.0  # fray at 4x the rope band's height
 			# Width stays keyed to the ROPE height (unchanged look), capped
 			# so the tip stays a tip and never leaves the bar.
 			var fray_w: float = minf(rope_h * 1.5 * fray_src.size.x / fray_src.size.y,

@@ -49,6 +49,7 @@
     "chained_dog":  {
                         "id":  "chained_dog",
                         "name":  "The Dog (On a Chain)",
+                        "display_name":  "The Dog\n(On a Chain)",
                         "hp":  12,
                         "gleam":  7,
                         "color":  "#b8865f",

@@ -47,6 +47,7 @@
       "environment": "rooftop_dusk",
       "when_outcome": "victory",
       "portrait": "sc_ash_vole_gift",
+      "refresh_spent": true,
       "lines": [
         "Acquired. Thoughtfully dead.",
         "The thrill of a clean hunt sings in every muscle — the whole deck of me, wound fresh.",
@@ -104,7 +105,7 @@
       "type": "battle",
       "encounter": "prologue_wisp",
       "shuffle": false,
-      "deck": ["ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "shadow_1", "ferocity_1", "shadow_1", "shadow_1", "shadow_1"],
+      "add_cards": ["shadow_1", "shadow_1", "shadow_1", "shadow_1"],
       "coach": [
         { "target": "approach", "text": "Every fight opens with the going-in. STALK it — spend Shadow to begin unseen." },
         { "target": "hand", "text": "SHADOW, the black energy. Ferocity is the claw; Shadow is the fog — it hides and wards." },
@@ -152,7 +153,7 @@
       "type": "battle",
       "encounter": "prologue_dog",
       "shuffle": false,
-      "deck": ["ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "shadow_1", "shadow_1", "shadow_1", "guile_1", "guile_1", "guile_1"],
+      "add_cards": ["guile_1", "guile_1", "guile_1"],
       "coach": [
         { "target": "", "text": "Its LUNGE hits for 4. Block BEFORE it lands — or bank a card now and go big later." },
         { "target": "skill:loaf", "text": "LOAF: Block 6, but all paws are committed — you can't act next turn. Time it." }
@@ -181,13 +182,11 @@
       "encounter": "prologue_wraith",
       "shuffle": false,
       "skills": ["slink", "purr", "loaf"],
-      "deck": ["ferocity_1", "ferocity_1", "shadow_1", "shadow_1", "guile_1",
-        "guile_1", "shadow_1", "mysticism_1", "mysticism_1", "shadow_1",
-        "guile_1", "mysticism_1", "shadow_1", "guile_1", "mysticism_1"],
+      "add_cards": ["mysticism_1", "mysticism_1", "mysticism_1"],
       "coach": [
         { "target": "", "text": "A RAG-WRAITH: clothes whose owner is missing. Not dead — missing. It is above your weight." },
         { "target": "skill:purr", "text": "PURR heals 2 a turn for two turns — but breaks if you're hit. Purr behind a block." },
-        { "target": "slip", "text": "You do not have to win this. SLIP AWAY costs nothing but pride — and gets you home." }
+        { "target": "slip", "text": "You do not have to win this. SLIP AWAY — a parting scratch, some pride, and home." }
       ]
     },
     {

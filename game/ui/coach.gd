@@ -34,6 +34,10 @@ func _ready() -> void:
 		var dim := ColorRect.new()
 		dim.color = DIM
 		dim.mouse_filter = Control.MOUSE_FILTER_STOP
+		# Tapping the dimmed area ALWAYS advances (owner fix: steps that
+		# point at non-interactive things were only escapable via skip).
+		# The cutout still passes touches to the highlighted control.
+		dim.gui_input.connect(_on_dim_input)
 		add_child(dim)
 		_dims.append(dim)
 	_tap_zone = Button.new()
@@ -60,13 +64,25 @@ func _ready() -> void:
 	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_text_panel.add_child(_text_label)
+	# Skip is a REAL button (owner fix: the flat text was barely visible).
 	_skip = Button.new()
-	_skip.text = "skip lesson"
-	_skip.flat = true
-	_skip.add_theme_font_size_override("font_size", 22)
+	_skip.text = "Skip lesson"
+	_skip.custom_minimum_size = Vector2(190, 56)
+	_skip.add_theme_font_override("font", UITheme.display_font())
+	_skip.add_theme_font_size_override("font_size", 24)
+	_skip.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
+	_skip.add_theme_stylebox_override("hover", UITheme.amber_stylebox(Color(1.08, 1.05, 1.0)))
+	_skip.add_theme_stylebox_override("pressed", UITheme.amber_stylebox(Color(0.85, 0.8, 0.75)))
+	_skip.add_theme_color_override("font_color", UITheme.INK)
 	_skip.pressed.connect(_finish)
 	add_child(_skip)
 	force_advance()
+
+
+func _on_dim_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed \
+			and event.button_index == MOUSE_BUTTON_LEFT:
+		force_advance()
 
 
 func active() -> bool:
@@ -146,4 +162,4 @@ func _process(_delta: float) -> void:
 	if y < 16 or current_target() == "":
 		y = minf(hole.end.y + 18, full.size.y - panel_size.y - 16)
 	_text_panel.position = Vector2(x, y)
-	_skip.position = Vector2(full.size.x - _skip.size.x - 56, 10)
+	_skip.position = Vector2(full.size.x - _skip.size.x - 24, 12)

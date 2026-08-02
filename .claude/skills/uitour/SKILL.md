@@ -16,6 +16,9 @@ eyes. Never report a visual change complete without doing this.
    import them first or every new texture renders as a placeholder
    (the game binary does not import — only the editor does):
    `& "C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe" --headless --path game --import`
+   If layout changed, also verify the zone template first:
+   `& "...Godot..." --path game -s tests/calibrate.gd -- zones battle`
+   (also: `zones story|choice|hub`, or bare margins mode for boundaries).
 3. Clear old shots and run the tour (a game window flashes briefly — normal):
    `Remove-Item screenshots/*.png -Force; & "C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe" --path game -- --tour`
 4. Glob `screenshots/*.png` and **Read at minimum**: one `battle_open_*`, one

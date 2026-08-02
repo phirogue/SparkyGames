@@ -95,7 +95,18 @@ comes from Midjourney, provided by the project owner.
 11. **New asset files need an import pass before they render.** The game
     binary never imports; after adding images to `game/assets/`, run
     `godot --headless --path game --import` once or the tour shows black
-    placeholders for files that exist (cost one full tour cycle).
+    placeholders for files that exist (cost two full tour cycles now).
+12. **Screens keep FIXED zone templates.** Zone heights are named consts
+    at the top of each scene script and must sum (with separations) to
+    UITheme.CONTENT_HEIGHT exactly. New content goes INTO an existing
+    zone — floating extras broke the budget twice (a hint label, toast
+    lines injected into story text). If content truly needs room, change
+    the template FIRST and verify with the calibrate zone map.
+13. **Every guided/modal state needs an escape path, and the tour must
+    drive it.** Coach steps pointing at non-interactive targets were
+    only skippable (stuck players); an unwinnable charge loop ran the
+    tour to 2,000 screenshots. Dim-taps advance; the tour has a
+    tap-budget failsafe; keep both when adding modal flows.
 
 ## Project conventions
 

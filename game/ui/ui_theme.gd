@@ -10,7 +10,7 @@ extends RefCounted
 ## content margin comes from here — never from guessed numbers.
 const PAGE_MARGIN_LEFT := 68
 const PAGE_MARGIN_TOP := 40
-const PAGE_MARGIN_RIGHT := 70
+const PAGE_MARGIN_RIGHT := 76  # +6 over the dash line: boxes never touch it
 const PAGE_MARGIN_BOTTOM := 136
 ## Content area inside the stitching on the 720x1280 canvas.
 const CONTENT_WIDTH := 720 - PAGE_MARGIN_LEFT - PAGE_MARGIN_RIGHT  # 582
@@ -214,6 +214,94 @@ static func strip_stylebox() -> StyleBoxTexture:
 	for side in [SIDE_TOP, SIDE_BOTTOM]:
 		box.set_content_margin(side, 8)
 	return box
+
+
+# ---- Reusable widget builders (modularity rule, owner 2026-08-02) ------
+# Every screen builds dialogs and buttons from THESE, never from local
+# one-off styles: one code path, standardized sizes, no drift.
+
+## Standard dim color for every modal overlay in the game.
+const MODAL_DIM := Color(0.08, 0.07, 0.06, 0.72)
+## Standard tap-target height for primary buttons (mobile floor).
+const BUTTON_HEIGHT := 96.0
+
+
+## Full-screen dim + centered parchment panel + content VBox.
+## Returns {"overlay": ColorRect, "panel": PanelContainer, "box": VBoxContainer};
+## toggle visibility via the overlay. Parent is usually the screen root.
+static func modal(parent: Control, panel_min_width := 560.0,
+		separation := 14) -> Dictionary:
+	var dim := ColorRect.new()
+	dim.color = MODAL_DIM
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.visible = false
+	parent.add_child(dim)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.add_child(center)
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(panel_min_width, 0)
+	center.add_child(panel)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", separation)
+	panel.add_child(box)
+	return {"overlay": dim, "panel": panel, "box": box}
+
+
+## Primary (amber) action button with standard tap height and ink text.
+static func amber_button(text: String, font_size := 30,
+		min_size := Vector2(0, BUTTON_HEIGHT)) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.custom_minimum_size = min_size
+	b.add_theme_font_override("font", display_font())
+	b.add_theme_font_size_override("font_size", font_size)
+	b.add_theme_stylebox_override("normal", amber_stylebox())
+	b.add_theme_stylebox_override("hover", amber_stylebox(Color(1.08, 1.05, 1.0)))
+	b.add_theme_stylebox_override("pressed", amber_stylebox(Color(0.85, 0.8, 0.75)))
+	b.add_theme_color_override("font_color", INK)
+	# Disabled reads unmistakably inactive (grey plate, faded label).
+	var off := StyleBoxFlat.new()
+	off.bg_color = Color("cfc4ab")
+	off.set_border_width_all(3)
+	off.border_color = Color("a99c82")
+	off.set_corner_radius_all(14)
+	off.set_content_margin_all(14)
+	b.add_theme_stylebox_override("disabled", off)
+	b.add_theme_color_override("font_disabled_color", INK_FADED)
+	return b
+
+
+## Secondary (dark) button for destructive or dismissive actions.
+static func dark_button(text: String, font_size := 26,
+		min_size := Vector2(150, BUTTON_HEIGHT)) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.custom_minimum_size = min_size
+	b.add_theme_font_size_override("font_size", font_size)
+	b.add_theme_stylebox_override("normal", dark_stylebox())
+	b.add_theme_stylebox_override("hover", dark_stylebox(Color(1.2, 1.2, 1.2)))
+	b.add_theme_stylebox_override("pressed", dark_stylebox(Color(0.8, 0.8, 0.8)))
+	b.add_theme_color_override("font_color", Color("e8e4d8"))
+	b.add_theme_color_override("font_hover_color", Color("e8e4d8"))
+	b.add_theme_color_override("font_pressed_color", Color("e8e4d8"))
+	return b
+
+
+## Label whose min size is pinned to its measured wrap (law #2 in one call).
+static func measured_label(text: String, font_size: int, wrap: float,
+		use_font: Font = null, color := INK) -> Label:
+	var label := Label.new()
+	label.text = text
+	if use_font != null:
+		label.add_theme_font_override("font", use_font)
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", color)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size = Vector2(wrap, measure_text(
+		text, use_font if use_font != null else body_font(),
+		font_size, wrap).y)
+	return label
 
 
 static func build() -> Theme:

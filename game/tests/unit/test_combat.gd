@@ -98,6 +98,28 @@ func test_slip_away_always_available() -> void:
 	assert_ok(state.do_command({"type": "slip_away"}))
 	assert_eq(state.outcome, CombatState.Outcome.RETREATED, "outcome")
 
+func test_slip_away_takes_a_parting_shot() -> void:
+	# Wisp turn-1 intent is Flicker Bite (health 2): retreat is never free.
+	var state := _wisp_fight()
+	var hp_before := state.player_hp
+	assert_ok(state.do_command({"type": "slip_away"}))
+	assert_eq(state.player_hp, hp_before - 2, "one strike lands on the way out")
+	assert_eq(state.outcome, CombatState.Outcome.RETREATED, "but away is away")
+
+func test_the_night_presses() -> void:
+	var state := CombatState.create(catalog, 3, {
+		"player_hp": 40,
+		"deck": ["guile_1", "guile_1", "guile_1"],
+		"skills": [],
+		"enemy": "gutter_wisp",
+	})
+	for i in 10:
+		state.do_command({"type": "end_turn"})
+	# Unpressed, ten wisp acts deal at most 10 (its cycle alternates a
+	# card steal). From turn 8 the night presses and strikes grow.
+	assert_true(int(state.flags["damage_taken"]) > 10,
+		"late turns hit harder — fights cannot stall forever")
+
 func test_purr_heals_and_is_interrupted_by_damage() -> void:
 	var state := CombatState.create(catalog, 3, {
 		"player_hp": 20,
