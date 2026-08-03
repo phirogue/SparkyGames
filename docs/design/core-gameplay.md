@@ -206,6 +206,10 @@ A run ("prowl") is 2–4 encounters deep along one path — no map screen.
 ## Between runs: the town loop (2–3 taps, never admin)
 
 - **Quest board** → pick next prowl (quest = mission type + district + stakes).
+  Mission types beyond combat are the five committed minigame modules —
+  Seam & Stitch, Testimony, Patch the Ward, the Unpicking, the Long Way
+  Round — all spec'd in **minigames.md**; all reuse the energy deck,
+  paws, Alarm, and case systems rather than adding parallel resources.
 - **Shop** (the Magpie Exchange): equipment for shadow-pockets, energy-deck
   tuning (add/remove/upgrade energy cards — the StS "removal service" lesson:
   subtraction is the best purchase), satchel insurance, charge refills.

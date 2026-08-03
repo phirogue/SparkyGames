@@ -1,5 +1,13 @@
 # Minigames for missions — brainstorm (2026-08-03)
 
+> **Decision record (2026-08-03, owner):** PROMOTED to
+> `docs/design/minigames.md` (the committed spec — that doc governs):
+> Patch the Ward, Testimony, Seam & Stitch (prototype-first), The
+> Unpicking, and The Long Way Round (as "same deck, different actions").
+> STILL PENDING owner thought: Pigeon Routes, Change-Ringing, Nine
+> Pockets, and the Tier-3 flavor bites. The kill list below remains in
+> force. This file stays as the record of the full field considered.
+
 Candidate minigames for mission modules beyond combat. Constraints every
 candidate must pass (from the laws + module cost model):
 

@@ -46,7 +46,8 @@ at a time (escalation philosophy in core-gameplay.md).
   guild cold war surfaces; the method narrows (fabric + magic clues).
 - **Chapter 3 — The Ninth Bell:** the missing bell, the Hollow Court's
   interest, suspects fall to two, then one. Mid-Ch3: the third suspect
-  breaks. End: the case is presented — or settled.
+  breaks — played as a **Testimony** scene (minigames.md), not a cutscene.
+  End: the case is presented — or settled.
 
 **Story variety rule:** adjacent quests must differ in KIND, not just
 place — a heist, then a diplomacy, then an escort, then a haunting.

@@ -63,7 +63,7 @@ alibi shaped like a confession, which is why nobody looks past it.
 - Reward: heavy Gleam; **loadout editing unlocks** (Brindle: "You're going
   to want better pockets, pet.")
 
-### L3 — "The Lamplighters Talk" *(2 prowls · choice-scenes)*
+### L3 — "The Lamplighters Talk" *(2 prowls · choice-scenes + testimony + patch)*
 
 **Board card:** "The Lamplighters hate the Chandlers professionally. Hate is
 chatty."
@@ -74,6 +74,15 @@ chatty."
 > is a **choice-scene chain with a visible tally** — same beats, no new
 > engine surface. The original escort/diplomacy design is preserved below
 > for whenever the modules do get built.
+>
+> **Amended 2026-08-03 (minigames approved — see minigames.md):** the hall
+> chain now ENDS in a **Testimony** beat — the shift-boss's account has a
+> ribbon that doesn't hold ("nobody signed for the murder-night round"),
+> and pressing it with the L2 ledger is what surrenders evidence 3/5.
+> Then the L3 finale: Ash **patches the hall's ward** (first Patch the
+> Ward board) — a cat mending the Needle's kind of work in front of
+> professionals is what turns a chatty guild into a trusting one, and is
+> the in-fiction reason the favor-knot below gets tied at all.
 
 *Original design (deferred):* find the Lamplighters' shift-boss (escort her
 past Chandler toughs — escort intro, she walks her round *regardless*,
@@ -98,6 +107,14 @@ work. Bring nothing that burns."
 > Ch2+. Prowl A becomes a **heist/Alarm** approach to the Wickhouse under a
 > Mereside environment rule — the Drowned still arrive, but as a
 > combat-with-environment prowl, not a hold-N-turns win condition.
+>
+> **Amended 2026-08-03 (minigames approved — see minigames.md):** Prowl B's
+> ritual IS **Seam & Stitch** (the committed module; prototype ships
+> before this lead is built). Two Phase-4 options, decided when we get
+> here: the Wickhouse interior may use **The Unpicking** to disarm the
+> counting-floor ward (only if L2's heist stayed pure stealth — the two
+> heists must not rhyme), and the Mereside approach may become a
+> **Long Way Round** crossing if the prototype pattern has settled.
 
 Mereside fog. *Original design (deferred):* Prowl A: reach the Wickhouse past
 the first **Drowned** (slow, patient, arriving — survival mission, hold 6

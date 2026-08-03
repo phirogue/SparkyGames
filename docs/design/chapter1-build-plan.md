@@ -106,6 +106,31 @@ Order mattered; each unblocked the next:
 **Gate:** every Phase-1 system lands with (a) a unit test where logic is
 pure, (b) a scenario spec exercising it, (c) a tour stop if it renders.
 
+## Phase 1.5 — minigame modules (owner-approved 2026-08-03)
+
+Five modules are committed; the governing spec is
+[minigames.md](minigames.md) (build order, rules, data schemas, hooks).
+How they land in THIS chapter:
+
+1. **Seam & Stitch prototype FIRST** — standalone component
+   (`--scene stitch:<chart_id>`, 3 sample charts) so the owner can feel
+   it before wiring; its core-state + thread-render layer is the template
+   the rest copy. Its story slot stays Phase 4 (L4 ritual, as already
+   planned — the "ritual stitch-work" module IS this game).
+2. **Testimony** — build with/after the Case Board (it consumes case
+   evidence); first content is L3 Prowl B's shift-boss finale (Phase 4).
+   Mid-Ch3's "third suspect breaks" is structurally a Testimony scene.
+3. **Patch the Ward** — L3 finale beat (Ash mends the Lamplighters' hall
+   ward; the mend earns the guild's trust and the favor-knot beat).
+4. **The Unpicking** — reuses Seam's thread rendering; slot it into ONE
+   of the two heists (L2 or L4) so the heists don't rhyme.
+5. **The Long Way Round** — same deck, different actions (owner
+   framing); its Ch1 use is optional (L4's Mereside crossing) and
+   decided at Phase 4 once the prototype pattern settles; otherwise Ch2.
+
+Minigame modules follow the Phase-1 gate rule (test + scenario + tour
+stop) plus `when_outcome` prose for success / partial / walk-away.
+
 ## Phase 2 — combat content, batch A (parallel with Phase 1 art)
 
 - **Enemies 1–4** of Ch1's eight: wax-and-wick themed street tier (e.g.
