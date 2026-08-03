@@ -204,25 +204,11 @@ const WILD_HUMOUR := "mysticism"
 
 
 ## Can the cost be paid from hand + banked right now? Specific energy pays
-## first; mysticism covers any shortfall (shared across the whole cost).
+## first; mysticism covers any shortfall. Cards are atomic — a single wild
+## can only ever cover ONE humour's shortfall — so this asks the same
+## card-level planner that _pay() executes, and the two can never disagree.
 func can_pay(cost: Dictionary) -> bool:
-	var wild_available := 0
-	for card_id in hand + banked:
-		if catalog.energy_cards[card_id]["humour"] == WILD_HUMOUR:
-			wild_available += int(catalog.energy_cards[card_id]["value"])
-	var wild_needed := 0
-	for humour in cost:
-		var required := int(cost[humour])
-		if humour == WILD_HUMOUR:
-			wild_needed += required
-			continue
-		var available := 0
-		for card_id in hand + banked:
-			var card: Dictionary = catalog.energy_cards[card_id]
-			if card["humour"] == humour:
-				available += int(card["value"])
-		wild_needed += maxi(required - available, 0)
-	return wild_available >= wild_needed
+	return _payment_plan(cost)["covered"]
 
 
 ## Entry point for ALL player actions. Returns {ok: bool, error: String}.
@@ -509,61 +495,76 @@ func _cmd_end_turn() -> Dictionary:
 
 # ------------------------------------------------------------------ internals
 
-## How many cards _pay() would consume for this cost — mirrors its greedy
-## largest-first selection so paw checks can run before anything mutates.
+## How many cards _pay() would consume for this cost — shares the planner,
+## so paw checks can run before anything mutates.
 func _pay_card_count(cost: Dictionary) -> int:
-	var count := 0
-	for humour in cost:
-		var remaining := int(cost[humour])
-		var passes: Array = [humour] if humour == WILD_HUMOUR else [humour, WILD_HUMOUR]
-		for match_humour in passes:
-			for pool: Array in [hand, banked]:  # hand pays before bank, like _pay
-				if remaining <= 0:
-					break
-				var values: Array = []
-				for card_id in pool:
-					var card: Dictionary = catalog.energy_cards[card_id]
-					if card["humour"] == match_humour:
-						values.append(int(card["value"]))
-				values.sort()
-				values.reverse()
-				for value in values:
-					if remaining <= 0:
-						break
-					remaining -= value
-					count += 1
-	return count
+	return _payment_plan(cost)["count"]
 
 
 func _pay(cost: Dictionary) -> void:
-	# Auto-payment: exact humour first, largest cards first (fewest spent);
-	# mysticism wilds cover any shortfall. Hand pays before bank so saved
-	# combos survive when possible.
+	var plan := _payment_plan(cost)
+	var by_pool := {"hand": [], "banked": []}
+	for pick: Dictionary in plan["picks"]:
+		by_pool[pick["pool"]].append(pick["index"])
+	for pool_name in by_pool:
+		var pool: Array = hand if pool_name == "hand" else banked
+		var indices: Array = by_pool[pool_name]
+		indices.sort()
+		indices.reverse()
+		for i in indices:
+			spent.append(pool[i])
+			pool.remove_at(i)
+			flags["energy_paid"] = int(flags["energy_paid"]) + 1
+
+
+## Plan which cards would pay a cost, without mutating anything. Specific
+## humours pay with their own cards first (largest first, hand before bank,
+## so the fewest cards are spent and saved combos survive); wilds then cover
+## the remaining shortfalls, biggest shortfall first so discrete wild cards
+## are not wasted on small gaps. A cost keyed WILD_HUMOUR only accepts true
+## wilds. Returns {covered: bool, count: int, picks: [{pool, index}]}.
+func _payment_plan(cost: Dictionary) -> Dictionary:
+	var used := {"hand": {}, "banked": {}}
+	var picks: Array = []
+	var shortfalls: Array = []
 	for humour in cost:
 		var remaining := int(cost[humour])
-		var passes: Array = [humour] if humour == WILD_HUMOUR else [humour, WILD_HUMOUR]
-		for match_humour in passes:
-			for pool: Array in [hand, banked]:
-				if remaining <= 0:
-					break
-				var candidates: Array = []
-				for i in pool.size():
-					var card: Dictionary = catalog.energy_cards[pool[i]]
-					if card["humour"] == match_humour:
-						candidates.append({"index": i, "value": int(card["value"])})
-				candidates.sort_custom(func(a, b): return a["value"] > b["value"])
-				var to_remove: Array = []
-				for c in candidates:
-					if remaining <= 0:
-						break
-					remaining -= c["value"]
-					to_remove.append(c["index"])
-				to_remove.sort()
-				to_remove.reverse()
-				for i in to_remove:
-					spent.append(pool[i])
-					pool.remove_at(i)
-					flags["energy_paid"] = int(flags["energy_paid"]) + 1
+		if humour != WILD_HUMOUR:
+			remaining = _plan_spend(String(humour), remaining, used, picks)
+		if remaining > 0:
+			shortfalls.append(remaining)
+	shortfalls.sort()
+	shortfalls.reverse()
+	var covered := true
+	for shortfall: int in shortfalls:
+		if _plan_spend(WILD_HUMOUR, shortfall, used, picks) > 0:
+			covered = false
+	return {"covered": covered, "count": picks.size(), "picks": picks}
+
+
+## Greedily mark unused cards of one humour against `remaining`, recording
+## picks; returns what is still owed after every matching card is considered.
+func _plan_spend(humour: String, remaining: int, used: Dictionary,
+		picks: Array) -> int:
+	for pool_name in ["hand", "banked"]:
+		if remaining <= 0:
+			break
+		var pool: Array = hand if pool_name == "hand" else banked
+		var candidates: Array = []
+		for i in pool.size():
+			if used[pool_name].has(i):
+				continue
+			var card: Dictionary = catalog.energy_cards[pool[i]]
+			if card["humour"] == humour:
+				candidates.append({"index": i, "value": int(card["value"])})
+		candidates.sort_custom(func(a, b): return a["value"] > b["value"])
+		for c: Dictionary in candidates:
+			if remaining <= 0:
+				break
+			remaining -= c["value"]
+			used[pool_name][c["index"]] = true
+			picks.append({"pool": pool_name, "index": c["index"]})
+	return maxi(remaining, 0)
 
 
 func _apply_effects(effects: Array) -> void:

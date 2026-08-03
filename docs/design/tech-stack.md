@@ -10,8 +10,8 @@ Owner approved the research recommendation
 - **Orientation:** portrait, one-handed (the market gap).
 - **Architecture:** pure rules engine in `game/core/` with **zero Node/
   rendering dependencies**; scenes only render state and forward intents.
-  Seeded RNG + append-only command log from day one (replays, daily seeds,
-  and later server-validated PvP for free).
+  Seeded RNG + append-only command log from day one (deterministic tests,
+  bot simulation, replay debugging, and shareable seeded runs for free).
 - **Data:** all cards/skills/enemies/quests as JSON with stable string IDs.
 - **Saves:** versioned JSON (`schema_version`), atomic write + rolling
   backup; three files: meta-progression / run state / settings.
@@ -22,8 +22,10 @@ Owner approved the research recommendation
   first submission fights us).
 - **CI:** every push = headless Godot import + script check + GUT unit tests
   on `core/`; tagged releases = Android AAB + iOS TestFlight jobs.
-- **PvP later:** Nakama self-hosted (~$10/mo VPS) via its official Godot
-  client — no commitment now; the core/command-log architecture is the hedge.
+- **No multiplayer, ever** (owner decision, 2026-08-02). The game is
+  single-player; no servers, no accounts. The core/command-log architecture
+  stays for its own sake: deterministic testing, bot simulation, replay
+  debugging, and shareable seeded runs.
 
 ## Costs
 

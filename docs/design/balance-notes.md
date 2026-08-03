@@ -5,6 +5,9 @@
 Changes: exactly ONE card drawn per turn (opening 3 stays); moonlight
 renamed MYSTICISM and made WILD (pays any cost; costs keyed "mysticism"
 demand the real thing); purr recosted to guile 1; vole hp 5.
+*(2026-08-02 update: the rename is reversed — the player-facing name is
+**Moonlight** again; `mysticism` stays as the internal data id. The wild
+mechanic is unchanged.)*
 
 | Scenario | brawler | defender | stalker | random |
 |---|---|---|---|---|

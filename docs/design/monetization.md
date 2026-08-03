@@ -9,7 +9,12 @@ Fully offline-playable.** This matches the research recommendation
 
 - **Free:** Chapter 1 of the murder investigation — a complete, satisfying arc
   (~1.5–2 hours: the murder, the first suspects, one district, 2 playable
-  builds). Endless/daily prowls available with free content. **No ads, ever.**
+  builds). **No ads, ever.** This is a standalone story game with
+  hand-designed missions; replay value beyond the story comes from
+  **auto-generated cases** — e.g. hunts and practice matches against Ash's
+  friends, procedurally assembled from existing encounters and enemies,
+  clearly framed as practice/side content. Free tier; a full design doc will
+  come later.
 - **One IAP — "The Full Nine Lives" — $6.99** (non-consumable, restorable,
   works offline after purchase): all chapters, all classes/aspects, all
   districts, all difficulty tiers.
@@ -26,13 +31,13 @@ Fully offline-playable.** This matches the research recommendation
 3. Never retro-monetize the campaign after launch (bait-and-switch =
    review-bomb).
 4. Enroll in **both** store small-business programs (15% cut) before launch.
-   Midjourney art must be generated on a **paid plan** (free tier is
-   non-commercial); human-edit key assets; commission a human-made logo.
+   Art comes from **ChatGPT** (stills) and **Kling** (motion) — both on
+   paid/commercial tiers only, with dated copies of each tool's commercial
+   terms kept in `docs/publishing/`; AI music follows the same rule.
+   Human-edit key assets; commission a human-made logo.
 
 ## Later phases (directional, not committed)
 
 - **Post-launch:** new case/class DLC at $2.99–3.99, deterministic; a
   Complete Edition bundle; free content updates between paid drops. Possible
   Steam release at $9.99–12.99.
-- **PvP era:** online allowed *for that mode only*; cosmetic/content season
-  pass acceptable; gameplay content always directly purchasable — no packs.

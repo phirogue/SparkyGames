@@ -37,7 +37,9 @@ through everything, visible to almost no one. Magic is **needlework**:
   it's reading the stitching. Ash's skills are a cat's four natures (Ferocity,
   Guile, Shadow) plus **Moonlight** — Elspeth's unfinished magic, which he
   spends but cannot yet make. Moonlight is literal: the moon is the world's
-  needle's-eye, and moonlight is thread that hasn't been used yet.
+  needle's-eye, and moonlight is thread that hasn't been used yet. Thread
+  that hasn't been used can still become any stitch — which is why Moonlight
+  can be spent in place of any other humour.
 - **Costs are real.** Thread pulled must come from somewhere: memory, warmth,
   years, luck. Every named working states its price. (Design rule: any magic
   shown in-game must have a visible cost — it keeps writing honest and makes

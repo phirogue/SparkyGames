@@ -22,11 +22,11 @@
 >   the enemy acts). Cats staring at nothing, finally explained.
 >
 > - **Three energies + the wild (owner, 2026-08-01 later).** The humours
->   are FEROCITY, GUILE, SHADOW — and **MYSTICISM**, the fourth card type,
+>   are FEROCITY, GUILE, SHADOW — and **MOONLIGHT** (internal data id
+>   remains `mysticism`, for save-file stability), the fourth card type,
 >   which is WILD: it pays any energy cost (exact matches spend first;
->   wilds cover shortfall). Costs keyed `mysticism` demand the real thing
->   — reserved for very special actions acquired later. Renamed from
->   moonlight; saves migrate automatically.
+>   wilds cover shortfall). Costs keyed `mysticism` demand real Moonlight
+>   — reserved for very special actions acquired later.
 > - **The slow-draw economy.** Opening hand 3; exactly ONE energy recovers
 >   from the deck per turn. Concentrate's willed-back card is always your
 >   next draw.
@@ -93,8 +93,9 @@ Why this fits us specifically:
 3. **Clash Royale rhythm**: a steady energy drip + hand pressure produces the
    "always about to afford something" pull that makes elixir systems
    addictive — but turn-based, so it stays thoughtful.
-4. **PvP-ready**: two players with skill bars and energy decks is a symmetric,
-   fair, async-friendly duel format.
+4. **Simulation-ready**: skill bars + energy decks make a fully
+   deterministic, bot-playable format — the engine that powers automated
+   balance sims and replay debugging.
 
 ## Energy: the four Humours
 
@@ -247,6 +248,4 @@ keeps the shop interesting without stat creep.
    Prototype will tell.
 2. Hand limit 5 vs 4; deck size 18–24; skill slots 4 vs 6.
 3. Should banked (face-down) cards be capped at 2? Probably yes.
-4. Simultaneous-reveal variant for future PvP: both sides commit skill
-   activations, then resolve — test early since it changes feel.
-5. Mid-fight retreat pricing (lose this encounter's loot only?).
+4. Mid-fight retreat pricing (lose this encounter's loot only?).

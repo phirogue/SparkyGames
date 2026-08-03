@@ -282,3 +282,50 @@ func test_command_log_records_only_successes() -> void:
 	assert_ok(state.do_command({"type": "play_skill", "skill_id": "scratch"}))
 	assert_eq(state.log.size(), 1, "log length")
 	assert_eq(state.log.entries[0]["type"], "play_skill", "logged command type")
+
+# ---------------------------------------------------------------- payment plan
+
+func _pay_fixture(deck: Array, opening: int) -> CombatState:
+	return CombatState.create(catalog, 3, {
+		"player_hp": 10,
+		"deck": deck,
+		"skills": ["pounce"],
+		"enemy": "gutter_wisp",
+		"shuffle": false,
+		"opening_hand": opening,
+	})
+
+func test_wild_card_cannot_split_across_humours() -> void:
+	# One mysticism_2 has enough VALUE for {ferocity:1, guile:1}, but a card
+	# is atomic — it can only cover one humour's shortfall. can_pay must not
+	# promise what _pay cannot deliver (the old value-sum bug).
+	var state := _pay_fixture(["mysticism_2", "shadow_1", "shadow_1"], 1)
+	assert_eq(state.hand, ["mysticism_2"] as Array, "fixture hand")
+	assert_true(state.can_pay({"ferocity": 1}), "wild covers a single shortfall")
+	assert_true(not state.can_pay({"ferocity": 1, "guile": 1}),
+		"one wild card must NOT satisfy two separate humours")
+
+func test_wilds_allocate_biggest_shortfall_first() -> void:
+	# {ferocity:1, guile:2} with wilds [m2, m1]: the m2 must go to guile (2)
+	# and the m1 to ferocity (1) — burning the m2 on the small gap first
+	# would strand the cost unpaid.
+	var state := _pay_fixture(["mysticism_2", "mysticism_1", "shadow_1"], 2)
+	assert_true(state.can_pay({"ferocity": 1, "guile": 2}),
+		"two wilds cover two shortfalls when allocated sensibly")
+	state._pay({"ferocity": 1, "guile": 2})
+	assert_eq(state.hand.size(), 0, "both wilds were spent")
+	assert_eq(state.spent.size(), 2, "both landed in spent")
+
+func test_wild_keyed_cost_accepts_only_true_wilds() -> void:
+	var state := _pay_fixture(["ferocity_2", "ferocity_2", "mysticism_1"], 2)
+	assert_true(not state.can_pay({"mysticism": 1}),
+		"ferocity cannot pay a mysticism-keyed cost")
+	var wild_state := _pay_fixture(["mysticism_1", "ferocity_2"], 1)
+	assert_true(wild_state.can_pay({"mysticism": 1}), "a true wild pays it")
+
+func test_specific_energy_pays_before_wilds() -> void:
+	var state := _pay_fixture(["ferocity_1", "mysticism_1", "shadow_1"], 2)
+	state._pay({"ferocity": 1})
+	assert_true(state.hand.has("mysticism_1"),
+		"the wild survives when specific energy can pay")
+	assert_true(state.spent.has("ferocity_1"), "the ferocity was spent")

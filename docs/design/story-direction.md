@@ -92,7 +92,7 @@ a **Remembered Day** — a playable flashback run with **Elspeth alive**.
 ## Allies (discovered, not assigned)
 
 Allies are found through side quests and become town fixtures: vendors,
-informants, co-conspirators, and PvP-era seconds. Core roster sketch:
+informants, and co-conspirators. Core roster sketch:
 
 | Ally | Who they are | What they offer |
 |---|---|---|
@@ -109,7 +109,8 @@ informants, co-conspirators, and PvP-era seconds. Core roster sketch:
   words; mid-run interstitial ≤ 2 lines, 1 tap to skip; payoff scene ≤ 6
   short exchanges; card flavor ≤ 1 line. Nothing scrolls except the optional
   codex.
-- **Show, don't write:** story lands through Midjourney scene art, character
+- **Show, don't write:** story lands through generated scene art (ChatGPT
+  stills, Kling motion), character
   expressions, item icons, and *mechanics as narrative* (a jammed skill, a
   spilled satchel, a warm sunbeam say more than a paragraph). A player who
   skips every line must still be able to follow the case from images and the

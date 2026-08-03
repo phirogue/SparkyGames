@@ -4,21 +4,23 @@
 Midjourney after all — correction 2026-07-29). Budget stance: free where
 possible, no new subscriptions yet.*
 
-> **Correction:** references to Midjourney below describe the original plan;
-> in practice **Kling (image mode)** is the primary art generator and
-> **ChatGPT** the secondary/precision tool. Kling supports reference images
-> for character consistency, which covers the consistency strategy. Style
-> test prompts: [style-tests.md](style-tests.md). Commercial-use note: verify
-> the Kling plan tier includes commercial rights before launch (their free
-> tier does not; paid memberships do).
+> **Correction (final, 2026-08-02):** Midjourney is out entirely. **ChatGPT**
+> generates all stills (card art, portraits, scenes, backdrops, icons) and
+> **Kling** handles motion (image-to-video on our stills). Kling also
+> supports reference images for character consistency, which covers the
+> consistency strategy. Style test prompts: [style-tests.md](style-tests.md).
+> Commercial-use note: both tools must be on paid/commercial tiers; keep
+> dated copies of each tool's commercial terms in `docs/publishing/`
+> (Kling's free tier does not include commercial rights; paid memberships
+> do).
 
 ## Summary: who makes what
 
 | Asset type | Tool | Cost | Notes |
 |---|---|---|---|
-| Card art, character portraits, scene/story art, district backdrops | **Midjourney** (owner generates) | Already paid | The workhorse. Paid plan = commercial rights. No public API — I write prompt manifests, owner runs them |
+| Card art, character portraits, scene/story art, district backdrops | **ChatGPT** image gen (owner generates) | Already paid | The workhorse. Paid plan = commercial rights. I write prompt manifests, owner runs them |
 | Icons, UI elements, transparent-background sprites, quick mockups | **ChatGPT** image gen (owner) | Already paid | Best at following exact instructions ("flat icon, transparent background, 3 sizes") and doing edits/variations of an existing image |
-| Trailer, store-listing video, animated splash | **Kling** (owner) | Existing credits | Image-to-video on our best Midjourney stills. For marketing only — no video files in-game |
+| Trailer, store-listing video, animated splash | **Kling** (owner) | Existing credits | Image-to-video on our best ChatGPT stills. For marketing only — no video files in-game |
 | In-game animation (card plays, hits, purring, sunbeams) | **Godot itself** | Free | Tweens, particles, 2D shaders on static art. This is how the whole genre does "juice" — we need zero animation assets |
 | Music | **Pixabay Music / FreePD / Kevin MacLeod** now; consider one month of **Suno** (~$10) later for a bespoke theme | Free now | Pixabay = no attribution needed; MacLeod = CC-BY (credit him). Suno commercial use requires a paid month — cheap, do it once, batch-generate the whole soundtrack |
 | Sound effects | **Kenney.nl** (CC0 packs) + **Freesound** (filter license = CC0) + **jsfxr/ChipTone** for synthesized blips | Free | Kenney alone nearly covers a card game (card slides, clicks, impacts) |
@@ -26,8 +28,8 @@ possible, no new subscriptions yet.*
 
 ## What I can automate vs what needs you
 
-**You (accounts I can't drive):** Midjourney generation (no API — you paste
-prompts, download results), ChatGPT image sessions, Kling renders.
+**You (accounts I can't drive):** ChatGPT image sessions (you paste
+prompts, download results), Kling renders.
 
 **Me, locally and free:** everything after generation — background removal
 (`rembg`, free/local), resize/crop/pad (ImageMagick), card-frame compositing
@@ -44,16 +46,16 @@ size, import into Godot, and the art manifest bookkeeping.
 | Replicate / fal.ai | Flux and other open models per-image | Pennies/image; alternative to everything above |
 | Stability (SD3/Flux local) | Unlimited free generation **if** you have a decent GPU | $0 — worth checking what GPU is in this PC before buying anything |
 
-**Recommendation: provide nothing new yet.** Midjourney + ChatGPT + Kling +
+**Recommendation: provide nothing new yet.** ChatGPT + Kling +
 free audio covers the entire game. Revisit only if manual generation becomes
 the bottleneck.
 
 ## The workflow (repeatable loop)
 
 1. I maintain **`docs/design/art-manifest.md`**: every asset gets an id, a
-   description, a ready-to-paste Midjourney prompt (with our style block),
+   description, a ready-to-paste image prompt (with our style block),
    size/format target, and a status column.
-2. You batch-generate in Midjourney, drop raw images into
+2. You batch-generate in ChatGPT, drop raw images into
    **`assets/incoming/`** named by asset id.
 3. I post-process (crop, rembg if needed, frame-composite, WebP), move to
    final locations (`assets/cards/`, `assets/scenes/`, ...), and tick the
@@ -84,26 +86,28 @@ sunbeam flash, alarm pulse) — extend that pattern, don't regenerate art.
 
 ## Style consistency (the make-or-break for AI art)
 
-- One locked **style block** appended to every Midjourney prompt (to be
+- One locked **style block** appended to every image prompt (to be
   developed in a dedicated art-direction session: storybook ink-and-wash,
   gaslamp palette, single rim-light source — direction TBD with test
   batches).
-- Use Midjourney **character reference/omni-reference on a canonical Ash
-  image** for every card featuring Ash; same for recurring NPCs. Seed
-  consistency is a myth across prompts — reference images are the reliable
-  tool.
+- Use a **canonical Ash reference image** in every generation featuring Ash
+  (ChatGPT image edits and Kling both accept reference images); same for
+  recurring NPCs. Seed consistency is a myth across prompts — reference
+  images are the reliable tool.
 - **Card frames, icons, UI chrome are NOT AI-generated** — they're built
   once (vector/ChatGPT-assisted, human-finished) so the interface reads
   crisp at phone sizes. AI art lives *inside* frames, never as UI.
-- Legal notes (from monetization research): generate on a **paid** Midjourney
-  plan only; human-edit hero assets (title art, icon, key marketing) both for
+- Legal notes (from monetization research): generate on **paid/commercial
+  tiers** of ChatGPT and Kling only (dated copies of their commercial terms
+  live in `docs/publishing/`); human-edit hero assets (title art, icon, key
+  marketing) both for
   quality and copyrightability; the store icon and logo should get human
   design attention — it's the single highest-leverage image we'll ship.
 
 ## Launch asset budget (from market research)
 
 ~120–200 card/skill illustrations, ~30–50 enemies/NPCs, ~15–25 story scenes,
-~10 district backdrops (day/night variants), ~20–30 icons. At Midjourney
-batch rates this is a few evenings of generation once the style block is
+~10 district backdrops (day/night variants), ~20–30 icons. At
+batch-generation rates this is a few evenings of generation once the style block is
 locked — the manifest will sequence it so Chapter 1 + Prequel assets come
 first (~40 images for the vertical slice).
