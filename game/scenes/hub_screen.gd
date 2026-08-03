@@ -8,6 +8,7 @@ signal replay_prologue
 signal open_journal
 
 const ADD_CARD_COST := 12
+const RARE_CARD_COST := 30
 const REMOVE_CARD_COST := 15
 const TONIC_COST := 25
 const MAX_HP_CAP := 30
@@ -51,7 +52,7 @@ func _ready() -> void:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	margin.add_child(scroll)
 	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 14)
+	root.add_theme_constant_override("separation", 10)
 	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(root)
 
@@ -77,7 +78,7 @@ func _ready() -> void:
 		var quest: Dictionary = catalog.quests[quest_id]
 		var b := Button.new()
 		b.text = "%s\n%s" % [quest["name"], quest["board_card"]]
-		b.custom_minimum_size = Vector2(0, 128)
+		b.custom_minimum_size = Vector2(0, 112)
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.pressed.connect(func() -> void: quest_selected.emit(quest_id))
 		root.add_child(b)
@@ -93,9 +94,10 @@ func _ready() -> void:
 	var shop_row := HBoxContainer.new()
 	shop_row.add_theme_constant_override("separation", 8)
 	root.add_child(shop_row)
-	_shop_button(shop_row, "Add a card (%d)" % ADD_CARD_COST, "add")
-	_shop_button(shop_row, "Remove a card (%d)" % REMOVE_CARD_COST, "remove")
-	_shop_button(shop_row, "Tonic +2 HP (%d)" % TONIC_COST, "tonic")
+	_shop_button(shop_row, "Add (%d)" % ADD_CARD_COST, "add")
+	_shop_button(shop_row, "Rare (%d)" % RARE_CARD_COST, "rare")
+	_shop_button(shop_row, "Cut (%d)" % REMOVE_CARD_COST, "remove")
+	_shop_button(shop_row, "Tonic (%d)" % TONIC_COST, "tonic")
 
 	shop_detail = HBoxContainer.new()
 	shop_detail.add_theme_constant_override("separation", 6)
@@ -103,12 +105,12 @@ func _ready() -> void:
 
 	var casebook := Button.new()
 	casebook.text = "The Casebook — deeds & knowledge"
-	casebook.custom_minimum_size = Vector2(0, 100)
+	casebook.custom_minimum_size = Vector2(0, 88)
 	casebook.pressed.connect(func() -> void: open_journal.emit())
 	root.add_child(casebook)
 	var replay := Button.new()
 	replay.text = "Relive the worst night (replay prologue)"
-	replay.custom_minimum_size = Vector2(0, 96)
+	replay.custom_minimum_size = Vector2(0, 84)
 	replay.pressed.connect(func() -> void: replay_prologue.emit())
 	root.add_child(replay)
 	achievements_label = _label(root, 22)
@@ -148,9 +150,9 @@ func refresh() -> void:
 func _shop_button(parent: Container, text: String, mode: String) -> void:
 	var b := Button.new()
 	b.text = text
-	b.custom_minimum_size = Vector2(0, 100)
+	b.custom_minimum_size = Vector2(0, 56)
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	b.add_theme_font_size_override("font_size", 24)
+	b.add_theme_font_size_override("font_size", 22)
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	b.pressed.connect(_on_shop_mode.bind(mode))
 	parent.add_child(b)
@@ -170,6 +172,22 @@ func _on_shop_mode(mode: String) -> void:
 				b.custom_minimum_size = Vector2(0, 48)
 				b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				b.pressed.connect(_on_add_card.bind(humour))
+				shop_detail.add_child(b)
+		"rare":
+			# The good shelf: value-3 cards, one price tier up. This is the
+			# only acquisition route for the _3s (they are NOT starter kit —
+			# owner rarity rule).
+			if int(profile["gleam"]) < RARE_CARD_COST:
+				return _say_broke()
+			shop_status.text = "'Ah. The good shelf. For a discerning paw.'"
+			for humour in Catalog.HUMOURS:
+				var card_id := humour + "_3"
+				var b := Button.new()
+				b.text = "%s (%s)" % [String(catalog.energy_cards[card_id]["name"]),
+					Catalog.humour_name(humour)]
+				b.custom_minimum_size = Vector2(0, 48)
+				b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				b.pressed.connect(_on_add_rare_card.bind(card_id))
 				shop_detail.add_child(b)
 		"remove":
 			if int(profile["gleam"]) < REMOVE_CARD_COST:
@@ -205,6 +223,15 @@ func _on_add_card(humour: String) -> void:
 	profile["gleam"] = int(profile["gleam"]) - ADD_CARD_COST
 	profile["deck"].append(humour + "_2")
 	shop_status.text = "'A fine choice. It fell off a windowsill, if anyone asks.'"
+	_clear(shop_detail)
+	profile_changed.emit()
+	refresh()
+
+
+func _on_add_rare_card(card_id: String) -> void:
+	profile["gleam"] = int(profile["gleam"]) - RARE_CARD_COST
+	profile["deck"].append(card_id)
+	shop_status.text = "'Wrapped in yesterday's obituaries. For dignity.'"
 	_clear(shop_detail)
 	profile_changed.emit()
 	refresh()

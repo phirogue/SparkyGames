@@ -26,6 +26,9 @@ var scenarios := [
 	{"name": "watch captain (quest)", "enemy": "garden_watch_captain", "skills": ["scratch", "pounce", "slink", "shelf_justice"], "hp": 12,
 		"environment": {"stealth_threshold": 5, "cost_mod": {"ferocity": 1}}},
 	{"name": "wisp pair (quest)", "enemy": "wisp_pair", "skills": ["scratch", "pounce", "slink", "purr"], "hp": 12},
+	# The coat assumes the garden route came first: Swat (its unlock) is the
+	# cheap sustained damage that makes aggressive kits viable here.
+	{"name": "empty coat (quest)", "enemy": "the_empty_coat", "skills": ["scratch", "swat", "slink", "purr"], "hp": 12},
 ]
 
 var bots := ["brawler", "defender", "stalker", "random"]

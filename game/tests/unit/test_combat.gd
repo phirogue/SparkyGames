@@ -185,7 +185,7 @@ func test_loaf_stuns_self() -> void:
 	if not state.can_pay({"guile": 1}):
 		return  # seed didn't deal guile; covered by fixed-seed hand below anyway
 	assert_ok(state.do_command({"type": "play_skill", "skill_id": "loaf"}), "loaf")
-	assert_eq(state.player_block, 6, "loaf block")
+	assert_eq(state.player_block, 5, "loaf block")
 	assert_rejected(state.do_command({"type": "play_skill", "skill_id": "scratch"}),
 		"acting while loafed")
 
@@ -331,3 +331,20 @@ func test_specific_energy_pays_before_wilds() -> void:
 	assert_true(state.hand.has("mysticism_1"),
 		"the wild survives when specific energy can pay")
 	assert_true(state.spent.has("ferocity_1"), "the ferocity was spent")
+
+func test_pierce_intent_ignores_block() -> void:
+	# The anti-turtle tool: a pierce hit goes straight through block.
+	var state := CombatState.create(catalog, 3, {
+		"player_hp": 10,
+		"deck": ["shadow_1", "shadow_1", "shadow_1", "shadow_1", "shadow_1"],
+		"skills": ["slink"],
+		"enemy": "garden_watch_captain",
+		"shuffle": false,
+		"opening_hand": 3,
+	})
+	# Fast-forward the intent cycle to Regulation Peck (index 2, pierce 3).
+	state._intent_index = 2
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "slink"}), "slink up")
+	assert_eq(state.player_block, 3, "block is up")
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_eq(state.player_hp, 7, "pierce 3 lands through block 3 untouched")

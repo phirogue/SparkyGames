@@ -63,6 +63,12 @@ func validate() -> Array[String]:
 		for intent in intents:
 			if not ["health", "skills", "hand"].has(intent.get("target", "")):
 				problems.append("enemy '%s' intent targets unknown '%s'" % [id, intent.get("target", "")])
+			var mode := String(intent.get("mode", ""))
+			var legal_modes: Array = ["pierce"] if intent.get("target") == "health" \
+				else ["jam", "burn"] if intent.get("target") == "skills" else []
+			if mode != "" and not legal_modes.has(mode):
+				problems.append("enemy '%s' intent '%s' has unknown mode '%s' for target '%s'" % [
+					id, intent.get("name", "?"), mode, intent.get("target", "")])
 	for id in encounters:
 		for enemy_id in encounters[id].get("enemies", []):
 			if not enemies.has(enemy_id):

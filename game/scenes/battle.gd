@@ -1,5 +1,5 @@
 extends Control
-## Battle screen, matched to assets/incoming/ui_objective.png:
+## Battle screen, matched to assets/library/mockups/ui_objective.png:
 ## banner header + rule card · framed portrait beside a name-plate holding the
 ## thread-of-life · framed intent chip · chronicle strip · icon status strip ·
 ## fanned energy hand · skill cards in a parchment tray · amber End Turn with
@@ -1158,8 +1158,11 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	name_label.add_theme_font_size_override("font_size", int(17 * scale))
 	name_label.add_theme_color_override("font_color", UITheme.INK)
 	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	name_label.set_offset(SIDE_TOP, -34 * scale)
-	name_label.set_offset(SIDE_BOTTOM, -14 * scale)
+	# Raised band: the hand fan tucks card bottoms under the skill tray
+	# (ZONE_HAND < card height), and the old -34..-14 band left the name
+	# half-swallowed by the tuck + frame border (owner defect list).
+	name_label.set_offset(SIDE_TOP, -46 * scale)
+	name_label.set_offset(SIDE_BOTTOM, -26 * scale)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(name_label)

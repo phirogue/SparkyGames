@@ -162,4 +162,12 @@ func _process(_delta: float) -> void:
 	if y < 16 or current_target() == "":
 		y = minf(hole.end.y + 18, full.size.y - panel_size.y - 16)
 	_text_panel.position = Vector2(x, y)
-	_skip.position = Vector2(full.size.x - _skip.size.x - 24, 12)
+	# Skip lives top-right, but must never sit ON the spotlit target or the
+	# header's rule card (owner defect: it occluded the environment rules
+	# during header steps). If the hole reaches the top band, drop to the
+	# bottom-right corner instead.
+	var skip_pos := Vector2(full.size.x - _skip.size.x - 24, 12)
+	var skip_rect := Rect2(skip_pos, _skip.size).grow(8)
+	if hole.intersects(skip_rect) or hole.position.y < skip_rect.end.y:
+		skip_pos.y = full.size.y - _skip.size.y - 12
+	_skip.position = skip_pos

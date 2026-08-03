@@ -624,7 +624,11 @@ func _enemy_act() -> void:
 		}
 	match intent["target"]:
 		"health":
-			var damage := maxi(int(intent["amount"]) + rage_bonus - player_block, 0)
+			# mode "pierce": the hit ignores block entirely — the anti-turtle
+			# tool (2026-08-03). Turtling must have a counter somewhere or
+			# the defender line wins everything (sim pass 4).
+			var blocked := 0 if intent.get("mode", "") == "pierce" else player_block
+			var damage := maxi(int(intent["amount"]) + rage_bonus - blocked, 0)
 			player_hp -= damage
 			flags["damage_taken"] = int(flags["damage_taken"]) + damage
 			if damage > 0 and not channel.is_empty():
