@@ -9,6 +9,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/unit/test_achievements.gd",
 	"res://tests/unit/test_environment.gd",
 	"res://tests/unit/test_approach.gd",
+	"res://tests/unit/test_save.gd",
 ]
 
 func _initialize() -> void:

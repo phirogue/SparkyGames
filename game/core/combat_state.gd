@@ -592,7 +592,9 @@ func _apply_effects(effects: Array) -> void:
 			"self_stun":  # Loaf: committed, cannot act next turn
 				statuses["loafed"] = int(effect.get("turns", 1))
 			_:
-				assert(false, "unknown effect type '%s'" % effect.get("type", ""))
+				# Not an assert: asserts vanish in release builds and would
+				# turn a typo'd content effect into a silent no-op on-device.
+				push_error("unknown effect type '%s'" % effect.get("type", ""))
 
 
 func _enemy_act() -> void:

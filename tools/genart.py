@@ -22,6 +22,11 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 OUT_DIR = REPO / "assets" / "incoming" / "procedural"
 
+# gpt-image-1 is the April-2025 snapshot named in asset-pipeline.md; it is
+# several generations behind what ChatGPT serves in-chat and looks it. Ask the
+# /v1/models endpoint before assuming this is still the newest.
+DEFAULT_MODEL = "gpt-image-2"
+
 STYLE = (
     "Hand-drawn storybook illustration style: ink linework with muted "
     "watercolor washes, warm amber light against blue-grey fog, cozy-gothic "
@@ -62,10 +67,12 @@ def next_free_path(asset_id: str) -> Path:
     return path
 
 
-def generate(prompt: str, size: str, quality: str, count: int, key: str) -> list:
+def generate(
+    prompt: str, size: str, quality: str, count: int, key: str, model: str
+) -> list:
     body = json.dumps(
         {
-            "model": "gpt-image-1",
+            "model": model,
             "prompt": prompt,
             "size": size,
             "quality": quality,
@@ -94,6 +101,17 @@ def main() -> None:
     parser.add_argument("asset_id")
     parser.add_argument("--prompt", help="prompt text; omit to read stdin")
     parser.add_argument("--ratio", default="9:16", choices=sorted(RATIO_TO_SIZE))
+    parser.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+        help=(
+            "gpt-image-2 (newest), chatgpt-image-latest (tracks in-chat "
+            "ChatGPT), gpt-image-1.5, gpt-image-1 (old -- avoid)"
+        ),
+    )
+    parser.add_argument(
+        "--suffix", default="", help="appended to the filename, e.g. a model tag"
+    )
     parser.add_argument("--quality", default="high", choices=["low", "medium", "high"])
     parser.add_argument("--n", type=int, default=1)
     parser.add_argument(
@@ -109,10 +127,15 @@ def main() -> None:
         prompt = f"{STYLE}\n\n{prompt}"
 
     images = generate(
-        prompt, RATIO_TO_SIZE[args.ratio], args.quality, args.n, load_key()
+        prompt,
+        RATIO_TO_SIZE[args.ratio],
+        args.quality,
+        args.n,
+        load_key(),
+        args.model,
     )
     for blob in images:
-        path = next_free_path(args.asset_id)
+        path = next_free_path(args.asset_id + args.suffix)
         path.write_bytes(blob)
         print(f"wrote {path.relative_to(REPO)}  ({len(blob) // 1024} KB)")
 

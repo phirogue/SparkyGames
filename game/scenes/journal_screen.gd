@@ -27,10 +27,11 @@ func _ready() -> void:
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right"]:
-		margin.add_theme_constant_override("margin_" + side, 52)
-	margin.add_theme_constant_override("margin_top", 44)
-	margin.add_theme_constant_override("margin_bottom", 48)
+	# Law 5: screens read the calibrated constants — never hand-edit margins.
+	margin.add_theme_constant_override("margin_left", UITheme.PAGE_MARGIN_LEFT)
+	margin.add_theme_constant_override("margin_right", UITheme.PAGE_MARGIN_RIGHT)
+	margin.add_theme_constant_override("margin_top", UITheme.PAGE_MARGIN_TOP)
+	margin.add_theme_constant_override("margin_bottom", UITheme.PAGE_MARGIN_BOTTOM)
 	add_child(margin)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 20)

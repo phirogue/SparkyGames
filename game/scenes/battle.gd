@@ -107,7 +107,7 @@ const APPROACH_TITLE := {
 	"stalk": "Stalk — Shadow 2",
 	"ambush": "Ambush — Ferocity 2",
 	"case": "Case It — Guile 2",
-	"ward": "Ward — Mysticism 2",
+	"ward": "Ward — Moonlight 2",
 }
 const APPROACH_DESC := {
 	"stalk": "Begin hidden. Its first move misses. First hit +1.",
@@ -287,7 +287,7 @@ func _refresh_detail() -> void:
 	var is_instinct: bool = def.get("instinct", false)
 	var cost_parts: Array[String] = []
 	for humour in cost:
-		cost_parts.append("%d %s" % [cost[humour], String(humour).capitalize()])
+		cost_parts.append("%d %s" % [cost[humour], Catalog.humour_name(String(humour))])
 	var title_text: String = "%s — %s" % [def["name"], "free, once per turn" if is_instinct
 		else ("needs " + ", ".join(cost_parts) if not cost_parts.is_empty() else "free")]
 	detail_title.text = title_text
@@ -322,7 +322,7 @@ func _refresh_detail() -> void:
 		break
 	detail_charge.visible = not is_instinct and not cost.is_empty()
 	if detail_charge.visible:
-		detail_charge.text = ("Add %s" % String(next_humour).capitalize()) \
+		detail_charge.text = ("Add %s" % Catalog.humour_name(String(next_humour))) \
 			if next_humour != "" else "Powered"
 		detail_charge.disabled = next_humour == "" or _charge_pick(next_humour).is_empty() \
 			or state.paws_left < 1 or not _skill_playable(skill_id)
@@ -365,7 +365,7 @@ func _on_detail_charge() -> void:
 	var result := state.do_command({"type": "charge_skill", "skill_id": skill_id,
 		"source": pick["source"], "index": pick["index"]})
 	if result["ok"]:
-		_log("Fed %s to %s." % [String(next_humour).capitalize(),
+		_log("Fed %s to %s." % [Catalog.humour_name(String(next_humour)),
 			catalog.skills[skill_id]["name"]])
 	else:
 		_log(result["error"])
@@ -398,7 +398,7 @@ func _on_card_pressed(hand_index: int) -> void:
 	selected_card = hand_index
 	var card_id: String = state.hand[hand_index]
 	var card: Dictionary = catalog.energy_cards[card_id]
-	var humour := String(card["humour"]).capitalize()
+	var humour := Catalog.humour_name(String(card["humour"]))
 	card_title.text = "%s — worth %d" % [humour, int(card["value"])]
 	_clear(card_slot)
 	var big := _card_button(card_id, 1.8)
@@ -457,7 +457,7 @@ func _on_concentrate_pressed() -> void:
 		counts[humour] = int(counts.get(humour, 0)) + 1
 	for humour in counts:
 		var b := Button.new()
-		b.text = "%s — %d spent" % [String(humour).capitalize(), counts[humour]]
+		b.text = "%s — %d spent" % [Catalog.humour_name(String(humour)), counts[humour]]
 		b.custom_minimum_size = Vector2(0, 96)
 		b.add_theme_font_size_override("font_size", 28)
 		b.add_theme_color_override("font_color", HUMOUR_COLORS.get(humour, UITheme.INK))
@@ -477,7 +477,7 @@ func _on_concentrate_choose(humour: String) -> void:
 	concentrate_overlay.visible = false
 	var result := state.do_command({"type": "concentrate", "humour": humour})
 	if result["ok"]:
-		_log("Ash stares at nothing. A %s comes back." % String(humour).capitalize())
+		_log("Ash stares at nothing. A %s comes back." % Catalog.humour_name(String(humour)))
 	else:
 		_log(result["error"])
 	_after_command()
@@ -546,7 +546,7 @@ func _show_outcome() -> void:
 			overlay_button.text = "Continue"
 		CombatState.Outcome.DEFEAT:
 			overlay_label.text = "The dark comes up like a floor."
-			overlay_button.text = "..."
+			overlay_button.text = "Get up"
 		CombatState.Outcome.RETREATED:
 			overlay_label.text = "You were never here."
 			overlay_button.text = "Slip Away"
@@ -1063,7 +1063,7 @@ func _refresh() -> void:
 	if hints.has(hint_key) and _last_hint_turn != state.turn:
 		_last_hint_turn = state.turn
 		_log("❋ " + String(hints[hint_key]))
-	hp_label.text = "%d/%d" % [state.player_hp, state.player_max_hp]
+	hp_label.text = "%d/%d" % [maxi(state.player_hp, 0), state.player_max_hp]
 	block_label.text = str(state.player_block)
 	deck_label.text = str(state.deck.size())
 	paws_label.text = str(state.paws_left)
@@ -1154,7 +1154,7 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	value.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(value)
 	var name_label := Label.new()
-	name_label.text = String(humour).capitalize()
+	name_label.text = Catalog.humour_name(String(humour))
 	name_label.add_theme_font_size_override("font_size", int(17 * scale))
 	name_label.add_theme_color_override("font_color", UITheme.INK)
 	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)

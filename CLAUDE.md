@@ -1,8 +1,13 @@
 # SparkyGames — Project Instructions
 
 Mobile roguelite card game (fantasy, story-driven, 3–5 minute runs) for iOS and
-Google Play. Offline-first single player at launch; PvP possible later. Card art
-comes from Midjourney, provided by the project owner.
+Google Play. Offline-first, single player, standalone story — **no multiplayer,
+ever** (owner decision 2026-08-02). Art comes from ChatGPT (stills) + Kling
+(motion), provided by the project owner; music will be AI-generated. The
+project is openly AI-assisted (see docs/design/ai-transparency.md) — never
+market it as hand-made, never hide the AI either. The fourth humour's
+player-facing name is **Moonlight**; its data id stays `mysticism` (save
+stability) — UI must go through `Catalog.humour_name()`.
 
 ## Git rules (important)
 
@@ -29,7 +34,8 @@ comes from Midjourney, provided by the project owner.
 - **`game/core/` is pure rules**: RefCounted classes only — no Node, no
   rendering, no FileAccess, no global RNG. All randomness goes through
   `CoreRng`; all player actions go through `CombatState.do_command()` and are
-  recorded in `CommandLog`. This is load-bearing for replays and future PvP.
+  recorded in `CommandLog`. This is load-bearing for deterministic tests,
+  the balance sims, and replay debugging (there is no PvP, ever).
 - Content lives in `game/data/*.json` with stable string ids; never hardcode
   content values in scripts. `Catalog.validate()` must stay green — add
   validation when adding content fields.
@@ -116,7 +122,7 @@ comes from Midjourney, provided by the project owner.
   new dated doc rather than rewriting an old conclusion.
 - Brainstorms and rejected ideas live in `docs/brainstorm/` — keep them, they
   explain why the chosen direction won.
-- Card art from Midjourney goes in `assets/cards/` named after the card's id
+- Generated card art (ChatGPT/Kling) goes in `assets/cards/` named after the card's id
   (e.g. `ember_fox.png`). Track art needs in `docs/design/art-manifest.md`.
 
 ## Product constraints (do not violate without owner sign-off)

@@ -130,7 +130,7 @@ func refresh() -> void:
 		counts[humour] = int(counts.get(humour, 0)) + 1
 	var parts: Array[String] = []
 	for humour in ["ferocity", "guile", "shadow", "mysticism"]:
-		parts.append("%s %d" % [humour.capitalize(), int(counts.get(humour, 0))])
+		parts.append("%s %d" % [Catalog.humour_name(humour), int(counts.get(humour, 0))])
 	deck_label.text = "Deck (%d): %s" % [profile["deck"].size(), " · ".join(parts)]
 	var visible_total := 0
 	for id in catalog.achievements:
@@ -166,7 +166,7 @@ func _on_shop_mode(mode: String) -> void:
 			shop_status.text = "'An appetite for what, exactly?'"
 			for humour in ["ferocity", "guile", "shadow", "mysticism"]:
 				var b := Button.new()
-				b.text = humour.capitalize() + " 2"
+				b.text = Catalog.humour_name(humour) + " 2"
 				b.custom_minimum_size = Vector2(0, 48)
 				b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				b.pressed.connect(_on_add_card.bind(humour))

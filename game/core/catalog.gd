@@ -7,6 +7,19 @@ extends RefCounted
 
 const HUMOURS: Array[String] = ["ferocity", "guile", "shadow", "mysticism"]
 
+## Player-facing humour names. The fourth humour's DATA id stays "mysticism"
+## (save-file stability) but its name is Moonlight again (owner, 2026-08-02).
+## All UI goes through humour_name() — never .capitalize() on a humour id.
+const HUMOUR_NAMES := {
+	"ferocity": "Ferocity",
+	"guile": "Guile",
+	"shadow": "Shadow",
+	"mysticism": "Moonlight",
+}
+
+static func humour_name(humour: String) -> String:
+	return HUMOUR_NAMES.get(humour, String(humour).capitalize())
+
 var energy_cards: Dictionary = {}   # id -> {id, humour, value}
 var skills: Dictionary = {}         # id -> {id, name, cost, charges, effects, instinct}
 var enemies: Dictionary = {}        # id -> {id, name, hp, intents}

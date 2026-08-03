@@ -40,7 +40,7 @@ size, import into Godot, and the art manifest bookkeeping.
 
 | API | Good for | Cost reality |
 |---|---|---|
-| OpenAI Images (`gpt-image-1`) | Programmatic icon/sprite batches, auto-variations | ~$0.02–0.19/image. Note: ChatGPT Plus does NOT include API credit — separate billing, so skip unless batch needs appear |
+| OpenAI Images (`gpt-image-2`) | Programmatic icon/sprite batches, auto-variations | ~$0.02–0.19/image. Note: ChatGPT Plus does NOT include API credit — separate billing |
 | Recraft | Vector icons, consistent icon sets | Free tier exists; nice-to-have |
 | Ideogram | Images containing legible text (logos, shop signs) | Free tier exists |
 | Replicate / fal.ai | Flux and other open models per-image | Pennies/image; alternative to everything above |

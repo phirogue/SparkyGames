@@ -18,8 +18,16 @@ static func load_catalog(data_dir: String = DATA_DIR) -> Catalog:
 
 
 static func _load_json(path: String) -> Dictionary:
+	# push_error, not assert: asserts compile out of release exports, and a
+	# missing/corrupt bundled file on a phone must fail loudly and legibly
+	# (game.gd surfaces catalog problems via Catalog.validate()), not
+	# null-deref three calls later.
 	var file := FileAccess.open(path, FileAccess.READ)
-	assert(file != null, "missing data file: %s" % path)
+	if file == null:
+		push_error("missing data file: %s" % path)
+		return {}
 	var parsed: Variant = JSON.parse_string(file.get_as_text())
-	assert(parsed is Dictionary, "malformed JSON (expected object): %s" % path)
+	if not (parsed is Dictionary):
+		push_error("malformed JSON (expected object): %s" % path)
+		return {}
 	return parsed

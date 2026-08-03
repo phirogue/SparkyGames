@@ -44,10 +44,35 @@ class MenuGlyph extends Control:
 				Color("e8dcc0"), 3.0)
 
 
+## Boot cannot continue (damaged install / corrupt content). Shows a plain
+## readable page — the one screen allowed to skip the storybook template.
+func _fatal(message: String) -> void:
+	push_error(message)
+	var page := Panel.new()
+	page.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var label := Label.new()
+	label.text = message + "\n\nPlease reinstall the game."
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_KEEP_SIZE, 40)
+	page.add_child(label)
+	add_child(page)
+
+
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color("100e0c"))  # the book's dark edge
 	theme = UITheme.build()  # storybook theme; every child screen inherits
 	catalog = DataLoader.load_catalog()
+	# Content must be coherent before ANY screen builds on it. This is the
+	# shipped-scene validation gate (main.gd is not the boot scene) — in a
+	# release export a broken bundle stops here with a readable page instead
+	# of a null-deref three screens later.
+	var problems := catalog.validate()
+	if not problems.is_empty():
+		_fatal("This copy of the game has damaged content.\n\n" +
+			"\n".join(problems.slice(0, 6)))
+		return
 	tour_mode = OS.get_cmdline_user_args().has("--tour")
 	if tour_mode:
 		# Screenshot tour: throwaway profile, never touches the real save.
@@ -57,7 +82,11 @@ func _ready() -> void:
 	tracker = AchievementTracker.new(catalog)
 	tracker.from_dict(profile.get("achievements", {}))
 	var file := FileAccess.open("res://story/prologue.json", FileAccess.READ)
-	story = JSON.parse_string(file.get_as_text())
+	var parsed: Variant = null if file == null else JSON.parse_string(file.get_as_text())
+	if not (parsed is Dictionary):
+		_fatal("This copy of the game is missing its story.\n(story/prologue.json)")
+		return
+	story = parsed
 	_build_settings_layer()
 	var dev_scene := _cmdline_value("--scene")
 	if dev_scene != "":
@@ -359,7 +388,11 @@ func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {
 		"player_max_hp": int(profile["max_hp"]),
 		"player_hp": carryover.get("hp", int(profile["max_hp"])),
 		"deck": carryover.get("deck", profile["deck"]),
-		"skills": profile["skills"],
+		# Loadout law: at most 4 abilities out at a time, Scratch included.
+		# Clamp HERE, not just in the UI — otherwise core equips skills the
+		# player cannot see and enemy jam intents can target the invisible
+		# ones. First three owned + the free Scratch until a picker exists.
+		"skills": _battle_loadout(),
 		"lingering": carryover.get("lingering", []),
 	}
 	if carryover.has("skill_charges"):
@@ -369,6 +402,21 @@ func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {
 	screen.setup(catalog, config, encounter_id, hints, coach)
 	screen.encounter_finished.connect(on_done)
 	_swap(screen)
+
+
+## The skills that actually enter a battle: the free Scratch plus the first
+## three other owned skills (loadout law: 4 out at a time, Scratch included).
+## Ownership beyond the loadout is safe in the profile; it just doesn't come
+## on the prowl until a loadout picker ships.
+func _battle_loadout() -> Array:
+	var loadout: Array = []
+	for skill_id in profile["skills"]:
+		if skill_id == "scratch":
+			continue
+		if loadout.size() >= 3:
+			break
+		loadout.append(skill_id)
+	return ["scratch"] + loadout
 
 
 ## Add a skill to the player's permanent kit, with a story-toast. The kit is
