@@ -56,9 +56,12 @@ do everything else.
       does NOT include them. If the tier is wrong, every video asset made so
       far is unusable. Screenshot the terms page and drop it in
       `docs/publishing/` so we have a record.
-- [ ] **ChatGPT images: save the current OpenAI terms** (content ownership
-      section) the same way. You own outputs per current terms, but we want
-      a dated copy on file for store review disputes.
+- [x] **ChatGPT images: commercial use VERIFIED 2026-08-03.** Owner
+      confirmed the plan's terms permit commercial use of generated
+      stills; the Chapter 1 image batch is unblocked (Phase 0 sign-off,
+      `docs/design/chapter1-build-plan.md`). Still worth doing when
+      convenient: save a dated copy of the OpenAI content-ownership terms
+      into `docs/publishing/` as evidence for store-review disputes.
 - [ ] **AI music: check the tool's commercial tier before generating.**
       You mentioned you'll be making AI music — Suno/Udio/etc. all gate
       commercial use behind paid plans, and *songs made while on the free
@@ -111,19 +114,13 @@ do everything else.
 
 ## 6. Decisions I need from you (each blocks work I can't start)
 
-1. **Who killed Elspeth?** The docs currently plan to choose the Unraveler
-   "after playtesting which ally players trust most" — but the fair-play
-   mystery rules require clues planted from Chapter 1 to read honestly in
-   hindsight. These are incompatible. **Pick the culprit now** (or
-   explicitly bless "bluffable early clues" and I'll update the story
-   contract). Everything Ch1-prose-shaped waits on this.
-2. **Chapter 1 mission-module cut list.** Ch1's design uses five non-combat
-   modules (diplomacy, ritual, survival, escort, heist). My recommendation:
-   ship Ch1 with combat + TWO cheap modules (heist/Alarm reuses the
-   existing stealth system almost entirely; ritual pattern-matching is a
-   small self-contained minigame), convert the other leads to combat or
-   choice-scenes, and defer diplomacy/survival/escort to Ch2+. Approve,
-   amend, or veto.
+1. ~~**Who killed Elspeth?**~~ **ANSWERED 2026-08-03: Bodkin.** See
+   `docs/design/the-unraveler.md` (confirmed, veto window closed). Ch1
+   prose is unblocked.
+2. ~~**Chapter 1 mission-module cut list.**~~ **APPROVED 2026-08-03** as
+   recommended: keep heist/Alarm and ritual, convert diplomacy to
+   choice-scenes, defer survival and escort to Ch2+. Recorded in
+   `docs/design/chapter1-build-plan.md` Phase 0.
 3. **Fate deck: cut or keep?** Spec'd in core-gameplay.md as the long-term
    crit/variance system, absent from the build, mentioned nowhere else.
    My recommendation: cut it from the docs; the charge system already

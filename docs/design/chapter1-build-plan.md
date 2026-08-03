@@ -13,9 +13,12 @@ pinned seeds, 4-persona sim, screenshot tour. Prologue playable end-to-end.
 
 ---
 
-## Phase 0 — decisions & scope lock (owner + 1 session)
+## Phase 0 — decisions & scope lock ✅ SIGNED OFF 2026-08-03
 
-1. **Mission-module cut list** (owner sign-off, recommendation below):
+All three gates cleared by the owner on 2026-08-03. Recorded here because
+the docs are the source of truth, not chat history.
+
+1. **Mission-module cut list — APPROVED as recommended:**
    - **KEEP: Heist/Alarm** — the stealth/alarm system already exists in
      combat; a heist is a stealth encounter chain with a "leave with the
      thing" win condition. Cheapest module, biggest fantasy payoff (L2
@@ -30,9 +33,21 @@ pinned seeds, 4-persona sim, screenshot tour. Prologue playable end-to-end.
    - **DEFER: Survival, Escort** → Ch2+. Both leads that used them become
      combat-with-environment variants (survival = night-presses starts
      early; escort = ally HP bar as a second thread — defer that widget).
-2. **Confirm the culprit doc** (the-unraveler.md) or veto now.
-3. **Art budget check**: Kling/ChatGPT commercial terms verified (
-   OWNER-ACTIONS §2) before the ~35-image Ch1 batch begins.
+
+   Consequences already written into
+   [chapters/01-case-file-wax-and-wick.md](chapters/01-case-file-wax-and-wick.md):
+   L3 loses its escort prowl and its Sway meter, L4's survival prowl
+   becomes a combat prowl under a Mereside environment rule.
+2. **Culprit — CONFIRMED.** [the-unraveler.md](the-unraveler.md) stands:
+   the Unraveler is **Bodkin**. The veto window is closed; Ch1 prose may
+   now plant clues against it. Bodkin enters at L1.
+3. **Art rights — CLEARED for the Ch1 batch.** Owner verified ChatGPT's
+   commercial terms on 2026-08-03. The whole ~35-image Ch1 batch is
+   ChatGPT stills, so generation is unblocked. **Still open, and neither
+   blocks Chapter 1:** Kling (motion — marketing only, no video ships in
+   the game) and the AI music tool's commercial tier (subscribe *before*
+   generating — free-tier songs stay non-commercial). Both remain in
+   [OWNER-ACTIONS §2](../OWNER-ACTIONS.md).
 
 ## Phase 1 — chapter spine systems (build BEFORE content, ~1 week)
 

@@ -1,9 +1,10 @@
 # The Unraveler — culprit decision (SPOILERS FOR THE WHOLE GAME)
 
-**Status:** DECIDED 2026-08-03 (analysis below; owner may veto — but every
-Ch1 clue placement depends on this, so a veto must come before Ch1 prose).
-This doc is the single source of truth for whodunit. Nothing outside
-`docs/design/` may state or imply the answer.
+**Status:** **CONFIRMED by the owner 2026-08-03** (Phase 0 sign-off,
+[chapter1-build-plan.md](chapter1-build-plan.md)). The veto window is
+closed: Ch1 prose plants clues against this answer, so changing it now
+means rewriting the chapter. This doc is the single source of truth for
+whodunit. Nothing outside `docs/design/` may state or imply the answer.
 
 ---
 

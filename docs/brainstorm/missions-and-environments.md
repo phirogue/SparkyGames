@@ -1,5 +1,12 @@
 # Mission Variety & Environmental Effects
 
+> **Decision note (2026-08-03):** Chapter 1 ships **combat + heist/Alarm +
+> ritual** only. Diplomacy becomes choice-scenes; survival and escort are
+> deferred to Ch2+. The menu below is still the long-term ambition — the
+> shipping cut list lives in
+> [chapter1-build-plan.md](../design/chapter1-build-plan.md) Phase 0.
+> (This doc predates the no-PvP decision; PvP is out permanently.)
+
 Owner request: vary *what you do* in a run (stealth, hack & slash, diplomacy,
 escort, …) and make the *environment* an active gameplay force. Both ideas
 attack the same risk — that 3–5 minute runs blur together — and both have

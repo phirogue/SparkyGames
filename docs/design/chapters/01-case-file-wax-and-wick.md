@@ -38,6 +38,11 @@ and no chandler delivers to witches on credit.
 - Reward: Gleam pouch + the candle stub (evidence 1/5). Unlocks the Magpie
   Exchange (Brindle appraises the stub — and goes quiet for half a second
   too long when he sees the seal. Players won't notice. Replayers will).
+- **Bodkin enters here** (required — see [the-unraveler.md](../the-unraveler.md)):
+  a scarred one-eyed grey tom who pulls Ash out of the fight's aftermath,
+  teaches the charge trick ("watch the paws, not the claws"), and steers
+  him toward Wick. **Hindsight rule: every Bodkin line must be literally
+  true.** He never enters the parlor and never touches thread on-screen.
 
 ### L2 — "Creditors" *(2 prowls · heist + stealth)*
 
@@ -58,15 +63,23 @@ alibi shaped like a confession, which is why nobody looks past it.
 - Reward: heavy Gleam; **loadout editing unlocks** (Brindle: "You're going
   to want better pockets, pet.")
 
-### L3 — "The Lamplighters Talk" *(2 prowls · diplomacy intro)*
+### L3 — "The Lamplighters Talk" *(2 prowls · choice-scenes)*
 
 **Board card:** "The Lamplighters hate the Chandlers professionally. Hate is
 chatty."
 
-Find the Lamplighters' shift-boss (escort her past Chandler toughs — escort
-intro, she walks her round *regardless*, lighting lamps mid-combat: design
-showcase). Then the union hall **diplomacy encounter** (Sway meter): cats
-are neutral parties; the slow blink opens the final argument.
+> **Module cut, approved 2026-08-03** (chapter1-build-plan.md Phase 0): the
+> escort prowl and the Sway *meter* are deferred to Ch2+. Prowl A is a
+> combat prowl through Chandler toughs on the shift-boss's round; the hall
+> is a **choice-scene chain with a visible tally** — same beats, no new
+> engine surface. The original escort/diplomacy design is preserved below
+> for whenever the modules do get built.
+
+*Original design (deferred):* find the Lamplighters' shift-boss (escort her
+past Chandler toughs — escort intro, she walks her round *regardless*,
+lighting lamps mid-combat: design showcase). Then the union hall
+**diplomacy encounter** (Sway meter): cats are neutral parties; the slow
+blink opens the final argument.
 
 What they trade (evidence 3/5): Elspeth held the **Wickhouse ward** — the
 great warehouse on the Mere-edge where the Guild keeps its wax... and
@@ -76,14 +89,19 @@ years ago. **She kept sewing the ward anyway.** Free. Nobody sews free.
 - Favor-knot economy unlocks (first knot owed to the Lamplighters — they'll
   call it in, Chapter 3).
 
-### L4 — "The Ward That Failed" *(2 prowls · ritual + survival)*
+### L4 — "The Ward That Failed" *(2 prowls · heist + ritual)*
 
 **Board card:** "The Wickhouse ward is Elspeth's stitching. Go read her last
 work. Bring nothing that burns."
 
-Mereside fog. Prowl A: reach the Wickhouse past the first **Drowned**
-(slow, patient, arriving — survival mission, hold 6 turns while the tide
-omens count down). Prowl B: the **ritual mission** — walk the ward-seam and
+> **Module cut, approved 2026-08-03:** the survival module is deferred to
+> Ch2+. Prowl A becomes a **heist/Alarm** approach to the Wickhouse under a
+> Mereside environment rule — the Drowned still arrive, but as a
+> combat-with-environment prowl, not a hold-N-turns win condition.
+
+Mereside fog. *Original design (deferred):* Prowl A: reach the Wickhouse past
+the first **Drowned** (slow, patient, arriving — survival mission, hold 6
+turns while the tide omens count down). Prowl B: the **ritual mission** — walk the ward-seam and
 re-read the stitching (a pattern-matching encounter: reproduce her stitch
 sequences with energy plays; combat-free, eerie, the game's first quiet
 prowl since the parlor).
@@ -145,8 +163,8 @@ curiosity.)
 
 **Aspects:** starts with **Stray** (balanced); chapter completion unlocks
 **Shadowpelt** (Shadow/Guile deck profile, smaller hand, hidden-bonus
-skills). **Allies:** Brindle, Tansy, Sootbeard (partial), Lamplighters
-faction standing. **Systems:** Exchange, loadouts, Press On, favor-knots,
+skills). **Allies:** Bodkin (L1), Brindle, Tansy, Sootbeard (partial),
+Lamplighters faction standing. **Systems:** Exchange, loadouts, Press On, favor-knots,
 flashbacks. **Districts:** Wickrow, the Shambles, Mereside (edge only).
 
 ## Asset needs (~35 images)
