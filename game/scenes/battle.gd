@@ -193,7 +193,10 @@ func setup(p_catalog: Catalog, config: Dictionary, encounter_id: String,
 	var full_config := config.duplicate(true)
 	full_config["environment"] = environment_def
 	full_config["enemy"] = encounter_def["enemies"][0]
-	state = CombatState.create(catalog, int(Time.get_ticks_usec()) % 1000000007, full_config)
+	# Seed comes from config when a test/scenario needs a reproducible fight;
+	# live play stays clock-random.
+	var seed_value := int(config.get("seed", int(Time.get_ticks_usec()) % 1000000007))
+	state = CombatState.create(catalog, seed_value, full_config)
 
 
 ## Loads project art if it exists (art lands incrementally; placeholders fall back).
@@ -582,20 +585,7 @@ func _plate(min_height: float = 0.0, content_margin: float = 12.0) -> PanelConta
 
 
 func _build_ui() -> void:
-	var page := Panel.new()
-	page.add_theme_stylebox_override("panel", UITheme.page_stylebox())
-	page.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(page)
-
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	# Calibrated stitch boundaries (UITheme.PAGE_MARGIN_*, measured with
-	# tests/calibrate.gd) — the dashes stay visible all around.
-	margin.add_theme_constant_override("margin_left", UITheme.PAGE_MARGIN_LEFT)
-	margin.add_theme_constant_override("margin_right", UITheme.PAGE_MARGIN_RIGHT)
-	margin.add_theme_constant_override("margin_top", UITheme.PAGE_MARGIN_TOP)
-	margin.add_theme_constant_override("margin_bottom", UITheme.PAGE_MARGIN_BOTTOM)
-	add_child(margin)
+	var margin := UITheme.page_scaffold(self)
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", ZONE_SEP)
 	margin.add_child(root)

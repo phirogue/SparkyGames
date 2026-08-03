@@ -1,0 +1,41 @@
+{
+  "comment": "Over-leveled economy: tonic-capped HP, rare cards, everything owned. The calibration ceiling test.",
+  "profile": {
+    "prologue_done": true,
+    "skills": [
+      "scratch",
+      "pounce",
+      "slink",
+      "purr",
+      "loaf",
+      "swat",
+      "shelf_justice"
+    ],
+    "loadout": [
+      "pounce",
+      "loaf",
+      "shelf_justice"
+    ],
+    "max_hp": 30,
+    "gleam": 200,
+    "deck": [
+      "ferocity_3",
+      "ferocity_2",
+      "ferocity_1",
+      "ferocity_1",
+      "ferocity_1",
+      "guile_3",
+      "guile_2",
+      "guile_1",
+      "guile_1",
+      "shadow_2",
+      "shadow_1",
+      "shadow_1",
+      "shadow_1",
+      "mysticism_3",
+      "mysticism_2",
+      "mysticism_1"
+    ]
+  },
+  "launch": "hub"
+}

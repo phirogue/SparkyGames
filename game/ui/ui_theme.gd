@@ -159,6 +159,38 @@ static func page_stylebox() -> StyleBoxTexture:
 	return box
 
 
+## The bare stitched page every screen sits on. ONE place — change the page
+## here and every screen in the game follows.
+static func page_panel(root: Control) -> Panel:
+	var page := Panel.new()
+	page.add_theme_stylebox_override("panel", page_stylebox())
+	page.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.add_child(page)
+	return page
+
+
+## Full page scaffold: stitched page + the calibrated margin container
+## (law 5: screens read the constants, never hand-edit margins). Screens
+## build their content INSIDE the returned margin. Options:
+##   "between":       Control inserted between page and margin (tap catchers
+##                    that must sit under the content).
+##   "ignore_mouse":  margin lets input fall through to what's beneath.
+static func page_scaffold(root: Control, opts: Dictionary = {}) -> MarginContainer:
+	page_panel(root)
+	if opts.get("between") is Control:
+		root.add_child(opts["between"])
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", PAGE_MARGIN_LEFT)
+	margin.add_theme_constant_override("margin_right", PAGE_MARGIN_RIGHT)
+	margin.add_theme_constant_override("margin_top", PAGE_MARGIN_TOP)
+	margin.add_theme_constant_override("margin_bottom", PAGE_MARGIN_BOTTOM)
+	if opts.get("ignore_mouse", false):
+		margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(margin)
+	return margin
+
+
 ## Buttons are DRAWN, not textured: the generated button art carries
 ## transparent padding that makes textured styleboxes render smaller than
 ## the button rect (text escaping its box). Flat boxes always encase.

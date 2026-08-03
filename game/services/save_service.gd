@@ -23,6 +23,9 @@ const DEFAULT_PROFILE := {
 		"mysticism_1", "mysticism_1", "mysticism_1",
 	],
 	"skills": ["scratch"],
+	# The player's chosen prowl loadout (≤3 non-Scratch skills). Empty means
+	# "auto": first three owned. Edited at the Mantel.
+	"loadout": [],
 	"flags": {},
 	"journal": [],
 	"codex": { "enemies": [], "places": [] },
@@ -86,6 +89,27 @@ static func _migrate(profile: Dictionary) -> Dictionary:
 		merged["deck"] = DEFAULT_PROFILE["deck"].duplicate()
 		merged["schema_version"] = 2
 	return merged
+
+
+## The skills that enter a battle (loadout law: 4 out at a time, Scratch
+## included). The player's chosen loadout wins, filtered to what they still
+## own; empty/invalid falls back to the first three owned. Pure and static
+## so tests can pin it without a scene tree.
+static func battle_loadout(profile: Dictionary) -> Array:
+	var owned: Array = profile.get("skills", [])
+	var picked: Array = []
+	for skill_id in profile.get("loadout", []):
+		if picked.size() >= 3:
+			break
+		if skill_id != "scratch" and owned.has(skill_id) and not picked.has(skill_id):
+			picked.append(skill_id)
+	if picked.is_empty():
+		for skill_id in owned:
+			if picked.size() >= 3:
+				break
+			if skill_id != "scratch":
+				picked.append(skill_id)
+	return ["scratch"] + picked
 
 
 ## Recursive merge: the save's values win, but NESTED dictionaries merge

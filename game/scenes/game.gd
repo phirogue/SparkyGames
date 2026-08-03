@@ -29,6 +29,8 @@ var last_outcome := CombatState.Outcome.ONGOING
 
 
 var tour_mode := false
+var dev_mode := false   # component runner / scenario: throwaway world
+var _dev_seed := 0      # scenario-pinned battle seed (0 = clock-random)
 var settings_layer: CanvasLayer
 var settings_overlay: Control
 var volume_slider: HSlider
@@ -93,6 +95,7 @@ func _ready() -> void:
 		# Component runner (owner rule 2026-08-01): jump straight to one
 		# piece of the game on a throwaway profile — no full playthrough
 		# needed to test one screen. See CLAUDE.md for specs.
+		dev_mode = true  # throwaway world: never write the real save
 		profile = SaveService.DEFAULT_PROFILE.duplicate(true)
 		_dev_launch(dev_scene)
 	elif tour_mode:
@@ -122,7 +125,9 @@ func _cmdline_value(flag: String) -> String:
 
 
 ## Jump straight into one component: "hub", "title", "journal",
-## "story:<scene index>", or "battle:<encounter_id>[:skill,skill,...]".
+## "story:<scene index>", "battle:<encounter_id>[:skill,skill,...]",
+## "quest:<quest_id>", or "scenario:<name>" (full Ash setup from
+## tests/scenarios/<name>.json — see that folder's README).
 func _dev_launch(spec: String) -> void:
 	var parts := spec.split(":")
 	match parts[0]:
@@ -139,14 +144,52 @@ func _dev_launch(spec: String) -> void:
 			var encounter := parts[1] if parts.size() > 1 else "prologue_vole"
 			if parts.size() > 2:
 				profile["skills"] = Array(parts[2].split(","))
-			else:
+				profile["loadout"] = []  # explicit skills ARE the loadout
+			elif profile["skills"].size() <= 1:
+				# Bare battle spec on a fresh profile: standard dev kit.
 				profile["skills"] = ["pounce", "slink", "purr"]
 			_show_battle(encounter, func(state: CombatState) -> void:
 				print("dev battle outcome: ", state.outcome)
 				get_tree().quit())
+		"quest":
+			profile["prologue_done"] = true
+			var quest_id := parts[1] if parts.size() > 1 else "night_rounds"
+			if not catalog.quests.has(quest_id):
+				push_error("unknown quest '%s'" % quest_id)
+				get_tree().quit(1)
+				return
+			_start_quest(quest_id)
+		"scenario":
+			_launch_scenario(parts[1] if parts.size() > 1 else "")
 		_:
 			push_error("unknown --scene spec '%s'" % spec)
 			get_tree().quit(1)
+
+
+## Scenario runner: a JSON spec describes Ash's ENTIRE setup (partial
+## profile deep-merged over defaults, optional carryover, optional pinned
+## seed) plus where to drop in. Testers can reproduce any player state —
+## any loadout, any quest order, any economy — without a playthrough.
+func _launch_scenario(scenario_name: String) -> void:
+	var path := "res://tests/scenarios/%s.json" % scenario_name
+	var file := FileAccess.open(path, FileAccess.READ)
+	var spec: Variant = null if file == null else JSON.parse_string(file.get_as_text())
+	if not (spec is Dictionary):
+		push_error("scenario '%s' missing or malformed (%s)" % [scenario_name, path])
+		get_tree().quit(1)
+		return
+	profile = SaveService._deep_merge(
+		SaveService.DEFAULT_PROFILE.duplicate(true), spec.get("profile", {}))
+	tracker = AchievementTracker.new(catalog)
+	tracker.from_dict(profile.get("achievements", {}))
+	carryover = spec.get("carryover", {})
+	_dev_seed = int(spec.get("seed", 0))
+	var launch := String(spec.get("launch", "hub"))
+	if launch.begins_with("scenario"):
+		push_error("scenarios cannot launch scenarios")
+		get_tree().quit(1)
+		return
+	_dev_launch(launch)
 
 
 # ------------------------------------------------------------------ helpers
@@ -333,10 +376,7 @@ func _show_story(config: Dictionary, on_done: Callable) -> void:
 func _show_notices(lines: Array, on_done: Callable) -> void:
 	var screen := Control.new()
 	screen.name = "NoticeScreen"
-	var page := Panel.new()
-	page.add_theme_stylebox_override("panel", UITheme.page_stylebox())
-	page.set_anchors_preset(Control.PRESET_FULL_RECT)
-	screen.add_child(page)
+	UITheme.page_panel(screen)
 	var tap := Button.new()
 	tap.flat = true
 	tap.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -397,6 +437,8 @@ func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {
 	}
 	if carryover.has("skill_charges"):
 		config["skill_charges"] = carryover["skill_charges"]
+	if _dev_seed != 0:
+		config["seed"] = _dev_seed
 	config.merge(extra, true)
 	var screen: Control = BattleScreen.new()
 	screen.setup(catalog, config, encounter_id, hints, coach)
@@ -404,19 +446,11 @@ func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {
 	_swap(screen)
 
 
-## The skills that actually enter a battle: the free Scratch plus the first
-## three other owned skills (loadout law: 4 out at a time, Scratch included).
-## Ownership beyond the loadout is safe in the profile; it just doesn't come
-## on the prowl until a loadout picker ships.
+## The skills that actually enter a battle — the player's chosen loadout
+## (edited at the Mantel), resolved by SaveService.battle_loadout so the
+## rule is testable without a scene tree.
 func _battle_loadout() -> Array:
-	var loadout: Array = []
-	for skill_id in profile["skills"]:
-		if skill_id == "scratch":
-			continue
-		if loadout.size() >= 3:
-			break
-		loadout.append(skill_id)
-	return ["scratch"] + loadout
+	return SaveService.battle_loadout(profile)
 
 
 ## Add a skill to the player's permanent kit, with a story-toast. The kit is
@@ -479,7 +513,9 @@ func _digest(state: CombatState) -> void:
 
 
 func _save() -> void:
-	if tour_mode:
+	# Tour AND component-runner/scenario worlds are throwaway — writing them
+	# would clobber the player's real profile with test state.
+	if tour_mode or dev_mode:
 		return
 	profile["achievements"] = tracker.to_dict()
 	SaveService.save_profile(profile)

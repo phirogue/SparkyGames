@@ -19,6 +19,8 @@ var tracker: AchievementTracker
 
 var gleam_label: Label
 var deck_label: Label
+var loadout_title: Label
+var loadout_flow: HFlowContainer
 var achievements_label: Label
 var shop_status: Label
 var shop_detail: HBoxContainer
@@ -32,21 +34,7 @@ func setup(p_catalog: Catalog, p_profile: Dictionary, p_tracker: AchievementTrac
 
 
 func _ready() -> void:
-	# Same stitched page as every other screen; the hub was the last holdout
-	# (and its unwrapped labels forced the whole layout past the stitching).
-	var page := Panel.new()
-	page.add_theme_stylebox_override("panel", UITheme.page_stylebox())
-	page.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(page)
-
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	# Calibrated stitch boundaries (UITheme.PAGE_MARGIN_*).
-	margin.add_theme_constant_override("margin_left", UITheme.PAGE_MARGIN_LEFT)
-	margin.add_theme_constant_override("margin_right", UITheme.PAGE_MARGIN_RIGHT)
-	margin.add_theme_constant_override("margin_top", UITheme.PAGE_MARGIN_TOP)
-	margin.add_theme_constant_override("margin_bottom", UITheme.PAGE_MARGIN_BOTTOM)
-	add_child(margin)
+	var margin := UITheme.page_scaffold(self)
 	# The Mantel holds more than one screen of things; it scrolls.
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -70,6 +58,16 @@ func _ready() -> void:
 	deck_label = _label(root, 24)
 	deck_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
 	deck_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+	# Loadout picker: which 3 skills (plus Scratch, always) go on the prowl.
+	# Chips rebuild on refresh so newly-earned skills appear immediately.
+	loadout_title = _label(root, 24)
+	loadout_title.add_theme_color_override("font_color", UITheme.INK_SOFT)
+	loadout_title.text = "On the prowl — Scratch and three others. Tap to swap:"
+	loadout_flow = HFlowContainer.new()
+	loadout_flow.add_theme_constant_override("h_separation", 8)
+	loadout_flow.add_theme_constant_override("v_separation", 6)
+	root.add_child(loadout_flow)
 	root.add_child(HSeparator.new())
 
 	var board_title := _label(root, 32)
@@ -121,11 +119,20 @@ func _ready() -> void:
 
 
 func refresh() -> void:
-	var skill_names: Array[String] = []
+	gleam_label.text = "Gleam: %d      HP: %d" % [
+		int(profile["gleam"]), int(profile["max_hp"])]
+	_clear(loadout_flow)
+	var active := SaveService.battle_loadout(profile)
 	for skill_id in profile.get("skills", []):
-		skill_names.append(String(catalog.skills[skill_id]["name"]))
-	gleam_label.text = "Gleam: %d      HP: %d\nSkills: %s" % [
-		int(profile["gleam"]), int(profile["max_hp"]), ", ".join(skill_names)]
+		if skill_id == "scratch":
+			continue
+		var chip := Button.new()
+		chip.toggle_mode = true
+		chip.text = String(catalog.skills[skill_id]["name"])
+		chip.button_pressed = active.has(skill_id)
+		chip.custom_minimum_size = Vector2(0, 48)
+		chip.toggled.connect(_on_loadout_toggle.bind(skill_id))
+		loadout_flow.add_child(chip)
 	var counts := {}
 	for card_id in profile["deck"]:
 		var humour: String = catalog.energy_cards[card_id]["humour"]
@@ -242,6 +249,21 @@ func _on_remove_card(card_id: String) -> void:
 	profile["deck"].erase(card_id)
 	shop_status.text = "'Gone. You'll feel lighter on the stairs.'"
 	_clear(shop_detail)
+	profile_changed.emit()
+	refresh()
+
+
+func _on_loadout_toggle(pressed: bool, skill_id: String) -> void:
+	# Materialize the current (possibly auto-derived) loadout, then apply.
+	var picked: Array = SaveService.battle_loadout(profile)
+	picked.erase("scratch")
+	if pressed and not picked.has(skill_id):
+		picked.append(skill_id)
+		while picked.size() > 3:
+			picked.pop_front()  # the oldest pick steps aside
+	elif not pressed:
+		picked.erase(skill_id)
+	profile["loadout"] = picked
 	profile_changed.emit()
 	refresh()
 

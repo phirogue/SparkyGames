@@ -1,0 +1,5 @@
+{
+  "comment": "First boot: only Scratch owned, nothing unlocked.",
+  "profile": {},
+  "launch": "hub"
+}

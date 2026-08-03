@@ -71,8 +71,11 @@ thread pulled. Chapter suspects (each guilty of *something*, only one of the
 murder): the Chandlers' Guildmaster who bought her debts; the rival witch who
 inherited her Circuit seat; the Quiet Gentleman, a fixer who brokers in
 favors; and the thing under the mere that she was paid, long ago, to sew
-shut. The true Unraveler should be someone the player has *helped* — chosen
-late, after playtesting which ally players trust most.
+shut. The true Unraveler is someone the player has *helped* —
+**DECIDED 2026-08-03: see docs/design/the-unraveler.md** (spoiler doc; the
+"choose late after playtesting" plan broke the fair-play clue rules and was
+superseded — clues must be planted from Chapter 1 for a culprit who exists
+from Chapter 1).
 
 ## Flashbacks: the Remembered Days (owner request)
 

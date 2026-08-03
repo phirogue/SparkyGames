@@ -1,0 +1,26 @@
+{
+  "comment": "Wild-heavy deck vs the pierce captain: stresses the payment planner's wild allocation.",
+  "profile": {
+    "prologue_done": true,
+    "skills": [
+      "scratch",
+      "pounce",
+      "slink",
+      "purr"
+    ],
+    "deck": [
+      "mysticism_2",
+      "mysticism_2",
+      "mysticism_2",
+      "mysticism_1",
+      "mysticism_1",
+      "mysticism_1",
+      "ferocity_1",
+      "ferocity_1",
+      "shadow_1",
+      "guile_1"
+    ]
+  },
+  "seed": 7,
+  "launch": "battle:q_garden_watch_deep"
+}

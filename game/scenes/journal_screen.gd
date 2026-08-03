@@ -20,19 +20,7 @@ func setup(p_catalog: Catalog, p_profile: Dictionary) -> void:
 
 
 func _ready() -> void:
-	var page := Panel.new()
-	page.add_theme_stylebox_override("panel", UITheme.page_stylebox())
-	page.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(page)
-
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	# Law 5: screens read the calibrated constants — never hand-edit margins.
-	margin.add_theme_constant_override("margin_left", UITheme.PAGE_MARGIN_LEFT)
-	margin.add_theme_constant_override("margin_right", UITheme.PAGE_MARGIN_RIGHT)
-	margin.add_theme_constant_override("margin_top", UITheme.PAGE_MARGIN_TOP)
-	margin.add_theme_constant_override("margin_bottom", UITheme.PAGE_MARGIN_BOTTOM)
-	add_child(margin)
+	var margin := UITheme.page_scaffold(self)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 20)
 	margin.add_child(box)

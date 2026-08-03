@@ -1,0 +1,14 @@
+{
+  "comment": "Standard post-tutorial state: 5 skills, default deck.",
+  "profile": {
+    "prologue_done": true,
+    "skills": [
+      "scratch",
+      "pounce",
+      "slink",
+      "purr",
+      "loaf"
+    ]
+  },
+  "launch": "hub"
+}

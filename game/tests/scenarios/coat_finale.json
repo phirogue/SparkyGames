@@ -1,0 +1,23 @@
+{
+  "comment": "The Empty Coat finale with the garden-first kit. Seed pinned: same taps = same fight.",
+  "profile": {
+    "prologue_done": true,
+    "skills": [
+      "scratch",
+      "pounce",
+      "slink",
+      "purr",
+      "loaf",
+      "swat",
+      "shelf_justice"
+    ],
+    "loadout": [
+      "swat",
+      "slink",
+      "purr"
+    ],
+    "gleam": 20
+  },
+  "seed": 4242,
+  "launch": "battle:q_coat_wraith"
+}

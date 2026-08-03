@@ -35,27 +35,13 @@ func setup(config: Dictionary) -> void:
 
 
 func _ready() -> void:
-	var page := Panel.new()
-	page.add_theme_stylebox_override("panel", UITheme.page_stylebox())
-	page.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(page)
-
 	_tap_catcher = Button.new()
 	_tap_catcher.flat = true
 	_tap_catcher.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_tap_catcher.pressed.connect(_advance)
-	add_child(_tap_catcher)
-
-	# Everything lives INSIDE the stitched border of the page.
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	# Calibrated stitch boundaries (UITheme.PAGE_MARGIN_*).
-	margin.add_theme_constant_override("margin_left", UITheme.PAGE_MARGIN_LEFT)
-	margin.add_theme_constant_override("margin_right", UITheme.PAGE_MARGIN_RIGHT)
-	margin.add_theme_constant_override("margin_top", UITheme.PAGE_MARGIN_TOP)
-	margin.add_theme_constant_override("margin_bottom", UITheme.PAGE_MARGIN_BOTTOM)
-	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(margin)
+	# Tap catcher sits between page and content; content ignores the mouse.
+	var margin := UITheme.page_scaffold(self,
+		{"between": _tap_catcher, "ignore_mouse": true})
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 20)
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE

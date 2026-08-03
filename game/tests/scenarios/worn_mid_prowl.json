@@ -1,0 +1,37 @@
+{
+  "comment": "Mid-prowl carryover: 4 hp, thin deck, charges half-spent. The state fresh-fight sims never test.",
+  "profile": {
+    "prologue_done": true,
+    "skills": [
+      "scratch",
+      "pounce",
+      "slink",
+      "purr",
+      "loaf"
+    ]
+  },
+  "carryover": {
+    "hp": 4,
+    "deck": [
+      "ferocity_1",
+      "shadow_1",
+      "mysticism_1",
+      "guile_1"
+    ],
+    "spent": [
+      "ferocity_1",
+      "ferocity_1",
+      "shadow_1",
+      "guile_1",
+      "mysticism_1"
+    ],
+    "skill_charges": {
+      "pounce": 1,
+      "slink": 1,
+      "purr": 0,
+      "loaf": 1
+    }
+  },
+  "seed": 99,
+  "launch": "battle:q_rounds_dog"
+}
