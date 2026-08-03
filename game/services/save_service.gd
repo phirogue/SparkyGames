@@ -8,7 +8,7 @@ const TEMP_PATH := "user://profile.tmp"
 const BACKUP_PATH := "user://profile.bak"
 
 const DEFAULT_PROFILE := {
-	"schema_version": 2,
+	"schema_version": 3,
 	"prologue_done": false,
 	"gleam": 0,
 	# Level-1 Ash (owner calibration 2026-08-01): 10 HP; growth comes as
@@ -31,6 +31,17 @@ const DEFAULT_PROFILE := {
 	"codex": { "enemies": [], "places": [] },
 	"achievements": {},
 	"settings": { "volume": 1.0 },
+	# --- chapter spine (v3, Chapter 1) ---
+	# The open case and what has been proved. "active" points at a case id in
+	# data/case.json; the prologue ends by pointing the thread into the city,
+	# so Wax & Wick is open from the moment the Mantel is.
+	"case": { "active": "wax_and_wick", "evidence": [], "leads_done": [] },
+	# Guild standing: id -> int, negative means they remember and not fondly.
+	"standing": {},
+	# Favor-knots owed TO Ash (world-bible.md) — spending one unties it.
+	"favors": [],
+	# Quest ids completed at least once; what makes `once` quests stay done.
+	"quests_done": [],
 }
 
 ## Everything the prologue teaches; granted retroactively to saves that
@@ -88,6 +99,17 @@ static func _migrate(profile: Dictionary) -> Dictionary:
 		merged["max_hp"] = mini(int(merged["max_hp"]), 10)
 		merged["deck"] = DEFAULT_PROFILE["deck"].duplicate()
 		merged["schema_version"] = 2
+	# v3 (2026-08-03): the chapter spine (case / standing / favors /
+	# quests_done). The deep merge supplies the new keys themselves; what the
+	# migration owes is the law-7 question "what does an old save IMPLY?" —
+	# a finished prologue implies the case is open, because the prologue's
+	# last line already points the thread into the city. The guard also
+	# repairs a save that stored an emptied "active" (no case = a Case Board
+	# the player could never open again).
+	if merged["prologue_done"] and String(merged["case"]["active"]).is_empty():
+		merged["case"]["active"] = DEFAULT_PROFILE["case"]["active"]
+	if int(profile.get("schema_version", 1)) < 3:
+		merged["schema_version"] = 3
 	return merged
 
 

@@ -1,0 +1,33 @@
+{
+  "comment": "Chapter 1 mid-case: two things found, the Chandlers annoyed, one knot owed. Opens the Mantel — tap the Case Board to see suspects, threads and empty slots; this is also the state the 'previously on' recap composes from on a cold launch.",
+  "profile": {
+    "prologue_done": true,
+    "gleam": 34,
+    "skills": [
+      "scratch",
+      "pounce",
+      "slink",
+      "purr",
+      "loaf"
+    ],
+    "case": {
+      "active": "wax_and_wick",
+      "evidence": [
+        "candle_stub",
+        "wick_ledger"
+      ],
+      "leads_done": [
+        "l1",
+        "l2"
+      ]
+    },
+    "standing": {
+      "chandlers": -3,
+      "lamplighters": 2
+    },
+    "favors": [
+      "lamplighters_knot"
+    ]
+  },
+  "launch": "hub"
+}

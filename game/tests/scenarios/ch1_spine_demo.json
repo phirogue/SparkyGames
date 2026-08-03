@@ -1,0 +1,66 @@
+{
+  "comment": "Exercises the Phase-1 story systems before the chapter that uses them exists: a scene that grants evidence + a knot + guild standing (notice card), a Remembered Day flashback, a favor-knot redemption beat, and a standing-gated scene that only appears because the Chandlers are annoyed. Uses this spec's OWN scenes via the `story` key.",
+  "profile": {
+    "prologue_done": true,
+    "skills": [
+      "scratch",
+      "pounce",
+      "slink",
+      "purr",
+      "loaf"
+    ]
+  },
+  "story": [
+    {
+      "type": "story",
+      "environment": "shambles_market",
+      "portrait": "sc_shambles_day",
+      "art_desc": "the Shambles, mid-morning, everything for sale",
+      "lines": [
+        "Three systems, one page each. Watch what the night hands you.",
+        "A thing for the board. A knot in your thread. A guild taking notes."
+      ],
+      "grant_evidence": [
+        "candle_stub"
+      ],
+      "grant_favor": [
+        "lamplighters_knot"
+      ],
+      "standing": {
+        "chandlers": -2,
+        "lamplighters": 2
+      }
+    },
+    {
+      "type": "flashback",
+      "title": "The Ninth Stray",
+      "environment": "parlor_warm",
+      "portrait": "sc_kettle",
+      "art_desc": "the warm parlor, years ago, snow at the window",
+      "lines": [
+        "She counted strays that winter and got to eight before the eighth bit her.",
+        "'Nine, then,' she said, to nobody, in the snow.",
+        "The ninth did not bite. The ninth was thinking about it."
+      ]
+    },
+    {
+      "type": "favor_redeem",
+      "favor": "lamplighters_knot",
+      "environment": "needle_lane",
+      "portrait": "sc_lamplighters_hall"
+    },
+    {
+      "type": "story",
+      "environment": "needle_lane",
+      "when_standing": {
+        "guild": "chandlers",
+        "max": -1
+      },
+      "lines": [
+        "A Chandlers' lamp gutters as Ash passes. Coincidence, obviously.",
+        "This page only exists because a guild is annoyed with you."
+      ]
+    }
+  ],
+  "launch": "story:0"
+}

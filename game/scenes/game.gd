@@ -8,6 +8,11 @@ const BattleScreen := preload("res://scenes/battle.gd")
 const HubScreen := preload("res://scenes/hub_screen.gd")
 const SplashScreen := preload("res://scenes/splash_screen.gd")
 const JournalScreen := preload("res://scenes/journal_screen.gd")
+const CaseBoardScreen := preload("res://scenes/case_board_screen.gd")
+
+## The remembered-day tint: one sepia constant, used by every flashback so
+## memory reads the same everywhere (a scene may override with image_tint).
+const FLASHBACK_TINT := "#d9b689"
 
 const PRESS_ON_MULT := 0.25   # satchel multiplier growth per depth
 const TOLL_RATE := 0.25       # the Hollow Court's cut of banked gleam on death
@@ -90,6 +95,12 @@ func _ready() -> void:
 		return
 	story = parsed
 	_build_settings_layer()
+	# The tour node attaches BEFORE the first screen is swapped in, and
+	# regardless of how the game is launched: `--tour --scene scenario:<name>`
+	# photographs a scenario's screens, which is the only way to get shots of
+	# states the prologue never reaches (a case mid-chapter, a flashback).
+	if tour_mode:
+		add_child(load("res://tests/tour.gd").new())
 	var dev_scene := _cmdline_value("--scene")
 	if dev_scene != "":
 		# Component runner (owner rule 2026-08-01): jump straight to one
@@ -99,7 +110,6 @@ func _ready() -> void:
 		profile = SaveService.DEFAULT_PROFILE.duplicate(true)
 		_dev_launch(dev_scene)
 	elif tour_mode:
-		add_child(load("res://tests/tour.gd").new())
 		# The tour walks the splash and title too, for screenshot coverage.
 		var tour_splash: Control = SplashScreen.new()
 		tour_splash.finished.connect(func() -> void:
@@ -110,7 +120,7 @@ func _ready() -> void:
 		splash.finished.connect(func() -> void:
 			_show_title(func() -> void:
 				if profile["prologue_done"]:
-					_show_hub()
+					_show_recap(_show_hub)
 				else:
 					_run_prologue_scene(0)), CONNECT_ONE_SHOT)
 		_swap(splash)
@@ -182,6 +192,12 @@ func _launch_scenario(scenario_name: String) -> void:
 		SaveService.DEFAULT_PROFILE.duplicate(true), spec.get("profile", {}))
 	tracker = AchievementTracker.new(catalog)
 	tracker.from_dict(profile.get("achievements", {}))
+	# A scenario may carry its OWN story scenes, which is how a story system
+	# gets exercised before the chapter that uses it is written: the spec
+	# becomes the scene list `story:<index>` walks. Same schema as
+	# story/prologue.json.
+	if spec.has("story"):
+		story = {"scenes": spec["story"]}
 	carryover = spec.get("carryover", {})
 	_dev_seed = int(spec.get("seed", 0))
 	var launch := String(spec.get("launch", "hub"))
@@ -453,6 +469,42 @@ func _battle_loadout() -> Array:
 	return SaveService.battle_loadout(profile)
 
 
+## A scene's chapter-spine effects: evidence found, knots tied, guilds
+## noticing. All three surface as notice cards rather than narration (owner
+## fix: grants mixed into prose read as story), and all three are idempotent
+## so replaying a scene never double-counts.
+func _apply_scene_spine(scene: Dictionary) -> void:
+	var changed := false
+	for evidence_id in scene.get("grant_evidence", []):
+		if _find_evidence(String(evidence_id)):
+			changed = true
+	for favor_id in scene.get("grant_favor", []):
+		if CaseState.grant_favor(profile, String(favor_id)):
+			changed = true
+			toasts.append("✦ A knot in your thread: %s — %s" % [
+				catalog.favors[favor_id]["name"], catalog.favors[favor_id].get("flavor", "")])
+	if scene.has("standing"):
+		for line in CaseState.apply_standing(catalog, profile, scene["standing"]):
+			toasts.append("❋ %s" % line)
+		changed = true
+	if changed:
+		_save()
+
+
+## Records a find on the Case Board. Returns true when it is new, so the
+## notice fires once — replaying a lead must not re-announce its thing.
+func _find_evidence(evidence_id: String) -> bool:
+	if not CaseState.add_evidence(profile, evidence_id):
+		return false
+	for entry in CaseState.active_case(catalog, profile).get("evidence", []):
+		if String(entry["id"]) == evidence_id:
+			toasts.append("✎ Case Board: %s — %s" % [
+				entry["name"], entry.get("found_line", "")])
+			profile["journal"].append("Found: %s" % entry["name"])
+			break
+	return true
+
+
 ## Add a skill to the player's permanent kit, with a story-toast. The kit is
 ## built over time (owner rule) — nobody starts with the full bar.
 func _grant_skills(skill_ids: Array) -> void:
@@ -550,10 +602,28 @@ func _run_prologue_scene(index: int) -> void:
 		if last_outcome != wanted:
 			next.call()
 			return
+	# Chapter-spine gates: a scene can be for people who found the thing,
+	# who are owed a knot, or who a guild is speaking to. All three read
+	# state that CaseState owns; none of them mutate it.
+	if scene.has("when_evidence") and not CaseState.has_evidence(
+			profile, String(scene["when_evidence"])):
+		next.call()
+		return
+	if scene.has("when_favor") and not CaseState.has_favor(
+			profile, String(scene["when_favor"])):
+		next.call()
+		return
+	if scene.has("when_standing"):
+		var gate: Dictionary = scene["when_standing"]
+		var value := CaseState.standing_of(profile, String(gate.get("guild", "")))
+		if value < int(gate.get("min", -999)) or value > int(gate.get("max", 999)):
+			next.call()
+			return
 	match scene["type"]:
 		"story":
 			if scene.has("grant"):
 				_grant_skills(scene["grant"])
+			_apply_scene_spine(scene)
 			if scene.get("refresh_spent", false):
 				# Story-granted second wind: everything spent rejoins the
 				# pool (the vole hunt's "wound fresh" excitement).
@@ -622,6 +692,35 @@ func _run_prologue_scene(index: int) -> void:
 				_show_story(_story_config("parlor_cold", story["unpicked_won"]), next)
 			else:
 				next.call()
+		"flashback":
+			# A Remembered Day: the same story page, tinted and headed, with
+			# choices refused by the screen (you cannot re-decide a memory).
+			_apply_scene_spine(scene)
+			var flash := _story_config(scene["environment"], scene["lines"])
+			flash["flashback"] = true
+			flash["image_tint"] = scene.get("image_tint", FLASHBACK_TINT)
+			flash["heading"] = "Remembered Day — %s" % scene.get("title", "")
+			if scene.has("portrait"):
+				flash["portrait"] = scene["portrait"]
+			if scene.has("art_desc"):
+				flash["art_desc"] = scene["art_desc"]
+			_show_story(flash, next)
+		"favor_redeem":
+			# The one redemption beat: if the knot is held it is spent HERE
+			# and its scripted lines play; if it is not, the scene never
+			# happened. Settled debts stop being useful, by design.
+			var favor_id := String(scene.get("favor", ""))
+			if not CaseState.spend_favor(profile, favor_id):
+				next.call()
+				return
+			_save()
+			var favor: Dictionary = catalog.favors.get(favor_id, {})
+			var redeem := _story_config(scene.get("environment", "parlor_cold"),
+				favor.get("redeem_lines", []))
+			redeem["heading"] = String(favor.get("redeem_heading", "A knot comes undone"))
+			if scene.has("portrait"):
+				redeem["portrait"] = scene["portrait"]
+			_show_story(redeem, next)
 		"title":
 			_show_story({
 				"lines": ["THE NINE LIVES OF ASHCAT", "Prologue complete. The Mantel is open."],
@@ -638,6 +737,7 @@ func _show_hub() -> void:
 	screen.quest_selected.connect(_start_quest)
 	screen.profile_changed.connect(_save)
 	screen.open_journal.connect(_show_journal)
+	screen.open_case_board.connect(_show_case_board)
 	screen.replay_prologue.connect(func() -> void:
 		carryover = {}
 		last_outcome = CombatState.Outcome.ONGOING
@@ -650,6 +750,28 @@ func _show_journal() -> void:
 	screen.setup(catalog, profile)
 	screen.closed.connect(_show_hub)
 	_swap(screen)
+
+
+func _show_case_board() -> void:
+	var screen: Control = CaseBoardScreen.new()
+	screen.setup(catalog, profile)
+	screen.closed.connect(_show_hub)
+	_swap(screen)
+
+
+## "Previously on": a mystery has to have a memory, so a cold launch into a
+## chapter already in progress opens on the last thing found and the thread
+## still to pull. Composed from case.json state — there is no hand-written
+## recap to keep in sync. Nothing found yet means nothing to recap, and the
+## player goes straight to the Mantel.
+func _show_recap(on_done: Callable) -> void:
+	var lines := CaseState.recap_lines(catalog, profile)
+	if lines.is_empty():
+		on_done.call()
+		return
+	var config := _story_config("parlor_cold", lines)
+	config["heading"] = "The case so far"
+	_show_story(config, func(_choice: int) -> void: on_done.call())
 
 
 func _start_quest(quest_id: String) -> void:
@@ -714,6 +836,21 @@ func _finish_quest() -> void:
 	profile["journal"].append("%s: done. %d gleam banked." % [quest["name"], banked])
 	if quest.has("unlock_skill") and not profile["skills"].has(quest["unlock_skill"]):
 		_grant_skills([quest["unlock_skill"]])
+	# Standing and knots are paid ONCE per quest, even for repeatable ones:
+	# reputation is not a grind, and a farmable guild meter would make every
+	# `requires.standing` gate meaningless.
+	if QuestGate.mark_done(profile, String(quest["id"])):
+		if quest.has("standing"):
+			for line in CaseState.apply_standing(catalog, profile, quest["standing"]):
+				toasts.append("❋ %s" % line)
+		if quest.has("grant_favor") and CaseState.grant_favor(
+				profile, String(quest["grant_favor"])):
+			toasts.append("✦ A knot in your thread: %s" %
+				catalog.favors[quest["grant_favor"]]["name"])
+	for evidence_id in quest.get("grant_evidence", []):
+		_find_evidence(String(evidence_id))
+	if quest.has("lead"):
+		CaseState.mark_lead_done(profile, String(quest["lead"]))
 	for id in tracker.increment("quests_completed"):
 		toasts.append("★ %s" % catalog.achievements[id]["name"])
 	for id in tracker.increment("gleam_banked", banked):

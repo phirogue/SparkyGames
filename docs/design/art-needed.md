@@ -5,9 +5,33 @@
 [2026-08-03-art-style-audit.md](../research/2026-08-03-art-style-audit.md).
 Folder contract and conventions: [assets/README.md](../../assets/README.md).*
 
-**Nothing is outstanding.** Every image ever requested exists, and the library
+**Chapter 1 wave 1 is now outstanding** (see the next section) — the Case
+Board ships with visible black-box placeholders where these belong. Every
+image requested *before* Chapter 1 exists, and the library
 (`assets/library/`, 99 images) holds only current, cleared art. 46 superseded
 takes are in `assets/archive/` and can be restored at any time.
+
+## Chapter 1, wave 1 — wanted now (the Case Board shows their gaps)
+
+The Case Board renders these ids today as placeholder boxes. Framing: the
+evidence set are **objects on plain parchment** (skill-card framing, not
+scene vignettes) so they read as things pinned to a board; the two portraits
+are **character portraits, 3:4**, and both recur, so each needs to become its
+own `ref_` anchor the moment it exists (library rule 4).
+
+| id | what it is |
+|---|---|
+| `ev_candle_stub` | a guild-sealed candle stub, Thimblefield delivery mark (L1) |
+| `ev_ledger` | a torn ledger page in a guildmaster's hand (L2) |
+| `ev_tally` | a Lamplighters' shift-tally, chalk on a wooden slat (L3) |
+| `ev_seam` | a hand's length of ward-thread, unpicked and backward (L4) |
+| `ev_docket` | a Chandlers' cart-slot delivery docket, signed, undelivered (L5) |
+| `npc_wick` | Guildmaster Ellery Wick — charming-awful, never cartoon-evil |
+| `npc_gentleman` | The Quiet Gentleman — a fixer nobody remembers meeting first |
+| `npc_bodkin` | Bodkin: a scarred one-eyed grey tom. Enters at L1 as an ally |
+
+**Read `docs/design/the-unraveler.md` before prompting Bodkin.** How he is
+drawn is a fair-play matter, not a taste one.
 
 Generation is now cheap and scripted, so the bottleneck is judgement, not
 supply. **Before making anything, check the library — and if you're changing

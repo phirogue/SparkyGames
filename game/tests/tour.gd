@@ -4,23 +4,31 @@ extends Node
 ## Launch:  godot --path game -- --tour
 ## Output:  <repo>/screenshots/NN_name.png   (window closes when done)
 ##
+## A scenario can be photographed instead of the prologue, which is the only
+## way to shoot states the prologue never reaches (a case mid-chapter, a
+## flashback). Send those somewhere of their own so they do not overwrite
+## the canonical tour:
+##   godot --path game -- --tour --tour-out spine --scene scenario:ch1_spine_demo
+##
 ## The tour uses a throwaway profile (never touches the real save) and
 ## interacts by calling the same handlers taps would.
 
 var game: Node
 var shot_index := 0
+var out_dir: String = ""
 var _last_screen: Control = null
 var _story_taps := 0
 var _did_card_modal := false
 var _did_concentrate := false
 var _battle_taps := 0
 
-@onready var out_dir: String = ProjectSettings.globalize_path("res://") + "../screenshots/"
-
 
 func _ready() -> void:
-	DirAccess.make_dir_recursive_absolute(out_dir)
 	game = get_parent()
+	var tag := String(game._cmdline_value("--tour-out"))
+	out_dir = ProjectSettings.globalize_path("res://") + "../screenshots/" \
+		+ ("%s/" % tag if tag != "" else "")
+	DirAccess.make_dir_recursive_absolute(out_dir)
 	set_process(false)
 	_run()
 
@@ -50,6 +58,7 @@ func _run() -> void:
 			await _tour_battle(screen, fresh)
 		elif script_path.ends_with("hub_screen.gd"):
 			await _shot("hub")
+			await _tour_case_board()
 			game._open_settings()
 			await _shot("settings")
 			game.settings_overlay.visible = false
@@ -60,6 +69,35 @@ func _run() -> void:
 		await _wait(0.25)
 	await _shot("final")
 	get_tree().quit(0)
+
+
+## The Case Board, its evidence note, and the "previously on" recap the same
+## state composes. The prologue never finds evidence, so a tour of the real
+## flow would only ever photograph an empty board — seed a mid-chapter state
+## on the throwaway profile first (unless a scenario already supplied one).
+func _tour_case_board() -> void:
+	var case_progress: Dictionary = game.profile["case"]
+	if case_progress.get("evidence", []).is_empty():
+		case_progress["evidence"] = ["candle_stub", "wick_ledger"]
+		game.profile["standing"] = {"chandlers": -3}
+		game.profile["favors"] = ["lamplighters_knot"]
+	game._show_case_board()
+	await _wait(0.5)
+	await _shot("case_board")
+	game.current_screen._on_evidence_pressed("candle_stub")
+	await _wait(0.35)
+	await _shot("case_evidence")
+	game.current_screen._close_detail()
+	await _wait(0.25)
+	game._show_recap(func() -> void: game._show_hub())
+	await _wait(0.6)
+	# Narration reveals a line per tap; the shot has to be of the full page.
+	for i in 2:
+		game.current_screen._advance()
+		await _wait(0.5)
+	await _shot("case_recap")
+	game.current_screen.finished.emit(-1)
+	await _wait(0.4)
 
 
 func _tour_story(screen: Control, fresh: bool) -> void:

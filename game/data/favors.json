@@ -1,0 +1,26 @@
+{
+  "lamplighters_knot": {
+    "id": "lamplighters_knot",
+    "name": "A Lamplighter's Knot",
+    "guild": "lamplighters",
+    "flavor": "Tied by the shift-boss, where anyone who reads the Weft can see it.",
+    "redeem_heading": "A knot comes undone",
+    "redeem_lines": [
+      "Ash lifts his chin. The knot in his thread catches the lamplight and everyone pretends not to look.",
+      "'That one,' the shift-boss says. 'Fine. That one buys you the door and nothing said after.'",
+      "The knot slips loose. Debts settled are the only kind that stop being useful."
+    ]
+  },
+  "wick_knot": {
+    "id": "wick_knot",
+    "name": "A Guildmaster's Knot",
+    "guild": "chandlers",
+    "flavor": "A knot on a man who has never owed anyone visibly. He hates it. That is the interest.",
+    "redeem_heading": "A knot comes undone",
+    "redeem_lines": [
+      "Wick sees the knot before he sees the cat. He was always going to.",
+      "'Once,' he says. 'You get this once, and then we are strangers again.'",
+      "Once is what a knot is for."
+    ]
+  }
+}

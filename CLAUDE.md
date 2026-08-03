@@ -35,8 +35,12 @@ stability) — UI must go through `Catalog.humour_name()`.
   carryover, pinned battle seed) from a JSON spec in
   `game/tests/scenarios/`; see that folder's README. When a bug report
   says "only happens when...", encode that state as a scenario so the
-  repro is one command forever. UI layout is shared via
-  `UITheme.page_scaffold` — change the page once, every screen follows.
+  repro is one command forever. A spec may carry its own story scenes, and
+  a scenario can be PHOTOGRAPHED instead of played — the only way to shoot
+  states the prologue never reaches (a case mid-chapter, a flashback):
+  `godot --path game -- --tour --tour-out <dir> --scene scenario:<name>`.
+  UI layout is shared via `UITheme.page_scaffold` — change the page once,
+  every screen follows.
 - **`game/core/` is pure rules**: RefCounted classes only — no Node, no
   rendering, no FileAccess, no global RNG. All randomness goes through
   `CoreRng`; all player actions go through `CombatState.do_command()` and are

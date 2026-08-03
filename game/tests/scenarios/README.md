@@ -15,6 +15,7 @@ throwaway: scenarios NEVER touch the real save.
   "profile":   { ...partial profile, deep-merged over DEFAULT_PROFILE... },
   "carryover": { ...optional mid-prowl state (hp/deck/skill_charges)... },
   "seed":      12345,
+  "story":     [ ...optional: this spec's OWN story scenes... ],
   "launch":    "hub" | "battle:<encounter_id>" | "quest:<quest_id>"
                | "story:<index>" | "journal"
 }
@@ -22,11 +23,17 @@ throwaway: scenarios NEVER touch the real save.
 
 - `profile` keys mirror `SaveService.DEFAULT_PROFILE`: `skills` (owned),
   `loadout` (chosen ≤3, empty = auto), `deck` (energy card ids), `gleam`,
-  `max_hp`, `prologue_done`, `flags`, `codex`, `achievements`.
+  `max_hp`, `prologue_done`, `flags`, `codex`, `achievements`, and the
+  chapter spine — `case` (`{active, evidence, leads_done}`), `standing`
+  (guild id → int), `favors` (knot ids), `quests_done`.
 - `seed` pins every battle's shuffle/AI rolls — the same tap sequence
   reproduces the same fight exactly. Omit (or 0) for clock-random.
 - `carryover` drops you MID-prowl: worn deck, spent charges, low hp — the
   states that fresh-fight sims never see.
+- `story` replaces the prologue's scene list with the spec's own, so
+  `launch: "story:0"` walks scenes that live nowhere else. This is how a
+  story SYSTEM gets exercised before the chapter that uses it is written.
+  Same schema as `story/prologue.json`.
 
 ## Shipped scenarios
 
@@ -38,6 +45,13 @@ throwaway: scenarios NEVER touch the real save.
 | `endgame_grinder` | maxed tonics, rare cards, all skills — over-leveled economy |
 | `moonlight_rush` | wild-heavy deck vs the captain — payment-planner stress |
 | `worn_mid_prowl` | carryover state: thin deck, 4 hp, spent charges |
+| `ch1_case_open` | mid-case Chapter 1: Case Board with threads, recap card, standing and a knot owed |
+| `ch1_spine_demo` | the Phase-1 story systems: evidence/knot/standing grants, a Remembered Day flashback, a favor redemption, a standing-gated scene |
+
+A scenario can be photographed instead of played — add `--tour` and send
+the shots somewhere of their own:
+
+    godot --path game -- --tour --tour-out spine --scene scenario:ch1_spine_demo
 
 Add one whenever a bug report says "it only happens when..." — encode that
 state here so the reproduction is one command forever.

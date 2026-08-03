@@ -49,9 +49,32 @@ the docs are the source of truth, not chat history.
    generating — free-tier songs stay non-commercial). Both remain in
    [OWNER-ACTIONS §2](../OWNER-ACTIONS.md).
 
-## Phase 1 — chapter spine systems (build BEFORE content, ~1 week)
+## Phase 1 — chapter spine systems ✅ BUILT 2026-08-03
 
-Order matters; each unblocks the next:
+All six systems are in, with the gate met (unit tests, scenario specs, tour
+stops). What exists now, in code:
+
+- `game/data/case.json`, `guilds.json`, `favors.json` — new content files,
+  all covered by `Catalog.validate()` including cross-file reference checks
+  (a lead pointing at evidence that does not exist cannot reach a build).
+- `game/core/case_state.gd` — pure rules for evidence, threads, leads,
+  recap, standing and knots. `game/core/quest_gate.gd` — pure quest gating.
+- `game/scenes/case_board_screen.gd` — the board itself.
+- Profile schema v3: `case`, `standing`, `favors`, `quests_done`, with the
+  law-7 migration (a finished prologue implies the case is open).
+- Story-scene vocabulary: `grant_evidence`, `grant_favor`, `standing`,
+  `when_evidence`, `when_favor`, `when_standing`, and the scene types
+  `flashback` and `favor_redeem`.
+- Scenario specs `ch1_case_open` and `ch1_spine_demo`; a scenario can now
+  carry its OWN story scenes (`"story": [...]`) and be photographed with
+  `--tour --tour-out <dir>`, which is how the flashback and redemption
+  beats are verified before chapter content exists.
+
+Known gaps deliberately left for later phases: the evidence and portrait
+art is placeholder (see art-needed.md, Chapter 1 wave 1), and no quest
+wires `grant_evidence` yet — the leads themselves are Phase 3 content.
+
+Order mattered; each unblocked the next:
 
 1. **Case Board UI** — the chapter's spine. A journal-family page (uses
    `UITheme.page_scaffold`) showing: suspects (portrait chips), evidence

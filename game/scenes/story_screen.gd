@@ -12,6 +12,11 @@ var big_style := false
 var image_id := ""
 var art_desc := ""
 var fallback_color := Color(0.2, 0.2, 0.24)
+## Flashback ("Remembered Day"): the same page, remembered rather than seen —
+## the illustration is tinted, the narration warms, and choices are refused
+## (you cannot re-decide a memory). Catnap flashbacks, chapters/01 L4.
+var flashback := false
+var image_tint := Color.WHITE
 
 var _revealed := 0
 var _first_visible := 0
@@ -30,6 +35,11 @@ func setup(config: Dictionary) -> void:
 	big_style = config.get("big", false)
 	image_id = config.get("portrait", config.get("image", ""))
 	art_desc = config.get("art_desc", "")
+	flashback = config.get("flashback", false)
+	assert(not (flashback and not choices.is_empty()),
+		"a flashback cannot offer choices — it already happened")
+	if config.has("image_tint"):
+		image_tint = Color(String(config["image_tint"]))
 	if config.has("color"):
 		fallback_color = Color(String(config["color"])).darkened(0.2)
 
@@ -65,8 +75,13 @@ func _ready() -> void:
 	art_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art_center.add_child(art_holder)
 	if image_id != "":
-		art_holder.add_child(UITheme.art_or_placeholder(image_id,
-			art_desc if art_desc != "" else "illustration pending"))
+		var art := UITheme.art_or_placeholder(image_id,
+			art_desc if art_desc != "" else "illustration pending")
+		# Tinting is a modulate on the picture, never a second generated
+		# image: one backdrop plus code-driven color is the whole
+		# day/night/remembered strategy (asset-pipeline.md).
+		art.modulate = image_tint
+		art_holder.add_child(art)
 
 	if heading != "":
 		var heading_label := Label.new()
@@ -92,7 +107,8 @@ func _ready() -> void:
 		label.add_theme_font_override("font",
 			UITheme.display_font() if big_style else UITheme.italic_font())
 		label.add_theme_font_size_override("font_size", 54 if big_style else 37)
-		label.add_theme_color_override("font_color", UITheme.INK)
+		label.add_theme_color_override("font_color",
+			UITheme.ACCENT_WARM.darkened(0.35) if flashback else UITheme.INK)
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.modulate = Color(1, 1, 1, 0)
@@ -101,7 +117,7 @@ func _ready() -> void:
 		_line_labels.append(label)
 
 	_hint_label = Label.new()
-	_hint_label.text = "—❋—  tap  —❋—"
+	_hint_label.text = "—❋—  remembering  —❋—" if flashback else "—❋—  tap  —❋—"
 	_hint_label.add_theme_font_override("font", UITheme.italic_font())
 	_hint_label.add_theme_font_size_override("font_size", 24)
 	_hint_label.add_theme_color_override("font_color", UITheme.INK_FADED)

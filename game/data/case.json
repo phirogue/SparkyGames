@@ -1,0 +1,125 @@
+{
+  "wax_and_wick": {
+    "id": "wax_and_wick",
+    "name": "Case File I — Wax & Wick",
+    "question": "Elspeth died the week the Chandlers bought all her debts.",
+    "aphorism": "Cats do not believe in coincidence. Coincidence is what mice call carelessness.",
+    "suspects": [
+      {
+        "id": "unpicked",
+        "name": "The Unpicked",
+        "line": "The shape in the parlor, wearing threads that were not its own.",
+        "art": "en_the_unpicked",
+        "revealed_by": "start"
+      },
+      {
+        "id": "wick",
+        "name": "Guildmaster Wick",
+        "line": "Master of the Chandlers. Bought every debt she owed, the week she died.",
+        "art": "npc_wick",
+        "revealed_by": "candle_stub"
+      },
+      {
+        "id": "gentleman",
+        "name": "The Quiet Gentleman",
+        "line": "A fixer who owns favors the way banks own houses.",
+        "art": "npc_gentleman",
+        "revealed_by": "cart_docket"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "candle_stub",
+        "name": "The Sealed Stub",
+        "art": "ev_candle_stub",
+        "lead": "l1",
+        "implicates": ["wick"],
+        "found_line": "A candle stub with a guild seal on it. Somebody paid for her light.",
+        "note": "Chandlers' seal, Thimblefield delivery mark. No chandler delivers to witches on credit — and nobody was billing her."
+      },
+      {
+        "id": "wick_ledger",
+        "name": "The Bought Debts",
+        "art": "ev_ledger",
+        "lead": "l2",
+        "implicates": ["wick"],
+        "found_line": "A ledger page in a guildmaster's own hand. He did not expect it read aloud.",
+        "note": "Buy Vane's paper, all of it; call it due Lady's Day. He wanted her evicted. You do not evict a woman you have had killed."
+      },
+      {
+        "id": "shift_tally",
+        "name": "The Unpaid Ward",
+        "art": "ev_tally",
+        "lead": "l3",
+        "implicates": ["wick"],
+        "found_line": "A Lamplighters' shift-tally, kept out of spite and therefore kept honestly.",
+        "note": "Wick stopped paying for the Wickhouse ward two years ago. She kept sewing it anyway. Free. Nobody sews free."
+      },
+      {
+        "id": "backward_seam",
+        "name": "The Backward Seam",
+        "art": "ev_seam",
+        "lead": "l4",
+        "implicates": ["unpicked"],
+        "found_line": "A hand's length of ward-thread, taken off the Wickhouse seam.",
+        "note": "The ward was not broken. It was unpicked — in her own stitch, mirror-handed. Elspeth taught exactly nobody."
+      },
+      {
+        "id": "cart_docket",
+        "name": "The Undelivered Docket",
+        "art": "ev_docket",
+        "lead": "l5",
+        "implicates": ["gentleman", "unpicked"],
+        "found_line": "A delivery docket for Needle Lane. Signed out on the night. Never delivered.",
+        "note": "Someone borrowed the Chandlers' cart-slot to walk up her street unremarked. Someone with guild paper, or very good forgeries."
+      }
+    ],
+    "leads": [
+      {
+        "id": "l1",
+        "name": "The Smell of Money",
+        "kind": "combat",
+        "evidence": "candle_stub",
+        "requires": [],
+        "recap_line": "Beeswax burns in Wickrow. Somebody paid for her light.",
+        "board_card": "Beeswax at the parlor window. Cheap tallow burns in Thimblefield. Beeswax is Wickrow money."
+      },
+      {
+        "id": "l2",
+        "name": "Creditors",
+        "kind": "heist",
+        "evidence": "wick_ledger",
+        "requires": ["candle_stub"],
+        "recap_line": "The Chandlers bought every debt she owed. Last month.",
+        "board_card": "The Chandlers' bank bought every debt Elspeth owed. Last month. All at once. Banks are not sentimental."
+      },
+      {
+        "id": "l3",
+        "name": "The Lamplighters Talk",
+        "kind": "choice",
+        "evidence": "shift_tally",
+        "requires": ["wick_ledger"],
+        "recap_line": "The Lamplighters hate the Chandlers. Hate is chatty.",
+        "board_card": "The Lamplighters hate the Chandlers professionally. Hate is chatty."
+      },
+      {
+        "id": "l4",
+        "name": "The Ward That Failed",
+        "kind": "ritual",
+        "evidence": "backward_seam",
+        "requires": ["shift_tally"],
+        "recap_line": "Her last stitching holds the Wickhouse. Go and read it.",
+        "board_card": "The Wickhouse ward is Elspeth's stitching. Go read her last work. Bring nothing that burns."
+      },
+      {
+        "id": "l5",
+        "name": "An Audience of Wax",
+        "kind": "boss",
+        "evidence": "cart_docket",
+        "requires": ["backward_seam"],
+        "recap_line": "Guildmaster Wick will see you now. Mind the big one.",
+        "board_card": "Guildmaster Wick will see you now. Everyone in Wickrow is suddenly very polite. Mind the big one."
+      }
+    ]
+  }
+}

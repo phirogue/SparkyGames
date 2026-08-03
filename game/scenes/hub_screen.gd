@@ -6,6 +6,7 @@ signal quest_selected(quest_id: String)
 signal profile_changed
 signal replay_prologue
 signal open_journal
+signal open_case_board
 
 const ADD_CARD_COST := 12
 const RARE_CARD_COST := 30
@@ -70,10 +71,20 @@ func _ready() -> void:
 	root.add_child(loadout_flow)
 	root.add_child(HSeparator.new())
 
+	# The case comes first — the board is where the chapter is picked up.
+	var case_button := Button.new()
+	case_button.text = "The Case Board — suspects, things, threads"
+	case_button.custom_minimum_size = Vector2(0, 88)
+	case_button.pressed.connect(func() -> void: open_case_board.emit())
+	root.add_child(case_button)
+	root.add_child(HSeparator.new())
+
 	var board_title := _label(root, 32)
 	board_title.text = "Quests on the board"
-	for quest_id in catalog.quests:
-		var quest: Dictionary = catalog.quests[quest_id]
+	# Quest schema v2: what is on the board is QuestGate's decision, not the
+	# hub's — one gating rule that the tests and scenario specs also call.
+	for quest: Dictionary in QuestGate.board(catalog, profile):
+		var quest_id := String(quest["id"])
 		var b := Button.new()
 		b.text = "%s\n%s" % [quest["name"], quest["board_card"]]
 		b.custom_minimum_size = Vector2(0, 112)

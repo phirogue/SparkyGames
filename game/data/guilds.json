@@ -1,0 +1,31 @@
+{
+  "chandlers": {
+    "id": "chandlers",
+    "name": "The Chandlers' Guild",
+    "neutral_line": "The Chandlers have not decided about you yet.",
+    "notices": [
+      { "at": -6, "text": "The Chandlers remember. Their ward-lights find you wherever you stand." },
+      { "at": -2, "text": "The Chandlers remember. Doors in Wickrow shut a little sooner." },
+      { "at": 3, "text": "The Chandlers are civil to you. Civility, from a guild, is an invoice." }
+    ]
+  },
+  "lamplighters": {
+    "id": "lamplighters",
+    "name": "The Lamplighters",
+    "neutral_line": "The Lamplighters know your face and nothing else.",
+    "notices": [
+      { "at": -2, "text": "The Lamplighters light the far side of the street when you pass." },
+      { "at": 2, "text": "The Lamplighters leave a lamp burning on your route. Nobody mentions it." },
+      { "at": 6, "text": "The Lamplighters call you one of the round. You have not agreed to this." }
+    ]
+  },
+  "hollow_court": {
+    "id": "hollow_court",
+    "name": "The Hollow Court",
+    "neutral_line": "The Court's file on you is thin, and correctly filed.",
+    "notices": [
+      { "at": -3, "text": "The Court has your file out on the desk. Out is worse than filed." },
+      { "at": 2, "text": "The Clerk's stamp comes down a little softer for you." }
+    ]
+  }
+}

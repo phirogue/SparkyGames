@@ -62,7 +62,11 @@ func test_migrate_v1_recalibration() -> void:
 	assert_eq(int(merged["max_hp"]), 10, "v1 saves drop to the level-1 HP")
 	assert_eq(merged["deck"], SaveService.DEFAULT_PROFILE["deck"] as Array,
 		"v1 potent decks reset to the starter deck")
-	assert_eq(int(merged["schema_version"]), 2, "schema version bumped")
+	# The chain runs to the END, not one step: a v1 save must arrive at the
+	# current schema in a single load, not stall a version short of it.
+	assert_eq(int(merged["schema_version"]),
+		int(SaveService.DEFAULT_PROFILE["schema_version"]),
+		"an old save migrates all the way to the current schema")
 
 
 func test_save_load_round_trip() -> void:

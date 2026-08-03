@@ -36,6 +36,14 @@ const ZONE_MAPS := {
 		["title+intro", 240, Color("c2884a")],
 		["scroll (quests, shop, casebook)", 858, Color("4a7a5a")],
 	],
+	# Keep in sync with case_board_screen.gd's ZONE_* constants.
+	"case": [
+		["header (back + title)", 96, Color("c2884a")],
+		["question + aphorism", 140, Color("7a6a4a")],
+		["suspects (3 cards)", 290, Color("a24a3a")],
+		["evidence grid (3 x 2)", 416, Color("4a5a8a")],
+		["footer (lead, knots, notice)", 114, Color("4a7a5a")],
+	],
 }
 
 
