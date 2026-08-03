@@ -1,105 +1,106 @@
 # Art Still Needed — living checklist
 
-*Updated 2026-08-02. This is the CURRENT to-generate list; the full prompt
+*Updated 2026-08-03. This is the CURRENT to-generate list; the full prompt
 archive with everything already made lives in
-[image-prompts-master.md](image-prompts-master.md). Save results to
-`assets/library/<kind>/<id>.png`. Every prompt ends with its aspect ratio.*
+[image-prompts-master.md](image-prompts-master.md). The full-library style
+audit is [2026-08-03-art-style-audit.md](../research/2026-08-03-art-style-audit.md).*
 
-**Good news:** every image the game references today exists — enemies,
-backdrops, story scenes, skills, glyphs, both logos. Nothing renders as a
-black box. Everything below is either a fix, a polish, or Chapter-1 prep.
+**Status: every image ever requested has now been generated.** The backlog
+below is no longer "make the missing art" — it is "review, fix, and file what
+exists". New art comes from `tools/genart.py` (OpenAI `gpt-image-2`), so the
+bottleneck is judgement, not generation.
 
-**Paste this style context first (or attach an existing scene and say
-"match this style"):**
+**Where things live:** organized sources in `assets/library/<kind>/`,
+unreviewed API output in `assets/incoming/procedural/`. See
+[assets/README.md](../../assets/README.md).
 
-> Hand-drawn storybook illustration style: ink linework with muted
-> watercolor washes, warm amber light against blue-grey fog, cozy-gothic
-> children's book aesthetic, high resolution, no text in the image.
-
----
-
-## A. Fixes (highest value)
-
-**1. `logo_ashcat_title` — REGENERATE (typo).** The current title art
-reads "The Nine Lives of **of** Ashcat" and is live in the game. Same
-prompt as before; add: *exactly the words "The Nine Lives of Ashcat",
-check the spelling carefully*:
-> A hand-lettered game logo reading "The Nine Lives of Ashcat" in elegant
-> slightly-gothic storybook lettering, ink and watercolor style, with a
-> small black cat silhouette curled around the letters and a thin silver
-> thread winding through them, warm cream and charcoal with one
-> ember-orange accent, on a plain dark background, high contrast,
-> readable at small sizes. Aspect ratio: 9:16.
-
-**2. `ui_paw_solid` — the paw action icon.** The kit's paw came out as a
-faint speckled outline, so the game currently draws its own pips. A solid
-version replaces the drawn one everywhere:
-> A single cat paw print icon, SOLID dark walnut-brown ink fill like a
-> real inked paw stamp, slightly rough hand-pressed edges, on a plain
-> white background, simple and readable at small sizes, no outline-only
-> areas, no text. Aspect ratio: 1:1.
-
-## B. The Mantel (hub) — the one screen without its painting
-
-**3. `bg_mantel`:**
-> A cozy witch's parlor at night seen from a cat's height: a stone
-> fireplace with a wooden mantelpiece holding small objects (a key, a
-> sealed letter, a little bell), embers glowing low, an armchair with a
-> knitted blanket, moonlight through a window, warm amber and blue-grey,
-> hand-drawn storybook ink and watercolor, no people, no cat, no text.
-> Aspect ratio: 9:16.
-
-## C. The Casebook & Case board (journal features next in line)
-
-**4. `ui_paw_stamp`** — Ash "signs" his deeds:
-> A black cat's paw print stamped in dark ink on aged parchment, slightly
-> smudged at one edge as if the paw lifted quickly, storybook style.
-> Aspect ratio: 1:1.
-
-**5. `ui_case_board`** — the murder-case (Clue) board backing:
-> An old corkboard page inside a leather casebook: three empty
-> rectangular portrait spaces at top connected by red thread and brass
-> pins, smaller empty note spaces below, ink annotations too small to
-> read, aged parchment, hand-drawn storybook style, no faces, no
-> readable text. Aspect ratio: 3:4.
-
-## D. Chapter 1 cast (guild faces — needed as Ch1 quests get built)
-
-**6. `npc_brindle_magpie`** — the Magpie Exchange's proprietor:
-> A sly, charming magpie perched on a heap of buttons, keys, rings and
-> one pocket-watch, head tilted appraisingly, one eye catching lantern
-> light, inside a cluttered night-market stall, hand-drawn storybook ink
-> and watercolor, cozy-gothic, no text. Aspect ratio: 3:4.
-
-**7. `npc_rat_boss`** — the Rats Under the Floor:
-> A portly, dignified old rat in a waistcoat made of stitched scraps,
-> seated on a cotton-reel throne under the floorboards, candle-lit,
-> holding a grain of wheat like a scepter, wry not sinister, storybook
-> ink and watercolor, no text. Aspect ratio: 3:4.
-
-**8. `npc_pigeon_postmaster`** — the Pigeon Post:
-> A rumpled city pigeon wearing a tiny leather message-satchel, standing
-> at attention on a rooftop ledge post among sleeping pigeons, dawn fog,
-> one nervous eye, storybook ink and watercolor, no text.
-> Aspect ratio: 3:4.
-
-## E. Nice-to-have (no rush; drawn stand-ins work today)
-
-**9. `ui_icon_menu`** — the corner settings button (currently three drawn
-lines):
-> A small round hand-drawn icon of three short horizontal stitched lines
-> like sewn seams, dark walnut ink on a small parchment circle,
-> storybook style, reads clearly at 32 pixels, no text.
-> Aspect ratio: 1:1.
-
-**10. `sc_shambles_day`** — a day variant for future scenes (ChatGPT:
-attach the existing `bg_shambles` and ask for "the same market street,
-midday, busy"):
-> Aspect ratio: 3:4.
+**The style block to use is now `STRICT_STYLE` in `tools/genart_fixes.py`,**
+not the old one. The old block described what we wanted but never forbade what
+we kept getting; the new one names the failure modes as explicit negatives.
+That change alone fixed nine images.
 
 ---
 
-*When a batch lands: drop files in `assets/incoming/`, then in-game
-wiring is: downscale to `game/assets/` (backdrops 720, portraits/scenes
-512, UI 512, glyphs 220) and run the import pass. Check items off here
-as they ship.*
+## A. Awaiting review — generated 2026-08-03, sitting in `procedural/`
+
+Nothing here is wired into the game yet. Promotion means: look at it, pick the
+winner, move it into `assets/library/<kind>/`, downscale into `game/assets/`,
+run the import pass.
+
+| id | verdict so far |
+|---|---|
+| `logo_ashcat_title` | ✅ **typo fixed** — reads "The Nine Lives of Ashcat", one "of". Strong lettering. Ready to promote. |
+| `bg_mantel_scene` | ✅ best hub candidate — bare wall above the mantel for pinned notes, symmetrical, UI-friendly |
+| `bg_mantel` | ⚠️ three candidates exist (`bg_mantel`, `_img2`, `bg_mantel_scene`); plain `bg_mantel` is a pencil sketch from the old model — discard it |
+| `npc_brindle_magpie` | ✅ excellent |
+| `npc_rat_boss` | ✅ excellent |
+| `npc_pigeon_postmaster` | ✅ excellent |
+| `ui_case_board` | ✅ good; the lower "note" spaces aren't blank, so text can't go there |
+| `mock_journal` | ✅ excellent, legible English |
+| `mock_chapter_select` | ✅ excellent, legible English |
+| `mock_settings` | ✅ excellent, legible English |
+| `ui_paw_solid` | ✅ solid fill as asked — needs background removal (ships on white) |
+| `ui_paw_stamp` | ⚠️ usable, but the parchment is baked in; on a casebook page that's parchment-on-parchment |
+| `ui_icon_menu` | ⚠️ fine but content fills only ~45% of canvas — crop before use |
+| `sc_hollow_court_desk` | ❌ regenerated: first take drew a bedsheet ghost (contradicts `npc_clerk`) and an off-model black cat |
+| `sc_shambles_day` | ❌ regenerated: first take was a sunny crowded human market, wrong tone entirely |
+
+## B. Regenerated to fix style drift — also in `procedural/`
+
+The audit found nine library images sharing one "full-bleed digital render"
+failure mode. `tools/genart_fixes.py` and `genart_fixes2.py` re-run them with
+`STRICT_STYLE`. **Verified working** — compare the new `sc_vole_stalk` and
+`bg_shambles` against the originals still in `assets/library/`.
+
+Wave 1: `sc_vole_stalk`, `bg_shambles`, `sc_over_the_fences`, `bg_gardens`,
+`bg_parlor_cold`, `sc_hollow_court_desk`, `sc_shambles_day`.
+
+Wave 2: `bg_parlor_warm`, `sc_threads_cut`, `sc_lamplighters_hall`,
+`en_garden_watch`, `en_garden_watch_captain`, `en_the_unpicked`, `sk_slink`,
+`sk_pounce`.
+
+Each needs the same treatment: compare new against old, keep the better one,
+file it.
+
+## C. Known-good, no action
+
+`bg_needle_lane`, `bg_needle_lane_wrong`, `bg_rooftop_dusk`, `bg_hollow_court`,
+`sc_title`, `sc_collar`, `sc_kettle`, `sc_elspeth_still`, `en_gutter_wisp`,
+`en_rag_wraith`, `en_chained_dog`, `sk_swat`, `sk_purr`, `sk_loaf`,
+`sk_shelf_justice`, both anchors, both logos, all 32 UI pieces.
+
+## D. Decisions
+
+**Enemy framing: SCENE VIGNETTES (owner, 2026-08-03).** Enemies are drawn in
+their setting — the goose on its garden wall, the dog at the end of its chain —
+not as isolated figures on empty paper. `en_chained_dog` is the reference for
+how this should look: subject clearly dominant in the foreground, setting
+behind it dissolving into loose wash and bare paper. The paper edge stays
+visible; "vignette" means *the scene fades out*, not that it bleeds to the
+crop. Hold every enemy to this.
+
+Still open:
+
+1. **Seven UI elements have heavy transparent padding** — content fills
+   26–58% of canvas (`ui_needle_pin` 26%, `ui_ash_head` 28%, `ui_paw_full`
+   31%, `ui_paw_empty` 34%, `ui_button_pile` 44%, `ui_icon_intent_hand` 53%,
+   `ui_icon_intent_skills` 58%). Fix by re-cropping on import, not by
+   regenerating.
+2. **`bg_hollow_court`'s lamp is green** — the only green light in the game,
+   at the focal point. A tint pass fixes it.
+3. **Skill-card character consistency needs reference images.** Words alone
+   let Ash drift (`sk_slink` came back a different breed). The
+   `/v1/images/edits` endpoint accepts `ref_ash.png` as a reference — that is
+   the real fix, and `genart.py` doesn't support it yet.
+
+## E. Still unmade
+
+Nothing. The energy glyphs were never re-audited as a set (the reviewer only
+got through `energy_claw`, which sits on a flat grey field rather than paper) —
+worth a second look before Chapter 1 art begins.
+
+---
+
+*Wiring, when a batch is approved: downscale to `game/assets/` (backdrops 720,
+portraits/scenes 512, UI 512, glyphs 220) and run
+`godot --headless --path game --import` or the tour shows black placeholders.*

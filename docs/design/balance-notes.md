@@ -1,5 +1,53 @@
 # Balance Notes — Simulated Playtests
 
+## Pass 4 — anti-turtle + the coat quest made real (2026-08-03)
+
+Changes this pass (from the 2026-08-02 critical review):
+- **Payment engine fix**: `can_pay`/`_pay` now share one card-level planner
+  (a wild can no longer promise value across two humours) — no measurable
+  effect at level 1, load-bearing once `_2`/`_3` cards circulate.
+- **Pierce** (new intent mode): a health hit that ignores block — THE
+  anti-turtle tool. Watch Captain's Regulation Peck is now pierce 3
+  (was blockable 4).
+- **Loaf** block 6 → **5** (efficiency outlier trim).
+- **`empty_coat` quest is now completable**: its finale was the prologue's
+  rag_wraith (0% win for every bot — a repeatable quest nobody could
+  finish). New finale enemy **The Empty Coat** (14 hp, Cold Cuff 3 /
+  Deep Pockets card-steal / Wrap Tight 4, no jam).
+- **Swat wired**: garden_route's reward (was unobtainable). **Value-3
+  cards wired**: Magpie "rare card" tier, 30 gleam (were unobtainable).
+
+| Scenario | brawler | defender | stalker | random |
+|---|---|---|---|---|
+| Vole | 100% | 100% | 100% | 100% |
+| Wisp | 100% | 100% | 100% | 95% |
+| Dog | 39% | 97% | 54% (33% flee) | 11% |
+| Wraith | 0% | 0% | 0%, 50% flee | 0% |
+| Unpicked | 0% | 0% | 0%, 31% flee | 0% |
+| Watch Captain | 68% | **52%** | 81% | 6% |
+| Wisp Pair | 97% | 100% | 99% | 23% |
+| Empty Coat (new) | 28% | 99% | 85% | 7% |
+
+Read:
+- **The captain is the first true anti-turtle fight**: pierce dropped
+  defender 97 → 52 while brawler (68) and stalker (81) stand — three
+  loadouts, three genuinely different odds. The doctrine's open TODO
+  ("captain needs a third path") is closed.
+- **Empty Coat**: two strong paths (defender 99, stalker 85) and one
+  reckless one (brawler 28 — charging a coat face-first is supposed to be
+  a bad plan; its sim kit assumes garden-first, so Swat is in the bar).
+  Completable, hardest board quest, fitting its 16-gleam bonus.
+- **Defender still rules the non-pierce map** (dog 97, pair 100, coat 99).
+  One counter-fight exists now; whether every LATE-chapter elite needs a
+  pierce/burn tool is the open question for pass 5 — decide when Ch1
+  enemies land, not by nerfing the prologue.
+- Loaf 6→5 alone moved nothing measurable — the block economy was not the
+  lever; unavoidable damage was.
+- Random baselines on quests fell (captain 6%, coat 7%): quest elites now
+  clearly demand a kit and a plan. Tutorial floor unchanged.
+
+---
+
 ## Pass 3 — draw-1 economy + mysticism wilds (2026-08-01, later)
 
 Changes: exactly ONE card drawn per turn (opening 3 stays); moonlight

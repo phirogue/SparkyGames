@@ -111,3 +111,18 @@ sunbeam flash, alarm pulse) — extend that pattern, don't regenerate art.
 batch-generation rates this is a few evenings of generation once the style block is
 locked — the manifest will sequence it so Chapter 1 + Prequel assets come
 first (~40 images for the vertical slice).
+
+## Consistency audit (tool, 2026-08-03)
+
+Every art drop gets an automated drift check before wiring:
+
+    godot --headless --path game -s tests/art_audit.gd
+
+It profiles each filename-prefix group (bg_, en_, sc_, sk_, ui_, ...) by
+hue/saturation/brightness and flags images that sit far off their group's
+profile, with a human-readable reason ("much darker than the group; hue
+leans teal"). Report lands in `docs/design/art-audit-report.md`. Flags are
+a shortlist for the owner's eyes — deliberate style breaks will flag too.
+Scan dirs default to `game/assets`, `game/assets/ui`, `assets/incoming`,
+`assets/incoming/procedural`, `assets/cards`; override with
+`-- --dirs a,b,c`.
