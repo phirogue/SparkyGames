@@ -45,6 +45,13 @@ var quests: Dictionary = {}         # id -> {id, name, board_card, encounters, k
 var cases: Dictionary = {}          # id -> {id, name, question, suspects, evidence, leads}
 var guilds: Dictionary = {}         # id -> {id, name, neutral_line, notices}
 var favors: Dictionary = {}         # id -> {id, name, guild, flavor, redeem_lines}
+# Mission minigames (docs/design/minigames.md). Puzzle CONTENT is data, so
+# adding a puzzle never means touching a scene script.
+var stitch_charts: Dictionary = {}  # id -> {width, height, clues, solution, mirrored}
+var testimonies: Dictionary = {}    # id -> {witness, ribbons, patience}
+var wards: Dictionary = {}          # id -> {width, height, hole, rack, effects}
+var lattices: Dictionary = {}       # id -> {threads, elastic, error_cost}
+var crossings: Dictionary = {}      # id -> {length, hazard, gusts}
 
 func _init(data: Dictionary = {}) -> void:
 	energy_cards = data.get("energy_cards", {})
@@ -57,6 +64,11 @@ func _init(data: Dictionary = {}) -> void:
 	cases = data.get("cases", {})
 	guilds = data.get("guilds", {})
 	favors = data.get("favors", {})
+	stitch_charts = data.get("stitch_charts", {})
+	testimonies = data.get("testimonies", {})
+	wards = data.get("wards", {})
+	lattices = data.get("lattices", {})
+	crossings = data.get("crossings", {})
 
 
 ## Every evidence id defined by any case — quest gates reference these
@@ -138,6 +150,301 @@ func validate() -> Array[String]:
 	problems.append_array(_validate_cases())
 	problems.append_array(_validate_guilds())
 	problems.append_array(_validate_favors())
+	problems.append_array(_validate_minigames())
+	return problems
+
+
+# ---------------------------------------------------------------- minigames
+
+## Every module's content is checked for the one thing that would make it
+## unplayable: a puzzle with no solution, a witness who cannot be broken, a
+## tear the rack cannot cover. These are brute-forced where the search is
+## small (minigames.md: "at test time, not runtime") — validate() runs at
+## boot, so the expensive checks live behind `deep` and are called by the
+## test suite instead.
+func _validate_minigames(deep := false) -> Array[String]:
+	var problems: Array[String] = []
+	for id in stitch_charts:
+		problems.append_array(_validate_stitch_chart(id, stitch_charts[id]))
+	for id in testimonies:
+		problems.append_array(_validate_testimony(id, testimonies[id]))
+	for id in wards:
+		problems.append_array(_validate_ward(id, wards[id], deep))
+	for id in lattices:
+		problems.append_array(_validate_lattice(id, lattices[id]))
+	for id in crossings:
+		problems.append_array(_validate_crossing(id, crossings[id]))
+	return problems
+
+
+## The expensive checks: coverability searches and solution uniqueness.
+## Called by the tests, never at boot.
+func validate_minigames_deep() -> Array[String]:
+	return _validate_minigames(true)
+
+
+const OUTCOME_KEYS: Array[String] = ["success", "partial", "walk_away"]
+
+
+## Failure is a story outcome, never a game-over — so every module's data
+## owes prose for all three endings (minigames.md shared rules).
+func _validate_outcomes(kind: String, id: String, data: Dictionary) -> Array[String]:
+	var problems: Array[String] = []
+	var texts: Dictionary = data.get("when_outcome", {})
+	for key in OUTCOME_KEYS:
+		if String(texts.get(key, "")).is_empty():
+			problems.append("%s '%s' has no '%s' outcome text" % [kind, id, key])
+	return problems
+
+
+func _validate_stitch_chart(id: String, chart: Dictionary) -> Array[String]:
+	var problems := _validate_outcomes("stitch chart", id, chart)
+	var width := int(chart.get("width", 0))
+	var height := int(chart.get("height", 0))
+	if width < 2 or height < 2:
+		problems.append("stitch chart '%s' is smaller than 2x2" % id)
+		return problems
+	if width > 6 or height > 6:
+		problems.append("stitch chart '%s' is bigger than 6x6 (charts stay small)" % id)
+	var state := StitchState.create(chart)
+	for key in chart.get("clues", {}):
+		var parts := String(key).split(",")
+		if parts.size() != 2:
+			problems.append("stitch chart '%s' has malformed clue key '%s'" % [id, key])
+			continue
+		var row := int(parts[0])
+		var col := int(parts[1])
+		if row < 0 or row >= height or col < 0 or col >= width:
+			problems.append("stitch chart '%s' clue '%s' is off the grid" % [id, key])
+		var value := int(chart["clues"][key])
+		if value < 0 or value > StitchState.MAX_CLUE:
+			problems.append("stitch chart '%s' clue '%s' is %d (must be 0-%d)" % [
+				id, key, value, StitchState.MAX_CLUE])
+	# The stored solution IS the existence proof, so it has to actually
+	# solve: every edge real, every clue met, one closed loop.
+	var solution: Array = chart.get("solution", [])
+	if solution.is_empty():
+		problems.append("stitch chart '%s' has no solution to prove it is solvable" % id)
+		return problems
+	for edge_id in solution:
+		if not state.has_edge(String(edge_id)):
+			problems.append("stitch chart '%s' solution names unknown edge '%s'" % [
+				id, edge_id])
+			return problems
+		state.sewn[String(edge_id)] = true
+	if not state.is_single_loop():
+		problems.append("stitch chart '%s' solution is not one closed loop" % id)
+	for key in chart.get("clues", {}):
+		var parts := String(key).split(",")
+		if parts.size() == 2 and not state.clue_satisfied(int(parts[0]), int(parts[1])):
+			problems.append("stitch chart '%s' solution breaks clue '%s'" % [id, key])
+	return problems
+
+
+func _validate_testimony(id: String, testimony: Dictionary) -> Array[String]:
+	var problems := _validate_outcomes("testimony", id, testimony)
+	if String(testimony.get("witness", {}).get("name", "")).is_empty():
+		problems.append("testimony '%s' has a nameless witness" % id)
+	var guild_id := String(testimony.get("witness", {}).get("guild", ""))
+	if guild_id != "" and not guilds.has(guild_id):
+		problems.append("testimony '%s' witness belongs to unknown guild '%s'" % [
+			id, guild_id])
+	# The cat rule (canon): Ash cannot press humans, only animals about humans.
+	var species := String(testimony.get("witness", {}).get("species", ""))
+	if species == "human":
+		problems.append("testimony '%s' presses a human witness — Ash cannot" % id)
+	var ribbon_ids := {}
+	for ribbon in testimony.get("ribbons", []):
+		ribbon_ids[String(ribbon.get("id", ""))] = true
+	var known_evidence := evidence_ids()
+	var initial := 0
+	var breakable := 0
+	var wrong_paths := 0
+	for ribbon in testimony.get("ribbons", []):
+		var ribbon_id := String(ribbon.get("id", ""))
+		if String(ribbon.get("text", "")).is_empty():
+			problems.append("testimony '%s' ribbon '%s' has no text" % [id, ribbon_id])
+		if bool(ribbon.get("initial", false)):
+			initial += 1
+		for spawned in ribbon.get("spawns", []):
+			if not ribbon_ids.has(String(spawned)):
+				problems.append("testimony '%s' ribbon '%s' spawns unknown '%s'" % [
+					id, ribbon_id, spawned])
+		var contradicted := String(ribbon.get("contradicted_by", ""))
+		if contradicted == "":
+			wrong_paths += 1
+			continue
+		breakable += 1
+		if not known_evidence.has(contradicted):
+			problems.append("testimony '%s' ribbon '%s' is contradicted by unknown evidence '%s'" % [
+				id, ribbon_id, contradicted])
+		if String(ribbon.get("break_text", "")).is_empty():
+			problems.append("testimony '%s' ribbon '%s' breaks without saying so" % [
+				id, ribbon_id])
+	if initial < 1:
+		problems.append("testimony '%s' opens with no ribbons" % id)
+	if breakable < 1:
+		problems.append("testimony '%s' has no breakable ribbon — the lead would dead-end" % id)
+	# Patience must survive exploring every honest ribbon, or the fair-play
+	# promise ("wrong-but-honest ribbons exist") becomes a trap.
+	if int(testimony.get("patience", 0)) < wrong_paths:
+		problems.append("testimony '%s' has patience %d but %d honest ribbons to try" % [
+			id, int(testimony.get("patience", 0)), wrong_paths])
+	return problems
+
+
+func _validate_ward(id: String, ward: Dictionary, deep: bool) -> Array[String]:
+	var problems := _validate_outcomes("ward", id, ward)
+	var width := int(ward.get("width", 0))
+	var height := int(ward.get("height", 0))
+	if width < 1 or height < 1:
+		problems.append("ward '%s' has no grid" % id)
+		return problems
+	var hole: Array = ward.get("hole", [])
+	if hole.is_empty():
+		problems.append("ward '%s' has no tear to mend" % id)
+	for cell in hole:
+		var parts := String(cell).split(",")
+		if parts.size() != 2 or int(parts[0]) < 0 or int(parts[0]) >= height \
+				or int(parts[1]) < 0 or int(parts[1]) >= width:
+			problems.append("ward '%s' tear cell '%s' is off the grid" % [id, cell])
+	var rack_area := 0
+	for patch in ward.get("rack", []):
+		var humour := String(patch.get("humour", ""))
+		if not HUMOURS.has(humour):
+			problems.append("ward '%s' patch '%s' has unknown humour '%s'" % [
+				id, patch.get("id", "?"), humour])
+		if patch.get("shape", []).is_empty():
+			problems.append("ward '%s' patch '%s' has no shape" % [id, patch.get("id", "?")])
+		rack_area += patch.get("shape", []).size()
+	if rack_area < hole.size():
+		problems.append("ward '%s' rack covers %d cells, the tear is %d — unmendable" % [
+			id, rack_area, hole.size()])
+	problems.append_array(Minigame.unknown_effects(
+		[ward.get("gap_effect", "draft")], Minigame.GAP_EFFECTS).map(
+			func(e): return "ward '%s' has unknown gap effect '%s'" % [id, e]))
+	if String(ward.get("perfect_effect", "")) != "":
+		problems.append_array(Minigame.unknown_effects(
+			[ward["perfect_effect"]], Minigame.BOON_EFFECTS).map(
+				func(e): return "ward '%s' has unknown boon '%s'" % [id, e]))
+	for guild_id in ward.get("rewards", {}).get("standing", {}):
+		if not guilds.has(guild_id):
+			problems.append("ward '%s' rewards standing with unknown guild '%s'" % [id, guild_id])
+	if ward.has("guild") and String(ward["guild"]) != "" and not guilds.has(String(ward["guild"])):
+		problems.append("ward '%s' belongs to unknown guild '%s'" % [id, ward["guild"]])
+	if String(ward.get("rewards", {}).get("favor", "")) != "" \
+			and not favors.has(String(ward["rewards"]["favor"])):
+		problems.append("ward '%s' grants unknown favor '%s'" % [id, ward["rewards"]["favor"]])
+	if deep and not _hole_is_coverable(ward):
+		problems.append("ward '%s' tear cannot be perfectly covered by its rack" % id)
+	return problems
+
+
+## Exact-cover search: can the rack tile the tear with no overlap and no
+## spill? Small boards, heavy pruning (always fill the first open cell), so
+## this is cheap enough for a test but still not something to do at boot.
+func _hole_is_coverable(ward: Dictionary) -> bool:
+	var open := {}
+	for cell in ward.get("hole", []):
+		open[String(cell)] = true
+	var rack: Array = ward.get("rack", [])
+	return _cover_search(open, rack, {})
+
+
+func _cover_search(open: Dictionary, rack: Array, used: Dictionary) -> bool:
+	if open.is_empty():
+		return true
+	var keys: Array = open.keys()
+	keys.sort()
+	var target := String(keys[0])
+	var target_parts := target.split(",")
+	var target_row := int(target_parts[0])
+	var target_col := int(target_parts[1])
+	for patch in rack:
+		var patch_id := String(patch["id"])
+		if used.has(patch_id):
+			continue
+		for rotation in 4:
+			var shape := WardState.rotate_shape(patch.get("shape", []), rotation)
+			# Anchor each cell of the shape onto the target in turn, so the
+			# first open cell is always covered — that is the pruning.
+			for anchor in shape:
+				var row := target_row - int(anchor[0])
+				var col := target_col - int(anchor[1])
+				var cells: Array[String] = []
+				var fits := true
+				for offset in shape:
+					var key := "%d,%d" % [row + int(offset[0]), col + int(offset[1])]
+					if not open.has(key):
+						fits = false
+						break
+					cells.append(key)
+				if not fits:
+					continue
+				var next_open := open.duplicate()
+				for key in cells:
+					next_open.erase(key)
+				used[patch_id] = true
+				if _cover_search(next_open, rack, used):
+					used.erase(patch_id)
+					return true
+				used.erase(patch_id)
+	return false
+
+
+func _validate_lattice(id: String, lattice: Dictionary) -> Array[String]:
+	var problems := _validate_outcomes("lattice", id, lattice)
+	var thread_ids := {}
+	for thread in lattice.get("threads", []):
+		thread_ids[String(thread.get("id", ""))] = true
+	if thread_ids.size() < 2:
+		problems.append("lattice '%s' needs at least two threads" % id)
+	for thread in lattice.get("threads", []):
+		for other in thread.get("over", []):
+			if not thread_ids.has(String(other)):
+				problems.append("lattice '%s' thread '%s' lies over unknown '%s'" % [
+					id, thread.get("id", "?"), other])
+	for rule in lattice.get("elastic", []):
+		if not thread_ids.has(String(rule.get("when_removed", ""))):
+			problems.append("lattice '%s' elastic rule fires on unknown thread '%s'" % [
+				id, rule.get("when_removed", "?")])
+		for addition in rule.get("adds", []):
+			for key in ["thread", "over"]:
+				if not thread_ids.has(String(addition.get(key, ""))):
+					problems.append("lattice '%s' elastic rule names unknown thread '%s'" % [
+						id, addition.get(key, "?")])
+	var cost := String(lattice.get("error_cost", "alarm"))
+	if cost != "alarm" and not Minigame.GAP_EFFECTS.has(cost):
+		problems.append("lattice '%s' has unknown error cost '%s'" % [id, cost])
+	# The real check: is there ANY order that pulls everything? A cycle in
+	# the over-graph, or an elastic rule that strands a thread, makes the
+	# puzzle quietly impossible — and it would look like a hard puzzle.
+	if problems.is_empty() and LatticeState.create(lattice).safe_order().is_empty():
+		problems.append("lattice '%s' has no safe pull order — it cannot be undone" % id)
+	return problems
+
+
+func _validate_crossing(id: String, crossing: Dictionary) -> Array[String]:
+	var problems := _validate_outcomes("crossing", id, crossing)
+	if int(crossing.get("length", 0)) < 1:
+		problems.append("crossing '%s' has no distance to cover" % id)
+	if int(crossing.get("hazard", 0)) < 1:
+		problems.append("crossing '%s' has no hazard — slipping would be free" % id)
+	var environment_id := String(crossing.get("environment", ""))
+	if environment_id != "" and not environments.is_empty() \
+			and not environments.has(environment_id):
+		problems.append("crossing '%s' names unknown environment '%s'" % [id, environment_id])
+	for humour in crossing.get("gust_script", []):
+		if not HUMOURS.has(String(humour)):
+			problems.append("crossing '%s' scripts unknown gust '%s'" % [id, humour])
+	for humour in crossing.get("gust_weights", {}):
+		if not HUMOURS.has(String(humour)):
+			problems.append("crossing '%s' weights unknown gust '%s'" % [id, humour])
+		if int(crossing["gust_weights"][humour]) < 0:
+			problems.append("crossing '%s' has a negative weight for '%s'" % [id, humour])
+	if crossing.get("gust_script", []).is_empty() \
+			and crossing.get("gust_weights", {}).is_empty():
+		problems.append("crossing '%s' has no gusts at all" % id)
 	return problems
 
 

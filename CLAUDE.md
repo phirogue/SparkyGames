@@ -26,11 +26,26 @@ stability) — UI must go through `Catalog.humour_name()`.
 - Local Godot binary: `C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe`
 - Run tests after any change to `game/`:
   `& "C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe" --headless --path game -s tests/run_tests.gd`
+- **Developer Mode — `godot --path game -- --scene dev`** (or the launcher in
+  `play/apps/`): one in-game list that jumps to every screen, every prologue
+  beat, every fight, prowl, minigame and saved player state. Built FROM the
+  catalog and story file, so new content appears with no code change. Use it
+  instead of playing to a thing.
 - Component runner — test ONE piece without a full playthrough (throwaway
   world; NEVER writes the real save): `godot --path game -- --scene <spec>`
-  where spec is `hub`, `title`, `journal`, `story:<index>`,
-  `battle:<encounter_id>[:skill,skill,...]`, `quest:<quest_id>`, or
-  `scenario:<name>`.
+  where spec is `dev`, `hub`, `title`, `journal`, `case`, `recap`,
+  `story:<index>`, `battle:<encounter_id>[:skill,skill,...]`,
+  `quest:<quest_id>`, `scenario:<name>`, or a minigame —
+  `stitch:<chart_id>`, `testimony:<id>`, `ward:<id>`, `lattice:<id>`,
+  `crossing:<id>`.
+- **Mission minigames** live in `game/core/*_state.gd` (pure rules, same
+  do_command contract as combat) with content in `game/data/*.json`. The
+  bot agent that proves they are playable and unbreakable:
+  `godot --headless --path game -s tests/minigames.gd`. Run it after any
+  change to a module's rules or content.
+- **`docs/design/bestiary.md` is GENERATED** — every enemy's hp, gleam,
+  intent cycle and the strategy it adds up to. Never hand-edit; rebuild with
+  `godot --headless --path game -s tests/bestiary.gd` after enemy changes.
 - Scenario runner — reproduce ANY player state (loadout, deck, gleam,
   carryover, pinned battle seed) from a JSON spec in
   `game/tests/scenarios/`; see that folder's README. When a bug report

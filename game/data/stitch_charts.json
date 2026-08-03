@@ -1,0 +1,116 @@
+{
+  "chart_hoop": {
+    "id": "chart_hoop",
+    "name": "The Mending Hoop",
+    "width": 2,
+    "height": 2,
+    "paws": 3,
+    "mirrored": false,
+    "clues": {
+      "0,0": 2,
+      "0,1": 2,
+      "1,0": 2,
+      "1,1": 2
+    },
+    "solution": [
+      "h:0:0", "h:0:1",
+      "h:2:0", "h:2:1",
+      "v:0:0", "v:1:0",
+      "v:0:2", "v:1:2"
+    ],
+    "rewards": {},
+    "when_outcome": {
+      "success": "The seam cinches taut. It holds, and it is hers.",
+      "partial": "Close enough to hold. Not close enough to be proud of.",
+      "walk_away": "The working does not hold. It waits, patiently, to be done properly."
+    }
+  },
+  "chart_sampler": {
+    "id": "chart_sampler",
+    "name": "A Sampler, Half-Finished",
+    "width": 3,
+    "height": 3,
+    "paws": 3,
+    "mirrored": false,
+    "clues": {
+      "0,0": 2,
+      "0,1": 1,
+      "0,2": 2,
+      "1,0": 1,
+      "1,1": 0,
+      "1,2": 1,
+      "2,0": 2,
+      "2,1": 1,
+      "2,2": 2
+    },
+    "solution": [
+      "h:0:0", "h:0:1", "h:0:2",
+      "h:3:0", "h:3:1", "h:3:2",
+      "v:0:0", "v:1:0", "v:2:0",
+      "v:0:3", "v:1:3", "v:2:3"
+    ],
+    "rewards": {},
+    "when_outcome": {
+      "success": "One closed seam. Elspeth would have said nothing, which was her highest praise.",
+      "partial": "It holds. Mostly. In the dark.",
+      "walk_away": "Ash leaves the sampler where it lies. Some evenings are not for it."
+    }
+  },
+  "chart_wickhouse": {
+    "id": "chart_wickhouse",
+    "name": "The Wickhouse Seam",
+    "width": 4,
+    "height": 4,
+    "paws": 3,
+    "mirrored": false,
+    "clues": {
+      "0,0": 3, "0,1": 2, "0,2": 2, "0,3": 0,
+      "1,0": 2, "1,1": 2, "1,2": 2, "1,3": 2,
+      "2,0": 0, "2,1": 2, "2,2": 2, "2,3": 2,
+      "3,0": 0, "3,1": 0, "3,2": 2, "3,3": 3
+    },
+    "solution": [
+      "h:0:0", "h:0:1", "h:1:0", "h:1:2", "h:2:1", "h:2:3",
+      "h:3:2", "h:4:3",
+      "v:0:0", "v:0:2", "v:1:1", "v:1:3", "v:2:2", "v:2:4",
+      "v:3:3", "v:3:4"
+    ],
+    "rewards": {},
+    "when_outcome": {
+      "success": "The seam runs true, corner to corner, and the Wickhouse goes quiet.",
+      "partial": "The stitching holds where it holds. The rest of it breathes.",
+      "walk_away": "Ash steps back from the seam. Whatever it is keeping in can keep."
+    }
+  },
+  "chart_mirror": {
+    "id": "chart_mirror",
+    "name": "The Same Seam, Backward",
+    "width": 3,
+    "height": 3,
+    "paws": 3,
+    "mirrored": true,
+    "clues": {
+      "0,0": 2,
+      "0,1": 1,
+      "0,2": 2,
+      "1,0": 1,
+      "1,1": 0,
+      "1,2": 1,
+      "2,0": 2,
+      "2,1": 1,
+      "2,2": 2
+    },
+    "solution": [
+      "h:0:0", "h:0:1", "h:0:2",
+      "h:3:0", "h:3:1", "h:3:2",
+      "v:0:0", "v:1:0", "v:2:0",
+      "v:0:3", "v:1:3", "v:2:3"
+    ],
+    "rewards": {},
+    "when_outcome": {
+      "success": "His paw knew the way before he did. That is the part he will think about later.",
+      "partial": "Backward is harder. Backward is also, apparently, natural.",
+      "walk_away": "Ash puts the needle down. He does not say why."
+    }
+  }
+}

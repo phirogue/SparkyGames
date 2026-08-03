@@ -17,6 +17,11 @@ static func load_catalog(data_dir: String = DATA_DIR) -> Catalog:
 		"cases": _load_json(data_dir + "/case.json"),
 		"guilds": _load_json(data_dir + "/guilds.json"),
 		"favors": _load_json(data_dir + "/favors.json"),
+		"stitch_charts": _load_json(data_dir + "/stitch_charts.json"),
+		"testimonies": _load_json(data_dir + "/testimonies.json"),
+		"wards": _load_json(data_dir + "/wards.json"),
+		"lattices": _load_json(data_dir + "/lattices.json"),
+		"crossings": _load_json(data_dir + "/crossings.json"),
 	})
 
 

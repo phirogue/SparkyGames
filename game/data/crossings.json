@@ -1,0 +1,35 @@
+{
+  "crossing_practice": {
+    "id": "crossing_practice",
+    "name": "The Long Way Home",
+    "length": 22,
+    "hazard": 1,
+    "environment": "needle_lane",
+    "gust_script": ["ferocity", "shadow", "guile", "ferocity", "mysticism", "shadow"],
+    "rewards": {},
+    "when_outcome": {
+      "success": "Home the long way, dry, and only a little later than promised.",
+      "partial": "Ash arrives wet, short of breath, and short of a card or two.",
+      "walk_away": "The long way round becomes the very long way round."
+    }
+  },
+  "crossing_mereside": {
+    "id": "crossing_mereside",
+    "name": "The Mereside Approach",
+    "length": 34,
+    "hazard": 2,
+    "environment": "needle_lane",
+    "gust_weights": {
+      "ferocity": 3,
+      "guile": 2,
+      "shadow": 2,
+      "mysticism": 1
+    },
+    "rewards": {},
+    "when_outcome": {
+      "success": "The far bank, on all four feet, with the fog behind him where it belongs.",
+      "partial": "He makes the bank. Most of him makes the bank.",
+      "walk_away": "Ash turns back. The Mere does not mind waiting; that is its whole character."
+    }
+  }
+}

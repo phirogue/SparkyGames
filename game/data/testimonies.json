@@ -1,0 +1,52 @@
+{
+  "shift_boss": {
+    "id": "shift_boss",
+    "name": "The Shift-Boss's Round",
+    "witness": {
+      "name": "Shift-Boss Merrow",
+      "art": "npc_shift_boss",
+      "guild": "lamplighters",
+      "species": "cat"
+    },
+    "patience": 3,
+    "ribbons": [
+      {
+        "id": "r_round",
+        "initial": true,
+        "text": "I walked my round that night. Same as any night.",
+        "press_text": "'Needle Lane, Cutter's Row, back along the wall. Forty-one lamps. I have walked it eleven years.'",
+        "spawns": ["r_signed"]
+      },
+      {
+        "id": "r_chandlers",
+        "initial": true,
+        "text": "The Chandlers had no business on my streets.",
+        "press_text": "'Their wax, their carts, their little sealed dockets. Business, they call it. We call it Tuesday.'"
+      },
+      {
+        "id": "r_lamps",
+        "initial": true,
+        "text": "Every lamp on the lane was burning when I left it.",
+        "press_text": "'Burning. I do not leave a lamp guttering. Ask anyone. Ask the lamps.'"
+      },
+      {
+        "id": "r_signed",
+        "text": "And it was signed for, same as any round.",
+        "press_text": "'Signed and countersigned. The Chandlers pay for the oil, so the Chandlers get their signature.'",
+        "contradicted_by": "wick_ledger",
+        "break_text": "Merrow goes still. 'That is Wick's hand. And that is the night nobody signed.' She fetches the tally without being asked.",
+        "rebuff_text": "'That proves nothing about my round, cat.'",
+        "break_effects": {
+          "evidence": ["shift_tally"],
+          "leads_done": ["l3"],
+          "favor": "lamplighters_knot"
+        }
+      }
+    ],
+    "when_outcome": {
+      "success": "The thread that would not hold, caught. Merrow respects it, which is worse than liking it.",
+      "partial": "Merrow stops talking. Not angry — done. The lane will be colder next time.",
+      "walk_away": "Ash lets it lie. The Lamplighters keep their tally and their opinions."
+    }
+  }
+}

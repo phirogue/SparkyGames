@@ -6,6 +6,15 @@ candidate list, tiers, and the kill list of rejected clichés). Still
 pending owner thought: Pigeon Routes, Change-Ringing, Nine Pockets, and
 the Tier-3 flavor bites — none may be built until promoted here.
 
+> **Prototype status, 2026-08-03: all five are built and playable**, without
+> art, as drawn geometry. Rules are pure core classes, content is data with
+> validation, and a bot agent plays and stress-tests each one
+> (`godot --headless --path game -s tests/minigames.gd`). Try any of them
+> from `play/apps/` or Developer Mode (`--scene dev`).
+> Findings, including one real design hole in The Long Way Round and the
+> tuning it still needs, are in
+> [2026-08-03-minigame-prototypes.md](../research/2026-08-03-minigame-prototypes.md).
+
 Approved and in scope:
 
 | # | Minigame | Mandate |

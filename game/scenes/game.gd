@@ -9,6 +9,12 @@ const HubScreen := preload("res://scenes/hub_screen.gd")
 const SplashScreen := preload("res://scenes/splash_screen.gd")
 const JournalScreen := preload("res://scenes/journal_screen.gd")
 const CaseBoardScreen := preload("res://scenes/case_board_screen.gd")
+const DevMenuScreen := preload("res://scenes/dev_menu_screen.gd")
+const StitchScreen := preload("res://scenes/minigames/stitch_screen.gd")
+const TestimonyScreen := preload("res://scenes/minigames/testimony_screen.gd")
+const WardScreen := preload("res://scenes/minigames/ward_screen.gd")
+const LatticeScreen := preload("res://scenes/minigames/lattice_screen.gd")
+const CrossingScreen := preload("res://scenes/minigames/crossing_screen.gd")
 
 ## The remembered-day tint: one sepia constant, used by every flashback so
 ## memory reads the same everywhere (a scene may override with image_tint).
@@ -180,6 +186,24 @@ func _dev_launch(spec: String) -> void:
 			_start_quest(quest_id)
 		"scenario":
 			_launch_scenario(parts[1] if parts.size() > 1 else "")
+		"dev":
+			profile["prologue_done"] = true
+			_show_dev_menu()
+		"stitch":
+			_show_stitch(parts[1] if parts.size() > 1 else
+				String(catalog.stitch_charts.keys()[0]))
+		"testimony":
+			_show_testimony(parts[1] if parts.size() > 1 else
+				String(catalog.testimonies.keys()[0]))
+		"ward":
+			_show_ward(parts[1] if parts.size() > 1 else
+				String(catalog.wards.keys()[0]))
+		"lattice":
+			_show_lattice(parts[1] if parts.size() > 1 else
+				String(catalog.lattices.keys()[0]))
+		"crossing":
+			_show_crossing(parts[1] if parts.size() > 1 else
+				String(catalog.crossings.keys()[0]))
 		_:
 			push_error("unknown --scene spec '%s'" % spec)
 			get_tree().quit(1)
@@ -758,6 +782,92 @@ func _show_journal() -> void:
 	var screen: Control = JournalScreen.new()
 	screen.setup(catalog, profile)
 	screen.closed.connect(_show_hub)
+	_swap(screen)
+
+
+# --------------------------------------------------- minigames & dev mode
+
+## Where a minigame returns to. In dev mode there is no story around it, so
+## it goes back to the developer menu; in play it will hand off to the beat
+## that launched it (Phase 3+, when the leads are wired).
+func _minigame_done() -> Callable:
+	return func() -> void:
+		if dev_mode:
+			_show_dev_menu()
+		else:
+			_show_hub()
+
+
+func _show_stitch(chart_id: String) -> void:
+	if not catalog.stitch_charts.has(chart_id):
+		push_error("unknown stitch chart '%s'" % chart_id)
+		return
+	var screen: Control = StitchScreen.new()
+	screen.setup(catalog.stitch_charts[chart_id])
+	screen.closed.connect(_minigame_done())
+	_swap(screen)
+
+
+func _show_testimony(testimony_id: String) -> void:
+	if not catalog.testimonies.has(testimony_id):
+		push_error("unknown testimony '%s'" % testimony_id)
+		return
+	# A testimony is only as playable as the Casebook behind it, so a dev
+	# launch hands over every piece of evidence in the case — otherwise the
+	# witness cannot be broken and the beat looks defective when it is empty.
+	var held: Array = profile.get("case", {}).get("evidence", [])
+	if dev_mode and held.is_empty():
+		held = catalog.evidence_ids().keys()
+	var screen: Control = TestimonyScreen.new()
+	screen.setup(catalog, catalog.testimonies[testimony_id], held)
+	screen.closed.connect(_minigame_done())
+	_swap(screen)
+
+
+func _show_ward(ward_id: String) -> void:
+	if not catalog.wards.has(ward_id):
+		push_error("unknown ward '%s'" % ward_id)
+		return
+	var screen: Control = WardScreen.new()
+	screen.setup(catalog, catalog.wards[ward_id],
+		carryover.get("deck", profile["deck"]))
+	screen.closed.connect(_minigame_done())
+	_swap(screen)
+
+
+func _show_lattice(lattice_id: String) -> void:
+	if not catalog.lattices.has(lattice_id):
+		push_error("unknown lattice '%s'" % lattice_id)
+		return
+	var screen: Control = LatticeScreen.new()
+	screen.setup(catalog.lattices[lattice_id])
+	screen.closed.connect(_minigame_done())
+	_swap(screen)
+
+
+func _show_crossing(crossing_id: String) -> void:
+	if not catalog.crossings.has(crossing_id):
+		push_error("unknown crossing '%s'" % crossing_id)
+		return
+	var screen: Control = CrossingScreen.new()
+	screen.setup(catalog, catalog.crossings[crossing_id],
+		_dev_seed if _dev_seed != 0 else 20260803, {
+			"player_hp": carryover.get("hp", int(profile["max_hp"])),
+			"player_max_hp": int(profile["max_hp"]),
+			"deck": carryover.get("deck", profile["deck"]),
+		})
+	screen.closed.connect(_minigame_done())
+	_swap(screen)
+
+
+## Developer mode: one screen that reaches every part of the game. Dev mode
+## is a THROWAWAY world (never writes the real save), which is what makes it
+## safe to jump anywhere and quit whenever.
+func _show_dev_menu() -> void:
+	dev_mode = true
+	var screen: Control = DevMenuScreen.new()
+	screen.setup(catalog, story)
+	screen.jump.connect(func(spec: String) -> void: _dev_launch(spec))
 	_swap(screen)
 
 

@@ -1,0 +1,48 @@
+{
+  "lattice_counting_room": {
+    "id": "lattice_counting_room",
+    "name": "The Counting-Room Ward",
+    "error_cost": "alarm",
+    "alarm_per_mistake": 1,
+    "alarm_threshold": 4,
+    "threads": [
+      { "id": "t_seal", "over": ["t_ledger", "t_lamp"], "path": [[0, 0], [3, 2]] },
+      { "id": "t_ledger", "over": ["t_floor"], "path": [[0, 2], [3, 0]] },
+      { "id": "t_lamp", "over": ["t_floor", "t_door"], "path": [[1, 0], [1, 3]] },
+      { "id": "t_floor", "over": [], "path": [[2, 0], [2, 3]] },
+      { "id": "t_door", "over": [], "path": [[3, 1], [0, 3]] }
+    ],
+    "elastic": [],
+    "rewards": {},
+    "when_outcome": {
+      "success": "The ward comes apart in Ash's paws like a sentence he already knew the end of.",
+      "partial": "Half undone, and something downstairs has started listening.",
+      "walk_away": "Ash leaves the lattice standing. Some knots are somebody else's evening."
+    }
+  },
+  "lattice_elastic": {
+    "id": "lattice_elastic",
+    "name": "A Working That Argues Back",
+    "error_cost": "alarm",
+    "alarm_per_mistake": 1,
+    "alarm_threshold": 3,
+    "threads": [
+      { "id": "e_top", "over": ["e_mid"], "path": [[0, 0], [2, 3]] },
+      { "id": "e_mid", "over": [], "path": [[0, 3], [3, 1]] },
+      { "id": "e_hook", "over": ["e_tail"], "path": [[1, 0], [3, 3]] },
+      { "id": "e_tail", "over": [], "path": [[2, 0], [0, 2]] }
+    ],
+    "elastic": [
+      {
+        "when_removed": "e_top",
+        "adds": [{ "thread": "e_hook", "over": "e_mid" }]
+      }
+    ],
+    "rewards": {},
+    "when_outcome": {
+      "success": "It fought, and lost, and Ash notices he enjoyed that.",
+      "partial": "The lattice re-crossed itself faster than he could read it.",
+      "walk_away": "Ash steps back. The working settles, smug."
+    }
+  }
+}

@@ -146,6 +146,71 @@
     },
 
     {
+      "name": "dev-menu",
+      "title": "Developer Mode (jump anywhere)",
+      "group": "Developer",
+      "spec": "dev",
+      "about": "One list: every screen, story beat, fight, prowl, minigame and saved state."
+    },
+
+    {
+      "name": "stitch",
+      "title": "Minigame: Seam & Stitch",
+      "group": "Minigames",
+      "spec": "stitch:chart_sampler",
+      "about": "Sew one closed seam. Tap an edge to stitch, tap again to unpick."
+    },
+    {
+      "name": "stitch-big",
+      "title": "Minigame: Seam & Stitch (4x4)",
+      "group": "Minigames",
+      "spec": "stitch:chart_wickhouse",
+      "about": "The Wickhouse seam - the L4 ritual chart, full size."
+    },
+    {
+      "name": "stitch-mirror",
+      "title": "Minigame: the mirrored seam",
+      "group": "Minigames",
+      "spec": "stitch:chart_mirror",
+      "about": "Ch3 payoff: the clues read backward while the seam does not."
+    },
+    {
+      "name": "testimony",
+      "title": "Minigame: Testimony",
+      "group": "Minigames",
+      "spec": "testimony:shift_boss",
+      "about": "Press the shift-boss, then present the thing that breaks her story."
+    },
+    {
+      "name": "ward",
+      "title": "Minigame: Patch the Ward",
+      "group": "Minigames",
+      "spec": "ward:ward_hall",
+      "about": "Quilt the tear shut. Every patch is paid from your actual paw."
+    },
+    {
+      "name": "lattice",
+      "title": "Minigame: The Unpicking",
+      "group": "Minigames",
+      "spec": "lattice:lattice_counting_room",
+      "about": "Pull only the threads with nothing lying over them."
+    },
+    {
+      "name": "lattice-elastic",
+      "title": "Minigame: The Unpicking (elastic)",
+      "group": "Minigames",
+      "spec": "lattice:lattice_elastic",
+      "about": "The variant that re-crosses itself when you remove a thread."
+    },
+    {
+      "name": "crossing",
+      "title": "Minigame: The Long Way Round",
+      "group": "Minigames",
+      "spec": "crossing:crossing_mereside",
+      "about": "Push-your-luck traversal on the same deck you fight with."
+    },
+
+    {
       "name": "fresh-start",
       "title": "State: first boot",
       "group": "Player states",
