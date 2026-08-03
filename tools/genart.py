@@ -20,7 +20,8 @@ import urllib.request
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-OUT_DIR = REPO / "assets" / "incoming" / "procedural"
+LIB = REPO / "assets" / "library"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 # gpt-image-1 is the April-2025 snapshot named in asset-pipeline.md; it is
 # several generations behind what ChatGPT serves in-chat and looks it. Ask the
@@ -58,27 +59,50 @@ def load_key() -> str:
 
 
 def next_free_path(asset_id: str) -> Path:
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    path = OUT_DIR / f"{asset_id}.png"
-    version = 2
-    while path.exists():
-        path = OUT_DIR / f"{asset_id}_v{version}.png"
-        version += 1
-    return path
+    """Where a freshly generated image goes: straight into the library.
+
+    Owner decision 2026-08-03 -- no more incoming/ staging step. The library
+    holds every image cleared to be used or requested to exist; anything it
+    displaces moves to assets/archive/superseded/ rather than being lost
+    (CLAUDE.md art rules 2 and 3).
+
+    A `_v2`-style suffix in asset_id still resolves to the canonical name, so
+    a regeneration replaces the file it is a new take of.
+    """
+    from promote import canonical_id, kind_for, next_archive_path, move
+
+    canonical = canonical_id(asset_id)
+    target = LIB / kind_for(canonical) / f"{canonical}.png"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists():
+        archived = next_archive_path(canonical)
+        move(target, archived)
+        print(f"    (archived previous {canonical}.png -> {archived.name})")
+    return target
 
 
 def generate(
-    prompt: str, size: str, quality: str, count: int, key: str, model: str
+    prompt: str,
+    size: str,
+    quality: str,
+    count: int,
+    key: str,
+    model: str,
+    background: str = None,
 ) -> list:
-    body = json.dumps(
-        {
-            "model": model,
-            "prompt": prompt,
-            "size": size,
-            "quality": quality,
-            "n": count,
-        }
-    ).encode("utf-8")
+    """background='transparent' asks the API for real alpha, which saves a
+    rembg pass on UI icons. Ignored for photographic subjects."""
+    payload = {
+        "model": model,
+        "prompt": prompt,
+        "size": size,
+        "quality": quality,
+        "n": count,
+    }
+    if background:
+        payload["background"] = background
+        payload["output_format"] = "png"
+    body = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
         "https://api.openai.com/v1/images/generations",
         data=body,
@@ -89,6 +113,60 @@ def generate(
     )
     try:
         with urllib.request.urlopen(req, timeout=600) as resp:
+            payload = json.load(resp)
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", "replace")
+        sys.exit(f"OpenAI API error {exc.code}: {detail}")
+    return [base64.b64decode(item["b64_json"]) for item in payload["data"]]
+
+
+def _multipart(fields: list, files: list) -> tuple:
+    """Build a multipart/form-data body. fields=[(name,value)], files=[(name,path)]."""
+    boundary = "----genart7d3f9b1c2e5a"
+    out = bytearray()
+    for name, value in fields:
+        out += f"--{boundary}\r\n".encode()
+        out += f'Content-Disposition: form-data; name="{name}"\r\n\r\n'.encode()
+        out += f"{value}\r\n".encode()
+    for name, path in files:
+        data = Path(path).read_bytes()
+        out += f"--{boundary}\r\n".encode()
+        out += (
+            f'Content-Disposition: form-data; name="{name}"; '
+            f'filename="{Path(path).name}"\r\n'.encode()
+        )
+        out += b"Content-Type: image/png\r\n\r\n"
+        out += data + b"\r\n"
+    out += f"--{boundary}--\r\n".encode()
+    return bytes(out), f"multipart/form-data; boundary={boundary}"
+
+
+def edit(
+    prompt: str, refs: list, size: str, quality: str, count: int, key: str, model: str
+) -> list:
+    """Generate FROM reference images via the images/edits endpoint.
+
+    This is how character consistency is actually achieved -- words alone let a
+    character drift between generations (art-manifest.md rule 3, and CLAUDE.md
+    art rule 4). Pass the canonical ref_<name>.png as a reference and the model
+    holds the design. Also the right tool for "same image, one thing changed".
+    """
+    fields = [
+        ("model", model),
+        ("prompt", prompt),
+        ("size", size),
+        ("quality", quality),
+        ("n", str(count)),
+    ]
+    files = [("image[]", r) for r in refs]
+    body, content_type = _multipart(fields, files)
+    req = urllib.request.Request(
+        "https://api.openai.com/v1/images/edits",
+        data=body,
+        headers={"Authorization": f"Bearer {key}", "Content-Type": content_type},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=900) as resp:
             payload = json.load(resp)
     except urllib.error.HTTPError as exc:
         detail = exc.read().decode("utf-8", "replace")
@@ -112,6 +190,17 @@ def main() -> None:
     parser.add_argument(
         "--suffix", default="", help="appended to the filename, e.g. a model tag"
     )
+    parser.add_argument(
+        "--ref",
+        action="append",
+        default=[],
+        metavar="PNG",
+        help=(
+            "reference image to generate FROM (repeatable). Switches to the "
+            "images/edits endpoint. Required for any recurring character -- "
+            "attach their ref_<name>.png so they don't drift."
+        ),
+    )
     parser.add_argument("--quality", default="high", choices=["low", "medium", "high"])
     parser.add_argument("--n", type=int, default=1)
     parser.add_argument(
@@ -126,14 +215,15 @@ def main() -> None:
     if not args.no_style:
         prompt = f"{STYLE}\n\n{prompt}"
 
-    images = generate(
-        prompt,
-        RATIO_TO_SIZE[args.ratio],
-        args.quality,
-        args.n,
-        load_key(),
-        args.model,
-    )
+    key = load_key()
+    size = RATIO_TO_SIZE[args.ratio]
+    if args.ref:
+        for r in args.ref:
+            if not Path(r).exists():
+                sys.exit(f"reference not found: {r}")
+        images = edit(prompt, args.ref, size, args.quality, args.n, key, args.model)
+    else:
+        images = generate(prompt, size, args.quality, args.n, key, args.model)
     for blob in images:
         path = next_free_path(args.asset_id + args.suffix)
         path.write_bytes(blob)

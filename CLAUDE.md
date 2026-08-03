@@ -27,10 +27,16 @@ stability) — UI must go through `Catalog.humour_name()`.
 - Run tests after any change to `game/`:
   `& "C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe" --headless --path game -s tests/run_tests.gd`
 - Component runner — test ONE piece without a full playthrough (throwaway
-  profile): `godot --path game -- --scene <spec>` where spec is `hub`,
-  `title`, `journal`, `story:<index>`, or
-  `battle:<encounter_id>[:skill,skill,...]`
-  (e.g. `--scene battle:prologue_wraith:pounce,slink,purr`).
+  world; NEVER writes the real save): `godot --path game -- --scene <spec>`
+  where spec is `hub`, `title`, `journal`, `story:<index>`,
+  `battle:<encounter_id>[:skill,skill,...]`, `quest:<quest_id>`, or
+  `scenario:<name>`.
+- Scenario runner — reproduce ANY player state (loadout, deck, gleam,
+  carryover, pinned battle seed) from a JSON spec in
+  `game/tests/scenarios/`; see that folder's README. When a bug report
+  says "only happens when...", encode that state as a scenario so the
+  repro is one command forever. UI layout is shared via
+  `UITheme.page_scaffold` — change the page once, every screen follows.
 - **`game/core/` is pure rules**: RefCounted classes only — no Node, no
   rendering, no FileAccess, no global RNG. All randomness goes through
   `CoreRng`; all player actions go through `CombatState.do_command()` and are
@@ -123,7 +129,37 @@ stability) — UI must go through `Catalog.humour_name()`.
 - Brainstorms and rejected ideas live in `docs/brainstorm/` — keep them, they
   explain why the chosen direction won.
 - Generated card art (ChatGPT/Kling) goes in `assets/cards/` named after the card's id
-  (e.g. `ember_fox.png`). Track art needs in `docs/design/art-manifest.md`.
+  (e.g. `ember_fox.png`). Track art needs in `docs/design/art-needed.md`.
+
+## Art library rules (owner, 2026-08-03 — obey before generating anything)
+
+1. **Check the library FIRST. Never generate an image that already exists.**
+   Before any generation, list `assets/library/<kind>/` and confirm the id is
+   genuinely absent. A duplicate wastes money and forks the canon.
+2. **Asked to CHANGE an existing image? Check `assets/archive/` before
+   generating.** Older takes of most assets are archived; an earlier version is
+   often already what's wanted, and restoring one is free and instant.
+   Generate only after confirming the archive holds no suitable replacement.
+3. **`assets/library/` contains ONLY images actually used by the game.**
+   Everything superseded, rejected, or experimental lives in `assets/archive/`.
+   Never delete art — archive it, so any version can be reviewed or restored.
+4. **Recurring characters are generated FROM a reference image, never from a
+   text description.** Words let a character drift (Ash came back a different
+   breed once; a witch appeared in the cold parlor looking nothing like
+   Elspeth). Use `tools/genart.py --ref <file>`, which posts to the images
+   *edits* endpoint with the reference attached. Every character appearing
+   more than once needs a `ref_<name>.png` in
+   `assets/library/characters/` before their second appearance.
+5. **Framing conventions:** enemies are **scene vignettes** (subject dominant,
+   setting dissolving into wash behind it — `en_chained_dog` is the reference).
+   Skill cards are the subject on **plain parchment**, no environment.
+6. **Prologue canon: Ash has NO red neckerchief.** He takes it in `sc_collar`,
+   the last beat before the title card. Any scene set earlier
+   (`sc_vole_stalk`, `sc_ash_vole_gift`, `sc_over_the_fences`) must show him
+   bare-necked. The neckerchief is correct everywhere after the title.
+7. **Use `STRICT_STYLE`** from `tools/genart_fixes.py`, not the old style
+   block. It names the failure modes as explicit negatives, which is the only
+   thing that reliably prevents the full-bleed digital drift.
 
 ## Product constraints (do not violate without owner sign-off)
 
