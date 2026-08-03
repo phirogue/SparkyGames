@@ -1,8 +1,8 @@
 # Master Image Prompt List — everything to generate (ChatGPT)
 
 *2026-07-31. The single source of truth for image generation. Every prompt
-ends with its aspect ratio. Save results to `assets/incoming/<id>.png`
-(UI pieces to `assets/incoming/ui/`). Anything not yet generated shows
+ends with its aspect ratio. Save results to `assets/library/<kind>/<id>.png`
+(UI pieces to `assets/library/ui/`). Anything not yet generated shows
 in-game as a black box describing itself, so you can see gaps by playing.*
 
 **Paste this style context first in each conversation (or attach an existing

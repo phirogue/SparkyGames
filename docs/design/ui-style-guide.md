@@ -72,7 +72,7 @@ tools, and in what order.*
 Generate in ChatGPT, one session per group so sets stay matched. Every prompt
 should end with: *"perfectly rectangular and symmetric, flat front-facing
 view, no perspective, centered on a fully transparent background, high
-resolution."* Save as `assets/incoming/ui/<id>.png`.
+resolution."* Save as `assets/library/ui/<id>.png`.
 
 **Group A — Surfaces (the foundation):**
 - `ui_page` — full-page aged parchment texture with stitched dashed border

@@ -13,7 +13,7 @@ UI kit matching the mockups in `reference/`.
 3. If a piece comes out warped, tapered, or asymmetric, regenerate — a
    crooked template repeats on every screen forever. "Same again but
    perfectly symmetric" usually fixes it.
-4. Save results as `assets/incoming/ui/<id>.png` (create the folder). I
+4. Save results as `assets/library/ui/<id>.png` (create the folder). I
    slice, tune margins, and wire them into the Godot theme from there.
 5. You can attach the `reference/battle screen - v2.png` mockup image at the
    start of each conversation and say "match this art style" — it helps a lot.

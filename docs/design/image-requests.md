@@ -27,7 +27,7 @@ B in the same conversation" — that's the whole trick.*
 
 ## 3. Needle Lane gone wrong (variant of our existing street)
 
-Attach `assets/incoming/bg_needle_lane.png`, then:
+Attach `assets/library/backdrops/bg_needle_lane.png`, then:
 > Take this same foggy gaslamp street and make it subtly wrong: all the street lamps unlit except one at the far end, no birds anywhere, one window in the distance glowing faintly cold blue instead of warm amber. Same street, same style, same composition — only the light has changed.
 > *(save as `bg_needle_lane_wrong` — used for the "wrong quiet" beats)*
 
@@ -56,4 +56,4 @@ Attach `assets/incoming/bg_needle_lane.png`, then:
 
 Backgrounds don't need transparency (I remove/crop programmatically), and
 generate everything at whatever high resolution ChatGPT gives — I downscale
-on import, hi-res sources stay archived in `assets/incoming/`.
+on import, hi-res sources stay archived in `assets/library/`.

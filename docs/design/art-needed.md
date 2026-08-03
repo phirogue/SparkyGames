@@ -3,7 +3,7 @@
 *Updated 2026-08-02. This is the CURRENT to-generate list; the full prompt
 archive with everything already made lives in
 [image-prompts-master.md](image-prompts-master.md). Save results to
-`assets/incoming/<id>.png`. Every prompt ends with its aspect ratio.*
+`assets/library/<kind>/<id>.png`. Every prompt ends with its aspect ratio.*
 
 **Good news:** every image the game references today exists — enemies,
 backdrops, story scenes, skills, glyphs, both logos. Nothing renders as a

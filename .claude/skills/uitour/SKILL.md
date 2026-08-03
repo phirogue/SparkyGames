@@ -25,7 +25,7 @@ eyes. Never report a visual change complete without doing this.
    `battle_coach_*` (if tutorial changed), one `battle_skill_detail`, one
    `story_full`, and the shot matching whatever was changed (the `[focus]`
    argument names it).
-5. Judge each against `assets/incoming/ui_objective.png` and the checklist:
+5. Judge each against `assets/library/mockups/ui_objective.png` and the checklist:
    - Nothing crosses the page stitching (side 64 / top 54 / bottom 92).
    - Every text fits inside its box (measure_text law).
    - Buttons encase their labels; tap targets ≥ 96px.

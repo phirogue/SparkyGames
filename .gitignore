@@ -40,3 +40,4 @@ UserSettings/
 
 # Node (if web-tech stack chosen)
 node_modules/
+__pycache__/

@@ -52,7 +52,7 @@ stability) — UI must go through `Catalog.humour_name()`.
    verified by running the screenshot tour and Reading the key shots BEFORE
    claiming completion:
    `& "C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe" --path game -- --tour`
-   Shots land in `screenshots/`. Compare against `assets/incoming/ui_objective.png`
+   Shots land in `screenshots/`. Compare against `assets/library/mockups/ui_objective.png`
    and `reference/`. Use the /uitour skill.
 2. **No guessed text boxes.** Every container that holds text sizes itself
    via `UITheme.measure_text` with the label's wrap width EQUAL to the

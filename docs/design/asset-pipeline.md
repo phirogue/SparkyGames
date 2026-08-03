@@ -56,7 +56,7 @@ the bottleneck.
    description, a ready-to-paste image prompt (with our style block),
    size/format target, and a status column.
 2. You batch-generate in ChatGPT, drop raw images into
-   **`assets/incoming/`** named by asset id.
+   **`assets/incoming/`** (I file them into `assets/library/<kind>/`) named by asset id.
 3. I post-process (crop, rembg if needed, frame-composite, WebP), move to
    final locations (`assets/cards/`, `assets/scenes/`, ...), and tick the
    manifest.

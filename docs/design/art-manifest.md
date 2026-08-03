@@ -24,7 +24,7 @@ actually behaves.
 4. **Variants are made in-engine, not in Kling.** We generate ONE parlor, one
    Needle Lane, etc. Cold/night/ruined versions come from tinting, lighting,
    and overlays in Godot. Never ask Kling for "the same room but X."
-5. Save picks as `assets/incoming/<id>.png`. Generate 2–4 candidates each;
+5. Save picks as `assets/library/<kind>/<id>.png`. Generate 2–4 candidates each;
    keep the simplest good one (these render at phone size).
 
 **Style block** — the same final sentence is baked into every prompt below:
