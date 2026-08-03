@@ -123,6 +123,20 @@ stability) — UI must go through `Catalog.humour_name()`.
     only skippable (stuck players); an unwinnable charge loop ran the
     tour to 2,000 screenshots. Dim-taps advance; the tour has a
     tap-budget failsafe; keep both when adding modal flows.
+14. **Playtest the irregular, not just the sensible.** The balance sim
+    plays well; players do not. After ANY change to `core/` rules,
+    commands, skills, enemies or environments, run the chaos harness —
+    `godot --headless --path game -s tests/fuzz.gd -- --seeds 60` (use
+    the /chaosplay skill) — which plays badly on purpose (hoarding,
+    discarding everything, spamming approaches, illegal and malformed
+    commands) and asserts the seven invariants in `tests/chaos_play.gd`.
+    Chief among them: **a rejected command must change nothing.** That
+    one already caught a real defect — a fumbled tap silently burned the
+    player's approach, because `approach_locked` was set before the
+    command was validated. New mechanic ⇒ new persona and/or new
+    invariant; "nobody would do that" is a bug report, not a defence.
+    The `chaos-playtester` agent designs new attacks when the sweep has
+    been green for a while.
 
 ## Project conventions
 

@@ -1,0 +1,36 @@
+{
+  "comment": "The push-your-luck economy end to end: a three-encounter quest with a healthy kit, so the Press On / Slip Away offer appears twice and the satchel multiplier, carryover pool and banked-gleam maths can all be watched in one sitting.",
+  "profile": {
+    "prologue_done": true,
+    "gleam": 0,
+    "max_hp": 14,
+    "skills": [
+      "scratch",
+      "pounce",
+      "slink",
+      "purr",
+      "loaf",
+      "swat"
+    ],
+    "loadout": [
+      "swat",
+      "slink",
+      "purr"
+    ],
+    "deck": [
+      "ferocity_1",
+      "ferocity_1",
+      "ferocity_2",
+      "guile_1",
+      "guile_2",
+      "shadow_1",
+      "shadow_1",
+      "shadow_2",
+      "mysticism_1",
+      "mysticism_1",
+      "mysticism_2"
+    ]
+  },
+  "seed": 991,
+  "launch": "quest:night_rounds"
+}

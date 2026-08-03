@@ -348,3 +348,32 @@ func test_pierce_intent_ignores_block() -> void:
 	assert_eq(state.player_block, 3, "block is up")
 	assert_ok(state.do_command({"type": "end_turn"}))
 	assert_eq(state.player_hp, 7, "pierce 3 lands through block 3 untouched")
+
+# --- found by the chaos harness (tests/chaos_play.gd), 2026-08-03 ---------
+
+## A command that was REJECTED must change nothing at all. approach_locked
+## used to be set before the command was validated, so a fumbled tap - a
+## skill you cannot afford, a mis-swiped card index - silently cost the
+## player their entrance before anything had happened.
+func test_a_rejected_command_does_not_burn_the_approach() -> void:
+	var state := _wisp_fight()
+	assert_true(state.can_approach(), "turn 1 opens with the entrance available")
+	assert_rejected(state.do_command({"type": "play_skill", "skill_id": "no_such_skill"}),
+		"an unknown skill")
+	assert_true(state.can_approach(), "a rejected skill tap must not close the window")
+	assert_rejected(state.do_command({"type": "bank", "hand_index": 99}), "a bad index")
+	assert_true(state.can_approach(), "a mis-swiped card must not close the window")
+	assert_rejected(state.do_command({"type": "concentrate", "humour": "cheese"}),
+		"a humour that does not exist")
+	assert_true(state.can_approach(), "nonsense must not close the window")
+	assert_ok(state.do_command({"type": "approach", "mode": "stalk"}),
+		"the entrance is still there to be taken")
+
+## ...and a command that SUCCEEDS still closes it. The fix must not turn
+## into "approaches are free whenever you like".
+func test_a_real_action_still_closes_the_approach() -> void:
+	var state := _wisp_fight()
+	assert_ok(state.do_command({"type": "discard", "hand_index": 0}), "a real action")
+	assert_true(not state.can_approach(), "acting spends the moment for an entrance")
+	assert_rejected(state.do_command({"type": "approach", "mode": "stalk"}),
+		"the entrance after acting")

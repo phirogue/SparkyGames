@@ -29,7 +29,11 @@ throwaway: scenarios NEVER touch the real save.
 - `seed` pins every battle's shuffle/AI rolls — the same tap sequence
   reproduces the same fight exactly. Omit (or 0) for clock-random.
 - `carryover` drops you MID-prowl: worn deck, spent charges, low hp — the
-  states that fresh-fight sims never see.
+  states that fresh-fight sims never see. **It only survives a
+  `battle:` launch.** Starting a quest resets carryover (that is correct —
+  a prowl begins fresh), so a `quest:` spec that sets carryover is silently
+  ignoring it. Put the worn state in `profile` instead: `max_hp` for a cat
+  one hit from the Court, `deck` for a thin pool.
 - `story` replaces the prologue's scene list with the spec's own, so
   `launch: "story:0"` walks scenes that live nowhere else. This is how a
   story SYSTEM gets exercised before the chapter that uses it is written.

@@ -56,6 +56,11 @@ func _run() -> void:
 			await _tour_story(screen, fresh)
 		elif script_path.ends_with("battle.gd"):
 			await _tour_battle(screen, fresh)
+		elif script_path.ends_with("case_board_screen.gd"):
+			# Reached when the board is launched directly (--scene case);
+			# the hub route drives it through _tour_case_board instead.
+			await _shot("case_board")
+			break
 		elif script_path.ends_with("hub_screen.gd"):
 			await _shot("hub")
 			await _tour_case_board()

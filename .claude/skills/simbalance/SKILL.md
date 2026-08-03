@@ -12,8 +12,9 @@ approach system.
 2. Compare the table against docs/design/balance-notes.md targets:
    - Tutorials (vole, wisp): ~100% for ALL bots including random.
    - Dog: careless play punished ~10-15%.
-   - Wraith: aggression dies (<10%), defense wins (85-95%), stalker mostly
-     flees — the three-answer puzzle must survive.
+   - Wraith: 0% for EVERY bot, stalker flees ~50%. It is a prologue
+     story-beat, not a winnable quest fight (Pass 4 moved it off the
+     board deliberately) — do not "fix" the zeroes.
    - Unpicked: 0% wins, death by turn ~7-13, escape possible.
    - Quest elites: skilled bots 75-100%, random meaningfully lower.
 3. If targets drift: tune data (enemies.json/skills.json), re-run, repeat.

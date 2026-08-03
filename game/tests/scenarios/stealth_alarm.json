@@ -1,0 +1,22 @@
+{
+  "comment": "The stealth/Alarm environment on its own: the Captain's Lawn, where Ferocity costs more AND raises the Alarm. Pinned seed, so the same taps reproduce the same fight every time. Spend a Ferocity card to watch the Alarm climb and get spotted.",
+  "profile": {
+    "prologue_done": true,
+    "max_hp": 12,
+    "skills": [
+      "scratch",
+      "pounce",
+      "slink",
+      "purr",
+      "loaf",
+      "shelf_justice"
+    ],
+    "loadout": [
+      "pounce",
+      "slink",
+      "shelf_justice"
+    ]
+  },
+  "seed": 20260803,
+  "launch": "battle:q_garden_watch_deep"
+}

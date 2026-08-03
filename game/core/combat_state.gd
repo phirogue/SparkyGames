@@ -216,33 +216,37 @@ func do_command(command: Dictionary) -> Dictionary:
 	if outcome != Outcome.ONGOING:
 		return _fail("encounter is over")
 	var result: Dictionary
-	match command.get("type", ""):
+	# Acting closes the window for a clever entrance — but only a real act
+	# does. Locking BEFORE the command was validated meant a fumbled tap (a
+	# skill you can't afford, a mis-swiped card index) silently cost you your
+	# ambush, and left rejected commands mutating state, which nothing else
+	# in here does. Found by the chaos harness; see tests/chaos_play.gd.
+	var kind := String(command.get("type", ""))
+	var locks_approach := ["play_skill", "charge_skill", "bank", "discard",
+		"concentrate", "end_turn"].has(kind)
+	match kind:
 		"approach":
 			result = _cmd_approach(String(command.get("mode", "")))
 		"play_skill":
-			approach_locked = true
 			result = _cmd_play_skill(String(command.get("skill_id", "")))
 		"charge_skill":
-			approach_locked = true
 			result = _cmd_charge_skill(String(command.get("skill_id", "")),
 				String(command.get("source", "hand")), int(command.get("index", -1)))
 		"bank":
-			approach_locked = true
 			result = _cmd_bank(int(command.get("hand_index", -1)))
 		"discard":
-			approach_locked = true
 			result = _cmd_discard(int(command.get("hand_index", -1)))
 		"concentrate":
-			approach_locked = true
 			result = _cmd_concentrate(String(command.get("humour", "")))
 		"end_turn":
-			approach_locked = true
 			result = _cmd_end_turn()
 		"slip_away":
 			result = _cmd_slip_away()
 		_:
 			result = _fail("unknown command '%s'" % command.get("type", ""))
 	if result["ok"]:
+		if locks_approach:
+			approach_locked = true
 		log.record(turn, command)
 	return result
 

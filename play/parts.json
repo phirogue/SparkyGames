@@ -1,0 +1,191 @@
+{
+  "comment": "Launchable parts of the game. play.ps1 reads this; `play.ps1 -Install` regenerates the double-clickable shims in play/apps/. Every part runs through the component runner (--scene ...), which uses a THROWAWAY profile — none of these can touch the real save.",
+  "parts": [
+    {
+      "name": "title",
+      "title": "Title Card",
+      "group": "Screens",
+      "spec": "title",
+      "about": "The painted title screen. Tap to quit."
+    },
+    {
+      "name": "mantel",
+      "title": "The Mantel (hub)",
+      "group": "Screens",
+      "spec": "hub",
+      "about": "Quest board, loadout picker, Magpie Exchange, achievements."
+    },
+    {
+      "name": "casebook",
+      "title": "The Casebook",
+      "group": "Screens",
+      "spec": "journal",
+      "about": "Deeds and Knowledge — the journal page."
+    },
+    {
+      "name": "case-board",
+      "title": "The Case Board (empty)",
+      "group": "Screens",
+      "spec": "case",
+      "about": "A fresh board: the question, one known suspect, five empty slots."
+    },
+    {
+      "name": "prologue",
+      "title": "The Prologue (from the top)",
+      "group": "Screens",
+      "spec": "story:0",
+      "about": "The whole opening, in case you want it — everything else skips it."
+    },
+
+    {
+      "name": "battle-vole",
+      "title": "Fight: the Vole (tutorial)",
+      "group": "Battles",
+      "spec": "battle:prologue_vole:pounce",
+      "about": "The teaching fight. Ordered deck, coached, unlosable by design."
+    },
+    {
+      "name": "battle-wisp",
+      "title": "Fight: a Gutter-wisp",
+      "group": "Battles",
+      "spec": "battle:prologue_wisp:pounce,slink",
+      "about": "The first real fight, on the dusk rooftops (sunbeams turn 2 and 4)."
+    },
+    {
+      "name": "battle-dog",
+      "title": "Fight: the Chained Dog",
+      "group": "Battles",
+      "spec": "battle:prologue_dog:pounce,slink,purr",
+      "about": "Punishes careless play. Where banking and Concentrate start to matter."
+    },
+    {
+      "name": "battle-wraith",
+      "title": "Fight: a Rag-wraith",
+      "group": "Battles",
+      "spec": "battle:prologue_wraith:slink,purr,loaf",
+      "about": "The three-answer puzzle: aggression dies here, defence wins."
+    },
+    {
+      "name": "battle-coat",
+      "title": "Fight: the Empty Coat",
+      "group": "Battles",
+      "spec": "battle:q_coat_wraith:swat,slink,purr",
+      "about": "The quest elite, with the Swat kit the garden route unlocks."
+    },
+    {
+      "name": "battle-stealth",
+      "title": "Fight: Alarm and stealth",
+      "group": "Battles",
+      "spec": "scenario:stealth_alarm",
+      "about": "The Captain's Lawn: Ferocity costs more AND rings the Alarm. Pinned seed."
+    },
+    {
+      "name": "battle-boss",
+      "title": "Fight: the Unpicked (boss)",
+      "group": "Battles",
+      "spec": "scenario:boss_unpicked",
+      "about": "Meant to be survived, not beaten. For checking defeat and retreat."
+    },
+
+    {
+      "name": "prowl-night-rounds",
+      "title": "Prowl: Night Rounds",
+      "group": "Prowls",
+      "spec": "quest:night_rounds",
+      "about": "Three encounters, board card to payout. Unlocks Shelf Justice."
+    },
+    {
+      "name": "prowl-garden",
+      "title": "Prowl: The Garden Route",
+      "group": "Prowls",
+      "spec": "quest:garden_route",
+      "about": "The stealth quest — sleeping houses, Ferocity raises the Alarm."
+    },
+    {
+      "name": "prowl-coat",
+      "title": "Prowl: An Empty Coat",
+      "group": "Prowls",
+      "spec": "quest:empty_coat",
+      "about": "The two-fight quest that ends on the elite."
+    },
+    {
+      "name": "press-on",
+      "title": "Prowl: Press On economy",
+      "group": "Prowls",
+      "spec": "scenario:press_on_chain",
+      "about": "Healthy kit through a 3-fight quest: both Press On offers, satchel maths."
+    },
+    {
+      "name": "last-life",
+      "title": "Prowl: one hit from the Court",
+      "group": "Prowls",
+      "spec": "scenario:last_life",
+      "about": "1 hp, thin pool, no charges. The fast route to death and the Toll."
+    },
+
+    {
+      "name": "case-open",
+      "title": "Chapter 1: case in progress",
+      "group": "Chapter 1",
+      "spec": "scenario:ch1_case_open",
+      "about": "Two things found, threads strung, a knot owed, the Chandlers annoyed."
+    },
+    {
+      "name": "spine-demo",
+      "title": "Chapter 1: spine systems",
+      "group": "Chapter 1",
+      "spec": "scenario:ch1_spine_demo",
+      "about": "Evidence/knot/standing grants, a flashback, a knot redeemed, a gated scene."
+    },
+    {
+      "name": "recap",
+      "title": "Chapter 1: the recap card",
+      "group": "Chapter 1",
+      "spec": "recap",
+      "about": "The cold-launch card alone. With no evidence it drops to the hub — as designed."
+    },
+
+    {
+      "name": "fresh-start",
+      "title": "State: first boot",
+      "group": "Player states",
+      "spec": "scenario:fresh_start",
+      "about": "Nothing owned but Scratch. What a brand-new player sees."
+    },
+    {
+      "name": "post-prologue",
+      "title": "State: just finished the prologue",
+      "group": "Player states",
+      "spec": "scenario:post_prologue",
+      "about": "The standard five-skill kit and the starter deck."
+    },
+    {
+      "name": "worn",
+      "title": "State: worn mid-prowl",
+      "group": "Player states",
+      "spec": "scenario:worn_mid_prowl",
+      "about": "Thin deck, 4 hp, spent charges — the state fresh-fight testing never sees."
+    },
+    {
+      "name": "rich",
+      "title": "State: over-levelled",
+      "group": "Player states",
+      "spec": "scenario:endgame_grinder",
+      "about": "Maxed tonics, rare cards, every skill. Stress the economy's top end."
+    },
+    {
+      "name": "moonlight",
+      "title": "State: Moonlight-heavy deck",
+      "group": "Player states",
+      "spec": "scenario:moonlight_rush",
+      "about": "A wild-heavy pool against the captain — payment-planner stress."
+    },
+    {
+      "name": "coat-finale",
+      "title": "State: the Coat with the Swat kit",
+      "group": "Player states",
+      "spec": "scenario:coat_finale",
+      "about": "Garden-route-first ordering, pinned seed."
+    }
+  ]
+}

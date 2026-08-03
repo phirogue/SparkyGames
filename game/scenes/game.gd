@@ -134,8 +134,8 @@ func _cmdline_value(flag: String) -> String:
 	return ""
 
 
-## Jump straight into one component: "hub", "title", "journal",
-## "story:<scene index>", "battle:<encounter_id>[:skill,skill,...]",
+## Jump straight into one component: "hub", "title", "journal", "case",
+## "recap", "story:<scene index>", "battle:<encounter_id>[:skill,skill,...]",
 ## "quest:<quest_id>", or "scenario:<name>" (full Ash setup from
 ## tests/scenarios/<name>.json — see that folder's README).
 func _dev_launch(spec: String) -> void:
@@ -148,6 +148,15 @@ func _dev_launch(spec: String) -> void:
 			_show_title(func() -> void: get_tree().quit())
 		"journal":
 			_show_journal()
+		"case":
+			profile["prologue_done"] = true
+			_show_case_board()
+		"recap":
+			# The cold-launch card on its own. A profile with no evidence has
+			# nothing to recap, so this drops to the hub — which is the real
+			# behaviour, not a broken launch. Use a scenario for a full one.
+			profile["prologue_done"] = true
+			_show_recap(_show_hub)
 		"story":
 			_run_prologue_scene(int(parts[1]) if parts.size() > 1 else 0)
 		"battle":
