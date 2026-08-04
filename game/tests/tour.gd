@@ -21,6 +21,8 @@ var _story_taps := 0
 var _did_card_modal := false
 var _did_concentrate := false
 var _did_partial_charge := false
+var _did_no_escape := false
+var _did_chronicle_shot := false
 var _battle_taps := 0
 
 
@@ -150,6 +152,22 @@ func _tour_battle(screen: Control, fresh: bool) -> void:
 		await _shot("battle_outcome_" + screen.state.enemy_id)
 		screen._on_overlay_continue()
 		return
+	# The scripted withdrawal takes priority over everything: its only button
+	# is the way out, and ignoring it would just burn the tap budget.
+	if screen.withdraw_overlay != null and screen.withdraw_overlay.visible:
+		await _shot("battle_withdraw_" + screen.state.enemy_id)
+		screen.withdraw_overlay.visible = false
+		screen._on_slip_away()
+		return
+	if screen.no_escape_overlay != null and screen.no_escape_overlay.visible:
+		await _shot("battle_no_escape_" + screen.state.enemy_id)
+		screen.no_escape_overlay.visible = false
+		return
+	# Reach for the door once in a locked room, so the refusal is photographed.
+	if screen.state.no_retreat and not _did_no_escape:
+		_did_no_escape = true
+		screen._on_slip_away()
+		return
 	if screen.detail_overlay != null and screen.detail_overlay.visible:
 		await _shot("battle_skill_detail")
 		# Power the card fully (owner mechanic), then fire if ready. The FIRST
@@ -198,6 +216,12 @@ func _tour_battle(screen: Control, fresh: bool) -> void:
 			_did_concentrate = true
 			screen._on_concentrate_pressed()
 			return
+	# Once per fight, photograph the bare board with a full chronicle. Every
+	# other battle shot has a modal over the strip, so a broken scroll or an
+	# unmeasured log line would never show up in the tour.
+	if not _did_chronicle_shot and screen.log_lines.size() >= 8:
+		_did_chronicle_shot = true
+		await _shot("battle_chronicle")
 	# Play one sensible action: best damage skill else end turn.
 	var acted := false
 	for entry in screen.state.skills:

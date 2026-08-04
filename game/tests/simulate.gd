@@ -21,9 +21,12 @@ var scenarios := [
 	{"name": "vole (stage 1)", "enemy": "the_vole", "skills": ["scratch", "pounce"], "hp": 10},
 	{"name": "wisp (stage 1)", "enemy": "gutter_wisp", "skills": ["scratch", "pounce"], "hp": 10},
 	{"name": "dog (stage 2)", "enemy": "chained_dog", "skills": ["scratch", "pounce", "slink"], "hp": 10},
-	{"name": "wraith (stage 3)", "enemy": "rag_wraith", "skills": ["scratch", "slink", "purr", "loaf"], "hp": 10},
-	{"name": "unpicked (boss)", "enemy": "the_unpicked", "skills": ["scratch", "slink", "purr", "loaf"], "hp": 10,
-		"no_retreat": true},
+	# Ships with a damage floor: the wraith is a lesson about declining a
+	# fight, so it cannot kill. The prologue also forces the exit on turn 5.
+	{"name": "wraith (stage 3)", "enemy": "rag_wraith", "skills": ["scratch", "pounce", "slink", "purr", "loaf"], "hp": 10,
+		"hp_floor": 1, "withdraw_after": 4},
+	{"name": "unpicked (boss)", "enemy": "the_unpicked", "skills": ["scratch", "pounce", "slink", "purr", "loaf"], "hp": 10,
+		"no_retreat": true, "doom_turn": 6},
 	{"name": "watch captain (quest)", "enemy": "garden_watch_captain", "skills": ["scratch", "pounce", "slink", "shelf_justice"], "hp": 12,
 		"environment": {"stealth_threshold": 5, "cost_mod": {"ferocity": 1}}},
 	{"name": "wisp pair (quest)", "enemy": "wisp_pair", "skills": ["scratch", "pounce", "slink", "purr"], "hp": 12},
@@ -66,8 +69,12 @@ func _run_cell(scenario: Dictionary, bot: String) -> void:
 			"environment": scenario.get("environment", {}),
 			# The boss has no back door; a flee% for it would be fiction.
 			"no_retreat": scenario.get("no_retreat", false),
+			# Scripted fights ship with a damage floor and/or a fixed ending;
+			# simming them without those measures a fight nobody plays.
+			"hp_floor": scenario.get("hp_floor", 0),
+			"doom_turn": scenario.get("doom_turn", 0),
 		})
-		_play(state, bot)
+		_play(state, bot, int(scenario.get("withdraw_after", 0)))
 		match state.outcome:
 			CombatState.Outcome.VICTORY:
 				wins += 1
@@ -85,10 +92,15 @@ func _run_cell(scenario: Dictionary, bot: String) -> void:
 		float(hp_sum) / maxi(wins, 1), float(deck_sum) / maxi(wins, 1)])
 
 
-func _play(state: CombatState, bot: String) -> void:
+func _play(state: CombatState, bot: String, withdraw_after := 0) -> void:
 	_choose_approach(state, bot)
 	var stall := 0
-	while state.outcome == CombatState.Outcome.ONGOING and state.turn <= TURN_CAP:
+	# Scene-level forced withdrawal (battle.gd's `withdraw_after`): once the
+	# scripted turn passes, the only button on screen is Slip Away. Without
+	# modelling it the sim reports a fight nobody can reach — an hp_floor
+	# wraith left to grind for 25 turns is a 100% win that never happens.
+	var cap: int = TURN_CAP if withdraw_after <= 0 else withdraw_after
+	while state.outcome == CombatState.Outcome.ONGOING and state.turn <= cap:
 		var action := _decide(state, bot)
 		var result := state.do_command(action)
 		if not result["ok"]:

@@ -50,7 +50,7 @@ KINDS = {
 # for no pixels on screen, so they wait in the library until a screen asks.
 UNWIRED = {
     "bg_mantel", "bg_mantel_scene", "npc_brindle_magpie", "npc_pigeon_postmaster",
-    "npc_rat_boss", "ref_ash_prologue", "sc_hollow_court_desk",
+    "npc_rat_boss", "ref_ash_prologue",
 }
 
 

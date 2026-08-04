@@ -37,6 +37,26 @@ premise: the one person who was hers is gone, and the city did it.
 > - **Rules are not narration.** Lines authored as `{text, rule: true}`
 >   render in smallcaps accent instead of Ash's italic voice, so "New tonight:
 >   SHADOW" reads as the game talking and not as another of his asides.
+>
+> **Second pass, 2026-08-04:**
+>
+> - **The wraith gets an entrance.** It used to appear in a coach bubble with
+>   no story warning it was there at all. It now has its own page — the fog
+>   that turns out to have sleeves, every cut thread on the street running
+>   toward it — and the fight cannot kill (`hp_floor: 1`); past turn 4 the
+>   game stops hinting and insists on the exit.
+> - **The Unpicked ends on turn 6** (`doom_turn`), and its Slip Away button
+>   stays and refuses: reaching for the door and finding the room has no
+>   outside is the beat. Its first hint now teaches that Moonlight is wild.
+> - **The Hollow Court is a scene, not a paragraph.** First death plays three
+>   pages — the corridor before anyone speaks, the Clerk (with a line Ash
+>   gets to choose), and a plain statement of what dying costs. Later deaths
+>   keep the short form, because by then he does know the place.
+> - **Ash wakes up on his own card** before he finds Elspeth. The death and
+>   the discovery were sharing a page, which made the worst beat in the
+>   prologue into a scene transition.
+> - The "Nine Minus One" achievement no longer tells the player that everyone
+>   dies here and that is rather the point.
 
 ---
 

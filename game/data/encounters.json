@@ -21,7 +21,10 @@
     "enemies": [
       "rag_wraith"
     ],
-    "environment": "needle_lane_wrong"
+    "environment": "needle_lane_wrong",
+    "hp_floor": 1,
+    "withdraw_after": 4,
+    "withdraw_text": "It has no throat to go for and no eyes to bluff. This is not a fight, it is weather — and Ash does not lose fights, he declines them. Go around."
   },
   "prologue_parlor": {
     "id": "prologue_parlor",
@@ -30,7 +33,9 @@
       "the_unpicked"
     ],
     "environment": "parlor_cold",
-    "no_retreat": true
+    "no_retreat": true,
+    "no_retreat_text": "Slip away where? It is wearing the room. The door, the window, the space under her chair — all of it is the thing you are looking at.",
+    "doom_turn": 6
   },
   "q_rounds_wisp": {
     "id": "q_rounds_wisp",

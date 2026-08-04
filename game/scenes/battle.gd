@@ -22,7 +22,9 @@ const ZONE_ACTIONS := 96   # tap-target floor
 
 const PORTRAIT_SIZE := Vector2(364, 396)
 const RULE_CARD_WIDTH := 300.0
-const LOG_LINES := 5       # owner: the chronicle shows the last 5 actions
+## The chronicle keeps the whole fight and scrolls (owner 2026-08-04). The
+## cap is a runaway guard, not an editorial choice.
+const LOG_HISTORY := 200
 const CARD_SCALE := 1.2    # energy cards (base 94x128, owner +20%)
 ## Five abilities out at once (owner 2026-08-03, up from four) — more room to
 ## play. WIDTH BUDGET: 5x107 + 4x7 separation + 2x8 tray margin = 579 <= 582.
@@ -171,6 +173,7 @@ var card_discard: Button
 var selected_card := -1
 var alarm_label: Label
 var log_label: Label
+var log_scroll: ScrollContainer
 var hp_label: Label
 var block_label: Label
 var deck_label: Label
@@ -187,6 +190,7 @@ var detail_overlay: Control
 var detail_panel: PanelContainer
 var detail_title: Label
 var detail_pips: HBoxContainer
+var detail_uses: Label
 var detail_label: Label
 var detail_flavor: Label
 var detail_art: TextureRect
@@ -194,6 +198,10 @@ var detail_charge: Button
 var detail_use: Button
 var approach_overlay: Control
 var approach_panel: Control
+var no_escape_overlay: Control
+var no_escape_label: Label
+var withdraw_overlay: Control
+var withdraw_label: Label
 var overlay: Control
 var overlay_label: Label
 var overlay_button: Button
@@ -215,6 +223,8 @@ func setup(p_catalog: Catalog, config: Dictionary, encounter_id: String,
 	# scene that launched it — so a scenario or a quest reusing it inherits
 	# the same locked door.
 	full_config["no_retreat"] = encounter_def.get("no_retreat", false)
+	full_config["hp_floor"] = encounter_def.get("hp_floor", 0)
+	full_config["doom_turn"] = encounter_def.get("doom_turn", 0)
 	# Seed comes from config when a test/scenario needs a reproducible fight;
 	# live play stays clock-random.
 	var seed_value := int(config.get("seed", int(Time.get_ticks_usec()) % 1000000007))
@@ -328,6 +338,18 @@ func _refresh_detail() -> void:
 	var title_text: String = "%s — %s" % [def["name"], "free, once per turn" if is_instinct
 		else ("needs " + ", ".join(cost_parts) if not cost_parts.is_empty() else "free")]
 	detail_title.text = title_text
+	# How many uses are left has to be readable HERE, magnified (owner
+	# 2026-08-04) — the tray badge is a corner glance, not an answer.
+	var runtime_uses := state.skill_state(skill_id)
+	if is_instinct:
+		detail_uses.text = "Always there. Once a turn."
+	else:
+		var left := int(runtime_uses.get("charges_left", 0))
+		detail_uses.text = "No uses left tonight" if left <= 0 \
+			else ("%d use left tonight" % left if left == 1 else "%d uses left tonight" % left)
+	detail_uses.add_theme_color_override("font_color",
+		Color("8a2f22") if (not is_instinct and int(runtime_uses.get("charges_left", 0)) <= 0)
+		else UITheme.INK_SOFT)
 	# Panel is 620 wide with 16px flat-stylebox margins: wrap EQUALS width.
 	var title_wrap := 620.0 - 32.0
 	detail_title.custom_minimum_size = Vector2(title_wrap, UITheme.measure_text(
@@ -417,10 +439,8 @@ func _on_detail_use() -> void:
 	var skill_id := selected_skill
 	_close_detail()
 	var result := state.do_command({"type": "play_skill", "skill_id": skill_id})
-	if result["ok"]:
-		_log("Ash: %s." % catalog.skills[skill_id]["name"])
-	else:
-		_log(result["error"])
+	if not result["ok"]:
+		_log(result["error"])  # the journal records what succeeded
 	_after_command()
 
 
@@ -524,13 +544,8 @@ func _on_end_turn() -> void:
 	if coach != null:
 		coach.notify("end_turn")
 	_close_detail()
-	var intent := state.current_intent()
-	var was_spotted := state.spotted
-	var was_hidden := state.hidden
-	var result := state.do_command({"type": "end_turn"})
-	if result["ok"] and not was_hidden:
-		var suffix := "!" if was_spotted else "."
-		_log("%s: %s%s" % [catalog.enemies[state.enemy_id]["name"], intent["name"], suffix])
+	_log("— turn %d —" % state.turn)
+	state.do_command({"type": "end_turn"})
 	_after_command()
 
 
@@ -538,8 +553,25 @@ func _on_slip_away() -> void:
 	if coach != null:
 		coach.notify("slip")
 	_close_detail()
-	state.do_command({"type": "slip_away"})
+	var result := state.do_command({"type": "slip_away"})
+	if not result["ok"]:
+		# There is no door. Say so in the creature's own terms and put the
+		# player back in the room (owner rule 2026-08-04) — a button that
+		# silently does nothing reads as a broken button, not a locked one.
+		_show_no_escape()
+		return
 	_after_command()
+
+
+## Refusal card for a no_retreat fight. Flavour comes from the encounter so
+## each locked room can explain itself in its own voice.
+func _show_no_escape() -> void:
+	no_escape_label.text = String(encounter_def.get("no_retreat_text",
+		"There is nowhere that is not also here."))
+	var wrap := 520.0 - 32.0
+	no_escape_label.custom_minimum_size = Vector2(wrap, UITheme.measure_text(
+		no_escape_label.text, UITheme.italic_font(), 30, wrap).y)
+	no_escape_overlay.visible = true
 
 
 func _after_command() -> void:
@@ -547,9 +579,31 @@ func _after_command() -> void:
 	_refresh()
 	if state.outcome != CombatState.Outcome.ONGOING:
 		_show_outcome()
+		return
+	_maybe_insist_on_withdrawing()
+
+
+## Some fights are lessons about leaving. Once the encounter's `withdraw_after`
+## turn has passed, the game stops hinting and says it (owner rule
+## 2026-08-04): the only button is Slip Away. Paired with `hp_floor` in the
+## rules, so the lesson can be slow to land without being fatal.
+func _maybe_insist_on_withdrawing() -> void:
+	var after := int(encounter_def.get("withdraw_after", 0))
+	if after <= 0 or state.turn <= after or withdraw_overlay.visible:
+		return
+	withdraw_label.text = String(encounter_def.get("withdraw_text",
+		"This is not a fight. It is a weather. Go around it."))
+	var wrap := 520.0 - 32.0
+	withdraw_label.custom_minimum_size = Vector2(wrap, UITheme.measure_text(
+		withdraw_label.text, UITheme.italic_font(), 30, wrap).y)
+	withdraw_overlay.visible = true
 
 
 func _drain_events() -> void:
+	# The mechanical record first (what an action actually DID), then the
+	# flavour events. Core owns the numbers; the scene owns the voice.
+	for line in state.take_journal():
+		_log(line)
 	for event in state.take_events():
 		match event:
 			"sunbeam": _log("A sunbeam. One spent card returns, warm.")
@@ -565,6 +619,7 @@ func _drain_events() -> void:
 			"parting_shot": _log("You turn your back. It takes its turn anyway.")
 			"loaf_guarded": _log("It paws at a cat with nothing loose. Nothing gives.")
 			"night_presses": _log("The night presses. It grows bolder.")
+			"undone": _log("It finishes the sentence it started.")
 			"concentrated": pass  # the chooser handler already narrates it
 
 
@@ -713,17 +768,22 @@ func _build_ui() -> void:
 	alarm_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	enemy_col.add_child(alarm_label)
 
-	# --- Zone C: chronicle — the last LOG_LINES actions ------------------
+	# --- Zone C: chronicle — the WHOLE fight, scrollable -------------------
+	# Owner 2026-08-04: the strip used to keep only the last five lines, which
+	# meant the turn you wanted to check had already scrolled off. It now
+	# holds everything and scrolls, pinned to the bottom as lines arrive.
 	log_plate = _plate(ZONE_CHRONICLE, 6)
 	root.add_child(log_plate)
+	log_scroll = ScrollContainer.new()
+	log_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	log_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	log_plate.add_child(log_scroll)
 	log_label = Label.new()
 	log_label.add_theme_font_override("font", UITheme.italic_font())
 	log_label.add_theme_font_size_override("font_size", 22)
 	log_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
 	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	log_label.clip_contents = true
-	log_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-	log_plate.add_child(log_label)
+	log_scroll.add_child(log_label)
 
 	# --- Zone D: status strip ---------------------------------------------
 	# WIDTH BUDGET: the strip is the widest zone; its minimum width must stay
@@ -803,6 +863,12 @@ func _build_ui() -> void:
 	detail_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	detail_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail_box.add_child(detail_title)
+	detail_uses = Label.new()
+	detail_uses.add_theme_font_override("font", UITheme.smallcaps_font())
+	detail_uses.add_theme_font_size_override("font_size", 26)
+	detail_uses.add_theme_color_override("font_color", UITheme.INK_SOFT)
+	detail_uses.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	detail_box.add_child(detail_uses)
 	detail_pips = HBoxContainer.new()
 	detail_pips.add_theme_constant_override("separation", 10)
 	detail_pips.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -882,15 +948,16 @@ func _build_ui() -> void:
 		"Leave now — but it gets its telegraphed move in as you go"
 	slip_button.pressed.connect(_on_slip_away)
 	action_row.add_child(slip_button)
-	# No back door out of some rooms. End Turn takes the whole width instead
-	# of leaving a dead button the player can only be refused by.
-	if state.no_retreat:
-		slip_button.visible = false
+	# The button STAYS in a no_retreat fight (owner 2026-08-04): reaching for
+	# the door and finding the room has no outside is the beat. Tapping it
+	# explains, then hands the player back to the fight.
 
 	approach_overlay = _build_approach_overlay()
 	overlay = _build_outcome_overlay()
 	card_overlay = _build_card_overlay()
 	concentrate_overlay = _build_concentrate_overlay()
+	no_escape_overlay = _build_no_escape_overlay()
+	withdraw_overlay = _build_withdraw_overlay()
 
 
 func _divider(parent: Container) -> void:
@@ -1001,6 +1068,59 @@ func _build_card_overlay() -> Control:
 	cancel.custom_minimum_size = Vector2(150, UITheme.BUTTON_HEIGHT)
 	cancel.pressed.connect(_close_card)
 	buttons.add_child(cancel)
+	return modal["overlay"]
+
+
+## "There is no out." Shown when a no_retreat fight refuses Slip Away; the
+## only button puts the player back where they were.
+func _build_no_escape_overlay() -> Control:
+	var modal := UITheme.modal(self, 520.0, 18)
+	var box: VBoxContainer = modal["box"]
+	var title := Label.new()
+	title.text = "No."
+	title.add_theme_font_override("font", UITheme.display_font())
+	title.add_theme_font_size_override("font_size", 40)
+	title.add_theme_color_override("font_color", UITheme.INK)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(title)
+	no_escape_label = Label.new()
+	no_escape_label.add_theme_font_override("font", UITheme.italic_font())
+	no_escape_label.add_theme_font_size_override("font_size", 30)
+	no_escape_label.add_theme_color_override("font_color", UITheme.INK)
+	no_escape_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	no_escape_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(no_escape_label)
+	var back := UITheme.amber_button("Turn and face it", 30)
+	back.pressed.connect(func() -> void: no_escape_overlay.visible = false)
+	box.add_child(back)
+	return modal["overlay"]
+
+
+## The scripted withdrawal. A fight the story means you to leave says so out
+## loud once it has been made (owner rule 2026-08-04) — and the only way on
+## is out, so the lesson cannot be failed to death.
+func _build_withdraw_overlay() -> Control:
+	var modal := UITheme.modal(self, 520.0, 18)
+	var box: VBoxContainer = modal["box"]
+	var title := Label.new()
+	title.text = "Not tonight."
+	title.add_theme_font_override("font", UITheme.display_font())
+	title.add_theme_font_size_override("font_size", 40)
+	title.add_theme_color_override("font_color", UITheme.INK)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(title)
+	withdraw_label = Label.new()
+	withdraw_label.add_theme_font_override("font", UITheme.italic_font())
+	withdraw_label.add_theme_font_size_override("font_size", 30)
+	withdraw_label.add_theme_color_override("font_color", UITheme.INK)
+	withdraw_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	withdraw_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(withdraw_label)
+	var go := UITheme.amber_button("Slip Away", 32)
+	go.pressed.connect(func() -> void:
+		withdraw_overlay.visible = false
+		_on_slip_away())
+	box.add_child(go)
 	return modal["overlay"]
 
 
@@ -1308,14 +1428,17 @@ func _skill_button(skill_id: String) -> Button:
 	if not is_instinct:
 		var uses := Label.new()
 		uses.text = "×%d" % charges_left
-		uses.add_theme_font_size_override("font_size", 20)
+		# Bumped from 20 to 26 (owner 2026-08-04): at a glance from arm's
+		# length the old badge was decoration, not information.
+		uses.add_theme_font_override("font", UITheme.display_font())
+		uses.add_theme_font_size_override("font_size", 26)
 		uses.add_theme_color_override("font_color",
-			UITheme.INK_SOFT if charges_left > 0 else Color("8a2f22"))
+			UITheme.INK if charges_left > 0 else Color("8a2f22"))
 		uses.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-		uses.set_offset(SIDE_LEFT, -40)
+		uses.set_offset(SIDE_LEFT, -48)
 		uses.set_offset(SIDE_RIGHT, -6)
-		uses.set_offset(SIDE_TOP, 4)
-		uses.set_offset(SIDE_BOTTOM, 28)
+		uses.set_offset(SIDE_TOP, 2)
+		uses.set_offset(SIDE_BOTTOM, 32)
 		uses.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		uses.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(uses)
@@ -1404,12 +1527,29 @@ func _start_ambient_animation() -> void:
 		Color(0.9, 0.9, 0.9), 0.9).set_trans(Tween.TRANS_SINE)
 
 
+## Chronicle wrap width: the plate's 6px content margins either side, less
+## room for the scrollbar. The label's min size is pinned to the MEASURED
+## height of that wrap (law 2) — a ScrollContainer scrolls its child's
+## minimum size, and an autowrap Label reports none of its own.
+const LOG_WRAP := float(UITheme.CONTENT_WIDTH) - 12.0 - 16.0
+
+
 func _log(line: String) -> void:
 	log_lines.append(line)
-	while log_lines.size() > LOG_LINES:
+	while log_lines.size() > LOG_HISTORY:
 		log_lines.remove_at(0)
-	if log_label != null:
-		log_label.text = "\n".join(log_lines)
+	if log_label == null:
+		return
+	var text := "\n".join(log_lines)
+	log_label.text = text
+	var measured := UITheme.measure_text(
+		text, UITheme.italic_font(), 22, LOG_WRAP)
+	log_label.custom_minimum_size = Vector2(LOG_WRAP, measured.y)
+	# Pin to the newest line. The scroll range only updates after the
+	# container has re-laid out, so ask for more than exists and let the
+	# ScrollContainer clamp.
+	if log_scroll != null:
+		log_scroll.scroll_vertical = int(measured.y)
 
 
 func _clear(container: Control) -> void:

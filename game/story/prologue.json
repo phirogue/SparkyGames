@@ -122,9 +122,11 @@
         { "target": "approach", "text": "Every fight opens with the going-in. STALK it — spend 2 Shadow to begin unseen.", "wait": true },
         { "target": "hand", "text": "Two Shadow went on the entrance. That is what an approach costs — up front, out of hand." },
         { "target": "rule", "text": "Every place has a rule. In this fog, Shadow costs one less — so SLINK is free here." },
-        { "target": "intent", "text": "Its next move shows up top. 'Steals a card' means your HAND is the target." },
+        { "target": "intent", "text": "Read the chip up top. Some moves come for your HEALTH. Others come for your HAND — and a guard stops teeth, not fingers." },
         { "target": "skill:slink", "text": "SLINK blocks 3. Free in the fog — but only three times tonight.", "wait": true },
-        { "target": "end_turn", "text": "When your paws are spent, END TURN. The night moves too." }
+        { "target": "use", "text": "Nothing owed. Tap USE.", "wait": true },
+        { "target": "guard", "text": "Three guard, until the turn ends. It will soak a bite. It will not stop a theft — energy already fed onto a card is the only energy nothing can take." },
+        { "target": "end_turn", "text": "When your paws are spent, END TURN. The night moves too.", "wait": true }
       ]
     },
     {
@@ -155,9 +157,18 @@
       "environment": "needle_lane_wrong",
       "grant": ["loaf", "purr"],
       "lines": [
-        "The lamps on Needle Lane are lit wrong — and the Lamplighters never miss. The dog at Number Twelve does not even bark. We agree to disagree, and I go on.",
+        "The lamps on Needle Lane are lit wrong — and the Lamplighters never miss. The dog at Number Twelve is awake and does not bark, which it has never once failed to do.",
         { "text": "Third: GUILE, the green patience. It buys the LOAF — all paws in, immovable, and nothing loose to steal.", "rule": true },
         { "text": "Last: MOONLIGHT. Hers. It becomes whatever the moment needs, and it buys the PURR.", "rule": true }
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "needle_lane_wrong",
+      "lines": [
+        "Halfway down the lane, the fog stops being fog.",
+        "It has sleeves. A collar. The shape of a person who is not in it — and every cut thread on this street is running towards it, like water finding a drain.",
+        "It turns what it has instead of a face towards me. Whatever unpicked the lamps is still working, and I am standing in its light."
       ]
     },
     {
@@ -167,7 +178,7 @@
       "opening_cards": ["guile_1", "mysticism_1", "ferocity_1"],
       "skills": ["pounce", "slink", "purr", "loaf"],
       "coach": [
-        { "target": "portrait", "text": "A RAG-WRAITH: clothes whose owner is missing. Not dead — missing. It is above your weight." },
+        { "target": "portrait", "text": "A RAG-WRAITH: clothes whose owner is missing. Not dead — missing. It is above your weight, and it knows it." },
         { "target": "skill:purr", "text": "PURR heals 2 a turn for two turns — but breaks if you're hit. Purr behind a block." },
         { "target": "slip", "text": "You do not have to win this. SLIP AWAY — though it gets its move in as you go." }
       ]
@@ -234,12 +245,24 @@
       "skills": ["pounce", "slink", "purr", "loaf"],
       "start_hidden_if_flag": { "flag": "prologue_route", "value": 1 },
       "hints": {
-        "1": "Spend everything.",
+        "1": "Moonlight is hers, and it is WILD — a Moonlight card pays for anything you own. Spend it. Spend everything.",
         "2": "It will not be enough.",
-        "3": "Spend it anyway."
+        "3": "Spend it anyway.",
+        "5": "Her room makes Moonlight cheaper. She is still helping. It still will not be enough."
       }
     },
     { "type": "hollow_court_if_died" },
+    {
+      "type": "story",
+      "environment": "parlor_cold",
+      "when_outcome": "defeat",
+      "portrait": "sc_kettle",
+      "lines": [
+        "Something comes back on before I do. Hearing, I think.",
+        "The kettle. Still screaming. So: not long, then. Long enough.",
+        "Four paws. Count them. Good. Get up, Ash."
+      ]
+    },
     {
       "type": "story",
       "environment": "parlor_cold",
@@ -263,17 +286,70 @@
     },
     { "type": "title" }
   ],
+  "_hollow_court_notes": [
+    "Played as PAGES, not one block of text (owner 2026-08-04: the first",
+    "visit read as though Ash already knew the place). Page 1 is the room",
+    "before anyone speaks; page 2 is the Clerk, with a line Ash gets to pick;",
+    "page 3 says plainly what dying costs. Every death after the first uses",
+    "the short form, because by then he does know the place.",
+    "Schema: {lines, portrait?, choices?, answers?} — see game.gd _play_pages."
+  ],
   "hollow_court_first": [
-    "A desk. A lamp. A queue of one.",
-    "'Name?' — I am a cat. — '...Vane's familiar. Nine allotted, one spent.'",
-    "'First visit is complimentary. Do try to make the others interesting.'",
-    "The stamp comes down. It is, I notice, a paw print. Neither of us remarks on this."
+    {
+      "lines": [
+        "The cold goes first. Then the noise. Then the part of me that was worried about the noise.",
+        "What is left over is standing in a corridor that is all filing and no building, under a ceiling too far up to be a ceiling.",
+        "Nothing hurts. I would like it on record that I find this deeply suspicious."
+      ]
+    },
+    {
+      "portrait": "sc_hollow_court_desk",
+      "art_desc": "The Hollow Court: a translucent clerk at a lamplit desk before endless filing shelves, one empty chair facing him",
+      "lines": [
+        "A desk. A lamp. A queue of one, and the one is me.",
+        "The Clerk does not look up. 'Name?'"
+      ],
+      "choices": [
+        "I am a cat.",
+        "Ashcat. Of Needle Lane.",
+        "Say nothing. Sit. Wait."
+      ],
+      "answers": [
+        [
+          "'Everyone here is something.' He turns a page without touching it. '...Vane's familiar. There you are.'",
+          "'Nine allotted. One spent. Try to be interesting about the rest.'"
+        ],
+        [
+          "'Needle Lane.' Something moves behind the spectacles that is almost interest. 'Yes. We have had a busy evening from Needle Lane.'",
+          "'Vane's familiar. Nine allotted, one spent.' He does not say whose the busy evening was. I do not ask, because I already know."
+        ],
+        [
+          "The silence goes on long enough to become a position. He allows it, and then writes something anyway.",
+          "'Vane's familiar. Nine allotted, one spent.' — 'You will find that not answering is also an answer, and that I have a great deal of filing.'"
+        ]
+      ]
+    },
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "'The arrangement, since it is your first: you are difficult to kill and not impossible. When you are killed you come here, we take the Toll, and you go back up.'",
+        { "text": "Dying costs a life and a quarter of your banked gleam. Whatever was in your satchel stays where you dropped it. Nothing else is lost — not your kit, not your case, not what you have already worked out.", "rule": true },
+        "'The first visit is complimentary. Do consider it a courtesy rather than a habit.'",
+        "The stamp comes down. It is, I notice, a paw print. Neither of us remarks on this.",
+        "The stairs up are longer than the fall down. They always are."
+      ]
+    }
   ],
   "hollow_court_repeat": [
-    "The desk again. The lamp again. The Clerk does not look up.",
-    "'Back so soon. The form remembers you, which saves us both time.'",
-    "The Toll is taken. Professionally. Almost gently.",
-    "The stairs up are longer than the fall down. They always are."
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "The desk again. The lamp again. The Clerk does not look up.",
+        "'Back so soon. The form remembers you, which saves us both time.'",
+        "The Toll is taken. Professionally. Almost gently.",
+        "The stairs up are longer than the fall down. They always are."
+      ]
+    }
   ],
   "unpicked_won": [
     "It comes apart. Thread by thread. That was not supposed to happen.",

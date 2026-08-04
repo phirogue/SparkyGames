@@ -173,3 +173,20 @@ down at the vole fight, with each later fight naming its `opening_cards`.
 Measured spool across a playthrough: **18 -> 17 -> 16 -> 13**, monotonically
 down. Before this it read 5 at the vole and 9 at the wisp, because each beat
 handed out a fresh pile of energy on top of a `refresh_spent` scene.
+
+
+## Pass 6 — scripted fights, simmed as they actually ship
+
+The prologue's last two encounters are authored beats, not balance problems,
+and the sim was quietly lying about both because it built its own configs.
+It now carries `hp_floor`, `doom_turn` and the scene-level `withdraw_after`.
+
+| scenario | before | after | what it means |
+|---|---|---|---|
+| wraith | 0% win / 100% death (stalker 50/50) | **0% win / 0% death / 100% flee, ~5 turns, every bot** | The wraith cannot kill (`hp_floor: 1`) and the scene insists on the exit once turn 4 passes. Nobody dies to the lesson about declining a fight, and nobody grinds it down either — 18 HP is out of reach inside four turns |
+| unpicked | 100% death, 4-9 turns | **100% death, <=6 turns, every bot** | `doom_turn: 6` ends it on schedule instead of letting the player spend nine turns losing |
+
+Worth writing down: with only `hp_floor` and no forced exit, the wraith
+became a **100% win at ~12 turns** for the brawler — an unkillable enemy is a
+free win given enough turns. The damage floor and the scripted withdrawal are
+one mechanic in two halves; neither ships without the other.

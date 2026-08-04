@@ -130,7 +130,7 @@
   "nine_minus_one": {
     "id": "nine_minus_one",
     "name": "Nine Minus One",
-    "description": "Fall to the Unpicked. Everyone does, once. That is rather the point.",
+    "description": "Stood between the Unpicked and her chair, and paid for it.",
     "stat": "felled_by_the_unpicked",
     "threshold": 1,
     "hidden": true

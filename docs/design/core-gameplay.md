@@ -64,6 +64,24 @@
 >   door at all (`no_retreat`, first used by the Unpicked).
 > - **Loaf guards the hand.** Block answers damage; nothing answered theft, so
 >   a hand-attacker was unanswerable. A loafed cat has nothing loose to take.
+> **v0.4 additions (2026-08-04, owner defect review, implemented):**
+>
+> - **Scripted fights.** Three encounter fields let the story own an
+>   encounter's shape without the rules learning about the story:
+>   `hp_floor` (damage stops here — a lesson you can fail to death is a
+>   lesson nobody hears), `doom_turn` (the fight ends, decided, on this turn)
+>   and the scene-level `withdraw_after` (past this turn the only button is
+>   Slip Away). The floor and the forced exit are ONE mechanic: an unkillable
+>   enemy with no forced exit is a free win given enough turns — the sim
+>   measured the rag-wraith at 100% for the brawler before the exit existed.
+> - **`no_retreat` refuses out loud.** Tapping Slip Away in a locked room
+>   plays the encounter's `no_retreat_text` and hands the player back to the
+>   fight. Hiding the button read as a missing feature; refusing reads as a
+>   locked door, which is the beat.
+> - **The chronicle is the whole fight, and it has numbers.** `CombatState`
+>   keeps a `_journal` of what each action DID — damage rolled, block soaked,
+>   which card was lifted — drained by the scene into a scrolling strip.
+>   Informational only; nothing in the rules reads it back.
 > - **Decisions with consequences.** Story choices set flags that alter
 >   mechanics and later scenes (first one shipped: the prologue route-home
 >   choice — a Moonlight card of her stitching vs entering the boss with

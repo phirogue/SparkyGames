@@ -420,6 +420,52 @@ func _show_story(config: Dictionary, on_done: Callable) -> void:
 	_swap(screen)
 
 
+## The Hollow Court, played as a small SCENE rather than one wall of text
+## (owner 2026-08-04: the first visit read as if Ash already knew the place).
+## First death gets the arrival — the room before the Clerk, the Clerk's
+## banter, a line of Ash's own choosing, and a plain account of what dying
+## costs. Every death after that gets the short form, because by then he does
+## know the place. Extra lines (the Toll) are appended to the last page.
+func _show_hollow_court(on_done: Callable, extra_lines: Array = []) -> void:
+	var first: bool = int(tracker.stats.get("lives_spent", 0)) <= 1
+	var pages: Array = (story["hollow_court_first"] if first
+		else story["hollow_court_repeat"]).duplicate(true)
+	if not extra_lines.is_empty() and not pages.is_empty():
+		var last: Dictionary = pages[pages.size() - 1]
+		last["lines"] = Array(last["lines"]) + extra_lines
+	_play_pages(pages, 0, on_done)
+
+
+## Plays a list of authored story pages in order. A page is
+## {lines, portrait?, heading?, choices?, answers?}: `choices` shows buttons,
+## and `answers[i]` (a line array) is played back as the reply before the
+## sequence continues. This is deliberately small — a scene player, not a
+## dialogue engine; when a chapter needs branching state it goes through
+## flags and `when_flag` like every other scene.
+func _play_pages(pages: Array, index: int, on_done: Callable) -> void:
+	if index >= pages.size():
+		on_done.call()
+		return
+	var page: Dictionary = pages[index]
+	var config := _story_config(String(page.get("environment", "hollow_court")),
+		page["lines"])
+	for key in ["portrait", "heading", "choices", "art_desc"]:
+		if page.has(key):
+			config[key] = page[key]
+	_show_story(config, func(choice: int) -> void:
+		var answers: Array = page.get("answers", [])
+		if choice >= 0 and choice < answers.size():
+			var reply := _story_config(
+				String(page.get("environment", "hollow_court")), answers[choice])
+			for key in ["portrait", "art_desc"]:
+				if page.has(key):
+					reply[key] = page[key]
+			_show_story(reply, func(_i: int) -> void:
+				_play_pages(pages, index + 1, on_done))
+			return
+		_play_pages(pages, index + 1, on_done))
+
+
 ## A parchment interstitial listing what the night just granted — skill
 ## notes in the warm accent color so they never read as story text.
 func _show_notices(lines: Array, on_done: Callable) -> void:
@@ -721,10 +767,7 @@ func _run_prologue_scene(index: int) -> void:
 				scene.get("hints", {}), extra, scene.get("coach", []))
 		"hollow_court_if_died":
 			if last_outcome == CombatState.Outcome.DEFEAT:
-				var lines: Array = story["hollow_court_first"] \
-					if int(tracker.stats.get("lives_spent", 0)) <= 1 \
-					else story["hollow_court_repeat"]
-				_show_story(_story_config("hollow_court", lines), next)
+				_show_hollow_court(func() -> void: next.call())
 			elif last_outcome == CombatState.Outcome.VICTORY:
 				_show_story(_story_config("parlor_cold", story["unpicked_won"]), next)
 			else:
@@ -1018,10 +1061,8 @@ func _prowl_death() -> void:
 		toll = int(ceil(int(profile["gleam"]) * TOLL_RATE))
 		profile["gleam"] = int(profile["gleam"]) - toll
 	_save()
-	var lines: Array = story["hollow_court_repeat"].duplicate()
-	if first_ever:
-		lines = story["hollow_court_first"].duplicate()
-	elif toll > 0:
-		lines.append("(The Toll: %d gleam. The satchel: wherever you dropped it.)" % toll)
-	_show_story(_story_config("hollow_court", lines),
-		func(_i: int) -> void: _show_hub())
+	var extra: Array = []
+	if toll > 0:
+		extra.append({"text": "The Toll: %d gleam. The satchel stays wherever you dropped it." % toll,
+			"rule": true})
+	_show_hollow_court(_show_hub, extra)

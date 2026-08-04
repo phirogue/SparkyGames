@@ -172,6 +172,67 @@ func test_opening_cards_never_invent_energy() -> void:
 	assert_eq(state.hand, ["ferocity_1", "ferocity_1"] as Array, "only what was there")
 	assert_true(state.deck.is_empty(), "and the deck is not padded")
 
+## A survivable fight cannot kill you (the rag-wraith is a lesson about
+## declining a fight, and a lesson you can fail to death is a lesson nobody
+## hears). It still HURTS — the floor is 1, not invulnerability.
+func test_hp_floor_makes_a_fight_survivable() -> void:
+	var state := CombatState.create(catalog, 4, {
+		"player_hp": 3, "shuffle": false, "hp_floor": 1,
+		"deck": ["ferocity_1", "ferocity_1", "ferocity_1"],
+		"skills": ["pounce"], "enemy": "rag_wraith",
+	})
+	for i in 6:
+		if state.outcome != CombatState.Outcome.ONGOING:
+			break
+		assert_ok(state.do_command({"type": "end_turn"}))
+	assert_eq(state.player_hp, 1, "damage stops at the floor")
+	assert_eq(state.outcome, CombatState.Outcome.ONGOING, "and never becomes a death")
+	assert_true(int(state.flags["damage_taken"]) > 0, "but the hits still landed")
+
+
+## A scripted fight ends when the script says, not when the grind does.
+func test_doom_turn_finishes_an_unwinnable_fight() -> void:
+	var state := CombatState.create(catalog, 4, {
+		"player_hp": 40, "shuffle": false, "doom_turn": 6,
+		"deck": ["ferocity_1", "ferocity_1", "ferocity_1"],
+		"skills": ["pounce"], "enemy": "the_unpicked",
+	})
+	for i in 5:
+		assert_ok(state.do_command({"type": "end_turn"}), "turn %d" % (i + 1))
+		assert_eq(state.outcome, CombatState.Outcome.ONGOING, "still standing on turn %d" % (i + 1))
+	assert_eq(state.turn, 6, "the sixth turn is the last one")
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_eq(state.outcome, CombatState.Outcome.DEFEAT, "it finishes what it came to do")
+
+
+## Case It draws 2 ON TOP of the opening hand, even past the usual limit —
+## the owner asked whether Case should mean five cards, and it must.
+func test_case_it_opens_the_hand_to_five() -> void:
+	var state := CombatState.create(catalog, 9, {
+		"player_hp": 10, "shuffle": false,
+		"deck": ["shadow_1", "shadow_1", "ferocity_1", "guile_1", "guile_1", "guile_1"],
+		"opening_cards": ["guile_1", "guile_1"],
+		"skills": ["pounce"], "enemy": "rag_wraith",
+	})
+	assert_eq(state.hand.size(), 3, "three to start")
+	assert_ok(state.do_command({"type": "approach", "mode": "case"}), "case it")
+	assert_eq(state.hand.size(), 3 - 2 + 2, "two Guile paid, two cards studied out")
+
+
+## The chronicle has to be able to say what an action DID, not just that it
+## happened (owner 2026-08-04: "include the effects of the actions").
+func test_the_journal_records_numbers() -> void:
+	var state := _wisp_fight()
+	state.take_journal()
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "slink"}), "slink")
+	var after_block := "\n".join(state.take_journal())
+	assert_true(after_block.contains("Guard +3"), "block is recorded: " + after_block)
+	assert_ok(state.do_command({"type": "end_turn"}))
+	var after_enemy := "\n".join(state.take_journal())
+	assert_true(after_enemy.contains("Flicker Bite"), "the move is named: " + after_enemy)
+	assert_true(after_enemy.contains("blocked"), "and what the guard soaked: " + after_enemy)
+
+
 func test_the_night_presses() -> void:
 	var state := CombatState.create(catalog, 3, {
 		"player_hp": 40,

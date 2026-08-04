@@ -85,6 +85,38 @@ var outcome: int = Outcome.ONGOING
 ## first: the prologue's whole point is that Ash cannot walk away from that
 ## room, and a Slip Away button there was a lie told by the UI.
 var no_retreat: bool = false
+## Scripted fights that must not kill you (owner rule 2026-08-04). The
+## rag-wraith is a lesson about declining a fight, and a lesson you can fail
+## to death is a lesson nobody hears. Damage stops here instead of at zero.
+var hp_floor: int = 0
+## The turn this fight ENDS, decided (owner rule 2026-08-04: "a maximum of 6
+## moves... so that the player is not struggling for too long"). The Unpicked
+## cannot be beaten and should not be ground against; on this turn it simply
+## finishes what it came to do.
+var doom_turn: int = 0
+
+## Human-readable record of what each action actually DID — damage rolled,
+## block soaked, cards lifted. The chronicle reads from here, so the log can
+## say "Empty Sleeve: 6 damage (3 blocked)" instead of "Empty Sleeve.".
+## Informational only: nothing in the rules reads it back (same contract as
+## _events), so it cannot desync core behaviour.
+var _journal: Array[String] = []
+
+
+## Drains the mechanical record since the last call.
+func take_journal() -> Array[String]:
+	var out := _journal.duplicate()
+	_journal.clear()
+	return out
+
+
+## Apply damage to Ash, honouring the survivable-fight floor. Returns what was
+## actually lost, so callers report the true number.
+func _hurt(amount: int) -> int:
+	var lost := maxi(mini(amount, player_hp - hp_floor), 0)
+	player_hp -= lost
+	flags["damage_taken"] = int(flags["damage_taken"]) + lost
+	return lost
 
 # --- Environment (see data/environments.json) ---
 var cost_mod: Dictionary = {}       # humour -> +/- cost adjustment
@@ -121,6 +153,8 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 	state.paw_limit = int(config.get("paws", DEFAULT_PAWS))
 	state.paws_left = state.paw_limit
 	state.no_retreat = bool(config.get("no_retreat", false))
+	state.hp_floor = int(config.get("hp_floor", 0))
+	state.doom_turn = int(config.get("doom_turn", 0))
 	state.enemy_id = String(config.get("enemy", ""))
 	var enemy_def: Dictionary = p_catalog.enemies[state.enemy_id]
 	state.enemy_max_hp = int(enemy_def["hp"])
@@ -415,6 +449,7 @@ func _cmd_play_skill(skill_id: String) -> Dictionary:
 		state["charges_left"] -= 1
 	var used: Dictionary = flags["skills_used"]
 	used[skill_id] = int(used.get(skill_id, 0)) + 1
+	_journal.append("Ash: %s." % def["name"])
 	_apply_effects(def.get("effects", []))
 	_check_end()
 	if outcome == Outcome.VICTORY and flags["killing_skill"] == "":
@@ -485,6 +520,12 @@ func _cmd_concentrate(humour: String) -> Dictionary:
 
 func _cmd_end_turn() -> Dictionary:
 	_enemy_act()
+	# A scripted fight ends when the script says so, not when the grind does.
+	if outcome == Outcome.ONGOING and doom_turn > 0 and turn >= doom_turn:
+		player_hp = 0
+		outcome = Outcome.DEFEAT
+		_events.append("undone")
+		_journal.append("It finishes what it came to do.")
 	if outcome != Outcome.ONGOING:
 		return {"ok": true, "error": ""}
 	# --- start of next player turn ---
@@ -605,11 +646,17 @@ func _apply_effects(effects: Array) -> void:
 					amount += 1
 					sharpened = false
 					_events.append("sharpened_strike")
+				amount = mini(amount, maxi(enemy_hp, 0))
 				enemy_hp -= amount
+				_journal.append("  %d damage." % amount)
 			"block":
 				player_block += int(effect["amount"])
+				_journal.append("  Guard +%d (now %d)." % [
+					int(effect["amount"]), player_block])
 			"heal":
+				var before := player_hp
 				player_hp = mini(player_hp + int(effect["amount"]), player_max_hp)
+				_journal.append("  Heal %d (now %d)." % [player_hp - before, player_hp])
 			"channel_heal":  # Purr: heals over time, broken by taking damage
 				channel = {
 					"heal_per_turn": int(effect["amount"]),
@@ -651,26 +698,39 @@ func _enemy_act() -> void:
 			"target": "health",
 			"amount": maxi(int(intent.get("amount", 2)) + 1, 3),
 		}
+	var name := String(intent["name"])
 	match intent["target"]:
 		"health":
 			# mode "pierce": the hit ignores block entirely — the anti-turtle
 			# tool (2026-08-03). Turtling must have a counter somewhere or
 			# the defender line wins everything (sim pass 4).
-			var blocked := 0 if intent.get("mode", "") == "pierce" else player_block
-			var damage := maxi(int(intent["amount"]) + rage_bonus - blocked, 0)
-			player_hp -= damage
-			flags["damage_taken"] = int(flags["damage_taken"]) + damage
-			if damage > 0 and not channel.is_empty():
+			var swing := int(intent["amount"]) + rage_bonus
+			var blocked := 0 if intent.get("mode", "") == "pierce" else mini(player_block, swing)
+			var lost := _hurt(swing - blocked)
+			_journal.append("%s: %s — %d damage%s" % [
+				catalog.enemies[enemy_id]["name"], name, lost,
+				" (%d blocked)" % blocked if blocked > 0 else ""])
+			if lost > 0 and not channel.is_empty():
 				channel = {}  # a purr you can't finish
+				_journal.append("The purr breaks.")
 		"skills":
 			var targets: Array = skills.filter(
 				func(s): return s["charges_left"] > 0 and s["jammed_turns"] == 0)
-			if not targets.is_empty():
+			if targets.is_empty():
+				_journal.append("%s: %s — nothing left to unpick." % [
+					catalog.enemies[enemy_id]["name"], name])
+			else:
 				var victim: Dictionary = targets[rng.pick_index(targets.size())]
+				var victim_name := String(catalog.skills[victim["id"]]["name"])
 				if intent.get("mode", "jam") == "burn":
 					victim["charges_left"] -= 1
+					_journal.append("%s: %s — burns a use of %s." % [
+						catalog.enemies[enemy_id]["name"], name, victim_name])
 				else:
 					victim["jammed_turns"] = int(intent.get("amount", 1))
+					_journal.append("%s: %s — jams %s for %d." % [
+						catalog.enemies[enemy_id]["name"], name, victim_name,
+						int(intent.get("amount", 1))])
 		"hand":
 			# Loafed is the ONE guard against theft (owner rule 2026-08-03):
 			# block soaks damage, but nothing used to answer a thief, so a
@@ -678,15 +738,22 @@ func _enemy_act() -> void:
 			# own paws has nothing loose to take.
 			if statuses.get("loafed", 0) > 0:
 				_events.append("loaf_guarded")
+				_journal.append("%s: %s — finds nothing loose to take." % [
+					catalog.enemies[enemy_id]["name"], name])
 			else:
+				var taken: Array[String] = []
 				for i in int(intent["amount"]):
 					var pool: Array = hand if not hand.is_empty() else banked
 					if pool.is_empty():
 						break
 					var index := rng.pick_index(pool.size())
+					taken.append(String(catalog.energy_cards[pool[index]]["name"]))
 					spent.append(pool[index])
 					pool.remove_at(index)
 					flags["hand_lost"] = int(flags["hand_lost"]) + 1
+				_journal.append("%s: %s — takes %s." % [
+					catalog.enemies[enemy_id]["name"], name,
+					", ".join(taken) if not taken.is_empty() else "nothing (empty paws)"])
 	_check_end()
 
 
