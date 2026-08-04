@@ -2,6 +2,8 @@ extends TestCase
 ## SaveService: migration, deep-merge of new defaults into old saves, and a
 ## full write/read round-trip against scratch paths (never the real profile).
 
+const BattleScreen := preload("res://scenes/battle.gd")
+
 const TEST_PROFILE := "user://test_profile.json"
 const TEST_TEMP := "user://test_profile.tmp"
 const TEST_BACKUP := "user://test_profile.bak"
@@ -105,12 +107,12 @@ func test_no_save_returns_defaults() -> void:
 	assert_eq(loaded["skills"], ["scratch"] as Array, "default skills")
 
 
-func test_battle_loadout_auto_derives_first_three() -> void:
+func test_battle_loadout_auto_derives_first_owned() -> void:
 	var loadout := SaveService.battle_loadout({
 		"skills": ["scratch", "pounce", "slink", "purr", "loaf"], "loadout": [],
 	})
-	assert_eq(loadout, ["scratch", "pounce", "slink", "purr"] as Array,
-		"empty loadout = Scratch + first three owned")
+	assert_eq(loadout, ["scratch", "pounce", "slink", "purr", "loaf"] as Array,
+		"empty loadout = Scratch + the first owned, up to LOADOUT_SIZE")
 
 
 func test_battle_loadout_respects_player_choice() -> void:
@@ -131,9 +133,14 @@ func test_battle_loadout_filters_unowned_and_caps() -> void:
 		"unowned and duplicate picks are dropped; cap holds")
 
 
-func test_battle_loadout_never_exceeds_four() -> void:
+func test_battle_loadout_never_exceeds_the_law() -> void:
 	var loadout := SaveService.battle_loadout({
 		"skills": ["scratch", "pounce", "slink", "purr", "loaf", "swat", "shelf_justice"],
 		"loadout": [],
 	})
-	assert_eq(loadout.size(), 4, "loadout law: 4 out at a time, Scratch included")
+	assert_eq(loadout.size(), SaveService.LOADOUT_SIZE,
+		"loadout law: LOADOUT_SIZE out at a time, Scratch included")
+	# The battle tray is built with exactly this many columns; if the law
+	# moves, battle.gd's width budget has to move with it.
+	assert_eq(SaveService.LOADOUT_SIZE, BattleScreen.SKILL_COLUMNS,
+		"the skill tray must have one column per loadout slot")

@@ -22,7 +22,8 @@ var scenarios := [
 	{"name": "wisp (stage 1)", "enemy": "gutter_wisp", "skills": ["scratch", "pounce"], "hp": 10},
 	{"name": "dog (stage 2)", "enemy": "chained_dog", "skills": ["scratch", "pounce", "slink"], "hp": 10},
 	{"name": "wraith (stage 3)", "enemy": "rag_wraith", "skills": ["scratch", "slink", "purr", "loaf"], "hp": 10},
-	{"name": "unpicked (boss)", "enemy": "the_unpicked", "skills": ["scratch", "slink", "purr", "loaf"], "hp": 10},
+	{"name": "unpicked (boss)", "enemy": "the_unpicked", "skills": ["scratch", "slink", "purr", "loaf"], "hp": 10,
+		"no_retreat": true},
 	{"name": "watch captain (quest)", "enemy": "garden_watch_captain", "skills": ["scratch", "pounce", "slink", "shelf_justice"], "hp": 12,
 		"environment": {"stealth_threshold": 5, "cost_mod": {"ferocity": 1}}},
 	{"name": "wisp pair (quest)", "enemy": "wisp_pair", "skills": ["scratch", "pounce", "slink", "purr"], "hp": 12},
@@ -63,6 +64,8 @@ func _run_cell(scenario: Dictionary, bot: String) -> void:
 			"skills": scenario["skills"].filter(func(s): return s != "scratch"),
 			"enemy": scenario["enemy"],
 			"environment": scenario.get("environment", {}),
+			# The boss has no back door; a flee% for it would be fiction.
+			"no_retreat": scenario.get("no_retreat", false),
 		})
 		_play(state, bot)
 		match state.outcome:
@@ -111,7 +114,7 @@ func _choose_approach(state: CombatState, bot: String) -> void:
 		"random":
 			var modes := CombatState.APPROACHES.keys()
 			pick = modes[state.rng.pick_index(modes.size())]
-	if pick != "" and state.can_pay(state.effective_cost(CombatState.APPROACHES[pick]["cost"])):
+	if pick != "" and state.can_pay(CombatState.APPROACHES[pick]["cost"]):
 		state.do_command({"type": "approach", "mode": pick})
 
 

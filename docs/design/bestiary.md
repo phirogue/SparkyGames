@@ -38,7 +38,7 @@ different problem in a different place.
 | The Hollow Court | No sun has ever reached this desk. | - | - | - |
 | Needle Lane, Night | Deep fog: Shadow costs 1 less. | Shadow -1 | - | - |
 | Needle Lane, Wrong | The lamps are out. The dark is deeper than it should be. | Shadow -1 | - | - |
-| The Parlor | Her room remembers her: Mysticism costs 1 less. | Moonlight -1 | - | - |
+| The Parlor | Her room remembers her: Moonlight costs 1 less. | Moonlight -1 | - | - |
 | The Parlor, Before | Warm, and hers. | Moonlight -1 | turns 2, 4 | - |
 | The Rooftops, Dusk | Last light: sunbeams on turns 2 and 4 return a spent card. | - | turns 2, 4 | - |
 | The Shambles, After Hours | Everything is negotiable: Guile costs 1 less. | Guile -1 | turns 3 | - |
@@ -105,7 +105,7 @@ Fought in: The Captain's Lawn (The Back Gardens)
 
 **6 hp**  ·  **4 gleam**  ·  cycle of 2, repeating
 
-Fought in: The Vole Dispute (The Rooftops, Dusk), Something in the Gutter (The Rooftops, Dusk)
+Fought in: A Small Lie, Overheard (Needle Lane, Night), Something in the Gutter (The Rooftops, Dusk)
 
 | Turn | Move | Target | Effect |
 |---|---|---|---|
@@ -122,7 +122,7 @@ Fought in: The Vole Dispute (The Rooftops, Dusk), Something in the Gutter (The R
 
 **18 hp**  ·  **12 gleam**  ·  cycle of 3, repeating
 
-Fought in: The Wrong Quiet (Needle Lane, Night)
+Fought in: The Wrong Quiet (Needle Lane, Wrong)
 
 | Turn | Move | Target | Effect |
 |---|---|---|---|

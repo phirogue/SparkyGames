@@ -1,11 +1,11 @@
 {
   "prologue_wisp": {
     "id": "prologue_wisp",
-    "name": "The Vole Dispute",
+    "name": "A Small Lie, Overheard",
     "enemies": [
       "gutter_wisp"
     ],
-    "environment": "rooftop_dusk"
+    "environment": "needle_lane"
   },
   "prologue_dog": {
     "id": "prologue_dog",
@@ -21,7 +21,7 @@
     "enemies": [
       "rag_wraith"
     ],
-    "environment": "needle_lane"
+    "environment": "needle_lane_wrong"
   },
   "prologue_parlor": {
     "id": "prologue_parlor",
@@ -29,7 +29,8 @@
     "enemies": [
       "the_unpicked"
     ],
-    "environment": "parlor_cold"
+    "environment": "parlor_cold",
+    "no_retreat": true
   },
   "q_rounds_wisp": {
     "id": "q_rounds_wisp",

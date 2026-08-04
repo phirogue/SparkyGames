@@ -705,9 +705,13 @@ func _run_prologue_scene(index: int) -> void:
 				carryover["deck"] = pool
 			if scene.has("shuffle"):
 				extra["shuffle"] = scene["shuffle"]
+			if scene.has("opening_cards"):
+				# Scripted opener: the beat that teaches Shadow deals the
+				# Shadow. One deck for the whole night, dealt on purpose.
+				extra["opening_cards"] = scene["opening_cards"]
 			if scene.has("skills"):
-				# Loadout law: a battle can pin the carried kit (max 4 with
-				# Scratch) even when the profile owns more skills.
+				# Loadout law: a battle can pin the carried kit (Scratch plus
+				# LOADOUT_SIZE-1) even when the profile owns more skills.
 				extra["skills"] = scene["skills"]
 			if scene.get("no_approach", false):
 				extra["no_approach"] = true
@@ -938,7 +942,8 @@ func _offer_press_on(just_earned: int) -> void:
 		"color": environment.get("color", "#22242a"),
 		"accent": environment.get("accent", "#d8ccb4"),
 		"heading": environment.get("name", ""),
-		"choices": ["Press On", "Slip Away (bank %d)" % satchel],
+		"choices": ["Press On", "Slip Away (bank %d of %d)" % [
+			satchel - int(floor(satchel * SLIP_FORFEIT)), satchel]],
 	}, func(choice: int) -> void:
 		if choice == 0:
 			tracker.increment("pressed_on")
@@ -981,18 +986,29 @@ func _finish_quest() -> void:
 	]), func(_i: int) -> void: _show_hub())
 
 
+## Slipping away has a PRICE (owner rule 2026-08-03 — "there is still no
+## consequence to slipping away"). Two of them, in fact: the enemy's parting
+## move lands in CombatState, and going over the wall in a hurry spills half
+## the satchel. Pressing on one more room is a real bet again.
+const SLIP_FORFEIT := 0.5
+
+
 func _prowl_retreat() -> void:
-	profile["gleam"] = int(profile["gleam"]) + satchel
+	var dropped := int(floor(satchel * SLIP_FORFEIT))
+	var kept := satchel - dropped
+	profile["gleam"] = int(profile["gleam"]) + kept
 	if not quest.is_empty():
 		profile["journal"].append("Withdrew from %s. The quest keeps." % quest["name"])
-	if satchel > 0:
-		for id in tracker.increment("gleam_banked", satchel):
+	if kept > 0:
+		for id in tracker.increment("gleam_banked", kept):
 			toasts.append("★ %s" % catalog.achievements[id]["name"])
 	_save()
-	_show_story(_story_config("parlor_cold", [
-		"Home by the gutters. %d gleam banked." % satchel,
-		"The quest keeps. Quests do. It is one of their few virtues.",
-	]), func(_i: int) -> void: _show_hub())
+	var lines: Array = ["Home by the gutters. %d gleam banked." % kept]
+	if dropped > 0:
+		lines.append("%d gleam went over the wall without me. You cannot run and hold." % dropped)
+	lines.append("The quest keeps. Quests do. It is one of their few virtues.")
+	_show_story(_story_config("parlor_cold", lines),
+		func(_i: int) -> void: _show_hub())
 
 
 func _prowl_death() -> void:

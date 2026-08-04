@@ -127,6 +127,12 @@ stability) — UI must go through `Catalog.humour_name()`.
     binary never imports; after adding images to `game/assets/`, run
     `godot --headless --path game --import` once or the tour shows black
     placeholders for files that exist (cost two full tour cycles now).
+    Wiring itself is `python tools/wire_assets.py` — never hand-copy from
+    `assets/library/`. Done by hand, the shipped skill cards fell a whole
+    generation behind the library and the title logo kept a bare-necked Ash
+    long after he had the neckerchief. The script deliberately skips
+    `library/ui/` chrome: those masters sit on opaque fields and the shipped
+    copies were keyed and trimmed by hand (laws 3 and 5).
 12. **Screens keep FIXED zone templates.** Zone heights are named consts
     at the top of each scene script and must sum (with separations) to
     UITheme.CONTENT_HEIGHT exactly. New content goes INTO an existing
@@ -152,6 +158,18 @@ stability) — UI must go through `Catalog.humour_name()`.
     invariant; "nobody would do that" is a bug report, not a defence.
     The `chaos-playtester` agent designs new attacks when the sweep has
     been green for a while.
+15. **Never clear a container that holds a sibling you keep a handle on.**
+    `_refresh_hand_fan` used to `_clear(hand_fan)`, which freed the
+    `banked_row` living inside it; every later `_refresh()` then died
+    *half-done* on the freed node — the counters updated, the hand and tray
+    did not. Six separate entries on one defect list (hand never shrank,
+    spent skills never faded, fed pips never filled, the stalked opening
+    hand stayed at three) were all this one line. Rebuildable content gets
+    its OWN child layer.
+16. **Player-facing text is validated, not remembered.** `Catalog.validate()`
+    now fails any content field that shows the player "Mysticism" — the data
+    id whose name is Moonlight. Code went through `humour_name()`; the
+    Parlor's hand-written `rule_text` did not, and shipped for a chapter.
 
 ## Project conventions
 

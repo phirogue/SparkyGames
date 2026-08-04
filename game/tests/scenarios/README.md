@@ -22,7 +22,7 @@ throwaway: scenarios NEVER touch the real save.
 ```
 
 - `profile` keys mirror `SaveService.DEFAULT_PROFILE`: `skills` (owned),
-  `loadout` (chosen ≤3, empty = auto), `deck` (energy card ids), `gleam`,
+  `loadout` (chosen, up to `SaveService.LOADOUT_SIZE - 1`; empty = auto), `deck` (energy card ids), `gleam`,
   `max_hp`, `prologue_done`, `flags`, `codex`, `achievements`, and the
   chapter spine — `case` (`{active, evidence, leads_done}`), `standing`
   (guild id → int), `favors` (knot ids), `quests_done`.

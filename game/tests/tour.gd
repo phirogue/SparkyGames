@@ -20,6 +20,7 @@ var _last_screen: Control = null
 var _story_taps := 0
 var _did_card_modal := false
 var _did_concentrate := false
+var _did_partial_charge := false
 var _battle_taps := 0
 
 
@@ -151,11 +152,26 @@ func _tour_battle(screen: Control, fresh: bool) -> void:
 		return
 	if screen.detail_overlay != null and screen.detail_overlay.visible:
 		await _shot("battle_skill_detail")
-		# Power the card fully (owner mechanic), then fire if ready.
+		# Power the card fully (owner mechanic), then fire if ready. The FIRST
+		# feed gets its own shot: a partly-powered card is the state the owner
+		# read as "an empty circle yet to be filled", so it has to be visible
+		# in the tour or the next regression is invisible too.
 		var guard := 0
 		while screen.detail_charge.visible and not screen.detail_charge.disabled and guard < 8:
+			var skill_id: String = screen.selected_skill
 			screen._on_detail_charge()
 			guard += 1
+			if guard == 1 and screen.detail_pips.visible and not _did_partial_charge:
+				_did_partial_charge = true
+				await _wait(0.2)
+				await _shot("battle_skill_charged")
+				# ...and back out to the board: energy fed onto a card has to
+				# still read as fed once the popup is gone (owner defect).
+				screen._close_detail()
+				await _wait(0.3)
+				await _shot("battle_tray_powered")
+				screen._on_skill_selected(skill_id)
+				await _wait(0.2)
 		if not screen.detail_use.disabled:
 			screen._on_detail_use()
 		else:

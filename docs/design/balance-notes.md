@@ -154,3 +154,22 @@ time with:*
 - Bot gap to humans: bots don't bank cards or use Case; add a "combo" bot
   before trusting mid-game numbers.
 - Re-run this after EVERY content change — it's 30 seconds of CI-able truth.
+
+
+## Pass 5 — the 2026-08-03 defect-review rules (re-simmed)
+
+Four rules changed at once; the table above was re-run after all of them.
+
+| change | why | what the sim says |
+|---|---|---|
+| Loadout 4 -> 5 abilities out | owner: "fit 5 actions on the battle screen" | no measurable swing in the prologue (the kits there are 2-5 wide anyway); quest cells unchanged because the sim's kits were already 4 |
+| Approach costs ignore `cost_mod` | the chooser quoted a price it did not charge | stalker line unchanged outside Needle Lane; on fog maps Stalk now genuinely costs 2 Shadow, which is the tutorial's whole "your hand goes three to one" beat |
+| Slipping away eats the enemy's WHOLE telegraphed move | retreat from a thief or an unraveller used to cost literally nothing | wraith stalker flee% holds at 50%, so retreat is still a real out, not a trap |
+| `no_retreat` encounters | the Unpicked is not meant to be walked out of | **unpicked flee% 31% -> 0%, death 69% -> 100%** across every bot. The locked door is mechanical truth now, not a story claim the UI contradicted |
+| Loaf guards the hand from theft | block answered damage; NOTHING answered theft, so hand-attackers were unanswerable | defender lines hold; the change is a new answer rather than a new number, so it should show up as build diversity in a later pass, not here |
+
+Prologue deck note: the prologue now runs on ONE ordered 21-card deck laid
+down at the vole fight, with each later fight naming its `opening_cards`.
+Measured spool across a playthrough: **18 -> 17 -> 16 -> 13**, monotonically
+down. Before this it read 5 at the vole and 9 at the wisp, because each beat
+handed out a fresh pile of energy on top of a `refresh_spent` scene.

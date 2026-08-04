@@ -71,6 +71,25 @@ func test_approach_locks_after_acting() -> void:
 	assert_rejected(state.do_command({"type": "approach", "mode": "stalk"}),
 		"approach after acting")
 
+## An approach costs its LISTED price everywhere (owner rule 2026-08-03).
+## Needle Lane's fog takes 1 off Shadow, and it used to take it off Stalk
+## too — so the chooser quoted "Shadow 2" and charged 1, and the tutorial's
+## "your hand goes from three to one" stopped being true in the one place
+## the tutorial happens.
+func test_approach_price_ignores_the_environment_discount() -> void:
+	# Unshuffled decks are drawn from the BACK: these three Shadow are the
+	# opening hand.
+	var state := _fight(
+		["guile_1", "ferocity_2", "shadow_1", "shadow_1", "shadow_1"],
+		"gutter_wisp",
+		{"opening_hand": 3, "environment": {"cost_mod": {"shadow": -1}}})
+	assert_eq(state.hand.size(), 3, "opening hand")
+	assert_eq(state.effective_cost({"shadow": 1}), {} as Dictionary,
+		"the fog really does make Slink free")
+	assert_ok(state.do_command({"type": "approach", "mode": "stalk"}), "stalk")
+	assert_eq(state.hand.size(), 1, "Stalk still costs a flat 2 Shadow")
+
+
 func test_start_hidden_config() -> void:
 	var state := _fight(["guile_1", "ferocity_2", "shadow_1", "shadow_1", "guile_1", "ferocity_2"],
 		"the_unpicked", {"start_hidden": true})

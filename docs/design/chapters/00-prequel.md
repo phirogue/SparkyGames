@@ -9,6 +9,35 @@ Design intent: the player should finish the prologue knowing the whole game
 loop (energy → skills → stealth → retreat → death → home) and *feeling* the
 premise: the one person who was hers is gone, and the city did it.
 
+> **AS SHIPPED — 2026-08-03 (owner: "the length of the prologue should be
+> about the typical length of a mission").** The ~12–15 minute target above is
+> superseded. A mission is 2–3 encounters and a handful of story cards, so the
+> prologue is now **four fights** — vole, gutter-wisp, rag-wraith, the
+> Unpicked — across ~14 story pages, which is one mission's shape.
+>
+> - **The chained dog lost its fight and kept its joke.** It is a line in the
+>   Needle-Lane-Wrong beat now ("The dog at Number Twelve does not even bark.
+>   We agree to disagree, and I go on."), not a fifth encounter. Guile and
+>   Loaf are taught in that same beat alongside Moonlight and Purr, so the
+>   wraith fight is the one where the full five-wide tray is on screen.
+> - **One deck for the whole night.** The vole fight lays down all 21 cards,
+>   ordered Ferocity→Shadow→Guile→Moonlight (decks draw from the back), and
+>   nothing is ever added again. Each later fight names its `opening_cards`
+>   so the beat that teaches a humour deals that humour. The spool therefore
+>   only goes DOWN: 18 → 17 → 16 → 13 in a measured playthrough. Handing out
+>   fresh energy per beat — plus a `refresh_spent` scene — used to make it
+>   read 5 at the vole and 9 at the wisp, which taught the wrong lesson about
+>   the one resource the run is built on.
+> - **The wisp wants what a wisp would want.** It eats small lies and covets
+>   bright things, so it is no longer "interested in the vole" — it comes for
+>   the lie Ash told two scenes earlier about not chasing the silver thread.
+> - **The Unpicked has no Slip Away button.** The encounter carries
+>   `no_retreat`, so the room the story says he cannot leave is a room he
+>   cannot leave.
+> - **Rules are not narration.** Lines authored as `{text, rule: true}`
+>   render in smallcaps accent instead of Ash's italic voice, so "New tonight:
+>   SHADOW" reads as the game talking and not as another of his asides.
+
 ---
 
 ## Prowl 1 — "The Long Way Home" *(teaches: turns, energy, skills, sunbeams)*

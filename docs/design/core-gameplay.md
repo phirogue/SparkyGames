@@ -48,6 +48,22 @@
 > - **Long-rest loadouts (owner rule).** Deck composition and equipped skills
 >   change only at a long rest (the Mantel between prowls). Mid-prowl you are
 >   who you packed. Catnaps refresh charges but never re-fit the kit.
+> **v0.3 additions (2026-08-03, owner defect review, implemented):**
+>
+> - **Five out at a time.** The loadout law rose from four abilities to five,
+>   Scratch included (`SaveService.LOADOUT_SIZE`) — more room for a plan. The
+>   battle tray is built with exactly one column per slot, so the number is a
+>   shared constant, not two numbers that agree by luck.
+> - **Approaches cost a flat price.** The environment's `cost_mod` no longer
+>   discounts them: how Ash goes in is about Ash, not about the alley, and the
+>   chooser now names the bill in words ("Stalk — Spend 2 Shadow Energy").
+> - **Slipping away costs something.** The enemy's WHOLE telegraphed move
+>   lands on your back as you go — previously only attacks that targeted
+>   health did, so walking out on a thief was free — and at the prowl level
+>   half the satchel goes over the wall with you. Some encounters have no back
+>   door at all (`no_retreat`, first used by the Unpicked).
+> - **Loaf guards the hand.** Block answers damage; nothing answered theft, so
+>   a hand-attacker was unanswerable. A loafed cat has nothing loose to take.
 > - **Decisions with consequences.** Story choices set flags that alter
 >   mechanics and later scenes (first one shipped: the prologue route-home
 >   choice — a Moonlight card of her stitching vs entering the boss with
@@ -191,7 +207,8 @@ A story game can't treat death as free. The structure:
 
 A run ("prowl") is 2–4 encounters deep along one path — no map screen.
 
-- After each encounter: **Slip Away** (bank all) or **Press On** (next
+- After each encounter: **Slip Away** (bank half — running spills the rest,
+  owner rule 2026-08-03) or **Press On** (next
   encounter richer: better loot multiplier, rarer evidence, deeper story).
 - Odds are **visible and countable** (research rule): the next encounter's
   danger is shown as omens (paw-print icons), your remaining deck/charges are

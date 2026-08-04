@@ -46,6 +46,11 @@ var paws_left: int = DEFAULT_PAWS
 ## Locked once any other command is taken. Initiative emerges from the
 ## choice: stalk = you act from hiding, ambush = you strike first but anger
 ## it, case = you learn, ward = you prepare, walk in = free.
+##
+## Approach prices are FLAT — the environment's cost_mod does not touch them
+## (owner rule 2026-08-03). How you go in is about you, not about the alley,
+## and a discount here made the chooser quote a price the player could not
+## predict: "Stalk" cost 2 Shadow on the roof and 1 in the fog.
 const APPROACHES := {
 	"stalk": {"cost": {"shadow": 2}, "name": "Stalk"},
 	"ambush": {"cost": {"ferocity": 2}, "name": "Ambush"},
@@ -76,6 +81,10 @@ var _intent_index: int = 0
 
 var turn: int = 1
 var outcome: int = Outcome.ONGOING
+## Some fights have no back door (owner rule 2026-08-03). The Unpicked is the
+## first: the prologue's whole point is that Ash cannot walk away from that
+## room, and a Slip Away button there was a lie told by the UI.
+var no_retreat: bool = false
 
 # --- Environment (see data/environments.json) ---
 var cost_mod: Dictionary = {}       # humour -> +/- cost adjustment
@@ -111,6 +120,7 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 		})
 	state.paw_limit = int(config.get("paws", DEFAULT_PAWS))
 	state.paws_left = state.paw_limit
+	state.no_retreat = bool(config.get("no_retreat", false))
 	state.enemy_id = String(config.get("enemy", ""))
 	var enemy_def: Dictionary = p_catalog.enemies[state.enemy_id]
 	state.enemy_max_hp = int(enemy_def["hp"])
@@ -133,8 +143,21 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 				state._events.append("sharpened")
 	if config.get("shuffle", true):
 		state.rng.shuffle(state.deck)
+	# Scripted openers (tutorial rule): a scene may name the exact cards the
+	# fight starts with, pulled out of the deck wherever they sit. This is
+	# what lets the prologue run on ONE deck that only ever shrinks — the
+	# alternative was handing out a fresh pile of energy before each fight,
+	# which made the spool jump UP mid-night (owner defect list). Named cards
+	# the deck no longer holds are simply skipped; the normal draw fills in.
+	for card_id in config.get("opening_cards", []):
+		if state.hand.size() >= HAND_LIMIT:
+			break
+		var index := state.deck.rfind(card_id)  # nearest the top of the deck
+		if index >= 0:
+			state.hand.append(state.deck[index])
+			state.deck.remove_at(index)
 	var opening := mini(int(config.get("opening_hand", OPENING_HAND)), HAND_LIMIT)
-	for i in opening:
+	while state.hand.size() < opening and not state.deck.is_empty():
 		state._draw_one()
 	return state
 
@@ -260,7 +283,7 @@ func _cmd_approach(mode: String) -> Dictionary:
 		return _fail("the moment for a clever entrance has passed")
 	if not APPROACHES.has(mode):
 		return _fail("unknown approach '%s'" % mode)
-	var cost := effective_cost(APPROACHES[mode]["cost"])
+	var cost: Dictionary = APPROACHES[mode]["cost"]
 	if not can_pay(cost):
 		return _fail("not enough energy to %s" % mode)
 	_pay(cost)
@@ -399,17 +422,19 @@ func _cmd_play_skill(skill_id: String) -> Dictionary:
 	return {"ok": true, "error": ""}
 
 
-## Retreat is never free (owner rule 2026-08-02): turning tail gives the
-## enemy one parting strike — its telegraphed move lands on your back when
-## it targets health (block still counts; from hiding you exit clean).
+## Retreat is never free (owner rule 2026-08-02, sharpened 2026-08-03): the
+## night gets one last word. Turning your back plays out the enemy's WHOLE
+## telegraphed move — not only the ones that target health, which is why
+## slipping away from a thief or an unraveller used to cost exactly nothing.
+## Block still counts, and from hiding you exit clean.
 func _cmd_slip_away() -> Dictionary:
-	var intent := current_intent()
-	if not hidden and intent["target"] == "health":
-		var damage := maxi(int(intent.get("amount", 0)) - player_block, 0)
-		player_hp -= damage
-		flags["damage_taken"] = int(flags["damage_taken"]) + damage
-		if damage > 0:
-			_events.append("parting_shot")
+	if no_retreat:
+		return _fail("there is no slipping away from this one")
+	if not hidden:
+		_events.append("parting_shot")
+	_enemy_act()
+	if outcome != Outcome.ONGOING:
+		return {"ok": true, "error": ""}
 	outcome = Outcome.DEFEAT if player_hp <= 0 else Outcome.RETREATED
 	return {"ok": true, "error": ""}
 
@@ -647,14 +672,21 @@ func _enemy_act() -> void:
 				else:
 					victim["jammed_turns"] = int(intent.get("amount", 1))
 		"hand":
-			for i in int(intent["amount"]):
-				var pool: Array = hand if not hand.is_empty() else banked
-				if pool.is_empty():
-					break
-				var index := rng.pick_index(pool.size())
-				spent.append(pool[index])
-				pool.remove_at(index)
-				flags["hand_lost"] = int(flags["hand_lost"]) + 1
+			# Loafed is the ONE guard against theft (owner rule 2026-08-03):
+			# block soaks damage, but nothing used to answer a thief, so a
+			# hand-attacker was strictly unanswerable. A cat folded over its
+			# own paws has nothing loose to take.
+			if statuses.get("loafed", 0) > 0:
+				_events.append("loaf_guarded")
+			else:
+				for i in int(intent["amount"]):
+					var pool: Array = hand if not hand.is_empty() else banked
+					if pool.is_empty():
+						break
+					var index := rng.pick_index(pool.size())
+					spent.append(pool[index])
+					pool.remove_at(index)
+					flags["hand_lost"] = int(flags["hand_lost"]) + 1
 	_check_end()
 
 

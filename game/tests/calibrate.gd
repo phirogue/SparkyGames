@@ -11,14 +11,16 @@ extends SceneTree
 ## in sync with each screen's layout contract.
 ##   godot --path game -s tests/calibrate.gd -- zones battle|story|choice|hub
 const ZONE_MAPS := {
+	# Keep in sync with battle.gd's ZONE_* constants (law 12). Heights sum to
+	# 1086; the six 3px separations make up CONTENT_HEIGHT's remaining 18.
 	"battle": [
-		["A header", 120, Color("c2884a")],
-		["B opponent", 400, Color("a24a3a")],
-		["C chronicle", 52, Color("7a6a4a")],
-		["D status", 64, Color("4a7a5a")],
-		["E hand", 168, Color("4a5a8a")],
-		["F skills", 150, Color("6a4a7a")],
-		["G buttons", 100, Color("8a7a2a")],
+		["A header", 98, Color("c2884a")],
+		["B opponent", 396, Color("a24a3a")],
+		["C chronicle", 150, Color("7a6a4a")],
+		["D status", 56, Color("4a7a5a")],
+		["E hand", 140, Color("4a5a8a")],
+		["F skills (5 x 107)", 150, Color("6a4a7a")],
+		["G buttons", 96, Color("8a7a2a")],
 	],
 	"story": [
 		["art (fixed)", 680, Color("a24a3a")],

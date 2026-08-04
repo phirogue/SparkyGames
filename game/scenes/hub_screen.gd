@@ -64,7 +64,8 @@ func _ready() -> void:
 	# Chips rebuild on refresh so newly-earned skills appear immediately.
 	loadout_title = _label(root, 24)
 	loadout_title.add_theme_color_override("font_color", UITheme.INK_SOFT)
-	loadout_title.text = "On the prowl — Scratch and three others. Tap to swap:"
+	loadout_title.text = "On the prowl — Scratch and %d others. Tap to swap:" % [
+		SaveService.LOADOUT_SIZE - 1]
 	loadout_flow = HFlowContainer.new()
 	loadout_flow.add_theme_constant_override("h_separation", 8)
 	loadout_flow.add_theme_constant_override("v_separation", 6)
@@ -270,7 +271,7 @@ func _on_loadout_toggle(pressed: bool, skill_id: String) -> void:
 	picked.erase("scratch")
 	if pressed and not picked.has(skill_id):
 		picked.append(skill_id)
-		while picked.size() > 3:
+		while picked.size() > SaveService.LOADOUT_SIZE - 1:
 			picked.pop_front()  # the oldest pick steps aside
 	elif not pressed:
 		picked.erase(skill_id)

@@ -106,6 +106,72 @@ func test_slip_away_takes_a_parting_shot() -> void:
 	assert_eq(state.player_hp, hp_before - 2, "one strike lands on the way out")
 	assert_eq(state.outcome, CombatState.Outcome.RETREATED, "but away is away")
 
+## Retreat used to be free against anything that wasn't swinging at your
+## health — you could walk out on a thief and lose nothing at all (owner:
+## "there is still no consequence to slipping away"). Now the whole
+## telegraphed move plays out on your back.
+func test_slip_away_lets_a_thief_take_its_card() -> void:
+	var state := _wisp_fight()
+	assert_ok(state.do_command({"type": "end_turn"}))  # burn the Flicker Bite
+	assert_eq(state.current_intent()["target"], "hand", "wisp turn 2 is Covet")
+	var hand_before := state.hand.size()
+	assert_ok(state.do_command({"type": "slip_away"}))
+	assert_eq(state.hand.size(), hand_before - 1, "it lifts one on the way past")
+	assert_eq(int(state.flags["hand_lost"]), 1, "and the theft is recorded")
+	assert_eq(state.outcome, CombatState.Outcome.RETREATED, "away is still away")
+
+## Some rooms have no back door (the Unpicked, prologue).
+func test_no_retreat_encounters_refuse_slip_away() -> void:
+	var state := CombatState.create(catalog, 3, {
+		"player_hp": 12, "deck": ["ferocity_1", "ferocity_1", "ferocity_1"],
+		"skills": ["pounce"], "enemy": "the_unpicked", "no_retreat": true,
+	})
+	assert_rejected(state.do_command({"type": "slip_away"}), "slipping away")
+	assert_eq(state.outcome, CombatState.Outcome.ONGOING, "the fight goes on")
+
+## Block answers damage; nothing used to answer a thief. Loaf does now —
+## which is what makes it worth losing a turn to (owner rule 2026-08-03).
+func test_loaf_guards_the_hand_from_theft() -> void:
+	# Unshuffled, drawn from the back: opens on three Guile, one per turn after.
+	var state := CombatState.create(catalog, 5, {
+		"player_hp": 12, "shuffle": false,
+		"deck": ["ferocity_1", "guile_1", "guile_1", "guile_1", "guile_1"],
+		"skills": ["loaf"], "enemy": "gutter_wisp",
+	})
+	assert_ok(state.do_command({"type": "end_turn"}))  # burn the Flicker Bite
+	assert_eq(state.current_intent()["target"], "hand", "wisp turn 2 is Covet")
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "loaf"}), "loaf")
+	var hand_before := state.hand.size()
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_eq(int(state.flags["hand_lost"]), 0, "nothing was taken")
+	# The turn's draw adds one; the theft would have removed one.
+	assert_eq(state.hand.size(), hand_before + 1, "a folded cat has nothing loose")
+
+## Scripted openers: the beat that teaches Shadow deals the Shadow, wherever
+## in the deck it sits. This is what lets the prologue run on ONE deck.
+func test_opening_cards_deal_named_energy_from_anywhere_in_the_deck() -> void:
+	var state := CombatState.create(catalog, 11, {
+		"player_hp": 10, "shuffle": false,
+		"deck": ["shadow_1", "shadow_1", "ferocity_1", "ferocity_1", "ferocity_1"],
+		"opening_cards": ["shadow_1", "shadow_1"],
+		"skills": ["slink"], "enemy": "gutter_wisp",
+	})
+	assert_eq(state.hand, ["shadow_1", "shadow_1", "ferocity_1"] as Array,
+		"named cards first, then the top of the deck fills the opener")
+	assert_eq(state.deck.size(), 2, "and they came OUT of the deck, not out of thin air")
+
+## A named card the deck no longer holds is skipped, not conjured — a fight
+## late in the night must not hand back energy the player already spent.
+func test_opening_cards_never_invent_energy() -> void:
+	var state := CombatState.create(catalog, 11, {
+		"player_hp": 10, "shuffle": false, "opening_hand": 2,
+		"deck": ["ferocity_1", "ferocity_1"],
+		"opening_cards": ["mysticism_3", "guile_2"],
+		"skills": ["slink"], "enemy": "gutter_wisp",
+	})
+	assert_eq(state.hand, ["ferocity_1", "ferocity_1"] as Array, "only what was there")
+	assert_true(state.deck.is_empty(), "and the deck is not padded")
+
 func test_the_night_presses() -> void:
 	var state := CombatState.create(catalog, 3, {
 		"player_hp": 40,

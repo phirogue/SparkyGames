@@ -27,7 +27,7 @@
     "image": "bg_parlor_cold",
     "sunbeam_turns": [],
     "cost_mod": { "mysticism": -1 },
-    "rule_text": "Her room remembers her: Mysticism costs 1 less."
+    "rule_text": "Her room remembers her: Moonlight costs 1 less."
   },
   "parlor_warm": {
     "id": "parlor_warm",

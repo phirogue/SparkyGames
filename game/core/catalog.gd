@@ -151,6 +151,30 @@ func validate() -> Array[String]:
 	problems.append_array(_validate_guilds())
 	problems.append_array(_validate_favors())
 	problems.append_array(_validate_minigames())
+	problems.append_array(_validate_humour_names())
+	return problems
+
+
+## The fourth humour's DATA id is "mysticism"; the thing the PLAYER is ever
+## shown is "Moonlight". Code goes through humour_name(), but hand-written
+## content is not code, and "Mysticism costs 1 less" sat on the Parlor's rule
+## card for a whole chapter. Content that says the id out loud is a bug.
+func _validate_humour_names() -> Array[String]:
+	var problems: Array[String] = []
+	var sources := {
+		"environment": environments, "enemy": enemies, "skill": skills,
+		"quest": quests, "achievement": achievements, "favor": favors,
+	}
+	for kind in sources:
+		var table: Dictionary = sources[kind]
+		for id in table:
+			for field in ["name", "display_name", "rule_text", "flavor",
+					"description", "board_card"]:
+				var text := String(table[id].get(field, ""))
+				if text.to_lower().contains("mysticism"):
+					problems.append(
+						"%s '%s' shows the player 'Mysticism' in %s — it is called Moonlight"
+						% [kind, id, field])
 	return problems
 
 

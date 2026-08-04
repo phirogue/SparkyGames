@@ -23,8 +23,8 @@ const DEFAULT_PROFILE := {
 		"mysticism_1", "mysticism_1", "mysticism_1",
 	],
 	"skills": ["scratch"],
-	# The player's chosen prowl loadout (≤3 non-Scratch skills). Empty means
-	# "auto": first three owned. Edited at the Mantel.
+	# The player's chosen prowl loadout (non-Scratch skills, LOADOUT_SIZE - 1
+	# of them). Empty means "auto": the first owned. Edited at the Mantel.
 	"loadout": [],
 	"flags": {},
 	"journal": [],
@@ -47,6 +47,12 @@ const DEFAULT_PROFILE := {
 ## Everything the prologue teaches; granted retroactively to saves that
 ## predate progressive skill unlocks.
 const PROLOGUE_SKILLS := ["scratch", "pounce", "slink", "purr", "loaf"]
+
+## Loadout law (owner 2026-08-03, raised from 4): FIVE abilities out at a
+## time, Scratch included, so the tray has room for a real plan. The battle
+## screen's skill tray is sized to exactly this many columns — raising it
+## again means re-checking battle.gd's width budget.
+const LOADOUT_SIZE := 5
 
 
 # Paths are parameters (defaulting to the real save) so tests can round-trip
@@ -113,21 +119,22 @@ static func _migrate(profile: Dictionary) -> Dictionary:
 	return merged
 
 
-## The skills that enter a battle (loadout law: 4 out at a time, Scratch
-## included). The player's chosen loadout wins, filtered to what they still
-## own; empty/invalid falls back to the first three owned. Pure and static
-## so tests can pin it without a scene tree.
+## The skills that enter a battle (loadout law: LOADOUT_SIZE out at a time,
+## Scratch included). The player's chosen loadout wins, filtered to what they
+## still own; empty/invalid falls back to the first owned. Pure and static so
+## tests can pin it without a scene tree.
 static func battle_loadout(profile: Dictionary) -> Array:
 	var owned: Array = profile.get("skills", [])
+	var room := LOADOUT_SIZE - 1  # Scratch always holds the first slot
 	var picked: Array = []
 	for skill_id in profile.get("loadout", []):
-		if picked.size() >= 3:
+		if picked.size() >= room:
 			break
 		if skill_id != "scratch" and owned.has(skill_id) and not picked.has(skill_id):
 			picked.append(skill_id)
 	if picked.is_empty():
 		for skill_id in owned:
-			if picked.size() >= 3:
+			if picked.size() >= room:
 				break
 			if skill_id != "scratch":
 				picked.append(skill_id)

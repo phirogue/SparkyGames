@@ -16,7 +16,7 @@ const ZONE_OPPONENT := 396 # portrait 364x396 | name(thread)+intent col 200
 const ZONE_CHRONICLE := 150 # last 5 log lines at 22px, plate margin 5
 const ZONE_STATUS := 56    # icons 40, labels 28, margin 8
 const ZONE_HAND := 140     # fanned cards 113x154 tuck up over the gap
-const ZONE_SKILLS := 150   # tray margin 8, 4-per-row cards 134x134
+const ZONE_SKILLS := 150   # tray margin 8, 5-per-row cards 107x134
 const ZONE_ACTIONS := 96   # tap-target floor
 # 98+396+150+56+140+150+96 = 1086; + 6*3 = 1104 = CONTENT_HEIGHT
 
@@ -24,7 +24,11 @@ const PORTRAIT_SIZE := Vector2(364, 396)
 const RULE_CARD_WIDTH := 300.0
 const LOG_LINES := 5       # owner: the chronicle shows the last 5 actions
 const CARD_SCALE := 1.2    # energy cards (base 94x128, owner +20%)
-const SKILL_CARD_SIZE := Vector2(134, 134)
+## Five abilities out at once (owner 2026-08-03, up from four) — more room to
+## play. WIDTH BUDGET: 5x107 + 4x7 separation + 2x8 tray margin = 579 <= 582.
+const SKILL_COLUMNS := 5
+const SKILL_TRAY_SEP := 7
+const SKILL_CARD_SIZE := Vector2(107, 134)
 
 signal encounter_finished(state: CombatState)
 
@@ -56,16 +60,19 @@ class CostPips extends Control:
 		var cy := size.y / 2.0
 		for i in total:
 			var c := Vector2(start_x + step * i, cy)
-			draw_arc(c, radius, 0.0, TAU, 24, color, 2.0, true)
 			if i < marked:
+				# FILLED, not a glyph floating in an outline (owner defect:
+				# energy fed onto a card still read as "empty circle yet to be
+				# filled" — a small dark claw inside a ring is not a fill).
+				# The glyph rides on top in parchment, so which humour paid is
+				# still legible.
+				draw_circle(c, radius, color)
 				if glyph != null:
-					var g := radius * 1.6
+					var g := radius * 1.3
 					draw_texture_rect(glyph,
-						Rect2(c - Vector2(g, g) / 2.0, Vector2(g, g)), false)
-				else:
-					var d := radius * 0.55
-					draw_line(c + Vector2(-d, -d), c + Vector2(d, d), color, 2.0)
-					draw_line(c + Vector2(-d, d), c + Vector2(d, -d), color, 2.0)
+						Rect2(c - Vector2(g, g) / 2.0, Vector2(g, g)), false,
+						UITheme.PARCHMENT)
+			draw_arc(c, radius, 0.0, TAU, 24, color, 2.0, true)
 
 
 class PawIcon extends Control:
@@ -102,19 +109,25 @@ const HUMOUR_COLORS := {
 	"shadow": Color("4a4258"),
 	"mysticism": Color("6a82a8"),
 }
-## Max 3 options ever shown (owner readability rule): 2 approaches + Walk In.
-const APPROACH_TITLE := {
-	"stalk": "Stalk — Shadow 2",
-	"ambush": "Ambush — Ferocity 2",
-	"case": "Case It — Guile 2",
-	"ward": "Ward — Moonlight 2",
-}
 const APPROACH_DESC := {
 	"stalk": "Begin hidden. Its first move misses. First hit +1.",
 	"ambush": "Strike first for 3. It comes up angry.",
 	"case": "Study it, draw 2 — it studies you back: +1 first hit.",
 	"ward": "Block 4 that holds through its first turn.",
 }
+
+
+## Max 3 options ever shown (owner readability rule): 2 approaches + Walk In.
+## The title names the PRICE in words — "Stalk — Shadow 2" read as a stat, not
+## as a bill (owner defect list). Costs are the environment-adjusted ones, so
+## the fog discount on Needle Lane is visible before you commit, not after.
+func _approach_title(mode: String) -> String:
+	var cost: Dictionary = CombatState.APPROACHES[mode]["cost"]
+	var parts: Array[String] = []
+	for humour in cost:
+		parts.append("%d %s" % [int(cost[humour]), Catalog.humour_name(String(humour))])
+	return "%s — Spend %s Energy" % [
+		CombatState.APPROACHES[mode]["name"], ", ".join(parts)]
 
 var catalog: Catalog
 var state: CombatState
@@ -164,6 +177,11 @@ var deck_label: Label
 var turn_label: Label
 var banked_row: HBoxContainer
 var hand_fan: Control
+## The fanned cards live in their own layer so refreshing the hand cannot free
+## banked_row along with them (see _refresh_hand_fan).
+var hand_cards: Control
+## Status-strip chips the coach spotlights by name ("hp", "guard", "deck").
+var status_chips: Dictionary = {}
 var skills_grid: GridContainer
 var detail_overlay: Control
 var detail_panel: PanelContainer
@@ -193,6 +211,10 @@ func setup(p_catalog: Catalog, config: Dictionary, encounter_id: String,
 	var full_config := config.duplicate(true)
 	full_config["environment"] = environment_def
 	full_config["enemy"] = encounter_def["enemies"][0]
+	# Whether there is a way out is a property of the ENCOUNTER, not of the
+	# scene that launched it — so a scenario or a quest reusing it inherits
+	# the same locked door.
+	full_config["no_retreat"] = encounter_def.get("no_retreat", false)
 	# Seed comes from config when a test/scenario needs a reproducible fight;
 	# live play stays clock-random.
 	var seed_value := int(config.get("seed", int(Time.get_ticks_usec()) % 1000000007))
@@ -231,7 +253,19 @@ func _start_coach() -> void:
 
 func _coach_target(key: String) -> Control:
 	if key.begins_with("skill:"):
-		return skill_buttons.get(key.trim_prefix("skill:"), null)
+		# Only offer the card while it can actually be played. A coach step
+		# that says "tap SLINK" waits for the tap, so an unplayable target
+		# would be a wall; returning null tells the Coach the step is
+		# impossible and any tap may pass it (engineering law 13).
+		var skill_id := key.trim_prefix("skill:")
+		if not _skill_playable(skill_id):
+			return null
+		return skill_buttons.get(skill_id, null)
+	# The status strip's chips are spotlit individually (owner defect: the
+	# heart, shield and spool steps resolved to nothing, so the tutorial
+	# explained them while highlighting the middle of the screen).
+	if status_chips.has(key):
+		return status_chips[key]
 	match key:
 		"approach": return approach_panel if approach_overlay.visible else null
 		"use": return detail_use
@@ -528,7 +562,8 @@ func _drain_events() -> void:
 			"approach_ambush": _log("Claws first. Questions never.")
 			"approach_case": _log("You watch. You learn. You draw.")
 			"approach_ward": _log("A ward, stitched quick and holding.")
-			"parting_shot": _log("It gets one in as you go.")
+			"parting_shot": _log("You turn your back. It takes its turn anyway.")
+			"loaf_guarded": _log("It paws at a cat with nothing loose. Nothing gives.")
 			"night_presses": _log("The night presses. It grows bolder.")
 			"concentrated": pass  # the chooser handler already narrates it
 
@@ -537,7 +572,7 @@ func _maybe_offer_approach() -> void:
 	if no_approach or not state.can_approach():
 		return
 	for mode in CombatState.APPROACHES:
-		if state.can_pay(state.effective_cost(CombatState.APPROACHES[mode]["cost"])):
+		if state.can_pay(CombatState.APPROACHES[mode]["cost"]):
 			approach_overlay.visible = true
 			return
 
@@ -701,11 +736,11 @@ func _build_ui() -> void:
 	status_row.add_theme_constant_override("separation", 8)
 	status_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	status_plate.add_child(status_row)
-	hp_label = _status_chip(status_row, "ui/ui_heart_full")
+	hp_label = _status_chip(status_row, "ui/ui_heart_full", "hp")
 	_divider(status_row)
-	block_label = _status_chip(status_row, "ui/ui_shield")
+	block_label = _status_chip(status_row, "ui/ui_shield", "guard")
 	_divider(status_row)
-	deck_label = _status_chip(status_row, "ui/ui_spool")
+	deck_label = _status_chip(status_row, "ui/ui_spool", "deck")
 	_divider(status_row)
 	# Paw action points: one paw icon + how many placements remain.
 	paws_row = HBoxContainer.new()
@@ -731,6 +766,15 @@ func _build_ui() -> void:
 	banked_row.add_theme_constant_override("separation", 4)
 	banked_row.position = Vector2(2, -6)
 	hand_fan.add_child(banked_row)
+	# Cards get their OWN layer. Rebuilding the fan used to clear hand_fan
+	# wholesale, which freed banked_row with it — and every _refresh() after
+	# the first then died on the freed node, half-done: the counters updated
+	# but the hand never shrank, spent skills never faded and fed pips never
+	# filled. One line of blast radius, six entries on the defect list.
+	hand_cards = Control.new()
+	hand_cards.set_anchors_preset(Control.PRESET_FULL_RECT)
+	hand_cards.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hand_fan.add_child(hand_cards)
 
 	# --- Zone F: skills tray ----------------------------------------------
 	# WIDTH BUDGET: 4 cards at 134 + 3x8 sep + 2x8 tray margin = 566 <= 582.
@@ -739,9 +783,9 @@ func _build_ui() -> void:
 	tray.add_theme_stylebox_override("panel", tray_style)
 	root.add_child(tray)
 	skills_grid = GridContainer.new()
-	skills_grid.columns = 4
-	skills_grid.add_theme_constant_override("h_separation", 8)
-	skills_grid.add_theme_constant_override("v_separation", 8)
+	skills_grid.columns = SKILL_COLUMNS
+	skills_grid.add_theme_constant_override("h_separation", SKILL_TRAY_SEP)
+	skills_grid.add_theme_constant_override("v_separation", SKILL_TRAY_SEP)
 	tray.add_child(skills_grid)
 
 	# Detail popup: a centered modal over a DIMMED battle — the card close-up
@@ -834,8 +878,14 @@ func _build_ui() -> void:
 	action_row.add_child(concentrate_button)
 	slip_button = UITheme.dark_button("Slip Away", 24, Vector2(148, ZONE_ACTIONS))
 	slip_button.add_theme_font_override("font", UITheme.smallcaps_font())
+	slip_button.tooltip_text = \
+		"Leave now — but it gets its telegraphed move in as you go"
 	slip_button.pressed.connect(_on_slip_away)
 	action_row.add_child(slip_button)
+	# No back door out of some rooms. End Turn takes the whole width instead
+	# of leaving a dead button the player can only be refused by.
+	if state.no_retreat:
+		slip_button.visible = false
 
 	approach_overlay = _build_approach_overlay()
 	overlay = _build_outcome_overlay()
@@ -864,10 +914,10 @@ func _build_approach_overlay() -> Control:
 	var affordable: Array[String] = []
 	for mode in CombatState.APPROACHES:
 		if affordable.size() < 2 and \
-				state.can_pay(state.effective_cost(CombatState.APPROACHES[mode]["cost"])):
+				state.can_pay(CombatState.APPROACHES[mode]["cost"]):
 			affordable.append(mode)
 	for mode in affordable:
-		box.add_child(_approach_button(APPROACH_TITLE[mode], APPROACH_DESC[mode], mode))
+		box.add_child(_approach_button(_approach_title(mode), APPROACH_DESC[mode], mode))
 	box.add_child(_approach_button("Walk In", "Spend nothing. A door is a door.", ""))
 	return modal["overlay"]
 
@@ -1007,10 +1057,12 @@ func _framed_portrait(image_id: String, description: String) -> Control:
 	return holder
 
 
-func _status_chip(parent: Container, icon_id: String) -> Label:
+func _status_chip(parent: Container, icon_id: String, coach_key := "") -> Label:
 	var chip := HBoxContainer.new()
 	chip.add_theme_constant_override("separation", 6)
 	parent.add_child(chip)
+	if coach_key != "":
+		status_chips[coach_key] = chip
 	var icon := TextureRect.new()
 	# Cropped to opaque content: the generated icons float in transparent
 	# padding, so the raw texture drew a glyph half the size of its box.
@@ -1068,15 +1120,21 @@ func _refresh() -> void:
 	_refresh_hand_fan()
 	_clear(skills_grid)
 	skill_buttons.clear()
-	var shown: Array[String] = []
-	for skill_id in skill_ids + ["scratch"]:
+	# Scratch ALWAYS occupies the first slot, then the loadout in its own
+	# order (owner defect: a battle that pinned its skills without naming
+	# Scratch pushed it to the far right, so the tray reshuffled between
+	# fights). The tray is muscle memory — it does not move.
+	var shown: Array[String] = ["scratch"]
+	for skill_id in skill_ids:
 		if not shown.has(skill_id):
 			shown.append(skill_id)
-	# Loadout law (owner 2026-08-01): at most 4 abilities out at a time,
-	# Scratch included. Battle configs must respect this; clamp defensively.
-	if shown.size() > 4:
-		push_warning("battle: %d abilities configured, loadout max is 4" % shown.size())
-		shown = shown.slice(0, 4)
+	# Loadout law (owner 2026-08-03): at most SaveService.LOADOUT_SIZE
+	# abilities out at a time, Scratch included. Battle configs must respect
+	# this; clamp defensively.
+	if shown.size() > SaveService.LOADOUT_SIZE:
+		push_warning("battle: %d abilities configured, loadout max is %d" % [
+			shown.size(), SaveService.LOADOUT_SIZE])
+		shown = shown.slice(0, SaveService.LOADOUT_SIZE)
 	for skill_id in shown:
 		var button := _skill_button(skill_id)
 		skill_buttons[skill_id] = button
@@ -1085,7 +1143,7 @@ func _refresh() -> void:
 
 ## The hand as a fan (objective mock): overlapped, slightly rotated cards.
 func _refresh_hand_fan() -> void:
-	_clear(hand_fan)
+	_clear(hand_cards)
 	var n := state.hand.size()
 	if n == 0:
 		return
@@ -1100,7 +1158,7 @@ func _refresh_hand_fan() -> void:
 		var b := _card_button(state.hand[i], CARD_SCALE)
 		b.tooltip_text = "Tap to bank or discard"
 		b.pressed.connect(_on_card_pressed.bind(i))
-		hand_fan.add_child(b)
+		hand_cards.add_child(b)
 		var offset := i - center
 		# Tucked up slightly: the cards may overhang the zone gap above,
 		# never the tray below.
@@ -1202,16 +1260,26 @@ func _skill_button(skill_id: String) -> Button:
 	var pip_color: Color = HUMOUR_COLORS.get(humour, UITheme.INK_SOFT)
 
 	var jammed: bool = not is_instinct and int(runtime.get("jammed_turns", 0)) > 0
+	var charges_left := int(runtime.get("charges_left", 0))
+	var out_of_charges: bool = not is_instinct and charges_left <= 0
 	var cost := state.effective_cost(def.get("cost", {}))
-	if jammed or is_instinct or cost.is_empty():
+	# The status band under the art says the ONE thing that is stopping you.
+	# Order matters: "free" used to win over "no charges left", so a Slink
+	# discounted to free by the fog read as playable while refusing every tap
+	# (owner defect: "even though slink is free, I can't play it").
+	var band := ""
+	if jammed:
+		band = "jammed"
+	elif out_of_charges:
+		band = "used up"
+	elif is_instinct:
+		band = "free" if not state.instinct_used else "spent"
+	elif cost.is_empty():
+		band = "free here" if not runtime.get("free_used", false) else "spent"
+	if band != "":
 		var pips_label := Label.new()
-		if jammed:
-			pips_label.text = "jammed"
-		elif is_instinct:
-			pips_label.text = "free" if not state.instinct_used else "spent"
-		else:
-			pips_label.text = "free" if not runtime.get("free_used", false) else "spent"
-		pips_label.add_theme_font_size_override("font_size", 24)
+		pips_label.text = band
+		pips_label.add_theme_font_size_override("font_size", 22)
 		pips_label.add_theme_color_override("font_color", pip_color)
 		pips_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 		pips_label.set_offset(SIDE_TOP, -50)
@@ -1220,7 +1288,7 @@ func _skill_button(skill_id: String) -> Button:
 		pips_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(pips_label)
 	else:
-		# Cost pips: circles = energy needed, X = already allocated.
+		# Cost pips: circles = energy needed, filled = already fed.
 		var cost_total := 0
 		var allocated := 0
 		var powered: Dictionary = runtime.get("powered", {})
@@ -1234,14 +1302,18 @@ func _skill_button(skill_id: String) -> Button:
 		pips.set_offset(SIDE_BOTTOM, -28)
 		pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(pips)
-		# Remaining uses as a small corner badge (was ambiguous as circles).
+	# Remaining uses, ALWAYS shown for a charged skill — including one the
+	# environment discounted to free, which is exactly the card whose last
+	# charge used to vanish without a word.
+	if not is_instinct:
 		var uses := Label.new()
-		uses.text = "×%d" % int(runtime.get("charges_left", 0))
+		uses.text = "×%d" % charges_left
 		uses.add_theme_font_size_override("font_size", 20)
-		uses.add_theme_color_override("font_color", UITheme.INK_SOFT)
+		uses.add_theme_color_override("font_color",
+			UITheme.INK_SOFT if charges_left > 0 else Color("8a2f22"))
 		uses.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 		uses.set_offset(SIDE_LEFT, -40)
-		uses.set_offset(SIDE_RIGHT, -8)
+		uses.set_offset(SIDE_RIGHT, -6)
 		uses.set_offset(SIDE_TOP, 4)
 		uses.set_offset(SIDE_BOTTOM, 28)
 		uses.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -1251,12 +1323,13 @@ func _skill_button(skill_id: String) -> Button:
 	var name_label := Label.new()
 	name_label.text = String(def["name"])
 	name_label.add_theme_font_override("font", UITheme.smallcaps_font())
-	name_label.add_theme_font_size_override("font_size", 22)
+	name_label.add_theme_font_size_override("font_size", 20)
 	name_label.add_theme_color_override("font_color", UITheme.INK)
 	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	name_label.set_offset(SIDE_TOP, -28)
 	name_label.set_offset(SIDE_BOTTOM, -6)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.clip_text = true
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(name_label)
 
@@ -1310,7 +1383,8 @@ func _effect_summary(def: Dictionary) -> String:
 			"channel_heal": parts.append("Heal %d per turn for %d turns — breaks if you take damage" % [
 				int(effect["amount"]), int(effect.get("turns", 2))])
 			"draw": parts.append("Draw %d" % int(effect["amount"]))
-			"self_stun": parts.append("You cannot act next turn")
+			"self_stun": parts.append(
+				"You cannot act next turn — and nothing can be stolen from your paws")
 	return " · ".join(parts)
 
 

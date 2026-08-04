@@ -2,22 +2,39 @@ class_name Coach
 extends Control
 ## Spotlight tutorial overlay (the standard mobile "coach mark" pattern):
 ## dims the screen except a cutout around one target control, shows one short
-## instruction, and advances when the player performs that action. Steps with
-## no target are tap-to-continue notes.
+## instruction, and moves on. The host screen provides target rects via a
+## resolver callable and calls notify(key) when actions happen.
 ##
-## steps: [{ "target": "skill:pounce", "text": "Tap Pounce." }, ...]
-## The host screen provides target rects via a resolver callable and calls
-## notify(key) when actions happen.
+## steps: [
+##   { "target": "hp",            "text": "The heart. Guard it." },
+##   { "target": "skill:pounce",  "text": "Tap POUNCE.", "wait": true },
+## ]
+##
+## Two kinds of step, and the difference is the whole design (owner defect
+## list 2026-08-03):
+##
+## - A NOTE (no "wait") is read, not done. Tapping ANYWHERE advances it,
+##   including on the highlighted thing itself — the cutout is covered by an
+##   invisible catcher, so the spotlit control cannot fire underneath. Before
+##   this, taps landed in a dead zone exactly where the eye had been sent.
+## - An ACTION ("wait": true) advances only when the player performs it. The
+##   cutout is a genuine hole so the target really is tappable, and taps on
+##   the dim are ignored — otherwise "Tap POUNCE" could be tapped past, and
+##   the lesson carried on explaining Scratch over an open Pounce card.
+##
+## Nobody gets stuck (engineering law 13): an action step whose target is
+## missing, hidden or disabled falls back to advancing on any tap, and Skip
+## is always there.
 
 var steps: Array = []
 var index := -1
 var resolver: Callable          # (target_key: String) -> Control or null
 
 var _dims: Array[ColorRect] = []
+var _hole_catcher: ColorRect
 var _text_panel: Panel
 var _text_label: Label
 var _skip: Button
-var _tap_zone: Button
 
 const DIM := Color(0.06, 0.05, 0.04, 0.72)
 
@@ -34,18 +51,17 @@ func _ready() -> void:
 		var dim := ColorRect.new()
 		dim.color = DIM
 		dim.mouse_filter = Control.MOUSE_FILTER_STOP
-		# Tapping the dimmed area ALWAYS advances (owner fix: steps that
-		# point at non-interactive things were only escapable via skip).
-		# The cutout still passes touches to the highlighted control.
 		dim.gui_input.connect(_on_dim_input)
 		add_child(dim)
 		_dims.append(dim)
-	_tap_zone = Button.new()
-	_tap_zone.flat = true
-	_tap_zone.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_tap_zone.pressed.connect(force_advance)
-	_tap_zone.visible = false
-	add_child(_tap_zone)
+	# Invisible catcher over the cutout. Present for notes (so the spotlight
+	# is tappable but inert), removed for action steps (so the target is
+	# genuinely reachable through the hole).
+	_hole_catcher = ColorRect.new()
+	_hole_catcher.color = Color(1, 1, 1, 0)
+	_hole_catcher.mouse_filter = Control.MOUSE_FILTER_STOP
+	_hole_catcher.gui_input.connect(_on_dim_input)
+	add_child(_hole_catcher)
 	# Bubble drawn with EXPLICIT geometry (no container sizing): a Panel and
 	# a Label whose rects are both set from measured text every step.
 	_text_panel = Panel.new()
@@ -80,9 +96,37 @@ func _ready() -> void:
 
 
 func _on_dim_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed \
-			and event.button_index == MOUSE_BUTTON_LEFT:
+	var tapped: bool = (event is InputEventMouseButton and event.pressed
+		and event.button_index == MOUSE_BUTTON_LEFT) \
+		or (event is InputEventScreenTouch and event.pressed)
+	if tapped and _tap_advances():
 		force_advance()
+
+
+## Does a tap on the overlay move the lesson on? Always for a note; for an
+## action only when the action cannot actually be taken — the escape hatch
+## that keeps an impossible step from becoming a wall.
+func _tap_advances() -> bool:
+	if not _waits_for_action():
+		return true
+	var target: Control = _current_control()
+	if target == null:
+		return true
+	return target is BaseButton and target.disabled
+
+
+func _waits_for_action() -> bool:
+	return active() and index >= 0 and bool(steps[index].get("wait", false))
+
+
+func _current_control() -> Control:
+	var key := current_target()
+	if key == "":
+		return null
+	var target: Variant = resolver.call(key)
+	if target is Control and is_instance_valid(target) and target.is_visible_in_tree():
+		return target
+	return null
 
 
 func active() -> bool:
@@ -112,7 +156,7 @@ func force_advance() -> void:
 	if not active():
 		_finish()
 		return
-	_tap_zone.visible = current_target() == ""
+	_hole_catcher.visible = not _waits_for_action()
 	var text := String(steps[index].get("text", ""))
 	_text_label.text = text
 	# Size the LABEL from measured text; the panel then derives its own size
@@ -139,11 +183,9 @@ func _process(_delta: float) -> void:
 		return
 	var full := get_rect()
 	var hole := Rect2(full.size / 2.0, Vector2.ZERO)
-	var target_key := current_target()
-	if target_key != "":
-		var target: Control = resolver.call(target_key)
-		if target != null and is_instance_valid(target) and target.is_visible_in_tree():
-			hole = target.get_global_rect().grow(8)
+	var target := _current_control()
+	if target != null:
+		hole = target.get_global_rect().grow(8)
 	# Four dim rects leave the hole tappable.
 	_dims[0].position = Vector2.ZERO
 	_dims[0].size = Vector2(full.size.x, hole.position.y)
@@ -153,6 +195,8 @@ func _process(_delta: float) -> void:
 	_dims[2].size = Vector2(maxf(hole.position.x, 0), hole.size.y)
 	_dims[3].position = Vector2(hole.end.x, hole.position.y)
 	_dims[3].size = Vector2(maxf(full.size.x - hole.end.x, 0), hole.size.y)
+	_hole_catcher.position = hole.position
+	_hole_catcher.size = hole.size
 	# Instruction sits above the hole when there's room, else below.
 	# Explicit geometry pinned every frame — no layout drift possible.
 	var panel_size := _bubble_size

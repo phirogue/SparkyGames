@@ -44,6 +44,16 @@ func setup(config: Dictionary) -> void:
 		fallback_color = Color(String(config["color"])).darkened(0.2)
 
 
+## A narration line is either a plain string (story) or
+## {"text": "...", "rule": true} (the game explaining itself).
+static func _line_text(line: Variant) -> String:
+	return String(line["text"]) if line is Dictionary else String(line)
+
+
+static func _is_rule(line: Variant) -> bool:
+	return line is Dictionary and bool(line.get("rule", false))
+
+
 func _ready() -> void:
 	_tap_catcher = Button.new()
 	_tap_catcher.flat = true
@@ -103,12 +113,22 @@ func _ready() -> void:
 	box.add_child(_lines_box)
 	for line in lines:
 		var label := Label.new()
-		label.text = String(line)
-		label.add_theme_font_override("font",
-			UITheme.display_font() if big_style else UITheme.italic_font())
-		label.add_theme_font_size_override("font_size", 54 if big_style else 37)
-		label.add_theme_color_override("font_color",
-			UITheme.ACCENT_WARM.darkened(0.35) if flashback else UITheme.INK)
+		label.text = _line_text(line)
+		if _is_rule(line):
+			# RULES ARE NOT STORY (owner rule 2026-08-03). "New tonight:
+			# SHADOW" is the game talking to the player, and in Ash's italic
+			# narration voice it read as another of his asides. Rules get the
+			# smallcaps face and the warm accent — the same treatment the
+			# skill-grant notice cards use, so the two agree.
+			label.add_theme_font_override("font", UITheme.smallcaps_font())
+			label.add_theme_font_size_override("font_size", 32)
+			label.add_theme_color_override("font_color", UITheme.ACCENT_WARM)
+		else:
+			label.add_theme_font_override("font",
+				UITheme.display_font() if big_style else UITheme.italic_font())
+			label.add_theme_font_size_override("font_size", 54 if big_style else 37)
+			label.add_theme_color_override("font_color",
+				UITheme.ACCENT_WARM.darkened(0.35) if flashback else UITheme.INK)
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.modulate = Color(1, 1, 1, 0)
@@ -168,8 +188,12 @@ func _retire_overflow() -> void:
 	while _first_visible < _revealed - 1:
 		var total := 0.0
 		for i in range(_first_visible, _revealed):
-			total += UITheme.measure_text(_line_labels[i].text, line_font,
-				line_size, float(UITheme.CONTENT_WIDTH)).y + 18.0
+			# Rule lines are set in a different face and size — measure each
+			# line the way it is actually drawn, or the budget lies.
+			var rule := _is_rule(lines[i])
+			total += UITheme.measure_text(_line_labels[i].text,
+				UITheme.smallcaps_font() if rule else line_font,
+				32 if rule else line_size, float(UITheme.CONTENT_WIDTH)).y + 18.0
 		if total <= budget:
 			break
 		_line_labels[_first_visible].visible = false
