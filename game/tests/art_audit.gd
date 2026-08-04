@@ -22,8 +22,15 @@ const ABS_FLOOR := 0.16      # below this distance nothing flags, ever
 const RELATIVE_GATE := 1.7   # ...and you must also be this odd for the group
 const SAMPLE := 48           # images are resized to SAMPLE x SAMPLE first
 
-var _default_dirs := ["assets", "assets/ui", "../assets/incoming",
-	"../assets/incoming/procedural", "../assets/cards"]
+# The raw art moved into assets/library/<kind>/ on 2026-08-03; incoming/ is now
+# only a manual drop zone and incoming/procedural is gone. Scan the library so
+# this audits what actually ships.
+var _default_dirs := ["assets", "assets/ui",
+	"../assets/library/backdrops", "../assets/library/characters",
+	"../assets/library/enemies", "../assets/library/scenes",
+	"../assets/library/skills", "../assets/library/energy",
+	"../assets/library/logos", "../assets/library/ui",
+	"../assets/incoming"]
 
 
 func _initialize() -> void:

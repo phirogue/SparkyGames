@@ -192,7 +192,23 @@ stability) — UI must go through `Catalog.humour_name()`.
    bare-necked. The neckerchief is correct everywhere after the title.
 7. **Use `STRICT_STYLE`** from `tools/genart_fixes.py`, not the old style
    block. It names the failure modes as explicit negatives, which is the only
-   thing that reliably prevents the full-bleed digital drift.
+   thing that reliably prevents the full-bleed digital drift. Logos and UI
+   mockups skip the style block entirely (`--no-style`) — it ends in "no text
+   in the image", which is wrong for art whose job is lettering.
+8. **Read every generated image before calling anything done.** Law 1 applies
+   to art, not just screens. Reading is how we caught an unexplained human
+   girl in an enemy portrait, a bedsheet ghost contradicting the established
+   clerk, and a doubled word in the title logo. For UI, *measure* rather than
+   eyeball — content under ~60% of canvas renders tiny for its box, and that
+   wants a crop, never a regeneration.
+9. **`/genart` is the workflow** — invoke it for any request to create,
+   change, fix or regenerate an image. `tools/genart.py` writes straight into
+   `assets/library/<kind>/` and archives what it displaces; `tools/promote.py`
+   files and retires art and refuses target collisions. Model is
+   `gpt-image-2` (~$0.19/image, billed separately from any ChatGPT plan); it
+   rejects `background="transparent"`, so UI is generated on white and keyed
+   to alpha by `tools/genart_ui.py`. Audit batches with the asset-auditor
+   agent.
 
 ## Product constraints (do not violate without owner sign-off)
 

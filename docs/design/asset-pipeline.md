@@ -28,38 +28,46 @@ possible, no new subscriptions yet.*
 
 ## What I can automate vs what needs you
 
-**You (accounts I can't drive):** ChatGPT image sessions (you paste
-prompts, download results), Kling renders.
+> **Superseded 2026-08-03: I generate the stills now.** The owner provided an
+> `OPENAI_API_KEY` (gitignored `.env`), so image generation moved from "you
+> paste prompts into ChatGPT" to `tools/genart.py` against **`gpt-image-2`**.
+> The full loop — check library, check archive, generate, Read every result,
+> promote, wire — is the **`/genart` skill**. Everything below this box that
+> describes owner-run image sessions is history.
 
-**Me, locally and free:** everything after generation — background removal
-(`rembg`, free/local), resize/crop/pad (ImageMagick), card-frame compositing
-(script that drops art into the frame template), WebP conversion for app
-size, import into Godot, and the art manifest bookkeeping.
+**You (accounts I can't drive):** Kling renders, and any hand-made art you
+want to drop into `assets/incoming/` for me to file.
 
-**Me, via API — only if you ever provide a key (all optional):**
+**Me:** generation (`tools/genart.py`), filing and retiring
+(`tools/promote.py`), and everything after — background keying and content
+trimming (`tools/genart_ui.py:cut_alpha`), resize/crop, WebP, Godot import,
+and the bookkeeping in `docs/design/art-needed.md`.
 
-| API | Good for | Cost reality |
-|---|---|---|
-| OpenAI Images (`gpt-image-2`) | Programmatic icon/sprite batches, auto-variations | ~$0.02–0.19/image. Note: ChatGPT Plus does NOT include API credit — separate billing |
-| Recraft | Vector icons, consistent icon sets | Free tier exists; nice-to-have |
-| Ideogram | Images containing legible text (logos, shop signs) | Free tier exists |
-| Replicate / fal.ai | Flux and other open models per-image | Pennies/image; alternative to everything above |
-| Stability (SD3/Flux local) | Unlimited free generation **if** you have a decent GPU | $0 — worth checking what GPU is in this PC before buying anything |
+**API reality, learned the hard way:**
 
-**Recommendation: provide nothing new yet.** ChatGPT + Kling +
-free audio covers the entire game. Revisit only if manual generation becomes
-the bottleneck.
+| fact | consequence |
+|---|---|
+| `gpt-image-2` is current; `gpt-image-1` is the April-2025 snapshot | Same prompt gave a pencil sketch on `-1` and a finished watercolour on `-2`. Query `/v1/models`; never assume. |
+| ChatGPT Plus does **not** include API credit | First run died on `billing_hard_limit_reached` despite an active plan. ~$0.19/image at high quality. |
+| `--ref` posts to the images **edits** endpoint | The only reliable way to hold a character's design, and the right tool for "same image, one thing changed". |
+| `gpt-image-2` rejects `background="transparent"` | UI is generated on white and keyed to alpha locally. |
+| Output is 1024x1536 (2:3) | Slightly squarer than the 9:16 backdrops want — crop on the way to `game/assets/`. |
+
+Alternatives if this ever needs revisiting: Recraft (vector icon sets),
+Ideogram (legible text), Replicate/fal.ai (Flux, pennies per image), local
+SD3/Flux (free with a decent GPU).
 
 ## The workflow (repeatable loop)
 
-1. I maintain **`docs/design/art-manifest.md`**: every asset gets an id, a
-   description, a ready-to-paste image prompt (with our style block),
-   size/format target, and a status column.
-2. You batch-generate in ChatGPT, drop raw images into
-   **`assets/incoming/`** (I file them into `assets/library/<kind>/`) named by asset id.
-3. I post-process (crop, rembg if needed, frame-composite, WebP), move to
-   final locations (`assets/cards/`, `assets/scenes/`, ...), and tick the
-   manifest.
+1. **`docs/design/art-needed.md`** is the live list; the prompt archive is
+   `image-prompts-master.md`.
+2. I generate with `/genart`, which checks the library first (never duplicate)
+   and the archive before changing anything (a revert is free), uses
+   `STRICT_STYLE`, and uses `--ref` for every recurring character.
+3. I **Read every generated image** before it counts, then file it with
+   `tools/promote.py`. Art goes straight into `assets/library/<kind>/`;
+   whatever it displaces moves to `assets/archive/superseded/`. Nothing is
+   ever deleted.
 4. Anything that needs transparency or precise instruction-following goes to
    ChatGPT instead; anything animated-for-marketing goes to Kling at the end.
 
@@ -123,6 +131,8 @@ hue/saturation/brightness and flags images that sit far off their group's
 profile, with a human-readable reason ("much darker than the group; hue
 leans teal"). Report lands in `docs/design/art-audit-report.md`. Flags are
 a shortlist for the owner's eyes — deliberate style breaks will flag too.
-Scan dirs default to `game/assets`, `game/assets/ui`, `assets/incoming`,
-`assets/incoming/procedural`, `assets/cards`; override with
-`-- --dirs a,b,c`.
+Scan dirs default to `game/assets`, `game/assets/ui`, every
+`assets/library/<kind>/` folder, and `assets/incoming`; override with
+`-- --dirs a,b,c`. It is a cheap first pass — it catches *statistical* outliers
+(that's how `en_wisp_pair` surfaced), but it cannot see canon defects or the
+ink-vs-digital medium split. Use the asset-auditor agent for those.
