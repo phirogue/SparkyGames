@@ -30,7 +30,16 @@ const DEFAULT_PROFILE := {
 	"journal": [],
 	"codex": { "enemies": [], "places": [] },
 	"achievements": {},
-	"settings": { "volume": 1.0 },
+	# Options (see scenes/settings_screen.gd). Old saves merge against these,
+	# so a profile written before the settings page existed comes up with
+	# sound on and the lamps normal (law 7).
+	"settings": {
+		"volume": 1.0,
+		"sfx": true,
+		"music": true,
+		"lamps_low": false,     # the reading-in-the-dark dim overlay
+		"ask_to_spend": false,  # confirm purchases at the Magpie Exchange
+	},
 	# --- chapter spine (v3, Chapter 1) ---
 	# The open case and what has been proved. "active" points at a case id in
 	# data/case.json; the prologue ends by pointing the thread into the city,

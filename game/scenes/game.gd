@@ -10,6 +10,9 @@ const SplashScreen := preload("res://scenes/splash_screen.gd")
 const JournalScreen := preload("res://scenes/journal_screen.gd")
 const CaseBoardScreen := preload("res://scenes/case_board_screen.gd")
 const DevMenuScreen := preload("res://scenes/dev_menu_screen.gd")
+const SettingsScreen := preload("res://scenes/settings_screen.gd")
+const ExchangeScreen := preload("res://scenes/exchange_screen.gd")
+const LoadoutScreen := preload("res://scenes/loadout_screen.gd")
 const StitchScreen := preload("res://scenes/minigames/stitch_screen.gd")
 const TestimonyScreen := preload("res://scenes/minigames/testimony_screen.gd")
 const WardScreen := preload("res://scenes/minigames/ward_screen.gd")
@@ -43,8 +46,9 @@ var tour_mode := false
 var dev_mode := false   # component runner / scenario: throwaway world
 var _dev_seed := 0      # scenario-pinned battle seed (0 = clock-random)
 var settings_layer: CanvasLayer
-var settings_overlay: Control
-var volume_slider: HSlider
+var settings_overlay: Control    # the settings page itself; toggle .visible
+var lamp_layer: CanvasLayer
+var lamp_dim: ColorRect
 
 
 ## Drawn hamburger glyph for the always-available settings button (no
@@ -141,9 +145,10 @@ func _cmdline_value(flag: String) -> String:
 
 
 ## Jump straight into one component: "hub", "title", "journal", "case",
-## "recap", "story:<scene index>", "battle:<encounter_id>[:skill,skill,...]",
-## "quest:<quest_id>", or "scenario:<name>" (full Ash setup from
-## tests/scenarios/<name>.json — see that folder's README).
+## "exchange", "loadout", "settings", "recap", "story:<scene index>",
+## "battle:<encounter_id>[:skill,skill,...]", "quest:<quest_id>", or
+## "scenario:<name>" (full Ash setup from tests/scenarios/<name>.json — see
+## that folder's README).
 func _dev_launch(spec: String) -> void:
 	var parts := spec.split(":")
 	match parts[0]:
@@ -154,6 +159,22 @@ func _dev_launch(spec: String) -> void:
 			_show_title(func() -> void: get_tree().quit())
 		"journal":
 			_show_journal()
+		"exchange":
+			profile["prologue_done"] = true
+			# A market with an empty purse shows nothing but refusals, so the
+			# dev launch arrives able to buy the top shelf.
+			profile["gleam"] = maxi(int(profile["gleam"]), 60)
+			_show_exchange()
+		"loadout":
+			profile["prologue_done"] = true
+			if profile["skills"].size() <= 1:
+				profile["skills"] = ["scratch", "pounce", "slink", "purr", "loaf",
+					"swat", "shelf_justice"]
+			_show_loadout()
+		"settings":
+			profile["prologue_done"] = true
+			_show_hub()
+			_open_settings()
 		"case":
 			profile["prologue_done"] = true
 			_show_case_board()
@@ -273,7 +294,10 @@ func _story_config(environment_id: String, lines: Array) -> Dictionary:
 
 ## Settings live on a CanvasLayer so they are reachable from ANY screen
 ## (owner rule 2026-08-01) — the layer floats above whatever is swapped in.
+## The page is an OVERLAY rather than a swapped screen on purpose: opening
+## settings mid-battle must not tear down the combat state underneath it.
 func _build_settings_layer() -> void:
+	_ensure_audio_buses()
 	settings_layer = CanvasLayer.new()
 	settings_layer.layer = 10
 	add_child(settings_layer)
@@ -289,64 +313,69 @@ func _build_settings_layer() -> void:
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	gear.add_child(glyph)
 	settings_layer.add_child(gear)
-	var dim := ColorRect.new()
-	dim.color = Color(0.08, 0.07, 0.06, 0.72)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.visible = false
-	settings_layer.add_child(dim)
-	settings_overlay = dim
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.add_child(center)
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(540, 0)
-	panel.theme = UITheme.build()
-	center.add_child(panel)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 16)
-	panel.add_child(box)
-	var title := Label.new()
-	title.text = "Settings"
-	title.add_theme_font_override("font", UITheme.display_font())
-	title.add_theme_font_size_override("font_size", 40)
-	title.add_theme_color_override("font_color", UITheme.INK)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(title)
-	var vol_label := Label.new()
-	vol_label.text = "Sound"
-	vol_label.add_theme_font_size_override("font_size", 28)
-	vol_label.add_theme_color_override("font_color", UITheme.INK)
-	box.add_child(vol_label)
-	volume_slider = HSlider.new()
-	volume_slider.min_value = 0.0
-	volume_slider.max_value = 1.0
-	volume_slider.step = 0.05
-	volume_slider.custom_minimum_size = Vector2(0, 48)
-	volume_slider.value_changed.connect(func(value: float) -> void:
-		_apply_volume(value))
-	box.add_child(volume_slider)
-	var close := Button.new()
-	close.text = "Back to the night"
-	close.custom_minimum_size = Vector2(0, 96)
-	close.pressed.connect(func() -> void:
-		var settings: Dictionary = profile.get("settings", {})
-		settings["volume"] = volume_slider.value
-		profile["settings"] = settings
-		_save()
-		settings_overlay.visible = false)
-	box.add_child(close)
-	_apply_volume(float(profile.get("settings", {}).get("volume", 1.0)))
+
+	var page: Control = SettingsScreen.new()
+	page.setup(profile.get("settings", {}))
+	page.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	page.visible = false
+	page.setting_changed.connect(_on_setting_changed)
+	page.closed.connect(func() -> void:
+		settings_overlay.visible = false
+		_save())
+	settings_layer.add_child(page)
+	settings_overlay = page
+
+	# The lamp dim sits ABOVE everything, settings included, so the effect of
+	# the toggle is visible while the toggle is being looked at.
+	lamp_layer = CanvasLayer.new()
+	lamp_layer.layer = 20
+	add_child(lamp_layer)
+	lamp_dim = ColorRect.new()
+	lamp_dim.color = Color(0.0, 0.0, 0.0, 0.35)
+	lamp_dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	lamp_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lamp_dim.visible = false
+	lamp_layer.add_child(lamp_dim)
+
+	_apply_settings()
+
+
+## Named buses so "Music" and "Sound Effects" mute the real thing from the day
+## audio ships instead of being retrofitted onto master later. Godot exports
+## only the default bus layout, so they are made here if absent.
+func _ensure_audio_buses() -> void:
+	for bus_name in ["Music", "SFX"]:
+		if AudioServer.get_bus_index(bus_name) < 0:
+			var index := AudioServer.bus_count
+			AudioServer.add_bus(index)
+			AudioServer.set_bus_name(index, bus_name)
+			AudioServer.set_bus_send(index, "Master")
+
+
+func _on_setting_changed(key: String, value: Variant) -> void:
+	var settings: Dictionary = profile.get("settings", {})
+	settings[key] = value
+	profile["settings"] = settings
+	_apply_settings()
+
+
+## One place that turns the saved options into engine state; called on boot
+## and after every change, so there is no per-setting apply path to forget.
+func _apply_settings() -> void:
+	var settings: Dictionary = profile.get("settings", {})
+	var volume := float(settings.get("volume", 1.0))
+	AudioServer.set_bus_volume_db(0, linear_to_db(maxf(volume, 0.0001)))
+	AudioServer.set_bus_mute(0, volume <= 0.0)
+	for entry in [["Music", "music"], ["SFX", "sfx"]]:
+		var index := AudioServer.get_bus_index(String(entry[0]))
+		if index >= 0:
+			AudioServer.set_bus_mute(index, not bool(settings.get(entry[1], true)))
+	if lamp_dim != null:
+		lamp_dim.visible = bool(settings.get("lamps_low", false))
 
 
 func _open_settings() -> void:
-	volume_slider.set_value_no_signal(
-		float(profile.get("settings", {}).get("volume", 1.0)))
 	settings_overlay.visible = true
-
-
-func _apply_volume(value: float) -> void:
-	AudioServer.set_bus_volume_db(0, linear_to_db(maxf(value, 0.0001)))
-	AudioServer.set_bus_mute(0, value <= 0.0)
 
 
 ## Title card between the studio splash and the game. Uses the painted
@@ -818,6 +847,8 @@ func _show_hub() -> void:
 	screen.profile_changed.connect(_save)
 	screen.open_journal.connect(_show_journal)
 	screen.open_case_board.connect(_show_case_board)
+	screen.open_exchange.connect(_show_exchange)
+	screen.open_loadout.connect(_show_loadout)
 	screen.replay_prologue.connect(func() -> void:
 		carryover = {}
 		last_outcome = CombatState.Outcome.ONGOING
@@ -829,6 +860,25 @@ func _show_journal() -> void:
 	var screen: Control = JournalScreen.new()
 	screen.setup(catalog, profile)
 	screen.closed.connect(_show_hub)
+	_swap(screen)
+
+
+func _show_exchange() -> void:
+	var screen: Control = ExchangeScreen.new()
+	screen.setup(catalog, profile)
+	screen.profile_changed.connect(_save)
+	screen.closed.connect(_show_hub)
+	_swap(screen)
+
+
+func _show_loadout() -> void:
+	var screen: Control = LoadoutScreen.new()
+	screen.setup(catalog, profile)
+	# The loadout edits the profile in place as it goes, so the save happens on
+	# the way out — one write per visit instead of one per tap.
+	screen.closed.connect(func() -> void:
+		_save()
+		_show_hub())
 	_swap(screen)
 
 

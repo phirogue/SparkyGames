@@ -13,7 +13,7 @@
       "title": "The Mantel (hub)",
       "group": "Screens",
       "spec": "hub",
-      "about": "Quest board, loadout picker, Magpie Exchange, achievements."
+      "about": "The parlor itself: pinned quest notes, gleam pile, and the doors out."
     },
     {
       "name": "casebook",
@@ -30,13 +30,33 @@
       "about": "A fresh board: the question, one known suspect, five empty slots."
     },
     {
+      "name": "exchange",
+      "title": "The Magpie Exchange",
+      "group": "Screens",
+      "spec": "exchange",
+      "about": "Brindle's market, arriving with 60 gleam so every shelf is reachable."
+    },
+    {
+      "name": "loadout",
+      "title": "On the Prowl (loadout)",
+      "group": "Screens",
+      "spec": "loadout",
+      "about": "The five slots, the bench, and the deck readout — every skill owned."
+    },
+    {
+      "name": "settings",
+      "title": "Settings",
+      "group": "Screens",
+      "spec": "settings",
+      "about": "The options page: toggles, loudness in paw prints, the disclosure."
+    },
+    {
       "name": "prologue",
       "title": "The Prologue (from the top)",
       "group": "Screens",
       "spec": "story:0",
       "about": "The whole opening, in case you want it — everything else skips it."
     },
-
     {
       "name": "battle-vole",
       "title": "Fight: the Vole (tutorial)",
@@ -86,7 +106,6 @@
       "spec": "scenario:boss_unpicked",
       "about": "Meant to be survived, not beaten. For checking defeat and retreat."
     },
-
     {
       "name": "prowl-night-rounds",
       "title": "Prowl: Night Rounds",
@@ -122,7 +141,6 @@
       "spec": "scenario:last_life",
       "about": "1 hp, thin pool, no charges. The fast route to death and the Toll."
     },
-
     {
       "name": "case-open",
       "title": "Chapter 1: case in progress",
@@ -144,7 +162,6 @@
       "spec": "recap",
       "about": "The cold-launch card alone. With no evidence it drops to the hub — as designed."
     },
-
     {
       "name": "dev-menu",
       "title": "Developer Mode (jump anywhere)",
@@ -152,7 +169,6 @@
       "spec": "dev",
       "about": "One list: every screen, story beat, fight, prowl, minigame and saved state."
     },
-
     {
       "name": "stitch",
       "title": "Minigame: Seam & Stitch",
@@ -209,7 +225,6 @@
       "spec": "crossing:crossing_mereside",
       "about": "Push-your-luck traversal on the same deck you fight with."
     },
-
     {
       "name": "fresh-start",
       "title": "State: first boot",

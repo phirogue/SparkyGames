@@ -124,6 +124,9 @@ resolution."* Save as `assets/library/ui/<id>.png`.
    banners, status row icons → the battle screen matches mockup v2.
 3. **The Mantel:** empty hub scene + QuestNote widgets + hearth shop panels
    + gleam pile + achievements scroll → hub matches mockup v2.
+   *Done 2026-08-04, along with Settings, the Magpie Exchange and the loadout
+   page — the shop and the loadout picker became screens of their own. Layout
+   contracts and what the build cost are in [ui-screens.md](ui-screens.md).*
 4. **Polish pass:** lamp flicker, ember particles, unstitch animation, seal
    press, note wobble, button pulses.
 

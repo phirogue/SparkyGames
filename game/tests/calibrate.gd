@@ -34,9 +34,35 @@ const ZONE_MAPS := {
 		["narration", 132, Color("4a5a8a")],
 		["choices x2", 216, Color("8a7a2a")],
 	],
+	# Keep in sync with hub_screen.gd's ZONE_* constants.
 	"hub": [
-		["title+intro", 240, Color("c2884a")],
-		["scroll (quests, shop, casebook)", 858, Color("4a7a5a")],
+		["header (title + gleam)", 96, Color("c2884a")],
+		["board (3 pinned quest notes)", 518, Color("7a6a4a")],
+		["doors (2 x 2)", 268, Color("4a5a8a")],
+		["status (hp, deck, deeds)", 86, Color("4a7a5a")],
+		["footer (latest deed + replay)", 88, Color("a24a3a")],
+	],
+	# Keep in sync with settings_screen.gd's ZONE_* constants.
+	"settings": [
+		["header (back + title)", 96, Color("c2884a")],
+		["rows (5 x 120, sep 14)", 656, Color("4a5a8a")],
+		["loudness (5 paws)", 126, Color("4a7a5a")],
+		["footer (disclosure + back)", 190, Color("a24a3a")],
+	],
+	# Keep in sync with exchange_screen.gd's ZONE_* constants.
+	"exchange": [
+		["header (back + title + purse)", 96, Color("c2884a")],
+		["brindle (portrait + patter)", 300, Color("a24a3a")],
+		["shelf (2 x 2 goods)", 480, Color("4a5a8a")],
+		["detail (the chosen good's options)", 192, Color("4a7a5a")],
+	],
+	# Keep in sync with loadout_screen.gd's ZONE_* constants.
+	"loadout": [
+		["header (back + title)", 96, Color("c2884a")],
+		["slots (3 x 2 cards)", 460, Color("a24a3a")],
+		["bench (owned, not carried)", 300, Color("4a5a8a")],
+		["deck readout", 104, Color("4a7a5a")],
+		["confirm", 96, Color("8a7a2a")],
 	],
 	# Keep in sync with case_board_screen.gd's ZONE_* constants.
 	"case": [

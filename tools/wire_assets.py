@@ -49,8 +49,29 @@ KINDS = {
 # Masters that exist but nothing draws yet. Wiring them would grow the export
 # for no pixels on screen, so they wait in the library until a screen asks.
 UNWIRED = {
-    "bg_mantel", "bg_mantel_scene", "npc_brindle_magpie", "npc_pigeon_postmaster",
-    "npc_rat_boss", "ref_ash_prologue",
+    "bg_mantel", "npc_pigeon_postmaster", "npc_rat_boss", "ref_ash_prologue",
+}
+
+# The exception to the "library/ui is never wired" rule in the module note.
+# These masters were generated on white and ALREADY keyed to alpha, trimmed
+# tight to their content (verified: opaque bbox == canvas), so a downscale is
+# the whole job -- there is no background to key and no stitching to move.
+# Anything not on this list still gets the hand pass. Each entry pins the long
+# edge, because these are drawn to fit a box, not stretched as 9-patches.
+UI_KEYED = {
+    "ui_settings_row": 720,   # the row plate behind icon + name + toggle
+    "ui_toggle_on": 256,
+    "ui_toggle_off": 256,
+    "ui_icon_sound": 160,
+    "ui_icon_music": 160,
+    "ui_icon_brightness": 160,
+    "ui_icon_language": 160,
+    # Re-wired 2026-08-04: the hand-processed ui_paw_full in game/assets was
+    # 0% opaque above alpha 128 -- a ghost. It had been invisible everywhere
+    # it was drawn. The master is a clean black paw print (law 3: read the
+    # processed file, don't assume the pass worked).
+    "ui_paw_full": 200,
+    "ui_paw_empty": 200,
 }
 
 
@@ -60,6 +81,10 @@ def targets() -> list:
         for src in sorted((LIB / kind).glob("*.png")):
             if src.stem not in UNWIRED:
                 out.append((src, GAME / subdir / src.name, rule, size))
+    for stem, size in sorted(UI_KEYED.items()):
+        src = LIB / "ui" / f"{stem}.png"
+        if src.exists():
+            out.append((src, GAME / "ui" / src.name, "long", size))
     return out
 
 

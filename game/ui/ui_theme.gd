@@ -241,6 +241,60 @@ static func panel_stylebox(margin := 16) -> StyleBoxFlat:
 	return box
 
 
+## The torn-parchment plate behind a settings row / a pinned note. 9-patched
+## so the torn silhouette repeats along the edges instead of being squashed:
+## the master is 720x238 and the row it fills is 582x120, which stretched
+## flat would leave squat corner sprigs (law 3 — read the geometry first).
+##
+## The margins are MEASURED off the shipped texture, not guessed: the ink
+## dashes run at y=22 and y=213, and the leaf sprigs occupy x<120 and x>600.
+## Cutting the corners at 130/46 keeps both sprigs whole inside the fixed
+## corner patches, so the tiled middle is plain parchment and its seam is
+## invisible. At 96 the cut fell through the sprigs and the seam showed.
+const ROW_DASH_INSET := 24   # ink border inside the plate; text clears it
+static func row_stylebox(modulate := Color.WHITE) -> StyleBoxTexture:
+	var box := StyleBoxTexture.new()
+	box.texture = tex("ui/ui_settings_row")
+	box.set_texture_margin(SIDE_LEFT, 130)
+	box.set_texture_margin(SIDE_RIGHT, 130)
+	box.set_texture_margin(SIDE_TOP, 46)
+	box.set_texture_margin(SIDE_BOTTOM, 46)
+	box.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_TILE
+	box.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_TILE
+	box.set_content_margin(SIDE_LEFT, 26)
+	box.set_content_margin(SIDE_RIGHT, 26)
+	box.set_content_margin(SIDE_TOP, 12)
+	box.set_content_margin(SIDE_BOTTOM, 12)
+	box.modulate_color = modulate
+	return box
+
+
+## An icon drawn at its OPAQUE size inside a fixed box: generated glyphs float
+## in their own padding, so the raw texture in a 64px box renders a 30px bell
+## (law 3). Cropped first, then fitted.
+static func icon(id: String, box_size: float) -> TextureRect:
+	var rect := TextureRect.new()
+	rect.texture = cropped_tex(id)
+	rect.custom_minimum_size = Vector2(box_size, box_size)
+	rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return rect
+
+
+## A transparent, full-rect Button laid over a control so the WHOLE thing is
+## the tap target (mobile floor) instead of a hotspot inside it. The parent
+## must not be a Container, which would lay the button out as another child.
+static func tap_layer(over: Control) -> Button:
+	var button := Button.new()
+	button.flat = true
+	button.set_anchors_preset(Control.PRESET_FULL_RECT)
+	for state in ["normal", "hover", "pressed", "focus"]:
+		button.add_theme_stylebox_override(state, StyleBoxEmpty.new())
+	over.add_child(button)
+	return button
+
+
 static func strip_stylebox() -> StyleBoxTexture:
 	var box := stylebox("ui_strip", 14)
 	for side in [SIDE_TOP, SIDE_BOTTOM]:

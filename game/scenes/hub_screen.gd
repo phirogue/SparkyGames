@@ -1,31 +1,74 @@
 extends Control
-## The Mantel — between-run hub: quest board, the Magpie Exchange (shop),
-## achievements. 2-3 taps to be back in a prowl (design rule: never admin).
+## The Mantel — Elspeth's parlor, and the two taps between one prowl and the
+## next. Built to reference/the mantle - v2.jpg: the room is a real place
+## (bg_mantel_scene, generated empty for exactly this), quests are notes
+## pinned to the chimney breast with a needle and a wax seal, and gleam is a
+## pile of buttons rather than a number in a label.
+##
+## The shop and the loadout picker moved OUT to their own screens
+## (exchange_screen.gd, loadout_screen.gd) — the Mantel's job is to be a
+## room you cross, not a control panel. See docs/design/ui-screens.md.
 
 signal quest_selected(quest_id: String)
 signal profile_changed
 signal replay_prologue
 signal open_journal
 signal open_case_board
+signal open_exchange
+signal open_loadout
 
-const ADD_CARD_COST := 12
-const RARE_CARD_COST := 30
-const REMOVE_CARD_COST := 15
-const TONIC_COST := 25
-const MAX_HP_CAP := 30
+## FIXED zone template (law 12): heights + separations == CONTENT_HEIGHT.
+## 96 + 518 + 268 + 86 + 88 = 1056, plus 4 x 12 separation = 1104.
+const SEPARATION := 12
+const ZONE_HEADER := 96
+const ZONE_BOARD := 518
+const ZONE_DOORS := 268
+const ZONE_STATUS := 86
+const ZONE_FOOTER := 88
+
+const NOTE_INSET := 10.0   # keeps a rotated note's corners off the stitching
+const NOTE_WIDTH := UITheme.CONTENT_WIDTH - NOTE_INSET * 2
+const NOTE_HEIGHT := 152.0
+const NOTE_SEPARATION := 6
+const NOTE_TILT := 1.4     # degrees; hand-pinned, not laid out
+## Text is inset to the plate's INK DASHES, not to its rect. Measured off the
+## texture (the dashes run 22px in from the top and 25 from the bottom, the
+## sprigs hold the outer 120px): laid out to the rect, the quest name crossed
+## the top dash and the board card fell out of the bottom of the note. Three
+## notes at this height fill the board zone with 13px to spare.
+const NOTE_PAD_TOP := 40.0
+const NOTE_PAD_BOTTOM := 34.0
+## The plate's printed leaf sprigs own the outer 120px of each end. Text that
+## started at 34 ran through the left one; the seal now sits in that band
+## instead, which is what it is for — a stamp on the corner of the paper.
+const NOTE_PAD_LEFT := 124.0
+const NOTE_PAD_RIGHT := 40.0
+const NOTE_TITLE_SIZE := 24
+const NOTE_BODY_SIZE := 18
+
+const DOOR_COLUMNS := 2
+const DOOR_WIDTH := (UITheme.CONTENT_WIDTH - SEPARATION) / DOOR_COLUMNS  # 285
+const DOOR_HEIGHT := (ZONE_DOORS - SEPARATION) / 2.0                     # 144
+
+## Text sits on a dark room here, not on parchment: the plates keep ink, the
+## room's own labels go cream (they are lit by the lamps in the picture).
+const ROOM_TEXT := Color("efe0c2")
+const ROOM_TEXT_SOFT := Color("cbb894")
+
+## The wax seal reads the quest's kind before a word is read: the case's own
+## work is sealed red, a guild's blue, everything else gold.
+const SEAL_CORE := "ui/ui_seal_red"
+const SEAL_GUILD := "ui/ui_seal_blue"
+const SEAL_SIDE := "ui/ui_seal_gold"
 
 var catalog: Catalog
 var profile: Dictionary
 var tracker: AchievementTracker
 
-var gleam_label: Label
-var deck_label: Label
-var loadout_title: Label
-var loadout_flow: HFlowContainer
-var achievements_label: Label
-var shop_status: Label
-var shop_detail: HBoxContainer
-var _shop_mode := ""
+var _gleam_label: Label
+var _board: VBoxContainer
+var _status: HBoxContainer
+var _deed_label: Label
 
 
 func setup(p_catalog: Catalog, p_profile: Dictionary, p_tracker: AchievementTracker) -> void:
@@ -35,260 +78,279 @@ func setup(p_catalog: Catalog, p_profile: Dictionary, p_tracker: AchievementTrac
 
 
 func _ready() -> void:
-	var margin := UITheme.page_scaffold(self)
-	# The Mantel holds more than one screen of things; it scrolls.
-	var scroll := ScrollContainer.new()
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	margin.add_child(scroll)
-	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 10)
-	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(root)
-
-	var title := _label(root, 48)
-	title.text = "The Mantel"
-	title.add_theme_font_override("font", UITheme.display_font())
-	title.add_theme_color_override("font_color", UITheme.INK)
-	var subtitle := _label(root, 24)
-	subtitle.text = "Her parlor. Cold, but still hers. The thread runs out under the window."
-	subtitle.add_theme_color_override("font_color", UITheme.INK_SOFT)
-	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-
-	gleam_label = _label(root, 30)
-	gleam_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	deck_label = _label(root, 24)
-	deck_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
-	deck_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-
-	# Loadout picker: which 3 skills (plus Scratch, always) go on the prowl.
-	# Chips rebuild on refresh so newly-earned skills appear immediately.
-	loadout_title = _label(root, 24)
-	loadout_title.add_theme_color_override("font_color", UITheme.INK_SOFT)
-	loadout_title.text = "On the prowl — Scratch and %d others. Tap to swap:" % [
-		SaveService.LOADOUT_SIZE - 1]
-	loadout_flow = HFlowContainer.new()
-	loadout_flow.add_theme_constant_override("h_separation", 8)
-	loadout_flow.add_theme_constant_override("v_separation", 6)
-	root.add_child(loadout_flow)
-	root.add_child(HSeparator.new())
-
-	# The case comes first — the board is where the chapter is picked up.
-	var case_button := Button.new()
-	case_button.text = "The Case Board — suspects, things, threads"
-	case_button.custom_minimum_size = Vector2(0, 88)
-	case_button.pressed.connect(func() -> void: open_case_board.emit())
-	root.add_child(case_button)
-	root.add_child(HSeparator.new())
-
-	var board_title := _label(root, 32)
-	board_title.text = "Quests on the board"
-	# Quest schema v2: what is on the board is QuestGate's decision, not the
-	# hub's — one gating rule that the tests and scenario specs also call.
-	for quest: Dictionary in QuestGate.board(catalog, profile):
-		var quest_id := String(quest["id"])
-		var b := Button.new()
-		b.text = "%s\n%s" % [quest["name"], quest["board_card"]]
-		b.custom_minimum_size = Vector2(0, 112)
-		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		b.pressed.connect(func() -> void: quest_selected.emit(quest_id))
-		root.add_child(b)
-
-	root.add_child(HSeparator.new())
-	var shop_title := _label(root, 32)
-	shop_title.text = "The Magpie Exchange"
-	shop_status = _label(root, 24)
-	shop_status.add_theme_color_override("font_color", UITheme.INK_SOFT)
-	shop_status.text = "Brindle appraises you. 'Everything shines to somebody, pet.'"
-	shop_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-
-	var shop_row := HBoxContainer.new()
-	shop_row.add_theme_constant_override("separation", 8)
-	root.add_child(shop_row)
-	_shop_button(shop_row, "Add (%d)" % ADD_CARD_COST, "add")
-	_shop_button(shop_row, "Rare (%d)" % RARE_CARD_COST, "rare")
-	_shop_button(shop_row, "Cut (%d)" % REMOVE_CARD_COST, "remove")
-	_shop_button(shop_row, "Tonic (%d)" % TONIC_COST, "tonic")
-
-	shop_detail = HBoxContainer.new()
-	shop_detail.add_theme_constant_override("separation", 6)
-	root.add_child(shop_detail)
-
-	var casebook := Button.new()
-	casebook.text = "The Casebook — deeds & knowledge"
-	casebook.custom_minimum_size = Vector2(0, 88)
-	casebook.pressed.connect(func() -> void: open_journal.emit())
-	root.add_child(casebook)
-	var replay := Button.new()
-	replay.text = "Relive the worst night (replay prologue)"
-	replay.custom_minimum_size = Vector2(0, 84)
-	replay.pressed.connect(func() -> void: replay_prologue.emit())
-	root.add_child(replay)
-	achievements_label = _label(root, 22)
-	achievements_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
-	achievements_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-
+	# The room goes BETWEEN the stitched page and the content, so the page's
+	# border still frames it and every plate still lands inside the margins.
+	var margin := UITheme.page_scaffold(self, {"between": _room()})
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", SEPARATION)
+	margin.add_child(column)
+	_build_header(column)
+	_build_board(column)
+	_build_doors(column)
+	_build_status(column)
+	_build_footer(column)
 	refresh()
 
 
+## The parlor itself: the empty-mantel illustration, dimmed and warmed so it
+## reads as a room at night rather than competing with the notes pinned on it.
+func _room() -> Control:
+	var holder := Control.new()
+	holder.set_anchors_preset(Control.PRESET_FULL_RECT)
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# The picture is 3:4 and the hole is 582x1104, so COVER overflows it. A
+	# TextureRect only clips when its PARENT clips, and the parent has to be
+	# the margin box itself — clipping at the page would spill the overflow
+	# across the stitching (law 3: read the geometry, don't hope).
+	var window := Control.new()
+	window.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	window.offset_left = UITheme.PAGE_MARGIN_LEFT
+	window.offset_top = UITheme.PAGE_MARGIN_TOP
+	window.offset_right = -UITheme.PAGE_MARGIN_RIGHT
+	window.offset_bottom = -UITheme.PAGE_MARGIN_BOTTOM
+	window.clip_contents = true
+	window.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.add_child(window)
+	var art := UITheme.art_or_placeholder("bg_mantel_scene",
+		"the parlor: bare mantel, cold hearth, two lamps")
+	art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	art.modulate = Color(0.72, 0.68, 0.62)
+	window.add_child(art)
+	return holder
+
+
+# ------------------------------------------------------------------- zones
+
+func _build_header(column: VBoxContainer) -> void:
+	var header := HBoxContainer.new()
+	header.custom_minimum_size = Vector2(0, ZONE_HEADER)
+	header.add_theme_constant_override("separation", 8)
+	column.add_child(header)
+	var title := UITheme.measured_label("The Mantel", 48, 360.0,
+		UITheme.display_font(), ROOM_TEXT)
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title.size_flags_vertical = Control.SIZE_FILL
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(title)
+	var purse := HBoxContainer.new()
+	purse.add_theme_constant_override("separation", 4)
+	purse.alignment = BoxContainer.ALIGNMENT_END
+	header.add_child(purse)
+	purse.add_child(UITheme.icon("ui/ui_button_pile", 76.0))
+	_gleam_label = UITheme.measured_label("0", 40, 110.0,
+		UITheme.display_font(), ROOM_TEXT)
+	_gleam_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_gleam_label.size_flags_vertical = Control.SIZE_FILL
+	purse.add_child(_gleam_label)
+
+
+func _build_board(column: VBoxContainer) -> void:
+	var holder := VBoxContainer.new()
+	holder.custom_minimum_size = Vector2(0, ZONE_BOARD)
+	holder.add_theme_constant_override("separation", 6)
+	column.add_child(holder)
+	holder.add_child(UITheme.measured_label("Pinned to the chimney breast", 24,
+		UITheme.CONTENT_WIDTH, UITheme.smallcaps_font(), ROOM_TEXT_SOFT))
+	# The board takes whatever the chapter puts on it, so it scrolls INSIDE
+	# its zone rather than pushing the doors off the page (law 12).
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	holder.add_child(scroll)
+	_board = VBoxContainer.new()
+	_board.add_theme_constant_override("separation", NOTE_SEPARATION)
+	_board.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(_board)
+
+
+func _build_doors(column: VBoxContainer) -> void:
+	var grid := GridContainer.new()
+	grid.custom_minimum_size = Vector2(0, ZONE_DOORS)
+	grid.columns = DOOR_COLUMNS
+	grid.add_theme_constant_override("h_separation", SEPARATION)
+	grid.add_theme_constant_override("v_separation", SEPARATION)
+	column.add_child(grid)
+	grid.add_child(_door("The Case Board", "Suspects, things, threads.",
+		"ui/ui_needle_pin", func() -> void: open_case_board.emit()))
+	grid.add_child(_door("The Magpie Exchange", "Brindle. Cards bought and cut.",
+		"ui/ui_button_pile", func() -> void: open_exchange.emit()))
+	grid.add_child(_door("On the Prowl", "What goes out with you.",
+		"ui/ui_paw_full", func() -> void: open_loadout.emit()))
+	grid.add_child(_door("The Casebook", "Deeds and knowledge.",
+		"ui/ui_medallions", func() -> void: open_journal.emit()))
+
+
+func _build_status(column: VBoxContainer) -> void:
+	_status = HBoxContainer.new()
+	_status.custom_minimum_size = Vector2(0, ZONE_STATUS)
+	_status.add_theme_constant_override("separation", SEPARATION)
+	column.add_child(_status)
+
+
+func _build_footer(column: VBoxContainer) -> void:
+	var footer := HBoxContainer.new()
+	footer.custom_minimum_size = Vector2(0, ZONE_FOOTER)
+	footer.add_theme_constant_override("separation", SEPARATION)
+	column.add_child(footer)
+	_deed_label = UITheme.measured_label("", 20, 300.0,
+		UITheme.italic_font(), ROOM_TEXT_SOFT)
+	_deed_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_deed_label.size_flags_vertical = Control.SIZE_FILL
+	_deed_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	footer.add_child(_deed_label)
+	var replay := UITheme.dark_button("Relive the worst night", 22,
+		Vector2(260, 72))
+	replay.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	replay.pressed.connect(func() -> void: replay_prologue.emit())
+	footer.add_child(replay)
+
+
+# ----------------------------------------------------------------- contents
+
 func refresh() -> void:
-	gleam_label.text = "Gleam: %d      HP: %d" % [
-		int(profile["gleam"]), int(profile["max_hp"])]
-	_clear(loadout_flow)
-	var active := SaveService.battle_loadout(profile)
-	for skill_id in profile.get("skills", []):
-		if skill_id == "scratch":
-			continue
-		var chip := Button.new()
-		chip.toggle_mode = true
-		chip.text = String(catalog.skills[skill_id]["name"])
-		chip.button_pressed = active.has(skill_id)
-		chip.custom_minimum_size = Vector2(0, 48)
-		chip.toggled.connect(_on_loadout_toggle.bind(skill_id))
-		loadout_flow.add_child(chip)
-	var counts := {}
-	for card_id in profile["deck"]:
-		var humour: String = catalog.energy_cards[card_id]["humour"]
-		counts[humour] = int(counts.get(humour, 0)) + 1
-	var parts: Array[String] = []
-	for humour in ["ferocity", "guile", "shadow", "mysticism"]:
-		parts.append("%s %d" % [Catalog.humour_name(humour), int(counts.get(humour, 0))])
-	deck_label.text = "Deck (%d): %s" % [profile["deck"].size(), " · ".join(parts)]
+	_gleam_label.text = "%d" % int(profile.get("gleam", 0))
+	_clear(_board)
+	# What is on the board is QuestGate's decision, not the hub's — one gating
+	# rule that the tests and the scenario specs also call.
+	var board := QuestGate.board(catalog, profile)
+	if board.is_empty():
+		_board.add_child(_bare_note())
+	for quest: Dictionary in board:
+		_board.add_child(_note(quest))
+	_clear(_status)
+	_status.add_child(_chip("ui/ui_heart_full", "%d" % int(profile["max_hp"]), "lives in him"))
+	_status.add_child(_chip("ui/ui_spool", "%d" % profile["deck"].size(), "cards on the spool"))
 	var visible_total := 0
 	for id in catalog.achievements:
 		if not catalog.achievements[id].get("hidden", false) or tracker.is_unlocked(id):
 			visible_total += 1
-	achievements_label.text = "Achievements: %d / %d unlocked%s" % [
-		tracker.unlocked.size(), visible_total,
-		"" if tracker.unlocked.is_empty() else "  ·  latest: " +
-			String(catalog.achievements[tracker.unlocked.back()]["name"]),
-	]
+	_status.add_child(_chip("ui/ui_medallions",
+		"%d/%d" % [tracker.unlocked.size(), visible_total], "deeds recorded"))
+	var journal: Array = profile.get("journal", [])
+	_deed_label.text = String(journal.back()) if not journal.is_empty() \
+		else "The thread runs out under the window."
+	_deed_label.custom_minimum_size = Vector2(300.0, UITheme.measure_text(
+		_deed_label.text, UITheme.italic_font(), 20, 300.0).y)
 
 
-# ------------------------------------------------------------------ shop
-
-func _shop_button(parent: Container, text: String, mode: String) -> void:
-	var b := Button.new()
-	b.text = text
-	b.custom_minimum_size = Vector2(0, 56)
-	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	b.add_theme_font_size_override("font_size", 22)
-	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	b.pressed.connect(_on_shop_mode.bind(mode))
-	parent.add_child(b)
-
-
-func _on_shop_mode(mode: String) -> void:
-	_clear(shop_detail)
-	_shop_mode = mode
-	match mode:
-		"add":
-			if int(profile["gleam"]) < ADD_CARD_COST:
-				return _say_broke()
-			shop_status.text = "'An appetite for what, exactly?'"
-			for humour in ["ferocity", "guile", "shadow", "mysticism"]:
-				var b := Button.new()
-				b.text = Catalog.humour_name(humour) + " 2"
-				b.custom_minimum_size = Vector2(0, 48)
-				b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-				b.pressed.connect(_on_add_card.bind(humour))
-				shop_detail.add_child(b)
-		"rare":
-			# The good shelf: value-3 cards, one price tier up. This is the
-			# only acquisition route for the _3s (they are NOT starter kit —
-			# owner rarity rule).
-			if int(profile["gleam"]) < RARE_CARD_COST:
-				return _say_broke()
-			shop_status.text = "'Ah. The good shelf. For a discerning paw.'"
-			for humour in Catalog.HUMOURS:
-				var card_id := humour + "_3"
-				var b := Button.new()
-				b.text = "%s (%s)" % [String(catalog.energy_cards[card_id]["name"]),
-					Catalog.humour_name(humour)]
-				b.custom_minimum_size = Vector2(0, 48)
-				b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-				b.pressed.connect(_on_add_rare_card.bind(card_id))
-				shop_detail.add_child(b)
-		"remove":
-			if int(profile["gleam"]) < REMOVE_CARD_COST:
-				return _say_broke()
-			if profile["deck"].size() <= 10:
-				shop_status.text = "'Any thinner and you'll be running on spite alone. No.'"
-				return
-			shop_status.text = "'Letting go. The rarest purchase. Which one?'"
-			var seen := {}
-			for card_id in profile["deck"]:
-				if seen.has(card_id):
-					continue
-				seen[card_id] = true
-				var b := Button.new()
-				b.text = String(catalog.energy_cards[card_id]["name"])
-				b.custom_minimum_size = Vector2(0, 48)
-				b.pressed.connect(_on_remove_card.bind(card_id))
-				shop_detail.add_child(b)
-		"tonic":
-			if int(profile["gleam"]) < TONIC_COST:
-				return _say_broke()
-			if int(profile["max_hp"]) >= MAX_HP_CAP:
-				shop_status.text = "'You are one cat. There are limits. That was the last one.'"
-				return
-			profile["gleam"] = int(profile["gleam"]) - TONIC_COST
-			profile["max_hp"] = int(profile["max_hp"]) + 2
-			shop_status.text = "'Drink it all. Yes, it tastes like pond. Medicinal pond.'"
-			profile_changed.emit()
-			refresh()
+## A quest note: torn parchment, a brass needle through the top, a wax seal
+## for its kind, and the board card in Elspeth's hand.
+func _note(quest: Dictionary) -> Control:
+	var quest_id := String(quest["id"])
+	var note := Panel.new()
+	note.custom_minimum_size = Vector2(NOTE_WIDTH, NOTE_HEIGHT)
+	note.add_theme_stylebox_override("panel", UITheme.row_stylebox())
+	# Deterministic tilt: hand-pinned to look at, identical every launch to
+	# test against. Two notes never share an angle because the id feeds it.
+	note.pivot_offset = Vector2(NOTE_WIDTH, NOTE_HEIGHT) / 2.0
+	note.rotation_degrees = NOTE_TILT * (1.0 if quest_id.hash() % 2 == 0 else -1.0)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 2)
+	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	box.offset_left = NOTE_PAD_LEFT
+	box.offset_right = -NOTE_PAD_RIGHT
+	box.offset_top = NOTE_PAD_TOP
+	box.offset_bottom = -NOTE_PAD_BOTTOM
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	note.add_child(box)
+	var wrap := NOTE_WIDTH - NOTE_PAD_LEFT - NOTE_PAD_RIGHT
+	box.add_child(UITheme.measured_label(String(quest["name"]), NOTE_TITLE_SIZE,
+		wrap, UITheme.display_font()))
+	box.add_child(UITheme.measured_label(String(quest.get("board_card", "")),
+		NOTE_BODY_SIZE, wrap, UITheme.italic_font(), UITheme.INK_SOFT))
+	# The pin straddles the note's top edge in the clear band above the title
+	# (NOTE_PAD_TOP). Hung lower, it landed across the first line of the name.
+	var pin := UITheme.icon("ui/ui_needle_pin", 44.0)
+	pin.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	pin.offset_left = -22
+	pin.offset_right = 22
+	pin.offset_top = -12
+	pin.offset_bottom = 32
+	note.add_child(pin)
+	var seal := UITheme.icon(_seal_for(quest), 68.0)
+	seal.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
+	seal.offset_left = 28
+	seal.offset_right = 96
+	seal.offset_top = -34
+	seal.offset_bottom = 34
+	note.add_child(seal)
+	UITheme.tap_layer(note).pressed.connect(
+		func() -> void: quest_selected.emit(quest_id))
+	return note
 
 
-func _on_add_card(humour: String) -> void:
-	profile["gleam"] = int(profile["gleam"]) - ADD_CARD_COST
-	profile["deck"].append(humour + "_2")
-	shop_status.text = "'A fine choice. It fell off a windowsill, if anyone asks.'"
-	_clear(shop_detail)
-	profile_changed.emit()
-	refresh()
+## An empty board still has to say something — a blank zone reads as a bug.
+func _bare_note() -> Control:
+	var note := Panel.new()
+	note.custom_minimum_size = Vector2(NOTE_WIDTH, NOTE_HEIGHT)
+	note.add_theme_stylebox_override("panel", UITheme.row_stylebox(
+		Color(1, 1, 1, 0.6)))
+	var label := UITheme.measured_label(
+		"Nothing pinned tonight. The city is being quiet at you.", 24,
+		NOTE_WIDTH - 68, UITheme.italic_font(), UITheme.INK_SOFT)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	label.offset_left = 34
+	label.offset_right = -34
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	note.add_child(label)
+	return note
 
 
-func _on_add_rare_card(card_id: String) -> void:
-	profile["gleam"] = int(profile["gleam"]) - RARE_CARD_COST
-	profile["deck"].append(card_id)
-	shop_status.text = "'Wrapped in yesterday's obituaries. For dignity.'"
-	_clear(shop_detail)
-	profile_changed.emit()
-	refresh()
+func _seal_for(quest: Dictionary) -> String:
+	if String(quest.get("kind", "side")) == "core":
+		return SEAL_CORE
+	return SEAL_GUILD if String(quest.get("guild", "")) != "" else SEAL_SIDE
 
 
-func _on_remove_card(card_id: String) -> void:
-	profile["gleam"] = int(profile["gleam"]) - REMOVE_CARD_COST
-	profile["deck"].erase(card_id)
-	shop_status.text = "'Gone. You'll feel lighter on the stairs.'"
-	_clear(shop_detail)
-	profile_changed.emit()
-	refresh()
+## A door out of the room: icon, name, and what is behind it.
+func _door(name_text: String, blurb: String, icon_id: String,
+		on_pressed: Callable) -> Control:
+	var plate := PanelContainer.new()
+	plate.custom_minimum_size = Vector2(DOOR_WIDTH, DOOR_HEIGHT)
+	plate.add_theme_stylebox_override("panel", UITheme.panel_stylebox(10))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	plate.add_child(row)
+	var icon := UITheme.icon(icon_id, 54.0)
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(icon)
+	var text := VBoxContainer.new()
+	text.add_theme_constant_override("separation", 2)
+	text.alignment = BoxContainer.ALIGNMENT_CENTER
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(text)
+	var wrap := DOOR_WIDTH - 54 - 8 - 20
+	text.add_child(UITheme.measured_label(name_text, 26, wrap,
+		UITheme.display_font()))
+	text.add_child(UITheme.measured_label(blurb, 19, wrap,
+		UITheme.body_font(), UITheme.INK_SOFT))
+	UITheme.tap_layer(plate).pressed.connect(on_pressed)
+	return plate
 
 
-func _on_loadout_toggle(pressed: bool, skill_id: String) -> void:
-	# Materialize the current (possibly auto-derived) loadout, then apply.
-	var picked: Array = SaveService.battle_loadout(profile)
-	picked.erase("scratch")
-	if pressed and not picked.has(skill_id):
-		picked.append(skill_id)
-		while picked.size() > SaveService.LOADOUT_SIZE - 1:
-			picked.pop_front()  # the oldest pick steps aside
-	elif not pressed:
-		picked.erase(skill_id)
-	profile["loadout"] = picked
-	profile_changed.emit()
-	refresh()
-
-
-func _say_broke() -> void:
-	shop_status.text = "'Sentiment is lovely. Gleam is lovelier. Come back shinier.'"
-
-
-func _label(parent: Container, size: int) -> Label:
-	var label := Label.new()
-	label.add_theme_font_size_override("font_size", size)
-	parent.add_child(label)
-	return label
+## One reading off the mantel: an object, its number, and what it counts.
+func _chip(icon_id: String, value: String, caption: String) -> Control:
+	var chip := HBoxContainer.new()
+	chip.custom_minimum_size = Vector2(0, ZONE_STATUS)
+	chip.add_theme_constant_override("separation", 6)
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var icon := UITheme.icon(icon_id, 52.0)
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	chip.add_child(icon)
+	var text := VBoxContainer.new()
+	text.add_theme_constant_override("separation", 0)
+	text.alignment = BoxContainer.ALIGNMENT_CENTER
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	chip.add_child(text)
+	text.add_child(UITheme.measured_label(value, 30, 120.0,
+		UITheme.display_font(), ROOM_TEXT))
+	text.add_child(UITheme.measured_label(caption, 17, 120.0,
+		UITheme.body_font(), ROOM_TEXT_SOFT))
+	return chip
 
 
 func _clear(container: Container) -> void:

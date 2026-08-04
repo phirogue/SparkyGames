@@ -67,8 +67,18 @@ func _run() -> void:
 		elif script_path.ends_with("hub_screen.gd"):
 			await _shot("hub")
 			await _tour_case_board()
+			await _tour_market_and_kit()
 			game._open_settings()
+			await _wait(0.4)
 			await _shot("settings")
+			# Both toggle states have to be photographed: the OFF art is a
+			# different picture, not a modulate of the ON one.
+			game.settings_overlay._on_toggle("music")
+			game.settings_overlay._on_toggle("lamps_low")
+			game.settings_overlay._on_volume_step(3)
+			await _wait(0.35)
+			await _shot("settings_changed")
+			game.settings_overlay._on_toggle("lamps_low")
 			game.settings_overlay.visible = false
 			break
 		else:
@@ -106,6 +116,35 @@ func _tour_case_board() -> void:
 	await _shot("case_recap")
 	game.current_screen.finished.emit(-1)
 	await _wait(0.4)
+
+
+## The Magpie Exchange and the loadout page. Both are all refusals and empty
+## slots on a fresh profile — the prologue ends with no gleam and one skill —
+## so the throwaway profile is given a purse and a satchel of skills first.
+## Photographing an honestly-empty market would prove nothing about the layout.
+func _tour_market_and_kit() -> void:
+	game.profile["gleam"] = maxi(int(game.profile["gleam"]), 60)
+	game._show_exchange()
+	await _wait(0.5)
+	await _shot("exchange")
+	game.current_screen._on_good_pressed("add")
+	await _wait(0.35)
+	await _shot("exchange_choosing")
+	game.current_screen._on_add_card("guile")
+	await _wait(0.35)
+	await _shot("exchange_bought")
+	if game.profile["skills"].size() <= 1:
+		game.profile["skills"] = ["scratch", "pounce", "slink", "purr", "loaf",
+			"swat", "shelf_justice"]
+	game._show_loadout()
+	await _wait(0.5)
+	await _shot("loadout")
+	game.current_screen._on_slot_pressed(
+		String(SaveService.battle_loadout(game.profile)[1]))
+	await _wait(0.35)
+	await _shot("loadout_swapped")
+	game._show_hub()
+	await _wait(0.5)
 
 
 func _tour_story(screen: Control, fresh: bool) -> void:
