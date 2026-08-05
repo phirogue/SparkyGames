@@ -42,6 +42,7 @@ KINDS = {
     "scenes": ("w", 512, ""),
     "characters": ("w", 512, ""),
     "skills": ("w", 300, ""),
+    "evidence": ("w", 300, ""),
     "energy": ("long", 220, ""),
     "logos": ("w", 720, "ui"),
 }
@@ -49,7 +50,7 @@ KINDS = {
 # Masters that exist but nothing draws yet. Wiring them would grow the export
 # for no pixels on screen, so they wait in the library until a screen asks.
 UNWIRED = {
-    "bg_mantel", "npc_pigeon_postmaster", "npc_rat_boss", "ref_ash_prologue",
+    "bg_mantel", "npc_pigeon_postmaster", "ref_ash_prologue",
 }
 
 # The exception to the "library/ui is never wired" rule in the module note.

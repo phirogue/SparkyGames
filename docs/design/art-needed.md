@@ -21,11 +21,11 @@ own `ref_` anchor the moment it exists (library rule 4).
 
 | id | what it is |
 |---|---|
-| `ev_candle_stub` | a guild-sealed candle stub, Thimblefield delivery mark (L1) |
+| ~~`ev_candle_stub`~~ | **DONE 2026-08-04.** Beeswax stub, burnt low, bee seal pressed into the flank. Wired. |
 | `ev_ledger` | a torn ledger page in a guildmaster's hand (L2) |
 | `ev_tally` | a Lamplighters' shift-tally, chalk on a wooden slat (L3) |
 | `ev_seam` | a hand's length of ward-thread, unpicked and backward (L4) |
-| `ev_docket` | a Chandlers' cart-slot delivery docket, signed, undelivered (L5) |
+| ~~`ev_docket`~~ | **DONE 2026-08-04.** Folded cart docket, consignee line scratched out. Wired. |
 | `npc_wick` | Guildmaster Ellery Wick — charming-awful, never cartoon-evil |
 | `npc_gentleman` | The Quiet Gentleman — a fixer nobody remembers meeting first |
 | `npc_bodkin` | Bodkin: a scarred one-eyed grey tom. Enters at L1 as an ally |
@@ -36,6 +36,24 @@ drawn is a fair-play matter, not a taste one.
 Generation is now cheap and scripted, so the bottleneck is judgement, not
 supply. **Before making anything, check the library — and if you're changing
 an existing image, check the archive first.**
+
+### The opening arc's own scenes — done 2026-08-04
+
+Generated for the Chapter 1 opening arc (`quests.json`), read, wired and
+shot in the tour. Both carry Ash and were generated from `ref_ash.png`
+(post-title, so he wears the neckerchief), per library rule 4.
+
+| id | what it is |
+|---|---|
+| `sc_the_carrying` | the witches lift Elspeth out of her chair at first light; the eldest is turned to the wall of cut threads; Ash on the mantel, watching |
+| `sc_the_wake` | the tideline funeral: bier at the waterline, women in grey close in, guild delegates apart in good coats, Ash alone on a mooring post |
+
+Brindle was **not** generated: `npc_brindle_magpie` was already in the
+library and already right (library rule 1). That is one generation the
+lookup saved, and the whole reason the lookup is rule 1.
+
+**Still wanted for beats now written but not yet built:** `npc_shift_boss`
+(the Lamplighters' testimony), and the L2-L5 evidence above.
 
 ---
 
@@ -51,12 +69,12 @@ portraits/scenes 512, UI 512, glyphs 220), run
 |---|---|
 | `logo_ashcat_title` | title screen — typo fixed AND Ash now wears his neckerchief |
 | `bg_mantel`, `bg_mantel_scene` | the hub. `_scene` has a deliberately bare wall for pinned notes; `bg_mantel` is the fuller painting |
-| `npc_brindle_magpie`, `npc_rat_boss`, `npc_pigeon_postmaster` | Chapter 1 guild faces |
+| `npc_pigeon_postmaster` | Chapter 1 guild faces. `npc_brindle_magpie` and `npc_rat_boss` are now WIRED and referenced by find_the_magpie / ask_the_rats |
 | `ui_case_board` | the Clue-style case board backing |
 | `ui_paw_solid`, `ui_paw_stamp`, `ui_icon_menu` | replace the engine-drawn stand-ins |
 | `ui_settings_row`, `ui_toggle_on`, `ui_toggle_off`, `ui_icon_sound`, `ui_icon_music`, `ui_icon_brightness`, `ui_icon_language` | the settings screen, which had no real art before |
 | `mock_journal`, `mock_chapter_select`, `mock_settings` | design references, rebuilt in code — not shipped |
-| `sc_hollow_court_desk`, `sc_shambles_day` | Chapter 1 scenes |
+| `sc_hollow_court_desk`, `sc_shambles_day` | Chapter 1 scenes — both now referenced and wired |
 | `ref_ash_prologue` | reference only — the bare-necked Ash, for prologue scenes |
 
 ## Open work

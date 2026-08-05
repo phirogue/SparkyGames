@@ -29,6 +29,9 @@ SUPERSEDED = REPO / "assets" / "archive" / "superseded"
 PREFIX_TO_KIND = [
     ("bg_", "backdrops"),
     ("en_", "enemies"),
+    # Case Board objects. Framed like skills -- the thing alone on plain
+    # parchment -- because on the board they read as pinned to it.
+    ("ev_", "evidence"),
     ("sc_", "scenes"),
     ("sk_", "skills"),
     ("energy_", "energy"),

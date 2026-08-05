@@ -57,7 +57,7 @@
       {
         "type": "story",
         "environment": "shambles_market",
-        "portrait": "npc_brindle",
+        "portrait": "npc_brindle_magpie",
         "art_desc": "Brindle the magpie fence behind a market stall of buttons, teeth and small keys, one bright eye, night market lanterns",
         "lines": [
           "'Right,' says Brindle. 'You're not useless. That's the whole interview.'",
