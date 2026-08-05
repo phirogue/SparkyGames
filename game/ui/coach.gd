@@ -107,7 +107,7 @@ func _on_dim_input(event: InputEvent) -> void:
 ## action only when the action cannot actually be taken — the escape hatch
 ## that keeps an impossible step from becoming a wall.
 func _tap_advances() -> bool:
-	if not _waits_for_action():
+	if not waits_for_action():
 		return true
 	var target: Control = _current_control()
 	if target == null:
@@ -115,7 +115,7 @@ func _tap_advances() -> bool:
 	return target is BaseButton and target.disabled
 
 
-func _waits_for_action() -> bool:
+func waits_for_action() -> bool:
 	return active() and index >= 0 and bool(steps[index].get("wait", false))
 
 
@@ -156,7 +156,7 @@ func force_advance() -> void:
 	if not active():
 		_finish()
 		return
-	_hole_catcher.visible = not _waits_for_action()
+	_hole_catcher.visible = not waits_for_action()
 	var text := String(steps[index].get("text", ""))
 	_text_label.text = text
 	# Size the LABEL from measured text; the panel then derives its own size
@@ -206,12 +206,35 @@ func _process(_delta: float) -> void:
 	if y < 16 or current_target() == "":
 		y = minf(hole.end.y + 18, full.size.y - panel_size.y - 16)
 	_text_panel.position = Vector2(x, y)
-	# Skip lives top-right, but must never sit ON the spotlit target or the
-	# header's rule card (owner defect: it occluded the environment rules
-	# during header steps). If the hole reaches the top band, drop to the
-	# bottom-right corner instead.
-	var skip_pos := Vector2(full.size.x - _skip.size.x - 24, 12)
-	var skip_rect := Rect2(skip_pos, _skip.size).grow(8)
-	if hole.intersects(skip_rect) or hole.position.y < skip_rect.end.y:
-		skip_pos.y = full.size.y - _skip.size.y - 12
-	_skip.position = skip_pos
+	# Skip lives top-right, but must never sit ON the spotlit target, on the
+	# header's rule card, or ON THE INSTRUCTION ITSELF. It is drawn last, so
+	# anything it overlaps it hides — and it hid the bubble it exists to let
+	# you escape (owner 2026-08-04). Try top-right, then bottom-right, then
+	# whichever of the two is merely least bad.
+	var bubble := Rect2(_text_panel.position, panel_size).grow(8)
+	var top := Vector2(full.size.x - _skip.size.x - 24, 12)
+	var bottom := Vector2(top.x, full.size.y - _skip.size.y - 12)
+	_skip.position = top if _skip_is_clear(top, hole, bubble) \
+		else (bottom if _skip_is_clear(bottom, hole, bubble) else _skip_least_bad(
+			top, bottom, hole, bubble))
+
+
+func _skip_rect(at: Vector2) -> Rect2:
+	return Rect2(at, _skip.size).grow(8)
+
+
+func _skip_is_clear(at: Vector2, hole: Rect2, bubble: Rect2) -> bool:
+	var rect := _skip_rect(at)
+	# The top band also carries the header's rule card, which a hole reaching
+	# up there means the lesson is currently talking about.
+	if at.y < 100.0 and hole.position.y < rect.end.y:
+		return false
+	return not rect.intersects(hole) and not rect.intersects(bubble)
+
+
+## Both corners are occupied: keep the bubble readable and let the button
+## take the overlap with the spotlight instead. The instruction is the thing
+## the player has to be able to read.
+func _skip_least_bad(top: Vector2, bottom: Vector2, _hole: Rect2,
+		bubble: Rect2) -> Vector2:
+	return top if not _skip_rect(top).intersects(bubble) else bottom

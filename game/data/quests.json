@@ -1,4 +1,21 @@
 {
+  "find_the_magpie": {
+    "id": "find_the_magpie",
+    "name": "Find the Magpie",
+    "kind": "core",
+    "district": "shambles",
+    "guild": "",
+    "once": true,
+    "requires": {},
+    "board_card": "A cat with a question and no answers needs a fence. Brindle keeps a stall in the Shambles and keeps everything else besides.",
+    "encounters": [
+      "q_magpie_gutter",
+      "q_magpie_stall"
+    ],
+    "reward_bonus": 6,
+    "repeatable": false,
+    "unlock_skill": "swat"
+  },
   "night_rounds": {
     "id": "night_rounds",
     "name": "Night Rounds",
@@ -6,7 +23,11 @@
     "district": "thimblefield",
     "guild": "",
     "once": false,
-    "requires": {},
+    "requires": {
+      "quests": [
+        "find_the_magpie"
+      ]
+    },
     "board_card": "The streets don't watch themselves. Someone ought to be paid for this. Someone is not.",
     "encounters": [
       "q_rounds_wisp",
@@ -24,7 +45,11 @@
     "district": "thimblefield",
     "guild": "",
     "once": false,
-    "requires": {},
+    "requires": {
+      "quests": [
+        "find_the_magpie"
+      ]
+    },
     "board_card": "Cross the back gardens. Wake nothing. The dahlias are not the danger.",
     "encounters": [
       "q_garden_watch",
@@ -41,7 +66,11 @@
     "district": "thimblefield",
     "guild": "lamplighters",
     "once": false,
-    "requires": {},
+    "requires": {
+      "quests": [
+        "find_the_magpie"
+      ]
+    },
     "standing": {
       "lamplighters": 1
     },

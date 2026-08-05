@@ -65,6 +65,13 @@ func _run() -> void:
 			await _shot("case_board")
 			break
 		elif script_path.ends_with("hub_screen.gd"):
+			# The first-visit walkthrough of the room, one shot a step. It has
+			# to be photographed BEFORE the doors are forced open below, since
+			# what it points at is a room with almost nothing in it yet.
+			while screen.coach != null and screen.coach.active():
+				await _shot("mantel_coach")
+				screen.coach.force_advance()
+				await _wait(0.2)
 			await _shot("hub")
 			await _tour_case_board()
 			await _tour_market_and_kit()

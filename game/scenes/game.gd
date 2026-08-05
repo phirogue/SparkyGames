@@ -287,8 +287,10 @@ func _story_config(environment_id: String, lines: Array) -> Dictionary:
 		config["image"] = environment["image"]
 	if environment.has("image_tint"):
 		config["image_tint"] = environment["image_tint"]
-	if environment_id == "hollow_court":
-		config["portrait"] = "npc_clerk"
+	# NO blanket portrait override. The Hollow Court used to force npc_clerk
+	# onto every page set there, so the arrival beat — the corridor, before
+	# anyone has spoken — opened on a portrait of the ghost the player has not
+	# met yet (owner 2026-08-04). Pages that want the Clerk ask for him.
 	return config
 
 
@@ -728,6 +730,24 @@ func _run_prologue_scene(index: int) -> void:
 			next.call()
 			return
 	match scene["type"]:
+		# Rules on their own card, immediately before the fight that needs
+		# them (owner rule 2026-08-04: teaching wedged between story beats
+		# interrupts the flow, and Slink was introduced a page and a half
+		# before anything could be slunk). A new humour and the skill it buys
+		# arrive together on one "Noted, with interest" page — the same card
+		# achievements and casebook finds already use, so learning a rule
+		# always looks like learning a rule and never like narration.
+		"notice":
+			if scene.has("grant"):
+				_grant_skills(scene["grant"])
+			for note in scene.get("notes", []):
+				toasts.append(String(note))
+			if toasts.is_empty():
+				next.call()
+			else:
+				var pending := toasts.duplicate()
+				toasts = []
+				_show_notices(pending, next)
 		"story":
 			if scene.has("grant"):
 				_grant_skills(scene["grant"])
@@ -842,7 +862,15 @@ func _run_prologue_scene(index: int) -> void:
 
 func _show_hub() -> void:
 	var screen: Control = HubScreen.new()
-	screen.setup(catalog, profile, tracker)
+	# The room gets walked through ONCE (owner rule 2026-08-04). Recorded on
+	# the profile rather than in memory so it survives a quit, and set before
+	# the screen is built so a crash mid-lesson does not re-teach it forever.
+	var lesson: Array = []
+	if not bool(profile["flags"].get("mantel_taught", false)):
+		lesson = story.get("mantel_coach", [])
+		profile["flags"]["mantel_taught"] = true
+		_save()
+	screen.setup(catalog, profile, tracker, lesson)
 	screen.quest_selected.connect(_start_quest)
 	screen.profile_changed.connect(_save)
 	screen.open_journal.connect(_show_journal)
@@ -1057,6 +1085,11 @@ func _finish_quest() -> void:
 	# reputation is not a grind, and a farmable guild meter would make every
 	# `requires.standing` gate meaningless.
 	if QuestGate.mark_done(profile, String(quest["id"])):
+		# A quest may open a door in the Mantel (QuestGate.doors reads these).
+		# Finding the Magpie is what makes the Exchange a place Ash knows,
+		# rather than a shop that was always in his parlor.
+		for flag in quest.get("set_flags", {}):
+			profile["flags"][flag] = quest["set_flags"][flag]
 		if quest.has("standing"):
 			for line in CaseState.apply_standing(catalog, profile, quest["standing"]):
 				toasts.append("❋ %s" % line)

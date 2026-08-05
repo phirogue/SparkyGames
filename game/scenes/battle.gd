@@ -267,8 +267,12 @@ func _coach_target(key: String) -> Control:
 		# that says "tap SLINK" waits for the tap, so an unplayable target
 		# would be a wall; returning null tells the Coach the step is
 		# impossible and any tap may pass it (engineering law 13).
+		# ...but only for a step that WAITS. A note ABOUT a card — "look how
+		# few uses Pounce has left" — must still point at the card even when
+		# it is unaffordable, which is usually the very moment worth pointing
+		# at (owner 2026-08-04: the charges lesson spotlit nothing).
 		var skill_id := key.trim_prefix("skill:")
-		if not _skill_playable(skill_id):
+		if coach != null and coach.waits_for_action() and not _skill_playable(skill_id):
 			return null
 		return skill_buttons.get(skill_id, null)
 	# The status strip's chips are spotlit individually (owner defect: the
@@ -1428,14 +1432,16 @@ func _skill_button(skill_id: String) -> Button:
 	if not is_instinct:
 		var uses := Label.new()
 		uses.text = "×%d" % charges_left
-		# Bumped from 20 to 26 (owner 2026-08-04): at a glance from arm's
-		# length the old badge was decoration, not information.
+		# 20 -> 26 -> 32 (owner, twice): how many uses are left is one of the
+		# two numbers on the card that change, and at arm's length the small
+		# badge read as decoration. It is now the same size as the skill's
+		# name, because it matters as much.
 		uses.add_theme_font_override("font", UITheme.display_font())
-		uses.add_theme_font_size_override("font_size", 26)
+		uses.add_theme_font_size_override("font_size", 32)
 		uses.add_theme_color_override("font_color",
 			UITheme.INK if charges_left > 0 else Color("8a2f22"))
 		uses.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-		uses.set_offset(SIDE_LEFT, -48)
+		uses.set_offset(SIDE_LEFT, -54)
 		uses.set_offset(SIDE_RIGHT, -6)
 		uses.set_offset(SIDE_TOP, 2)
 		uses.set_offset(SIDE_BOTTOM, 32)

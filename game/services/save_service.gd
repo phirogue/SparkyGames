@@ -57,11 +57,10 @@ const DEFAULT_PROFILE := {
 ## predate progressive skill unlocks.
 const PROLOGUE_SKILLS := ["scratch", "pounce", "slink", "purr", "loaf"]
 
-## Loadout law (owner 2026-08-03, raised from 4): FIVE abilities out at a
-## time, Scratch included, so the tray has room for a real plan. The battle
-## screen's skill tray is sized to exactly this many columns — raising it
-## again means re-checking battle.gd's width budget.
-const LOADOUT_SIZE := 5
+## The loadout law lives in core (Catalog.LOADOUT_SIZE) because it is a rule;
+## this alias is the door every scene already knocks on. Raising it means
+## re-checking battle.gd's tray width budget.
+const LOADOUT_SIZE := Catalog.LOADOUT_SIZE
 
 
 # Paths are parameters (defaulting to the real save) so tests can round-trip

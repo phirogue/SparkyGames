@@ -283,3 +283,39 @@ func test_migration_repairs_an_emptied_case_pointer() -> void:
 	})
 	assert_eq(String(merged["case"]["active"]), "wax_and_wick",
 		"no active case would mean a Case Board that never opens again")
+
+
+## The Mantel opens one door at a time (owner rule 2026-08-04). A parlor that
+## arrives fully appointed teaches nothing, and the first board must hold
+## exactly one note: find the Magpie.
+func test_the_mantel_starts_with_one_door_and_earns_the_rest() -> void:
+	var fresh := SaveService.DEFAULT_PROFILE.duplicate(true)
+	var doors := QuestGate.doors(fresh)
+	assert_true(doors["casebook"], "his own memory is always open")
+	assert_true(not doors["exchange"], "Brindle has to be found before she sells")
+	assert_true(not doors["case_board"], "an empty case board is the worst screen we have")
+	assert_true(not doors["loadout"], "nothing to choose between yet")
+
+	QuestGate.mark_done(fresh, QuestGate.MAGPIE_QUEST)
+	assert_true(QuestGate.doors(fresh)["exchange"],
+		"finding the Magpie is what the Exchange door is FOR")
+
+	CaseState.add_evidence(fresh, "ev_cut_threads")
+	assert_true(QuestGate.doors(fresh)["case_board"], "something to pin opens the board")
+
+	fresh["skills"] = ["scratch", "pounce", "slink", "purr", "loaf", "swat"]
+	assert_true(QuestGate.doors(fresh)["loadout"],
+		"a kit wider than the tray makes choosing real")
+
+
+func test_the_first_board_holds_exactly_the_magpie() -> void:
+	var catalog := DataLoader.load_catalog()
+	var fresh := SaveService.DEFAULT_PROFILE.duplicate(true)
+	fresh["prologue_done"] = true
+	var board := QuestGate.board(catalog, fresh)
+	assert_eq(board.size(), 1, "one note on the first board, got %d" % board.size())
+	assert_eq(String(board[0]["id"]), QuestGate.MAGPIE_QUEST,
+		"and it is the one that teaches the city")
+	QuestGate.mark_done(fresh, QuestGate.MAGPIE_QUEST)
+	assert_true(QuestGate.board(catalog, fresh).size() > 1,
+		"finishing it puts the city's work up")

@@ -36,7 +36,7 @@ func _lines_of(scene: Dictionary) -> Array:
 func test_prologue_parses_and_every_scene_has_a_known_type() -> void:
 	var story := _story()
 	assert_true(not story.is_empty(), "story/prologue.json must parse as an object")
-	var known := ["story", "battle", "title", "hollow_court_if_died",
+	var known := ["story", "notice", "battle", "title", "hollow_court_if_died",
 		"flashback", "favor_redeem"]
 	for scene in story.get("scenes", []):
 		assert_true(known.has(String(scene.get("type", ""))),
@@ -189,3 +189,43 @@ func test_hollow_court_pages_answer_every_choice() -> void:
 			assert_true(choices.size() <= 3, "max 3 choices on a story card")
 			assert_eq(Array(page.get("answers", [])).size(), choices.size(),
 				"%s: every choice needs its reply" % key)
+
+
+## Owner rule 2026-08-04: a skill must be TAUGHT immediately before the fight
+## that uses it, and taught on its own notice card rather than wedged between
+## story beats. Slink used to be granted a page and a half before anything
+## could be slunk, which read as the game interrupting Ash mid-sentence.
+##
+## "Immediately before" means: nothing but battle-less scenes between the
+## notice and the next battle — and that battle must actually offer the skill.
+func test_every_grant_lands_on_the_fight_that_uses_it() -> void:
+	var catalog := DataLoader.load_catalog()
+	var scenes: Array = _story().get("scenes", [])
+	var taught := 0
+	for i in scenes.size():
+		var scene: Dictionary = scenes[i]
+		if scene.get("grant", []).is_empty():
+			continue
+		assert_eq(String(scene.get("type", "")), "notice",
+			"rules go on a notice card, not in narration (scene %d)" % i)
+		taught += 1
+		var found := false
+		for j in range(i + 1, scenes.size()):
+			if String(scenes[j].get("type", "")) != "battle":
+				continue
+			assert_eq(j, i + 1,
+				"scene %d teaches %s but a story beat sits between it and the fight"
+					% [i, str(scene["grant"])])
+			# The fight either pins its own skill list or takes the loadout,
+			# and either way the freshly taught card has to be in the tray.
+			var pinned: Array = scenes[j].get("skills", [])
+			for skill_id in scene["grant"]:
+				assert_true(catalog.skills.has(skill_id),
+					"grants an unknown skill '%s'" % skill_id)
+				assert_true(pinned.is_empty() or pinned.has(skill_id),
+					"scene %d teaches %s but the next fight does not carry it"
+						% [i, skill_id])
+			found = true
+			break
+		assert_true(found, "scene %d teaches a skill no later fight uses" % i)
+	assert_true(taught >= 3, "the prologue teaches at least Pounce, Slink and the pair")

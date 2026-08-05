@@ -30,6 +30,12 @@ const DISTRICTS: Array[String] = [
 ## Quest kinds: "core" quests are the case's spine, "side" is everything else.
 const QUEST_KINDS: Array[String] = ["core", "side"]
 
+## Loadout law (owner 2026-08-03): abilities out at once, Scratch included.
+## It lives HERE, in core, because it is a rule — the battle tray is built
+## with one column per slot and the Mantel opens its loadout door only once
+## the kit outgrows it, so scenes and services read it rather than owning it.
+const LOADOUT_SIZE := 5
+
 ## A lead's recap line shares one story page with two other lines and a
 ## fixed-size illustration. Measured against the story screen's text budget:
 ## ~70 characters is two wrapped lines at 37px, which fits; more does not.

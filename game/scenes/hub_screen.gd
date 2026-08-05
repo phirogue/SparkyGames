@@ -42,7 +42,11 @@ const NOTE_PAD_BOTTOM := 34.0
 ## started at 34 ran through the left one; the seal now sits in that band
 ## instead, which is what it is for — a stamp on the corner of the paper.
 const NOTE_PAD_LEFT := 124.0
-const NOTE_PAD_RIGHT := 40.0
+## The plate is symmetric: there is a sprig at BOTH ends. Only the left pad
+## allowed for one, so every board card ran its last words in behind the
+## right-hand leaves (owner tour, 2026-08-04). Matching the pads costs wrap
+## width, which the measured note height now absorbs.
+const NOTE_PAD_RIGHT := 118.0
 const NOTE_TITLE_SIZE := 24
 const NOTE_BODY_SIZE := 18
 
@@ -67,14 +71,24 @@ var tracker: AchievementTracker
 
 var _gleam_label: Label
 var _board: VBoxContainer
+var _doors: GridContainer
 var _status: HBoxContainer
+var _purse: HBoxContainer
 var _deed_label: Label
+var _footer: HBoxContainer
+
+## First-visit walkthrough of the room, using the same Coach the tutorial
+## fights use. Steps come from story/prologue.json so the words stay content.
+var coach_steps: Array = []
+var coach: Coach = null
 
 
-func setup(p_catalog: Catalog, p_profile: Dictionary, p_tracker: AchievementTracker) -> void:
+func setup(p_catalog: Catalog, p_profile: Dictionary, p_tracker: AchievementTracker,
+		p_coach: Array = []) -> void:
 	catalog = p_catalog
 	profile = p_profile
 	tracker = p_tracker
+	coach_steps = p_coach
 
 
 func _ready() -> void:
@@ -90,6 +104,23 @@ func _ready() -> void:
 	_build_status(column)
 	_build_footer(column)
 	refresh()
+	if not coach_steps.is_empty():
+		coach = Coach.new(coach_steps, _coach_target)
+		add_child(coach)
+
+
+## Coach resolver: the room's parts, by name. An unknown key spotlights
+## nothing, which the Coach reads as "this step is impossible" and lets any
+## tap pass — so a step naming a door that is not open yet still advances.
+func _coach_target(key: String) -> Control:
+	match key:
+		"board": return _board
+		"note": return _board.get_child(0) if _board.get_child_count() > 0 else null
+		"doors": return _doors
+		"status": return _status
+		"purse": return _purse
+		"footer": return _footer
+	return null
 
 
 ## The parlor itself: the empty-mantel illustration, dimmed and warmed so it
@@ -136,6 +167,7 @@ func _build_header(column: VBoxContainer) -> void:
 	purse.add_theme_constant_override("separation", 4)
 	purse.alignment = BoxContainer.ALIGNMENT_END
 	header.add_child(purse)
+	_purse = purse
 	purse.add_child(UITheme.icon("ui/ui_button_pile", 76.0))
 	_gleam_label = UITheme.measured_label("0", 40, 110.0,
 		UITheme.display_font(), ROOM_TEXT)
@@ -163,21 +195,35 @@ func _build_board(column: VBoxContainer) -> void:
 	scroll.add_child(_board)
 
 
+## The doors are EARNED, not furnished (owner rule 2026-08-04: the Mantel
+## arrived fully appointed and read as a control panel). QuestGate.doors()
+## owns which are open; a closed one is not drawn at all, so the room fills
+## up as Ash learns the city. The grid is rebuilt on refresh() because
+## finishing a prowl is exactly when a new door appears.
 func _build_doors(column: VBoxContainer) -> void:
-	var grid := GridContainer.new()
-	grid.custom_minimum_size = Vector2(0, ZONE_DOORS)
-	grid.columns = DOOR_COLUMNS
-	grid.add_theme_constant_override("h_separation", SEPARATION)
-	grid.add_theme_constant_override("v_separation", SEPARATION)
-	column.add_child(grid)
-	grid.add_child(_door("The Case Board", "Suspects, things, threads.",
-		"ui/ui_needle_pin", func() -> void: open_case_board.emit()))
-	grid.add_child(_door("The Magpie Exchange", "Brindle. Cards bought and cut.",
-		"ui/ui_button_pile", func() -> void: open_exchange.emit()))
-	grid.add_child(_door("On the Prowl", "What goes out with you.",
-		"ui/ui_paw_full", func() -> void: open_loadout.emit()))
-	grid.add_child(_door("The Casebook", "Deeds and knowledge.",
-		"ui/ui_medallions", func() -> void: open_journal.emit()))
+	_doors = GridContainer.new()
+	_doors.custom_minimum_size = Vector2(0, ZONE_DOORS)
+	_doors.columns = DOOR_COLUMNS
+	_doors.add_theme_constant_override("h_separation", SEPARATION)
+	_doors.add_theme_constant_override("v_separation", SEPARATION)
+	column.add_child(_doors)
+
+
+func _refresh_doors() -> void:
+	_clear(_doors)
+	var open := QuestGate.doors(profile)
+	if open.get("case_board", false):
+		_doors.add_child(_door("The Case Board", "Suspects, things, threads.",
+			"ui/ui_needle_pin", func() -> void: open_case_board.emit()))
+	if open.get("exchange", false):
+		_doors.add_child(_door("The Magpie Exchange", "Brindle. Cards bought and cut.",
+			"ui/ui_button_pile", func() -> void: open_exchange.emit()))
+	if open.get("loadout", false):
+		_doors.add_child(_door("On the Prowl", "What goes out with you.",
+			"ui/ui_paw_full", func() -> void: open_loadout.emit()))
+	if open.get("casebook", false):
+		_doors.add_child(_door("The Casebook", "Deeds and knowledge.",
+			"ui/ui_medallions", func() -> void: open_journal.emit()))
 
 
 func _build_status(column: VBoxContainer) -> void:
@@ -192,6 +238,7 @@ func _build_footer(column: VBoxContainer) -> void:
 	footer.custom_minimum_size = Vector2(0, ZONE_FOOTER)
 	footer.add_theme_constant_override("separation", SEPARATION)
 	column.add_child(footer)
+	_footer = footer
 	_deed_label = UITheme.measured_label("", 20, 300.0,
 		UITheme.italic_font(), ROOM_TEXT_SOFT)
 	_deed_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -217,6 +264,7 @@ func refresh() -> void:
 		_board.add_child(_bare_note())
 	for quest: Dictionary in board:
 		_board.add_child(_note(quest))
+	_refresh_doors()
 	_clear(_status)
 	_status.add_child(_chip("ui/ui_heart_full", "%d" % int(profile["max_hp"]), "lives in him"))
 	_status.add_child(_chip("ui/ui_spool", "%d" % profile["deck"].size(), "cards on the spool"))
@@ -238,11 +286,22 @@ func refresh() -> void:
 func _note(quest: Dictionary) -> Control:
 	var quest_id := String(quest["id"])
 	var note := Panel.new()
-	note.custom_minimum_size = Vector2(NOTE_WIDTH, NOTE_HEIGHT)
+	# Law 2: the note is sized from the MEASURED text, not from a guess.
+	# NOTE_HEIGHT is a floor, not a ceiling — pinned at exactly 152 the first
+	# quest on the board lost the last line of its own board card, which is
+	# the line that says what the job is. The board scrolls, so a tall note
+	# costs nothing (law 12: this zone was built to take whatever is pinned).
+	var wrap := NOTE_WIDTH - NOTE_PAD_LEFT - NOTE_PAD_RIGHT
+	var text_height := UITheme.measure_text(String(quest["name"]),
+			UITheme.display_font(), NOTE_TITLE_SIZE, wrap).y \
+		+ UITheme.measure_text(String(quest.get("board_card", "")),
+			UITheme.italic_font(), NOTE_BODY_SIZE, wrap).y + 2
+	var height := maxf(NOTE_HEIGHT, text_height + NOTE_PAD_TOP + NOTE_PAD_BOTTOM)
+	note.custom_minimum_size = Vector2(NOTE_WIDTH, height)
 	note.add_theme_stylebox_override("panel", UITheme.row_stylebox())
 	# Deterministic tilt: hand-pinned to look at, identical every launch to
 	# test against. Two notes never share an angle because the id feeds it.
-	note.pivot_offset = Vector2(NOTE_WIDTH, NOTE_HEIGHT) / 2.0
+	note.pivot_offset = Vector2(NOTE_WIDTH, height) / 2.0
 	note.rotation_degrees = NOTE_TILT * (1.0 if quest_id.hash() % 2 == 0 else -1.0)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 2)
@@ -253,7 +312,6 @@ func _note(quest: Dictionary) -> Control:
 	box.offset_bottom = -NOTE_PAD_BOTTOM
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	note.add_child(box)
-	var wrap := NOTE_WIDTH - NOTE_PAD_LEFT - NOTE_PAD_RIGHT
 	box.add_child(UITheme.measured_label(String(quest["name"]), NOTE_TITLE_SIZE,
 		wrap, UITheme.display_font()))
 	box.add_child(UITheme.measured_label(String(quest.get("board_card", "")),
