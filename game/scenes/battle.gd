@@ -12,13 +12,17 @@ extends Control
 ## CONTENT_HEIGHT exactly. Verified with tests/calibrate.gd -- zones battle.
 const ZONE_SEP := 3        # root VBox separation (6 gaps)
 const ZONE_HEADER := 98    # banner 30px | rule card 300 wide, 20px text
-const ZONE_OPPONENT := 396 # portrait 364x396 | name(thread)+intent col 200
+const ZONE_OPPONENT := 394 # portrait 364x394 | name(thread)+intent col 200
 const ZONE_CHRONICLE := 150 # last 5 log lines at 22px, plate margin 5
-const ZONE_STATUS := 56    # icons 40, labels 28, margin 8
+const ZONE_STATUS := 58    # icons 40, labels 28, margin 8 (measured: 58)
 const ZONE_HAND := 140     # fanned cards 113x154 tuck up over the gap
 const ZONE_SKILLS := 150   # tray margin 8, 5-per-row cards 107x134
 const ZONE_ACTIONS := 96   # tap-target floor
-# 98+396+150+56+140+150+96 = 1086; + 6*3 = 1104 = CONTENT_HEIGHT
+# 98+394+150+58+140+150+96 = 1086; + 6*3 = 1104 = CONTENT_HEIGHT
+# The status strip MEASURES 58, not the 56 it was declared at, so the
+# template overran the page by 2px on every battle screen ever shot (owner
+# tour, 2026-08-05). Two came off the opponent zone. Law 12: the numbers are
+# the contract -- when reality disagrees, change the template, not the sum.
 
 const PORTRAIT_SIZE := Vector2(364, 396)
 const RULE_CARD_WIDTH := 300.0
@@ -693,12 +697,17 @@ func _build_ui() -> void:
 	banner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(banner)
 	banner_plate = banner
-	var loc := Label.new()
-	loc.text = environment_def["name"]
-	loc.add_theme_font_override("font", UITheme.display_font())
-	loc.add_theme_font_size_override("font_size", 30)
-	loc.add_theme_color_override("font_color", UITheme.INK)
+	# WIDTH BUDGET (law 5, step 3): the banner gets whatever the fixed rule
+	# card leaves. A plain Label reports its minimum width as the WHOLE
+	# unwrapped string, so "The Shambles, After Hours" at 30pt demanded ~400px
+	# and grew the page to 820 in a 720 window — every zone off the right edge
+	# of the book. The type size is now picked from the box.
+	var banner_box := Vector2(
+		UITheme.CONTENT_WIDTH - 12.0 - RULE_CARD_WIDTH - 32.0, ZONE_HEADER - 20.0)
+	var loc := UITheme.fitted_label(environment_def["name"], [30, 27, 24, 21],
+		banner_box, UITheme.display_font())
 	loc.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	loc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	banner.add_child(loc)
 	var rule_card := PanelContainer.new()
 	rule_card.custom_minimum_size = Vector2(RULE_CARD_WIDTH, 0)

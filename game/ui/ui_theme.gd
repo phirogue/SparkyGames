@@ -180,7 +180,14 @@ static func page_scaffold(root: Control, opts: Dictionary = {}) -> MarginContain
 	if opts.get("between") is Control:
 		root.add_child(opts["between"])
 	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	# ANCHORS AND OFFSETS, not anchors alone (engineering law 9, paid for a
+	# second time on 2026-08-05). With anchors only, the container keeps its
+	# own rect and a MarginContainer sizes itself to its content's MINIMUM —
+	# so one long rule line in the battle header grew the page to 820x1282 in
+	# a 720x1280 window and pushed every zone off the right edge. Pinned to
+	# the viewport, the page is the page and content has to fit it.
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin.name = "PageContent"
 	margin.add_theme_constant_override("margin_left", PAGE_MARGIN_LEFT)
 	margin.add_theme_constant_override("margin_right", PAGE_MARGIN_RIGHT)
 	margin.add_theme_constant_override("margin_top", PAGE_MARGIN_TOP)
@@ -375,6 +382,36 @@ static func dark_button(text: String, font_size := 26,
 
 
 ## Label whose min size is pinned to its measured wrap (law #2 in one call).
+## The biggest size from `sizes` (largest first) at which `text` fits inside
+## `box` when wrapped to box.x. Falls back to the smallest offered.
+##
+## This is step 3 of the owner's calibration method (law 5) as a function:
+## pick the type size from the box, before placement, instead of setting a
+## size and hoping. It exists because a plain Label reports its minimum width
+## as the whole unwrapped string, so one long location name — "The Shambles,
+## After Hours" — silently grew the battle page from 720 to 820 pixels wide
+## and shoved every zone off the right edge of the book (owner, 2026-08-05).
+static func fit_font_size(text: String, use_font: Font, sizes: Array,
+		box: Vector2) -> int:
+	for size in sizes:
+		if measure_text(text, use_font, int(size), box.x).y <= box.y:
+			return int(size)
+	return int(sizes[sizes.size() - 1])
+
+
+## A label pinned to a box: wrapped to box.x, at the largest of `sizes` that
+## fits box.y. Never reports a minimum width larger than the box it was given,
+## which is the property that keeps a page from being pushed off the screen.
+static func fitted_label(text: String, sizes: Array, box: Vector2,
+		use_font: Font = null, color := INK) -> Label:
+	var font: Font = use_font if use_font != null else body_font()
+	var size := fit_font_size(text, font, sizes, box)
+	var label := measured_label(text, size, box.x, font, color)
+	label.custom_minimum_size = Vector2(box.x,
+		minf(label.custom_minimum_size.y, box.y))
+	return label
+
+
 static func measured_label(text: String, font_size: int, wrap: float,
 		use_font: Font = null, color := INK) -> Label:
 	var label := Label.new()

@@ -24,6 +24,9 @@ var _did_partial_charge := false
 var _did_no_escape := false
 var _did_chronicle_shot := false
 var _battle_taps := 0
+## Layout defects found while shooting. Reported at the end and made the
+## tour's exit code, so tools/tour_all.py can fail a sweep on them.
+var layout_problems: Array[String] = []
 
 
 func _ready() -> void:
@@ -94,7 +97,13 @@ func _run() -> void:
 			break
 		await _wait(0.25)
 	await _shot("final")
-	get_tree().quit(0)
+	if layout_problems.is_empty():
+		get_tree().quit(0)
+		return
+	printerr("%d LAYOUT DEFECT(S) — content outside the page:" % layout_problems.size())
+	for problem in layout_problems:
+		printerr("  ", problem)
+	get_tree().quit(2)
 
 
 ## The Case Board, its evidence note, and the "previously on" recap the same
@@ -312,6 +321,15 @@ func _shot(label: String) -> void:
 	var path := out_dir + "%02d_%s.png" % [shot_index, label]
 	image.save_png(path)
 	print("shot: ", path.get_file())
+	# Every shot is also CHECKED, not just saved (owner 2026-08-05). A human
+	# reading screenshots was the only guard against content leaving the page,
+	# and it let a battle screen ship with its cards off the edge. Godot knows
+	# the rects; ask it.
+	for problem in PageGuard.violations(game):
+		var line := "%s: %s" % [path.get_file(), problem]
+		if not layout_problems.has(line):
+			layout_problems.append(line)
+		printerr("LAYOUT: ", line)
 
 
 func _wait(seconds: float) -> void:

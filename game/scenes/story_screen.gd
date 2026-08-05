@@ -159,7 +159,12 @@ func _ready() -> void:
 				UITheme.ACCENT_WARM.darkened(0.35) if flashback else UITheme.INK)
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		# HIDDEN, not merely transparent (owner tour, 2026-08-05). An alpha-0
+		# label still reserves its full height in the box, so a three-line page
+		# reserved all three from the first frame and pushed the tap hint out
+		# through the bottom of the page. Lines take up room as they arrive.
 		label.modulate = Color(1, 1, 1, 0)
+		label.visible = false
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_lines_box.add_child(label)
 		_line_labels.append(label)
@@ -192,6 +197,7 @@ func _ready() -> void:
 func _advance() -> void:
 	if _revealed < _line_labels.size():
 		var label := _line_labels[_revealed]
+		label.visible = true
 		_revealed += 1
 		var tween := create_tween()
 		tween.tween_property(label, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)

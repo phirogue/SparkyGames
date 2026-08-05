@@ -111,6 +111,8 @@ func _ready() -> void:
 	# states the prologue never reaches (a case mid-chapter, a flashback).
 	if tour_mode:
 		add_child(load("res://tests/tour.gd").new())
+	if OS.get_cmdline_user_args().has("--rect-probe"):
+		add_child(load("res://tests/rect_probe.gd").new())
 	var dev_scene := _cmdline_value("--scene")
 	if dev_scene != "":
 		# Component runner (owner rule 2026-08-01): jump straight to one
@@ -134,6 +136,25 @@ func _ready() -> void:
 				else:
 					_run_prologue_scene(0)), CONNECT_ONE_SHOT)
 		_swap(splash)
+
+
+## Give the throwaway profile the kit a player would actually be carrying by
+## the time they reach this content: a full tray (LOADOUT_SIZE, Scratch
+## included) and a deck with something in it. Used by every dev launch that
+## drops into mid-game content.
+##
+## Owner rule 2026-08-05: "when testing scenarios you are typically fighting
+## with only the free Scratch — run them with a proper hand of 5 selected
+## action cards." A bare-clawed test proves the fight is survivable at zero
+## power and proves nothing whatever about the fight the game ships.
+func _equip_for_testing() -> void:
+	var kit: Array = ["scratch", "pounce", "slink", "purr", "loaf",
+		"swat", "shelf_justice"]
+	for skill_id in kit:
+		if catalog.skills.has(skill_id) and not profile["skills"].has(skill_id):
+			profile["skills"].append(skill_id)
+	profile["loadout"] = []   # auto-fills the tray from what is owned
+	profile["gleam"] = maxi(int(profile["gleam"]), 40)
 
 
 func _cmdline_value(flag: String) -> String:
@@ -199,6 +220,12 @@ func _dev_launch(spec: String) -> void:
 				get_tree().quit())
 		"quest":
 			profile["prologue_done"] = true
+			# A DEV LAUNCH ARRIVES EQUIPPED (owner rule 2026-08-05). The
+			# throwaway profile starts with Scratch alone, so every quest ever
+			# photographed was fought bare-clawed — which is not the game, and
+			# it hid whatever the real five-card tray does to these screens.
+			# Anyone testing a quest is testing the fight it actually is.
+			_equip_for_testing()
 			var quest_id := parts[1] if parts.size() > 1 else "night_rounds"
 			if not catalog.quests.has(quest_id):
 				push_error("unknown quest '%s'" % quest_id)
@@ -304,6 +331,10 @@ func _build_settings_layer() -> void:
 	settings_layer.layer = 10
 	add_child(settings_layer)
 	var gear := Button.new()
+	# Named so PageGuard knows this one belongs in the margin: it is chrome
+	# floating over the book, not content on the page, and it must stay
+	# reachable from every screen (owner rule 2026-08-01).
+	gear.name = "ChromeSettingsButton"
 	gear.flat = true
 	gear.custom_minimum_size = Vector2(52, 52)
 	gear.position = Vector2(8, 8)
