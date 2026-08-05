@@ -32,25 +32,23 @@ const TONIC_COST := 25
 const MAX_HP_CAP := 30
 const DECK_FLOOR := 10   # he will not thin a deck past this
 
+## The shelf: what each good COSTS is a rule, what it is CALLED is writing
+## (law 20). Names and blurbs come from story/interface.json keyed by mode.
 const GOODS := [
 	{
-		"mode": "add", "name": "A card for the deck", "cost": ADD_CARD_COST,
-		"blurb": "A solid second of any humour. Fell off a windowsill.",
+		"mode": "add", "cost": ADD_CARD_COST,
 		"seal": "ui/ui_seal_red",
 	},
 	{
-		"mode": "rare", "name": "The good shelf", "cost": RARE_CARD_COST,
-		"blurb": "Thirds. He keeps them under the counter, wrapped.",
+		"mode": "rare", "cost": RARE_CARD_COST,
 		"seal": "ui/ui_seal_gold",
 	},
 	{
-		"mode": "remove", "name": "Cut a card", "cost": REMOVE_CARD_COST,
-		"blurb": "Letting go. The rarest purchase in the district.",
+		"mode": "remove", "cost": REMOVE_CARD_COST,
 		"seal": "ui/ui_seal_blue",
 	},
 	{
-		"mode": "tonic", "name": "A tonic", "cost": TONIC_COST,
-		"blurb": "Two more lives' worth of stubbornness. Tastes of pond.",
+		"mode": "tonic", "cost": TONIC_COST,
 		"seal": "ui/ui_seal_red",
 	},
 ]
@@ -86,7 +84,7 @@ func _ready() -> void:
 	_refresh()
 	# He speaks first. An empty speech panel next to a portrait reads as a
 	# screen that failed to load, not as a shopkeeper waiting.
-	_say("'Everything shines to somebody, pet. Have a look at what fell off the world this week.'")
+	_say(Strings.line("exchange.greeting"))
 	_rest()
 
 
@@ -215,7 +213,7 @@ func _good_card(good: Dictionary) -> Control:
 	plate.add_child(box)
 	var wrap := GOOD_WIDTH - 24
 	var ink: Color = UITheme.INK if affordable else UITheme.INK_FADED
-	box.add_child(UITheme.measured_label(String(good["name"]), 26, wrap,
+	box.add_child(UITheme.measured_label(Strings.lines("exchange.goods." + String(good["mode"]))[0], 26, wrap,
 		UITheme.display_font(), ink))
 	var price := HBoxContainer.new()
 	price.add_theme_constant_override("separation", 4)
@@ -228,7 +226,7 @@ func _good_card(good: Dictionary) -> Control:
 	price_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	price_label.size_flags_vertical = Control.SIZE_FILL
 	price.add_child(price_label)
-	box.add_child(UITheme.measured_label(String(good["blurb"]), 20, wrap,
+	box.add_child(UITheme.measured_label(Strings.lines("exchange.goods." + String(good["mode"]))[1], 20, wrap,
 		UITheme.italic_font(), UITheme.INK_SOFT if affordable else UITheme.INK_FADED))
 	if affordable:
 		UITheme.tap_layer(plate).pressed.connect(
@@ -274,23 +272,23 @@ func _on_good_pressed(mode: String) -> void:
 	_clear_detail()
 	match mode:
 		"add":
-			_say("'An appetite for what, exactly?'")
+			_say(Strings.line("exchange.patter.add"))
 			for humour in Catalog.HUMOURS:
 				_option("%s 2" % Catalog.humour_name(humour),
 					_on_add_card.bind(humour))
 		"rare":
 			# The only route to the value-3 cards (owner rarity rule): they are
 			# rewards and purchases, never starting kit.
-			_say("'Ah. The good shelf. For a discerning paw.'")
+			_say(Strings.line("exchange.patter.rare"))
 			for humour in Catalog.HUMOURS:
 				var card_id := humour + "_3"
 				_option("%s (%s)" % [String(catalog.energy_cards[card_id]["name"]),
 					Catalog.humour_name(humour)], _on_add_rare.bind(card_id))
 		"remove":
 			if profile["deck"].size() <= DECK_FLOOR:
-				_say("'Any thinner and you'll be running on spite alone. No.'")
+				_say(Strings.line("exchange.patter.too_thin"))
 				return
-			_say("'Letting go. The rarest purchase. Which one?'")
+			_say(Strings.line("exchange.patter.remove"))
 			var seen := {}
 			for card_id in profile["deck"]:
 				if seen.has(card_id):
@@ -300,11 +298,11 @@ func _on_good_pressed(mode: String) -> void:
 					_on_remove.bind(String(card_id)))
 		"tonic":
 			if int(profile["max_hp"]) >= MAX_HP_CAP:
-				_say("'You are one cat. There are limits. That was the last one.'")
+				_say(Strings.line("exchange.patter.no_more_tonic"))
 				return
 			_spend(TONIC_COST, "a tonic", func() -> void:
 				profile["max_hp"] = int(profile["max_hp"]) + 2
-				_say("'Drink it all. Yes, it tastes like pond. Medicinal pond.'"))
+				_say(Strings.line("exchange.patter.tonic")))
 
 
 func _option(text: String, on_pressed: Callable) -> void:
@@ -323,21 +321,21 @@ func _option(text: String, on_pressed: Callable) -> void:
 func _on_add_card(humour: String) -> void:
 	_spend(ADD_CARD_COST, Catalog.humour_name(humour) + " 2", func() -> void:
 		profile["deck"].append(humour + "_2")
-		_say("'A fine choice. It fell off a windowsill, if anyone asks.'"))
+		_say(Strings.line("exchange.patter.bought_card")))
 
 
 func _on_add_rare(card_id: String) -> void:
 	_spend(RARE_CARD_COST, String(catalog.energy_cards[card_id]["name"]),
 		func() -> void:
 			profile["deck"].append(card_id)
-			_say("'Wrapped in yesterday's obituaries. For dignity.'"))
+			_say(Strings.line("exchange.patter.bought_rare")))
 
 
 func _on_remove(card_id: String) -> void:
 	_spend(REMOVE_CARD_COST, "cutting " + String(catalog.energy_cards[card_id]["name"]),
 		func() -> void:
 			profile["deck"].erase(card_id)
-			_say("'Gone. You'll feel lighter on the stairs.'"))
+			_say(Strings.line("exchange.patter.cut")))
 
 
 ## Every purchase goes through here: one place that checks the purse, one
@@ -345,7 +343,7 @@ func _on_remove(card_id: String) -> void:
 ## has to be honoured.
 func _spend(cost: int, what: String, apply: Callable) -> void:
 	if int(profile["gleam"]) < cost:
-		_say("'Sentiment is lovely. Gleam is lovelier. Come back shinier.'")
+		_say(Strings.line("exchange.patter.broke"))
 		_clear_detail()
 		return
 	if bool(profile.get("settings", {}).get("ask_to_spend", false)):

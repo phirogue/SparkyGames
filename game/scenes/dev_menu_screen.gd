@@ -35,7 +35,7 @@ func _ready() -> void:
 		UITheme.CONTENT_WIDTH, UITheme.display_font())
 	column.add_child(title)
 	var note := UITheme.measured_label(
-		"Throwaway world — the real save is never touched. Everything below is read from the game's own data.",
+		Strings.line("dev.blurb"),
 		20, UITheme.CONTENT_WIDTH, UITheme.italic_font(), UITheme.INK_SOFT)
 	column.add_child(note)
 

@@ -148,7 +148,7 @@ func _build_footer(column: VBoxContainer) -> void:
 	# The credits screen does not exist yet and this is where a player looks:
 	# the disclosure lives here until it does (docs/design/ai-transparency.md).
 	holder.add_child(UITheme.measured_label(
-		"Art, music and code on this game were made with AI assistance. Every line, picture and decision was chosen by a person.",
+		Strings.line("settings.ai_disclosure"),
 		20, UITheme.CONTENT_WIDTH, UITheme.italic_font(), UITheme.INK_SOFT))
 	var version := UITheme.measured_label(
 		"The Nine Lives of Ashcat — Chapter One", 20, UITheme.CONTENT_WIDTH,

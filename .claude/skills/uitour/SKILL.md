@@ -8,6 +8,24 @@ description: Run the screenshot tour of the game and visually verify the rendere
 Run the automated screenshot tour, then INSPECT the results with your own
 eyes. Never report a visual change complete without doing this.
 
+## Sweep everything, not just the prologue (law 17)
+
+```bash
+python tools/tour_all.py          # prologue + EVERY quest, fails on overflow
+python tools/art_repetition.py    # no picture carries more than 3 beats
+```
+
+`tour_all` checks each shot with `tests/page_guard.gd`, so "is anything
+outside the book" is decided by the engine's own rects rather than by
+whether a human noticed. When a leg fails, ask why:
+
+```bash
+godot --path game -- --rect-probe --scene battle:<encounter_id>
+```
+
+Dev launches arrive equipped with a full five-card tray (law 18), so the
+screens you photograph are the ones the game ships.
+
 ## Steps
 
 1. Run tests first (fail fast on logic breaks):

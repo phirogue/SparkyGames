@@ -871,7 +871,7 @@ func _run_prologue_scene(index: int) -> void:
 		if not profile["prologue_done"]:
 			profile["prologue_done"] = true
 			# Endowed progress: the Casebook opens already inscribed.
-			profile["journal"].append("The night the kettle screamed. Elspeth is gone. The thread leads into the city.")
+			profile["journal"].append(Strings.line("prowl.journal_prologue"))
 		_save()
 		_show_hub()
 		return
@@ -1032,7 +1032,7 @@ func _run_prologue_scene(index: int) -> void:
 			_show_story(redeem, next)
 		"title":
 			_show_story({
-				"lines": ["THE NINE LIVES OF ASHCAT", "Prologue complete. The Mantel is open."],
+				"lines": [Strings.line("title.name"), Strings.line("title.prologue_done")],
 				"color": "#1c2026", "big": true,
 				"portrait": "sc_title",
 			}, next)
@@ -1221,7 +1221,8 @@ func _start_quest(quest_id: String) -> void:
 			_:
 				continue
 		break
-	_show_story(_story_config(opening, [quest["board_card"], "Out the window, then."]),
+	_show_story(_story_config(opening,
+		[quest["board_card"], Strings.line("prowl.opening_tail")]),
 		func(_i: int) -> void: _run_step(0))
 
 
@@ -1332,16 +1333,23 @@ func _offer_press_on(just_earned: int) -> void:
 	var environment: Dictionary = catalog.environments[next_encounter["environment"]]
 	var danger := "•".repeat(clampi(int(next_enemy["hp"]) / 4, 1, 5))
 	_show_story({
+		# Book-keeping is the GAME talking, so it takes the rules face, not
+		# Ash's narration voice (owner 2026-08-05: "+4 Gleam Satchel 4 needs
+		# to be in a different font as it is not story, and it needs to be
+		# explained"). The wager underneath is Ash, and stays his.
 		"lines": [
-			"+%d gleam. Satchel: %d." % [just_earned, satchel],
-			"Ahead: %s — danger %s\n%s" % [next_encounter["name"], danger, environment.get("rule_text", "")],
-			"Deeper pays better. Deeper also bites.",
+			{"text": Strings.line("prowl.press_on.earned", [satchel, just_earned]),
+				"rule": true},
+			{"text": Strings.line("prowl.press_on.ahead", [next_encounter["name"],
+				danger, environment.get("rule_text", "")]), "rule": true},
+			Strings.line("prowl.press_on.wager"),
 		],
 		"color": environment.get("color", "#22242a"),
 		"accent": environment.get("accent", "#d8ccb4"),
 		"heading": environment.get("name", ""),
-		"choices": ["Press On", "Slip Away (bank %d of %d)" % [
-			satchel - int(floor(satchel * SLIP_FORFEIT)), satchel]],
+		"choices": [Strings.line("prowl.press_on.press"),
+			Strings.line("prowl.press_on.slip", [
+				satchel - int(floor(satchel * SLIP_FORFEIT)), satchel])],
 	}, func(choice: int) -> void:
 		if choice == 0:
 			tracker.increment("pressed_on")
@@ -1354,7 +1362,8 @@ func _finish_quest() -> void:
 	var bonus := int(quest.get("reward_bonus", 0))
 	var banked := satchel + bonus
 	profile["gleam"] = int(profile["gleam"]) + banked
-	profile["journal"].append("%s: done. %d gleam banked." % [quest["name"], banked])
+	profile["journal"].append(
+		Strings.line("prowl.journal_done", [quest["name"], banked]))
 	if quest.has("unlock_skill") and not profile["skills"].has(quest["unlock_skill"]):
 		_grant_skills([quest["unlock_skill"]])
 	# Standing and knots are paid ONCE per quest, even for repeatable ones:
@@ -1382,10 +1391,9 @@ func _finish_quest() -> void:
 	for id in tracker.increment("gleam_banked", banked):
 		toasts.append("★ %s" % catalog.achievements[id]["name"])
 	_save()
-	_show_story(_story_config("parlor_cold", [
-		"Done. %d gleam banked (%d satchel + %d for the trouble)." % [banked, satchel, bonus],
-		"The Mantel waits. So does the thread.",
-	]), func(_i: int) -> void: _show_hub())
+	_show_story(_story_config("parlor_cold",
+		Strings.lines("prowl.finish", [banked, satchel, bonus])),
+		func(_i: int) -> void: _show_hub())
 
 
 ## Slipping away has a PRICE (owner rule 2026-08-03 — "there is still no
@@ -1400,15 +1408,16 @@ func _prowl_retreat() -> void:
 	var kept := satchel - dropped
 	profile["gleam"] = int(profile["gleam"]) + kept
 	if not quest.is_empty():
-		profile["journal"].append("Withdrew from %s. The quest keeps." % quest["name"])
+		profile["journal"].append(
+			Strings.line("prowl.journal_withdrew", [quest["name"]]))
 	if kept > 0:
 		for id in tracker.increment("gleam_banked", kept):
 			toasts.append("★ %s" % catalog.achievements[id]["name"])
 	_save()
-	var lines: Array = ["Home by the gutters. %d gleam banked." % kept]
+	var lines: Array = Strings.lines("prowl.retreat", [kept])
 	if dropped > 0:
-		lines.append("%d gleam went over the wall without me. You cannot run and hold." % dropped)
-	lines.append("The quest keeps. Quests do. It is one of their few virtues.")
+		lines.append(Strings.line("prowl.retreat_dropped", [dropped]))
+	lines.append(Strings.line("prowl.retreat_tail"))
 	_show_story(_story_config("parlor_cold", lines),
 		func(_i: int) -> void: _show_hub())
 
@@ -1422,6 +1431,5 @@ func _prowl_death() -> void:
 	_save()
 	var extra: Array = []
 	if toll > 0:
-		extra.append({"text": "The Toll: %d gleam. The satchel stays wherever you dropped it." % toll,
-			"rule": true})
+		extra.append({"text": Strings.line("prowl.toll", [toll]), "rule": true})
 	_show_hollow_court(_show_hub, extra)

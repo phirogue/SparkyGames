@@ -1,0 +1,150 @@
+{
+  "_notes": [
+    "PROSE THE GAME SAYS OUTSIDE A SCRIPTED SCENE (owner rule 2026-08-05:",
+    "story elements must not be embedded in code). Everything here used to be",
+    "a string literal in a .gd file, which meant a writer could not change a",
+    "word without editing a program, and no content tool could see it.",
+    "",
+    "Keys are dotted paths. Values are a string or an array of lines. %s and",
+    "%d placeholders are filled positionally by Strings.line/lines -- keep the",
+    "order and the count when rewriting, tests/unit/test_strings.gd checks",
+    "that every key the code asks for exists and takes the arguments given.",
+    "",
+    "Scene prose does NOT live here -- that is story/prologue.json and the",
+    "quests' own steps. This file is the game's own voice: the prowl's",
+    "book-keeping, the chronicle's event lines, and the room's captions."
+  ],
+  "prowl": {
+    "opening_tail": "Out the window, then.",
+    "press_on": {
+      "earned": "SATCHEL: %d gleam, up %d. Gleam is what the city pays for trouble taken off its hands — and the satchel is not yours until you carry it home.",
+      "ahead": "Ahead: %s — danger %s\n%s",
+      "wager": "Deeper pays better. Deeper also bites.",
+      "press": "Press On",
+      "slip": "Slip Away (bank %d of %d)"
+    },
+    "finish": [
+      "Done. %d gleam banked — %d out of the satchel, %d for the trouble.",
+      "The Mantel waits. So does the thread."
+    ],
+    "retreat": [
+      "Home by the gutters. %d gleam banked."
+    ],
+    "retreat_dropped": "%d gleam went over the wall without me. You cannot run and hold.",
+    "retreat_tail": "The quest keeps. Quests do. It is one of their few virtues.",
+    "journal_withdrew": "Withdrew from %s. The quest keeps.",
+    "journal_done": "%s: done. %d gleam banked.",
+    "toll": "The Toll: %d gleam. The satchel stays wherever you dropped it.",
+    "journal_prologue": "The night the kettle screamed. Elspeth is gone. The thread leads into the city."
+  },
+  "chronicle": {
+    "walked_in": "Walked in. Sometimes the front door is the trick.",
+    "fed": "Fed %s to %s.",
+    "used": "Ash: %s.",
+    "banked": "Banked %s.",
+    "discarded": "Discarded %s. Gone till home.",
+    "concentrate": "Ash stares at nothing. A %s comes back — next turn.",
+    "enemy_move": "%s: %s%s",
+    "sunbeam": "A sunbeam. One spent card returns, warm.",
+    "spotted": "SPOTTED. Expect worse manners now.",
+    "warmed": "Still warm from the purr: +2 HP.",
+    "sharpened": "Claws keen from a clean fight: +1 first hit.",
+    "sharpened_strike": "The keen edge lands.",
+    "hidden_wasted": "It strikes at the shadow you left behind.",
+    "approach_stalk": "You are a rumor in the dark.",
+    "approach_ambush": "Claws first. Questions never.",
+    "approach_case": "You watch. You learn. You draw.",
+    "approach_ward": "A ward, stitched quick and holding.",
+    "parting_shot": "You turn your back. It takes its turn anyway.",
+    "loaf_guarded": "It paws at a cat with nothing loose. Nothing gives.",
+    "night_presses": "The night presses. It grows bolder.",
+    "undone": "It finishes the sentence it started.",
+    "turn": "— turn %d —",
+    "hint": "❋ %s"
+  },
+  "mantel": {
+    "board_heading": "Pinned to the chimney breast",
+    "board_empty": "Nothing pinned tonight. The city is being quiet at you.",
+    "no_deeds": "The thread runs out under the window.",
+    "lives": "lives in him",
+    "spool": "cards on the spool",
+    "deeds": "deeds recorded",
+    "doors": {
+      "case_board": [
+        "The Case Board",
+        "Suspects, things, threads."
+      ],
+      "exchange": [
+        "The Magpie Exchange",
+        "Brindle. Cards bought and cut."
+      ],
+      "loadout": [
+        "On the Prowl",
+        "What goes out with you."
+      ],
+      "casebook": [
+        "The Casebook",
+        "Deeds and knowledge."
+      ]
+    }
+  },
+  "title": {
+    "name": "THE NINE LIVES OF ASHCAT",
+    "prologue_done": "Prologue complete. The Mantel is open."
+  },
+  "notices": {
+    "heading": "Noted, with interest",
+    "tap": "— tap to continue —"
+  },
+  "battle": {
+    "approach": {
+      "stalk": "Begin hidden. Its first move misses. First hit +1.",
+      "ambush": "Strike first for 3. It comes up angry.",
+      "case": "Study it, draw 2 — it studies you back: +1 first hit.",
+      "ward": "Block 4 that holds through its first turn.",
+      "walk_in_title": "Walk In",
+      "walk_in_desc": "Spend nothing. A door is a door."
+    },
+    "withdraw_default": "This is not a fight. It is weather. Go around it.",
+    "concentrate_desc": "Will one spent energy back to the top of the deck. It costs the whole turn — the enemy acts."
+  },
+  "exchange": {
+    "greeting": "'Everything shines to somebody, pet. Have a look at what fell off the world this week.'",
+    "goods": {
+      "add": [
+        "A card for the deck",
+        "A solid second of any humour. Fell off a windowsill."
+      ],
+      "rare": [
+        "The good shelf",
+        "Thirds. He keeps them under the counter, wrapped."
+      ],
+      "remove": [
+        "Cut a card",
+        "Letting go. The rarest purchase in the district."
+      ],
+      "tonic": [
+        "A tonic",
+        "Two more lives' worth of stubbornness. Tastes of pond."
+      ]
+    },
+    "patter": {
+      "add": "'An appetite for what, exactly?'",
+      "rare": "'Ah. The good shelf. For a discerning paw.'",
+      "too_thin": "'Any thinner and you'll be running on spite alone. No.'",
+      "remove": "'Letting go. The rarest purchase. Which one?'",
+      "no_more_tonic": "'You are one cat. There are limits. That was the last one.'",
+      "tonic": "'Drink it all. Yes, it tastes like pond. Medicinal pond.'",
+      "bought_card": "'A fine choice. It fell off a windowsill, if anyone asks.'",
+      "bought_rare": "'Wrapped in yesterday's obituaries. For dignity.'",
+      "cut": "'Gone. You'll feel lighter on the stairs.'",
+      "broke": "'Sentiment is lovely. Gleam is lovelier. Come back shinier.'"
+    }
+  },
+  "dev": {
+    "blurb": "Throwaway world — the real save is never touched. Everything below is read from the game's own data."
+  },
+  "settings": {
+    "ai_disclosure": "Art, music and code on this game were made with AI assistance. Every line, picture and decision was chosen by a person."
+  }
+}

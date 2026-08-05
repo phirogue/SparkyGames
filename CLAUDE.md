@@ -171,6 +171,42 @@ stability) — UI must go through `Catalog.humour_name()`.
     id whose name is Moonlight. Code went through `humour_name()`; the
     Parlor's hand-written `rule_text` did not, and shipped for a chapter.
 
+17. **Photograph EVERY quest, not just the prologue.** `python
+    tools/tour_all.py` walks the prologue and every quest via
+    `--scene quest:<id>`; `tests/page_guard.gd` then checks each shot
+    mechanically and the sweep FAILS on content outside the page. This
+    exists because a battle screen whose zones hung off the right edge of
+    the book reached an owner review completely unseen — the tour had only
+    ever walked the prologue. A quest nobody photographs is a quest nobody
+    has looked at. When a screen is the wrong shape, ask the engine:
+    `godot --path game -- --rect-probe --scene <spec>` dumps the real rects.
+18. **A dev launch arrives EQUIPPED.** The throwaway profile starts with
+    Scratch alone, so every quest ever photographed was fought bare-clawed —
+    which is not the game and hid what the real five-card tray does to these
+    screens. `_equip_for_testing()` gives dev launches a full tray and a
+    purse. Test the fight that ships.
+19. **No illustration carries more than 3 consecutive story beats** (owner
+    2026-08-05). Past that a scene stops reading as a place and starts
+    reading as one photograph with different captions under it. Enforced by
+    `python tools/art_repetition.py`; the fix is usually a second VIEW of the
+    same location, not a different location.
+20. **Player-facing prose lives in JSON, never in .gd.** Story, rules text,
+    coach lines, notice lines, quest beats and interface prose are content:
+    `story/*.json`, `data/*.json`. A string a writer might want to change
+    must not require touching a script — and a string embedded in code is a
+    string no content tool can validate, translate or review.
+21. **Repeated content must vary.** Anything the player is shown many times
+    across a run — the Hollow Court after each death above all — needs
+    genuine variants, not one page shown again. A death that reads
+    identically to the last death tells the player nothing happened.
+22. **Run `/ownerpass` before saying anything is ready to review.** Tests,
+    the every-quest sweep, art repetition, then the `story-critic` and
+    `first-timer` agents. Every owner review so far returned the same
+    classes of defect — encounters with no story reason, terms shown before
+    they are explained, rules the game enforces but never states — and all
+    of them are findable without the owner. Never report "ready" with a
+    known unfixed defect unmentioned.
+
 ## Project conventions
 
 - Design decisions live in `docs/design/`; one topic per file. When a decision

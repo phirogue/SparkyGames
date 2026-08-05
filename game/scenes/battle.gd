@@ -115,12 +115,10 @@ const HUMOUR_COLORS := {
 	"shadow": Color("4a4258"),
 	"mysticism": Color("6a82a8"),
 }
-const APPROACH_DESC := {
-	"stalk": "Begin hidden. Its first move misses. First hit +1.",
-	"ambush": "Strike first for 3. It comes up angry.",
-	"case": "Study it, draw 2 — it studies you back: +1 first hit.",
-	"ward": "Block 4 that holds through its first turn.",
-}
+## Approach copy lives in story/interface.json (law 20) -- what an approach
+## COSTS is a rule in CombatState; what it reads like is writing.
+static func approach_desc(mode: String) -> String:
+	return Strings.line("battle.approach." + mode)
 
 
 ## Max 3 options ever shown (owner readability rule): 2 approaches + Walk In.
@@ -312,7 +310,7 @@ func _on_approach(mode: String) -> void:
 	if _coach_pending:
 		_start_coach()
 	if mode == "":
-		_log("Walked in. Sometimes the front door is the trick.")
+		_log(Strings.line("chronicle.walked_in"))
 	else:
 		var result := state.do_command({"type": "approach", "mode": mode})
 		if not result["ok"]:
@@ -432,8 +430,8 @@ func _on_detail_charge() -> void:
 	var result := state.do_command({"type": "charge_skill", "skill_id": skill_id,
 		"source": pick["source"], "index": pick["index"]})
 	if result["ok"]:
-		_log("Fed %s to %s." % [Catalog.humour_name(String(next_humour)),
-			catalog.skills[skill_id]["name"]])
+		_log(Strings.line("chronicle.fed", [Catalog.humour_name(String(next_humour)),
+			catalog.skills[skill_id]["name"]]))
 	else:
 		_log(result["error"])
 	_drain_events()
@@ -491,7 +489,7 @@ func _on_card_bank() -> void:
 	var card_id: String = state.hand[hand_index]
 	var result := state.do_command({"type": "bank", "hand_index": hand_index})
 	if result["ok"]:
-		_log("Banked %s." % catalog.energy_cards[card_id]["name"])
+		_log(Strings.line("chronicle.banked", [catalog.energy_cards[card_id]["name"]]))
 	else:
 		_log(result["error"])
 	_after_command()
@@ -505,7 +503,7 @@ func _on_card_discard() -> void:
 	var card_id: String = state.hand[hand_index]
 	var result := state.do_command({"type": "discard", "hand_index": hand_index})
 	if result["ok"]:
-		_log("Discarded %s. Gone till home." % catalog.energy_cards[card_id]["name"])
+		_log(Strings.line("chronicle.discarded", [catalog.energy_cards[card_id]["name"]]))
 	else:
 		_log(result["error"])
 	_after_command()
@@ -542,7 +540,7 @@ func _on_concentrate_choose(humour: String) -> void:
 	concentrate_overlay.visible = false
 	var result := state.do_command({"type": "concentrate", "humour": humour})
 	if result["ok"]:
-		_log("Ash stares at nothing. A %s comes back." % Catalog.humour_name(String(humour)))
+		_log(Strings.line("chronicle.concentrate", [Catalog.humour_name(String(humour))]))
 	else:
 		_log(result["error"])
 	_after_command()
@@ -552,7 +550,7 @@ func _on_end_turn() -> void:
 	if coach != null:
 		coach.notify("end_turn")
 	_close_detail()
-	_log("— turn %d —" % state.turn)
+	_log(Strings.line("chronicle.turn", [state.turn]))
 	state.do_command({"type": "end_turn"})
 	_after_command()
 
@@ -600,7 +598,7 @@ func _maybe_insist_on_withdrawing() -> void:
 	if after <= 0 or state.turn <= after or withdraw_overlay.visible:
 		return
 	withdraw_label.text = String(encounter_def.get("withdraw_text",
-		"This is not a fight. It is a weather. Go around it."))
+		Strings.line("battle.withdraw_default")))
 	var wrap := 520.0 - 32.0
 	withdraw_label.custom_minimum_size = Vector2(wrap, UITheme.measure_text(
 		withdraw_label.text, UITheme.italic_font(), 30, wrap).y)
@@ -614,20 +612,20 @@ func _drain_events() -> void:
 		_log(line)
 	for event in state.take_events():
 		match event:
-			"sunbeam": _log("A sunbeam. One spent card returns, warm.")
-			"spotted": _log("SPOTTED. Expect worse manners now.")
-			"warmed": _log("Still warm from the purr: +2 HP.")
-			"sharpened": _log("Claws keen from a clean fight: +1 first hit.")
-			"sharpened_strike": _log("The keen edge lands.")
-			"hidden_wasted": _log("It strikes at the shadow you left behind.")
-			"approach_stalk": _log("You are a rumor in the dark.")
-			"approach_ambush": _log("Claws first. Questions never.")
-			"approach_case": _log("You watch. You learn. You draw.")
-			"approach_ward": _log("A ward, stitched quick and holding.")
-			"parting_shot": _log("You turn your back. It takes its turn anyway.")
-			"loaf_guarded": _log("It paws at a cat with nothing loose. Nothing gives.")
-			"night_presses": _log("The night presses. It grows bolder.")
-			"undone": _log("It finishes the sentence it started.")
+			"sunbeam": _log(Strings.line("chronicle.sunbeam"))
+			"spotted": _log(Strings.line("chronicle.spotted"))
+			"warmed": _log(Strings.line("chronicle.warmed"))
+			"sharpened": _log(Strings.line("chronicle.sharpened"))
+			"sharpened_strike": _log(Strings.line("chronicle.sharpened_strike"))
+			"hidden_wasted": _log(Strings.line("chronicle.hidden_wasted"))
+			"approach_stalk": _log(Strings.line("chronicle.approach_stalk"))
+			"approach_ambush": _log(Strings.line("chronicle.approach_ambush"))
+			"approach_case": _log(Strings.line("chronicle.approach_case"))
+			"approach_ward": _log(Strings.line("chronicle.approach_ward"))
+			"parting_shot": _log(Strings.line("chronicle.parting_shot"))
+			"loaf_guarded": _log(Strings.line("chronicle.loaf_guarded"))
+			"night_presses": _log(Strings.line("chronicle.night_presses"))
+			"undone": _log(Strings.line("chronicle.undone"))
 			"concentrated": pass  # the chooser handler already narrates it
 
 
@@ -997,8 +995,9 @@ func _build_approach_overlay() -> Control:
 				state.can_pay(CombatState.APPROACHES[mode]["cost"]):
 			affordable.append(mode)
 	for mode in affordable:
-		box.add_child(_approach_button(_approach_title(mode), APPROACH_DESC[mode], mode))
-	box.add_child(_approach_button("Walk In", "Spend nothing. A door is a door.", ""))
+		box.add_child(_approach_button(_approach_title(mode), approach_desc(mode), mode))
+	box.add_child(_approach_button(Strings.line("battle.approach.walk_in_title"),
+		Strings.line("battle.approach.walk_in_desc"), ""))
 	return modal["overlay"]
 
 
@@ -1149,7 +1148,7 @@ func _build_concentrate_overlay() -> Control:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
 	var blurb := UITheme.measured_label(
-		"Will one spent energy back to the top of the deck. It costs the whole turn — the enemy acts.",
+		Strings.line("battle.concentrate_desc"),
 		26, 560.0 - 32.0, null, UITheme.INK_SOFT)
 	blurb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(blurb)
@@ -1237,7 +1236,7 @@ func _refresh() -> void:
 	var hint_key := str(state.turn)
 	if hints.has(hint_key) and _last_hint_turn != state.turn:
 		_last_hint_turn = state.turn
-		_log("❋ " + String(hints[hint_key]))
+		_log(Strings.line("chronicle.hint", [String(hints[hint_key])]))
 	hp_label.text = "%d/%d" % [maxi(state.player_hp, 0), state.player_max_hp]
 	block_label.text = str(state.player_block)
 	deck_label.text = str(state.deck.size())
