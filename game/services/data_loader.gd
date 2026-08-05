@@ -22,6 +22,7 @@ static func load_catalog(data_dir: String = DATA_DIR) -> Catalog:
 		"wards": _load_json(data_dir + "/wards.json"),
 		"lattices": _load_json(data_dir + "/lattices.json"),
 		"crossings": _load_json(data_dir + "/crossings.json"),
+		"lessons": _load_json(data_dir + "/lessons.json").get("lessons", {}),
 	})
 
 
@@ -38,4 +39,14 @@ static func _load_json(path: String) -> Dictionary:
 	if not (parsed is Dictionary):
 		push_error("malformed JSON (expected object): %s" % path)
 		return {}
-	return parsed
+	# Keys starting with "_" are notes to whoever edits the file next, not
+	# content. JSON has no comments and these files carry real design
+	# reasoning that belongs beside the data — but a flat id->record file
+	# turns a stray "_notes" into a phantom record, which is exactly how the
+	# Chapter 1 board came up empty (an Array where a quest was expected took
+	# the whole catalog down with it). Stripped once, here, for every file.
+	var content := {}
+	for key in parsed:
+		if not String(key).begins_with("_"):
+			content[key] = parsed[key]
+	return content

@@ -16,6 +16,9 @@ var fallback_color := Color(0.2, 0.2, 0.24)
 ## the illustration is tinted, the narration warms, and choices are refused
 ## (you cannot re-decide a memory). Catnap flashbacks, chapters/01 L4.
 var flashback := false
+## A LESSON page: the whole card is the game teaching, so every line takes
+## the rules face without the author tagging each one (owner rule 2026-08-04).
+var rules_page := false
 var image_tint := Color.WHITE
 
 var _revealed := 0
@@ -36,6 +39,7 @@ func setup(config: Dictionary) -> void:
 	image_id = config.get("portrait", config.get("image", ""))
 	art_desc = config.get("art_desc", "")
 	flashback = config.get("flashback", false)
+	rules_page = config.get("rules_page", false)
 	assert(not (flashback and not choices.is_empty()),
 		"a flashback cannot offer choices — it already happened")
 	if config.has("image_tint"):
@@ -50,8 +54,32 @@ static func _line_text(line: Variant) -> String:
 	return String(line["text"]) if line is Dictionary else String(line)
 
 
-static func _is_rule(line: Variant) -> bool:
-	return line is Dictionary and bool(line.get("rule", false))
+func _is_rule(line: Variant) -> bool:
+	# A lesson page is rules from top to bottom — it is the game teaching,
+	# with no narrator in it at all — so it does not make its author tag
+	# every single line (owner rule 2026-08-04: rules must never read as Ash).
+	return rules_page or (line is Dictionary and bool(line.get("rule", false)))
+
+
+## FIXED zone template (law 12), with ONE variant. The picture is the
+## constant and prose never shrinks it (owner rule 2026-08-01) — but a THIRD
+## choice button is not prose. Two choices fit under a 680px illustration;
+## three did not, and the third fell off the bottom of the page past the
+## stitching (tour, "The Carrying", 2026-08-04).
+##
+## So the choice card has two templates, and which one is in force is decided
+## by the button count alone:
+##   art 680 + narration + choices x2 (216)   == CONTENT_HEIGHT
+##   art 572 + narration + choices x3 (324)   == CONTENT_HEIGHT
+## Keep tests/calibrate.gd's "choice" zone map in step with both.
+const ART_WIDTH := 510.0
+const ART_HEIGHT := 680.0
+const ART_HEIGHT_THREE_CHOICES := 572.0
+const CHOICE_HEIGHT := 108.0
+
+
+func art_height() -> float:
+	return ART_HEIGHT_THREE_CHOICES if choices.size() >= 3 else ART_HEIGHT
 
 
 func _ready() -> void:
@@ -74,7 +102,7 @@ func _ready() -> void:
 	art_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(art_center)
 	var art_holder := PanelContainer.new()
-	art_holder.custom_minimum_size = Vector2(510, 680)
+	art_holder.custom_minimum_size = Vector2(ART_WIDTH, art_height())
 	var frame_style := StyleBoxFlat.new()
 	frame_style.bg_color = fallback_color
 	frame_style.set_border_width_all(4)
@@ -178,11 +206,11 @@ func _advance() -> void:
 ## inside the text zone (fixed art means text gets a fixed budget; a
 ## count cap can't see how far each line wraps — pixels can).
 func _retire_overflow() -> void:
-	var budget := float(UITheme.CONTENT_HEIGHT) - 680.0 - 40.0 - 60.0
+	var budget := float(UITheme.CONTENT_HEIGHT) - art_height() - 40.0 - 60.0
 	if heading != "":
 		budget -= 50.0
 	if not choices.is_empty():
-		budget -= choices.size() * 108.0
+		budget -= choices.size() * CHOICE_HEIGHT
 	var line_font: Font = UITheme.display_font() if big_style else UITheme.italic_font()
 	var line_size := 54 if big_style else 37
 	while _first_visible < _revealed - 1:

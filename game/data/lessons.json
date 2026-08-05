@@ -1,0 +1,163 @@
+{
+  "_notes": [
+    "Teachable concepts, each taught ONCE at the moment it first matters and",
+    "replayable forever from the Casebook (owner rule 2026-08-04). Delivery",
+    "is by `kind`:",
+    "  pages    -- notice-style cards; for ideas ('what gleam is for')",
+    "  practice -- opens the real screen with its own coaching, on throwaway",
+    "              content, and comes back here; for anything with rules you",
+    "              learn with your paws. `scene` is a component-runner spec.",
+    "A quest teaches by carrying a {type:lesson, lesson:<id>} step. Profile",
+    "key `taught` remembers which have played, so a lesson never repeats",
+    "itself uninvited and the Casebook can grey out the ones not met yet."
+  ],
+  "lessons": {
+    "the_exchange": {
+      "id": "the_exchange",
+      "name": "Gleam, and What It Buys",
+      "blurb": "Buttons, teeth, and the Magpie who takes them.",
+      "kind": "pages",
+      "order": 10,
+      "pages": [
+        {
+          "title": "Gleam",
+          "lines": [
+            "Gleam is what the city pays for trouble taken off its hands. Buttons, mostly. Teeth sometimes. Once, memorably, a very small key.",
+            "It rides in your SATCHEL while you are out and only becomes yours when you come home. Die on the way and the satchel stays where you dropped it — the Court takes a quarter of what is already banked, and takes it politely."
+          ]
+        },
+        {
+          "title": "The Magpie Exchange",
+          "lines": [
+            "Brindle buys and sells ENERGY CARDS. A card bought is a card in the spool the next time you go out.",
+            "She also CUTS: hand her a card you are sick of and it leaves the deck for good. A thin deck that is all teeth beats a fat one full of apologies."
+          ]
+        }
+      ]
+    },
+    "growing_stronger": {
+      "id": "growing_stronger",
+      "name": "Getting Harder to Kill",
+      "blurb": "There is no experience bar. There is work, and what it leaves you.",
+      "kind": "pages",
+      "order": 20,
+      "pages": [
+        {
+          "title": "No Ledger of Yourself",
+          "lines": [
+            "Nothing in this city keeps a running total of how good you are getting. You will not find a number for it, because there is not one.",
+            "You get stronger the way anything does: you do difficult work, and afterwards some of it has stuck to you."
+          ]
+        },
+        {
+          "title": "What Sticks",
+          "lines": [
+            "Work leaves three kinds of mark. More LIVES IN HIM — a wider heart, and more room to be wrong in. More SPOOL — cards in the deck, so a long night does not end in an empty hand.",
+            "And new ACTIONS, which is the only one that changes how a fight feels. Five go out with you at a time, Scratch included; choosing which is a real decision and it is made at the Mantel."
+          ]
+        }
+      ]
+    },
+    "the_case_board": {
+      "id": "the_case_board",
+      "name": "Keeping the Thread",
+      "blurb": "Suspects, things, and what connects them.",
+      "kind": "pages",
+      "order": 30,
+      "pages": [
+        {
+          "title": "The Board",
+          "lines": [
+            "Every lead ends with a THING — a stub, a page, a tally. The thing goes on the board, and the board remembers so you do not have to.",
+            "Suspects appear when evidence names them. A thread between a thing and a name is not an accusation. It is a question you have stopped being able to un-ask."
+          ]
+        }
+      ]
+    },
+    "asking_questions": {
+      "id": "asking_questions",
+      "name": "Getting a Straight Answer",
+      "blurb": "Testimony: pull the ribbon that cannot hold.",
+      "kind": "practice",
+      "order": 40,
+      "scene": "testimony:shift_boss",
+      "pages": [
+        {
+          "title": "Testimony",
+          "lines": [
+            "Nobody in this city lies outright. They tell you a shape of a story, and one strand of it is doing more work than it can carry.",
+            "Put a piece of EVIDENCE against a strand. If the two cannot both be true, the strand goes. What is left standing is what actually happened."
+          ]
+        }
+      ]
+    },
+    "stitching": {
+      "id": "stitching",
+      "name": "Seam & Stitch",
+      "blurb": "Her craft. Numbers, thread, and a seam that closes.",
+      "kind": "practice",
+      "order": 50,
+      "scene": "stitch:chart_hoop",
+      "pages": [
+        {
+          "title": "Seam & Stitch",
+          "lines": [
+            "Each clue counts the threads that must touch it. Sew until every number is answered and no more.",
+            "SQUINT when you are stuck: it tells you whether anything already sewn is wrong. It does not tell you which. She never told me which either."
+          ]
+        }
+      ]
+    },
+    "warding": {
+      "id": "warding",
+      "name": "Patching a Ward",
+      "blurb": "Holding a hole shut with the wrong colour thread.",
+      "kind": "practice",
+      "order": 60,
+      "scene": "ward:ward_practice",
+      "pages": [
+        {
+          "title": "Wards",
+          "lines": [
+            "A ward is a promise stitched into a doorway, and promises tear. Patch each gap with energy of the humour it is crying for.",
+            "MOONLIGHT patches anything, which is why she never had enough of it."
+          ]
+        }
+      ]
+    },
+    "crossings": {
+      "id": "crossings",
+      "name": "The Long Way Round",
+      "blurb": "Same deck. No claws. Get to the other side.",
+      "kind": "practice",
+      "order": 70,
+      "scene": "crossing:crossing_practice",
+      "pages": [
+        {
+          "title": "Crossings",
+          "lines": [
+            "Some rooms cannot be fought through. Same hand, same spool — different question: what does it cost to get across?",
+            "Spend to move, spend to stay unseen, and do not arrive with nothing left."
+          ]
+        }
+      ]
+    },
+    "unpicking": {
+      "id": "unpicking",
+      "name": "The Unpicking",
+      "blurb": "Taking a lattice apart without waking it.",
+      "kind": "practice",
+      "order": 80,
+      "scene": "lattice:lattice_elastic",
+      "pages": [
+        {
+          "title": "The Unpicking",
+          "lines": [
+            "Somebody's work, holding something shut. Pull the threads in an order that never leaves the whole thing hanging on one.",
+            "Cut wrong and it does not break — it TIGHTENS. That is how you know it was made by a professional."
+          ]
+        }
+      ]
+    }
+  }
+}

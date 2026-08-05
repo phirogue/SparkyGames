@@ -8,7 +8,7 @@ const TEMP_PATH := "user://profile.tmp"
 const BACKUP_PATH := "user://profile.bak"
 
 const DEFAULT_PROFILE := {
-	"schema_version": 3,
+	"schema_version": 4,
 	"prologue_done": false,
 	"gleam": 0,
 	# Level-1 Ash (owner calibration 2026-08-01): 10 HP; growth comes as
@@ -27,6 +27,10 @@ const DEFAULT_PROFILE := {
 	# of them). Empty means "auto": the first owned. Edited at the Mantel.
 	"loadout": [],
 	"flags": {},
+	# Lessons already delivered (data/lessons.json). A lesson plays ONCE, at
+	# the moment it first matters; the Casebook replays any of them on demand
+	# forever after (owner rule 2026-08-04).
+	"taught": [],
 	"journal": [],
 	"codex": { "enemies": [], "places": [] },
 	"achievements": {},
@@ -124,7 +128,24 @@ static func _migrate(profile: Dictionary) -> Dictionary:
 		merged["case"]["active"] = DEFAULT_PROFILE["case"]["active"]
 	if int(profile.get("schema_version", 1)) < 3:
 		merged["schema_version"] = 3
+	# v4 (2026-08-04): lessons. Law 7 -- what does an old save IMPLY? A player
+	# who has already finished the prologue has been taught the fight rules by
+	# the coach and has been living at the Mantel; re-teaching them the basics
+	# on their next launch would be the game forgetting who they are. Every
+	# lesson stays available in the Casebook either way.
+	if int(profile.get("schema_version", 1)) < 4:
+		if merged["prologue_done"]:
+			for lesson_id in IMPLIED_BY_PROLOGUE:
+				if not merged["taught"].has(lesson_id):
+					merged["taught"].append(lesson_id)
+		merged["schema_version"] = 4
 	return merged
+
+
+## Lessons a finished prologue has effectively already delivered -- the ones
+## the in-fight coach and the Mantel walkthrough already cover. Kept beside
+## the migration that uses it so the two cannot drift apart.
+const IMPLIED_BY_PROLOGUE := ["growing_stronger"]
 
 
 ## The skills that enter a battle (loadout law: LOADOUT_SIZE out at a time,

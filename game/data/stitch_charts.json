@@ -13,10 +13,14 @@
       "1,1": 2
     },
     "solution": [
-      "h:0:0", "h:0:1",
-      "h:2:0", "h:2:1",
-      "v:0:0", "v:1:0",
-      "v:0:2", "v:1:2"
+      "h:0:0",
+      "h:0:1",
+      "h:2:0",
+      "h:2:1",
+      "v:0:0",
+      "v:1:0",
+      "v:0:2",
+      "v:1:2"
     ],
     "rewards": {},
     "when_outcome": {
@@ -44,10 +48,18 @@
       "2,2": 2
     },
     "solution": [
-      "h:0:0", "h:0:1", "h:0:2",
-      "h:3:0", "h:3:1", "h:3:2",
-      "v:0:0", "v:1:0", "v:2:0",
-      "v:0:3", "v:1:3", "v:2:3"
+      "h:0:0",
+      "h:0:1",
+      "h:0:2",
+      "h:3:0",
+      "h:3:1",
+      "h:3:2",
+      "v:0:0",
+      "v:1:0",
+      "v:2:0",
+      "v:0:3",
+      "v:1:3",
+      "v:2:3"
     ],
     "rewards": {},
     "when_outcome": {
@@ -64,16 +76,40 @@
     "paws": 3,
     "mirrored": false,
     "clues": {
-      "0,0": 3, "0,1": 2, "0,2": 2, "0,3": 0,
-      "1,0": 2, "1,1": 2, "1,2": 2, "1,3": 2,
-      "2,0": 0, "2,1": 2, "2,2": 2, "2,3": 2,
-      "3,0": 0, "3,1": 0, "3,2": 2, "3,3": 3
+      "0,0": 3,
+      "0,1": 2,
+      "0,2": 2,
+      "0,3": 0,
+      "1,0": 2,
+      "1,1": 2,
+      "1,2": 2,
+      "1,3": 2,
+      "2,0": 0,
+      "2,1": 2,
+      "2,2": 2,
+      "2,3": 2,
+      "3,0": 0,
+      "3,1": 0,
+      "3,2": 2,
+      "3,3": 3
     },
     "solution": [
-      "h:0:0", "h:0:1", "h:1:0", "h:1:2", "h:2:1", "h:2:3",
-      "h:3:2", "h:4:3",
-      "v:0:0", "v:0:2", "v:1:1", "v:1:3", "v:2:2", "v:2:4",
-      "v:3:3", "v:3:4"
+      "h:0:0",
+      "h:0:1",
+      "h:1:0",
+      "h:1:2",
+      "h:2:1",
+      "h:2:3",
+      "h:3:2",
+      "h:4:3",
+      "v:0:0",
+      "v:0:2",
+      "v:1:1",
+      "v:1:3",
+      "v:2:2",
+      "v:2:4",
+      "v:3:3",
+      "v:3:4"
     ],
     "rewards": {},
     "when_outcome": {
@@ -101,16 +137,63 @@
       "2,2": 2
     },
     "solution": [
-      "h:0:0", "h:0:1", "h:0:2",
-      "h:3:0", "h:3:1", "h:3:2",
-      "v:0:0", "v:1:0", "v:2:0",
-      "v:0:3", "v:1:3", "v:2:3"
+      "h:0:0",
+      "h:0:1",
+      "h:0:2",
+      "h:3:0",
+      "h:3:1",
+      "h:3:2",
+      "v:0:0",
+      "v:1:0",
+      "v:2:0",
+      "v:0:3",
+      "v:1:3",
+      "v:2:3"
     ],
     "rewards": {},
     "when_outcome": {
       "success": "His paw knew the way before he did. That is the part he will think about later.",
       "partial": "Backward is harder. Backward is also, apparently, natural.",
       "walk_away": "Ash puts the needle down. He does not say why."
+    }
+  },
+  "chart_shroud": {
+    "id": "chart_shroud",
+    "name": "Her Last Seam",
+    "width": 3,
+    "height": 3,
+    "paws": 4,
+    "mirrored": false,
+    "clues": {
+      "0,0": 2,
+      "0,1": 1,
+      "0,2": 2,
+      "1,0": 1,
+      "1,1": 0,
+      "1,2": 1,
+      "2,0": 2,
+      "2,1": 1,
+      "2,2": 2
+    },
+    "solution": [
+      "h:0:0",
+      "h:0:1",
+      "h:0:2",
+      "h:3:0",
+      "h:3:1",
+      "h:3:2",
+      "v:0:0",
+      "v:0:3",
+      "v:1:0",
+      "v:1:3",
+      "v:2:0",
+      "v:2:3"
+    ],
+    "rewards": {},
+    "when_outcome": {
+      "success": "The seam closes in her hand, not mine. A hundred people on the tideline and not one of them makes a sound.",
+      "partial": "It holds. It is not beautiful, and she would have said so, and she would have meant it kindly.",
+      "walk_away": "I cannot make my paws do it. Somebody else finishes her, which is the second worst thing that has happened this week."
     }
   }
 }

@@ -73,6 +73,7 @@ func _run() -> void:
 				screen.coach.force_advance()
 				await _wait(0.2)
 			await _shot("hub")
+			await _tour_lessons()
 			await _tour_case_board()
 			await _tour_market_and_kit()
 			game._open_settings()
@@ -129,6 +130,28 @@ func _tour_case_board() -> void:
 ## slots on a fresh profile — the prologue ends with no gleam and one skill —
 ## so the throwaway profile is given a purse and a satchel of skills first.
 ## Photographing an honestly-empty market would prove nothing about the layout.
+## The Casebook's Lessons tab, and one lesson replayed. The tab is the
+## owner's "let me go through that tutorial again" and the greyed rows are
+## the promise that there is more to learn — both need photographing, and
+## the replay needs proving it comes back here rather than to the hub.
+func _tour_lessons() -> void:
+	# A fresh tour profile has met nothing, so every row would be grey. Give
+	# it the two concept lessons the opening arc delivers, which is the state
+	# a player is actually in when they first open this tab.
+	for lesson_id in ["the_exchange", "the_case_board"]:
+		if not game.profile["taught"].has(lesson_id):
+			game.profile["taught"].append(lesson_id)
+	game._show_journal()
+	await _wait(0.4)
+	var casebook: Control = game.current_screen
+	casebook._show_lessons()
+	await _wait(0.3)
+	await _shot("casebook_lessons")
+	game._play_lesson("the_exchange", func() -> void: pass)
+	await _wait(0.4)
+	await _shot("lesson_replayed")
+
+
 func _tour_market_and_kit() -> void:
 	game.profile["gleam"] = maxi(int(game.profile["gleam"]), 60)
 	game._show_exchange()

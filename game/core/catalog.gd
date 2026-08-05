@@ -58,6 +58,9 @@ var testimonies: Dictionary = {}    # id -> {witness, ribbons, patience}
 var wards: Dictionary = {}          # id -> {width, height, hole, rack, effects}
 var lattices: Dictionary = {}       # id -> {threads, elastic, error_cost}
 var crossings: Dictionary = {}      # id -> {length, hazard, gusts}
+## Teachable concepts — taught once at the moment they first matter, and
+## replayable from the Casebook forever after (owner rule 2026-08-04).
+var lessons: Dictionary = {}        # id -> {id, name, blurb, kind, order, pages, scene}
 
 func _init(data: Dictionary = {}) -> void:
 	energy_cards = data.get("energy_cards", {})
@@ -75,6 +78,7 @@ func _init(data: Dictionary = {}) -> void:
 	wards = data.get("wards", {})
 	lattices = data.get("lattices", {})
 	crossings = data.get("crossings", {})
+	lessons = data.get("lessons", {})
 
 
 ## Every evidence id defined by any case — quest gates reference these
@@ -135,8 +139,9 @@ func validate() -> Array[String]:
 			problems.append("encounter '%s' references unknown environment '%s'" % [id, environment_id])
 	for id in quests:
 		var quest: Dictionary = quests[id]
-		if quest.get("encounters", []).is_empty():
-			problems.append("quest '%s' has no encounters" % id)
+		# `encounters` is the short form of a script that is all fighting.
+		# Both forms are checked together by _validate_prowl_script, called
+		# from _validate_quest_v2 below.
 		for encounter_id in quest.get("encounters", []):
 			if not encounters.has(encounter_id):
 				problems.append("quest '%s' references unknown encounter '%s'" % [id, encounter_id])
@@ -157,7 +162,45 @@ func validate() -> Array[String]:
 	problems.append_array(_validate_guilds())
 	problems.append_array(_validate_favors())
 	problems.append_array(_validate_minigames())
+	problems.append_array(_validate_lessons())
 	problems.append_array(_validate_humour_names())
+	return problems
+
+
+## A lesson is the game's one chance to explain a thing before the player has
+## to use it. A broken one is invisible until a first-time player hits the
+## concept and gets nothing, which is the worst possible place to find out.
+func _validate_lessons() -> Array[String]:
+	var problems: Array[String] = []
+	const KINDS := ["pages", "practice"]
+	for id in lessons:
+		var lesson: Dictionary = lessons[id]
+		if String(lesson.get("name", "")).is_empty():
+			problems.append("lesson '%s' has no name for the Casebook" % id)
+		var kind := String(lesson.get("kind", ""))
+		if not KINDS.has(kind):
+			problems.append("lesson '%s' has unknown kind '%s'" % [id, kind])
+		var pages: Array = lesson.get("pages", [])
+		if pages.is_empty():
+			problems.append("lesson '%s' has no pages" % id)
+		for page in pages:
+			if Array(page.get("lines", [])).is_empty():
+				problems.append("lesson '%s' has a page with no lines" % id)
+		# A practice lesson's whole promise is "try it again for real", so a
+		# spec the component runner cannot resolve is a dead button.
+		if kind != "practice":
+			continue
+		var spec := String(lesson.get("scene", ""))
+		var parts := spec.split(":")
+		var content := {
+			"stitch": stitch_charts, "testimony": testimonies, "ward": wards,
+			"lattice": lattices, "crossing": crossings,
+		}
+		if parts.size() < 2 or not content.has(parts[0]):
+			problems.append("lesson '%s' practices unknown scene '%s'" % [id, spec])
+		elif not content[parts[0]].has(parts[1]):
+			problems.append("lesson '%s' practices %s '%s', which does not exist"
+				% [id, parts[0], parts[1]])
 	return problems
 
 
@@ -511,6 +554,60 @@ func _validate_quest_v2(id: String, quest: Dictionary) -> Array[String]:
 	for guild_id in requires.get("standing", {}):
 		if not guilds.has(guild_id):
 			problems.append("quest '%s' requires standing with unknown guild '%s'" % [id, guild_id])
+	for quest_id in requires.get("quests", []):
+		if not quests.has(String(quest_id)):
+			problems.append("quest '%s' waits on unknown quest '%s'" % [id, quest_id])
+	problems.append_array(_validate_prowl_script(id, quest))
+	return problems
+
+
+## The prowl script (ProwlScript): a quest is an ordered run of fights, story
+## beats, minigames and lessons. Every id it names is checked here, because
+## a step pointing at a chart that does not exist is a prowl that dead-ends
+## mid-quest with the player's satchel in it.
+func _validate_prowl_script(id: String, quest: Dictionary) -> Array[String]:
+	var problems: Array[String] = []
+	var steps := ProwlScript.steps_of(quest)
+	if steps.is_empty():
+		problems.append("quest '%s' has no steps and no encounters" % id)
+	var module_content := {
+		"stitch": stitch_charts, "testimony": testimonies, "ward": wards,
+		"lattice": lattices, "crossing": crossings,
+	}
+	var fights := 0
+	for step: Dictionary in steps:
+		match ProwlScript.type_of(step):
+			ProwlScript.BATTLE:
+				fights += 1
+				if not encounters.has(String(step.get("encounter", ""))):
+					problems.append("quest '%s' fights unknown encounter '%s'"
+						% [id, step.get("encounter", "")])
+			ProwlScript.MINIGAME:
+				var module := String(step.get("module", ""))
+				if not module_content.has(module):
+					problems.append("quest '%s' runs unknown module '%s'" % [id, module])
+				elif not module_content[module].has(String(step.get("id", ""))):
+					problems.append("quest '%s' runs %s '%s', which does not exist"
+						% [id, module, step.get("id", "")])
+			ProwlScript.LESSON:
+				if not lessons.has(String(step.get("lesson", ""))):
+					problems.append("quest '%s' teaches unknown lesson '%s'"
+						% [id, step.get("lesson", "")])
+			ProwlScript.STORY:
+				var environment := String(step.get("environment", ""))
+				if environment != "" and not environments.has(environment):
+					problems.append("quest '%s' has a beat in unknown environment '%s'"
+						% [id, environment])
+			ProwlScript.NOTICE:
+				if Array(step.get("notes", [])).is_empty():
+					problems.append("quest '%s' has an empty notice step" % id)
+			_:
+				problems.append("quest '%s' has unknown step type '%s'"
+					% [id, ProwlScript.type_of(step)])
+	# A prowl with no fight cannot be died on, which is fine for a wake or a
+	# conversation — but it must then not promise a satchel it cannot fill.
+	if fights == 0 and int(quest.get("reward_bonus", 0)) <= 0:
+		problems.append("quest '%s' has no fights and no reward — nothing happens" % id)
 	return problems
 
 

@@ -615,6 +615,155 @@ func _find_evidence(evidence_id: String) -> bool:
 	return true
 
 
+## Ash gets permanently harder to kill. There is no XP bar and no level
+## number anywhere in the game (difficulty-and-progression.md: the level is
+## OUR ruler, never the player's) — growth arrives as the residue of
+## difficult work, and this is the function that leaves it on him.
+##
+## Idempotent by construction is impossible here (HP is a number, not a set),
+## so callers must only reach it from a `once` quest or a one-shot story
+## beat. `sharpen_the_claws` is `once: true` for exactly this reason.
+func _grant_growth(growth: Dictionary) -> void:
+	var gained_hp := int(growth.get("max_hp", 0))
+	if gained_hp != 0:
+		profile["max_hp"] = int(profile["max_hp"]) + gained_hp
+		toasts.append("✦ Harder to kill: %d lives in him now." % int(profile["max_hp"]))
+	var gained_cards: Array = growth.get("cards", [])
+	if not gained_cards.is_empty():
+		var names: Array[String] = []
+		for card_id in gained_cards:
+			profile["deck"].append(String(card_id))
+			names.append(String(catalog.energy_cards[card_id]["name"]))
+			# A card won mid-prowl joins THIS prowl too, or the reward is
+			# invisible until the player next comes home.
+			if not carryover.is_empty():
+				var deck: Array = carryover.get("deck", [])
+				deck.append(String(card_id))
+				carryover["deck"] = deck
+		toasts.append("✦ Wound onto the spool: %s. (%d cards.)"
+			% [", ".join(names), profile["deck"].size()])
+	var gained_paws := int(growth.get("paws", 0))
+	if gained_paws != 0:
+		profile["paws"] = int(profile.get("paws", 3)) + gained_paws
+		toasts.append("✦ A fourth paw. %d actions a turn." % int(profile["paws"]))
+	_save()
+
+
+## Plays a lesson the FIRST time the game reaches it, and never again
+## uninvited (owner rule 2026-08-04). Replays live in the Casebook, so a
+## player who skipped or forgot one can go back for it deliberately.
+func _teach(lesson_id: String, on_done: Callable) -> void:
+	if not catalog.lessons.has(lesson_id):
+		push_warning("unknown lesson '%s'" % lesson_id)
+		on_done.call()
+		return
+	var taught: Array = profile.get("taught", [])
+	if taught.has(lesson_id):
+		on_done.call()
+		return
+	taught.append(lesson_id)
+	profile["taught"] = taught
+	_save()
+	_play_lesson(lesson_id, on_done)
+
+
+## Shows a lesson's pages, then — for a `practice` lesson — hands the player
+## the real screen on throwaway content so the rules are learned with paws
+## rather than read. Used by both the first teach and the Casebook replay.
+func _play_lesson(lesson_id: String, on_done: Callable) -> void:
+	var lesson: Dictionary = catalog.lessons[lesson_id]
+	var pages: Array = lesson.get("pages", [])
+	var finish := func() -> void:
+		if String(lesson.get("kind", "pages")) != "practice":
+			on_done.call()
+			return
+		var spec := String(lesson.get("scene", "")).split(":")
+		if spec.size() < 2:
+			on_done.call()
+			return
+		_launch_minigame(spec[0], spec[1], func(_won: bool) -> void: on_done.call())
+	_play_lesson_page(lesson, pages, 0, finish)
+
+
+func _play_lesson_page(lesson: Dictionary, pages: Array, index: int,
+		on_done: Callable) -> void:
+	if index >= pages.size():
+		on_done.call()
+		return
+	var page: Dictionary = pages[index]
+	var config := _story_config("parlor_cold", page["lines"])
+	config["heading"] = String(page.get("title", lesson.get("name", "")))
+	config["rules_page"] = true   # story screen styles the whole page as rules
+	if page.has("portrait"):
+		config["portrait"] = page["portrait"]
+	_show_story(config, func(_i: int) -> void:
+		_play_lesson_page(lesson, pages, index + 1, on_done))
+
+
+## Opens one of the five modules and reports whether it was WON. One entry
+## point on top of the five `_show_*` launchers, so a prowl step, a lesson's
+## practice run and the component runner all behave identically — and so the
+## payout below happens exactly once per session, wherever it was played.
+func _launch_minigame(module: String, content_id: String, on_done: Callable) -> void:
+	match module:
+		"stitch": _show_stitch(content_id, on_done)
+		"testimony": _show_testimony(content_id, on_done)
+		"ward": _show_ward(content_id, on_done)
+		"lattice": _show_lattice(content_id, on_done)
+		"crossing": _show_crossing(content_id, on_done)
+		_:
+			push_error("unknown minigame module '%s'" % module)
+			on_done.call(false)
+
+
+## The one close-handler every module shares: bank whatever the session
+## earned, then hand control back. `on_done` is a func(won: bool); an empty
+## one means "nobody is waiting" — the standalone launches — and falls back
+## to the dev menu or the hub as before.
+func _module_closed(screen: Control, on_done: Callable) -> Callable:
+	return func() -> void:
+		var won := false
+		var state: Variant = screen.get("state")
+		if state != null:
+			won = int(state.outcome) == int(Minigame.Outcome.SUCCESS)
+			_collect_minigame_rewards(state)
+		if on_done.is_valid():
+			on_done.call(won)
+		elif dev_mode:
+			_show_dev_menu()
+		else:
+			_show_hub()
+
+
+## What a finished module hands back to the chapter: evidence found, leads
+## closed, knots tied, standing spent. Read off the module's own state so
+## every module pays out through one path.
+func _collect_minigame_rewards(state: Object) -> void:
+	var effects: Dictionary = {}
+	if state.has_method("break_effects"):
+		effects = state.break_effects()
+	for key in ["rewards", "effects"]:
+		if key in state and state.get(key) is Dictionary:
+			effects.merge(state.get(key))
+	for evidence_id in effects.get("evidence", []):
+		_find_evidence(String(evidence_id))
+	for lead_id in effects.get("leads_done", []):
+		CaseState.mark_lead_done(profile, String(lead_id))
+	if effects.has("favor") and CaseState.grant_favor(profile, String(effects["favor"])):
+		toasts.append("✦ A knot in your thread: %s" %
+			catalog.favors[effects["favor"]]["name"])
+	for guild_id in effects.get("standing", {}):
+		for line in CaseState.apply_standing(catalog, profile,
+				{guild_id: effects["standing"][guild_id]}):
+			toasts.append("❋ %s" % line)
+	if "standing_cost" in state and state.get("standing_cost") is Dictionary:
+		for guild_id in state.get("standing_cost"):
+			for line in CaseState.apply_standing(catalog, profile,
+					{guild_id: state.get("standing_cost")[guild_id]}):
+				toasts.append("❋ %s" % line)
+	_save()
+
+
 ## Add a skill to the player's permanent kit, with a story-toast. The kit is
 ## built over time (owner rule) — nobody starts with the full bar.
 func _grant_skills(skill_ids: Array) -> void:
@@ -888,6 +1037,10 @@ func _show_journal() -> void:
 	var screen: Control = JournalScreen.new()
 	screen.setup(catalog, profile)
 	screen.closed.connect(_show_hub)
+	# Replaying a lesson comes back HERE, not to the hub, so a player brushing
+	# up on three rules in a row is not walked through the parlor each time.
+	screen.replay_lesson.connect(func(lesson_id: String) -> void:
+		_play_lesson(lesson_id, _show_journal))
 	_swap(screen)
 
 
@@ -923,17 +1076,17 @@ func _minigame_done() -> Callable:
 			_show_hub()
 
 
-func _show_stitch(chart_id: String) -> void:
+func _show_stitch(chart_id: String, on_done := Callable()) -> void:
 	if not catalog.stitch_charts.has(chart_id):
 		push_error("unknown stitch chart '%s'" % chart_id)
 		return
 	var screen: Control = StitchScreen.new()
 	screen.setup(catalog.stitch_charts[chart_id])
-	screen.closed.connect(_minigame_done())
+	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
 	_swap(screen)
 
 
-func _show_testimony(testimony_id: String) -> void:
+func _show_testimony(testimony_id: String, on_done := Callable()) -> void:
 	if not catalog.testimonies.has(testimony_id):
 		push_error("unknown testimony '%s'" % testimony_id)
 		return
@@ -945,32 +1098,32 @@ func _show_testimony(testimony_id: String) -> void:
 		held = catalog.evidence_ids().keys()
 	var screen: Control = TestimonyScreen.new()
 	screen.setup(catalog, catalog.testimonies[testimony_id], held)
-	screen.closed.connect(_minigame_done())
+	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
 	_swap(screen)
 
 
-func _show_ward(ward_id: String) -> void:
+func _show_ward(ward_id: String, on_done := Callable()) -> void:
 	if not catalog.wards.has(ward_id):
 		push_error("unknown ward '%s'" % ward_id)
 		return
 	var screen: Control = WardScreen.new()
 	screen.setup(catalog, catalog.wards[ward_id],
 		carryover.get("deck", profile["deck"]))
-	screen.closed.connect(_minigame_done())
+	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
 	_swap(screen)
 
 
-func _show_lattice(lattice_id: String) -> void:
+func _show_lattice(lattice_id: String, on_done := Callable()) -> void:
 	if not catalog.lattices.has(lattice_id):
 		push_error("unknown lattice '%s'" % lattice_id)
 		return
 	var screen: Control = LatticeScreen.new()
 	screen.setup(catalog.lattices[lattice_id])
-	screen.closed.connect(_minigame_done())
+	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
 	_swap(screen)
 
 
-func _show_crossing(crossing_id: String) -> void:
+func _show_crossing(crossing_id: String, on_done := Callable()) -> void:
 	if not catalog.crossings.has(crossing_id):
 		push_error("unknown crossing '%s'" % crossing_id)
 		return
@@ -981,7 +1134,7 @@ func _show_crossing(crossing_id: String) -> void:
 			"player_max_hp": int(profile["max_hp"]),
 			"deck": carryover.get("deck", profile["deck"]),
 		})
-	screen.closed.connect(_minigame_done())
+	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
 	_swap(screen)
 
 
@@ -1023,26 +1176,116 @@ func _start_quest(quest_id: String) -> void:
 	encounter_index = 0
 	satchel = 0
 	carryover = {}
-	var encounter: Dictionary = catalog.encounters[quest["encounters"][0]]
-	_show_story(_story_config(encounter["environment"], [quest["board_card"], "Out the window, then."]),
-		func(_i: int) -> void: _next_encounter())
+	# The opening card is set wherever the quest actually STARTS, which is no
+	# longer always a fight — "The Carrying" opens in her parlor at first
+	# light and has no fight in it at all.
+	var steps := ProwlScript.steps_of(quest)
+	var opening := "parlor_cold"
+	for step: Dictionary in steps:
+		match ProwlScript.type_of(step):
+			ProwlScript.BATTLE:
+				opening = String(catalog.encounters[step["encounter"]]["environment"])
+			ProwlScript.STORY:
+				opening = String(step.get("environment", opening))
+			_:
+				continue
+		break
+	_show_story(_story_config(opening, [quest["board_card"], "Out the window, then."]),
+		func(_i: int) -> void: _run_step(0))
 
 
-func _next_encounter() -> void:
-	_show_battle(quest["encounters"][encounter_index], _on_prowl_battle_done)
+## Runs the quest's script one step at a time (see core/prowl_script.gd). A
+## step that opens a screen resumes here when that screen closes; nothing
+## else in the prowl knows or cares which kind of step it just finished.
+func _run_step(index: int) -> void:
+	encounter_index = index
+	var steps := ProwlScript.steps_of(quest)
+	if index >= steps.size():
+		_finish_quest()
+		return
+	var step: Dictionary = steps[index]
+	var next := func() -> void: _run_step(index + 1)
+	match ProwlScript.type_of(step):
+		ProwlScript.BATTLE:
+			_show_battle(String(step["encounter"]), _on_prowl_battle_done)
+		ProwlScript.STORY:
+			_run_prowl_story(step, next)
+		ProwlScript.MINIGAME:
+			_run_prowl_minigame(step, next)
+		ProwlScript.LESSON:
+			_teach(String(step["lesson"]), next)
+		ProwlScript.NOTICE:
+			for note in step.get("notes", []):
+				toasts.append(String(note))
+			var pending := toasts.duplicate()
+			toasts = []
+			_show_notices(pending, next)
+		_:
+			push_warning("prowl step %d has unknown type" % index)
+			next.call()
+
+
+## A story beat inside a prowl. Same vocabulary as the prologue's scenes —
+## flags, choices, evidence, standing, growth — so a quest writer has one
+## language to learn, not two.
+func _run_prowl_story(step: Dictionary, on_done: Callable) -> void:
+	if step.has("when_flag"):
+		var gate: Dictionary = step["when_flag"]
+		if int(profile["flags"].get(gate["flag"], -1)) != int(gate["value"]):
+			on_done.call()
+			return
+	_apply_scene_spine(step)
+	if step.has("grant_growth"):
+		_grant_growth(step["grant_growth"])
+	if step.has("lead"):
+		CaseState.mark_lead_done(profile, String(step["lead"]))
+		_save()
+	var config := _story_config(String(step.get("environment", "parlor_cold")), step["lines"])
+	for key in ["portrait", "art_desc", "heading"]:
+		if step.has(key):
+			config[key] = step[key]
+	if not step.has("choices"):
+		_show_story(config, func(_i: int) -> void: on_done.call())
+		return
+	config["choices"] = step["choices"]
+	_show_story(config, func(choice: int) -> void:
+		if step.has("flag"):
+			profile["flags"][step["flag"]] = choice
+			profile["journal"].append("Chose: %s" % String(step["choices"][choice]))
+			_save()
+		on_done.call())
+
+
+## A minigame as a prowl step. Losing one is never fatal and never blocks the
+## quest — the module's own when_outcome prose says what it cost, and a
+## scripted `on_loss_lines` says what Ash makes of it. A prowl that can
+## dead-end on a puzzle is a prowl that eats a satchel (law 13).
+func _run_prowl_minigame(step: Dictionary, on_done: Callable) -> void:
+	var module := String(step.get("module", ""))
+	var content_id := String(step.get("id", ""))
+	var after := func(won: bool) -> void:
+		var lines: Array = step.get("on_win_lines" if won else "on_loss_lines", [])
+		if lines.is_empty():
+			on_done.call()
+		else:
+			_show_story(_story_config(String(step.get("environment", "parlor_cold")),
+				lines), func(_i: int) -> void: on_done.call())
+	_launch_minigame(module, content_id, after)
 
 
 func _on_prowl_battle_done(state: CombatState) -> void:
 	_digest(state)
 	match state.outcome:
 		CombatState.Outcome.VICTORY:
-			var mult := 1.0 + PRESS_ON_MULT * encounter_index
+			# Depth is counted in FIGHTS, not steps: walking to the Ratsmeet
+			# is not danger and must not inflate the satchel multiplier.
+			var mult := 1.0 + PRESS_ON_MULT * ProwlScript.depth_at(quest, encounter_index)
 			var earned := int(ceil(int(catalog.enemies[state.enemy_id].get("gleam", 0)) * mult))
 			satchel += earned
-			if encounter_index >= quest["encounters"].size() - 1:
-				_finish_quest()
-			else:
+			if ProwlScript.has_battle_after(quest, encounter_index):
 				_offer_press_on(earned)
+			else:
+				_run_step(encounter_index + 1)
 		CombatState.Outcome.DEFEAT:
 			_prowl_death()
 		CombatState.Outcome.RETREATED:
@@ -1050,7 +1293,10 @@ func _on_prowl_battle_done(state: CombatState) -> void:
 
 
 func _offer_press_on(just_earned: int) -> void:
-	var next_encounter: Dictionary = catalog.encounters[quest["encounters"][encounter_index + 1]]
+	# The card previews the next FIGHT, which may be several story beats away
+	# — pressing on past a conversation is still pressing on.
+	var next_encounter: Dictionary = catalog.encounters[
+		ProwlScript.next_battle_after(quest, encounter_index)]
 	var next_enemy: Dictionary = catalog.enemies[next_encounter["enemies"][0]]
 	var environment: Dictionary = catalog.environments[next_encounter["environment"]]
 	var danger := "•".repeat(clampi(int(next_enemy["hp"]) / 4, 1, 5))
@@ -1068,8 +1314,7 @@ func _offer_press_on(just_earned: int) -> void:
 	}, func(choice: int) -> void:
 		if choice == 0:
 			tracker.increment("pressed_on")
-			encounter_index += 1
-			_next_encounter()
+			_run_step(encounter_index + 1)
 		else:
 			_prowl_retreat())
 

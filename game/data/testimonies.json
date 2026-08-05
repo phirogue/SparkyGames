@@ -15,7 +15,9 @@
         "initial": true,
         "text": "I walked my round that night. Same as any night.",
         "press_text": "'Needle Lane, Cutter's Row, back along the wall. Forty-one lamps. I have walked it eleven years.'",
-        "spawns": ["r_signed"]
+        "spawns": [
+          "r_signed"
+        ]
       },
       {
         "id": "r_chandlers",
@@ -37,8 +39,12 @@
         "break_text": "Merrow goes still. 'That is Wick's hand. And that is the night nobody signed.' She fetches the tally without being asked.",
         "rebuff_text": "'That proves nothing about my round, cat.'",
         "break_effects": {
-          "evidence": ["shift_tally"],
-          "leads_done": ["l3"],
+          "evidence": [
+            "shift_tally"
+          ],
+          "leads_done": [
+            "l3"
+          ],
           "favor": "lamplighters_knot"
         }
       }
@@ -47,6 +53,60 @@
       "success": "The thread that would not hold, caught. Merrow respects it, which is worse than liking it.",
       "partial": "Merrow stops talking. Not angry — done. The lane will be colder next time.",
       "walk_away": "Ash lets it lie. The Lamplighters keep their tally and their opinions."
+    }
+  },
+  "ratsmeet": {
+    "id": "ratsmeet",
+    "name": "What the Under-Market Saw",
+    "witness": {
+      "name": "The Grey Boss",
+      "art": "npc_rat_boss",
+      "guild": "",
+      "species": "rat"
+    },
+    "patience": 4,
+    "ribbons": [
+      {
+        "id": "rr_empty",
+        "initial": true,
+        "text": "Needle Lane was empty that night. Nothing to see. Nothing to sell you.",
+        "press_text": "'Empty. Quiet as a church and half as honest. My people had no business there, and saw nobody having any either.'",
+        "spawns": [
+          "rr_cleared"
+        ]
+      },
+      {
+        "id": "rr_lamps",
+        "initial": true,
+        "text": "The lamps went out on their own. Old wicks, wet air. Nothing in it.",
+        "press_text": "'Forty-one lamps, all tired at the same minute.' He watches me while he says it. He is not lying to me; he is seeing whether I will do the work.",
+        "spawns": [
+          "rr_weather"
+        ]
+      },
+      {
+        "id": "rr_cleared",
+        "text": "We came off the lane at the ninth hour. Standard practice, that.",
+        "press_text": "'Standard practice when a cart is coming and not slowing. You do not stand about in front of that.' He hears it as he says it, and does not take it back -- rats never take it back, they wait to be charged for it."
+      },
+      {
+        "id": "rr_weather",
+        "text": "Nothing came down that lane but weather.",
+        "press_text": "'Weather and dark and my people's own good sense. That is the whole of it.'",
+        "contradicted_by": "candle_stub",
+        "break_text": "I put the stub down on his ledger, seal up. Beeswax, guild-marked, found under a window on a street where nothing came but weather. 'Weather does not deliver candles,' I say. The Grey Boss looks at it a long moment and stops performing. 'All right, cat. All right. There was a cart -- Chandlers' cart, no chandler on it. And a gentleman walking behind it who did not walk like a man going anywhere.'",
+        "rebuff_text": "'A candle end. My mother could do better than a candle end.'",
+        "break_effects": {
+          "leads_done": [
+            "l5"
+          ]
+        }
+      }
+    ],
+    "when_outcome": {
+      "success": "He gives me the cart, the hour, and a man with no destination. Rats charge for their memory, and this one has just been paid.",
+      "partial": "He gives me the shape of it and keeps the corners. Rats do not lie. They invoice.",
+      "walk_away": "I leave him his story intact. It will cost more next time, and he knows that I know."
     }
   }
 }

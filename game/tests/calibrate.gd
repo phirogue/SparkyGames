@@ -28,11 +28,20 @@ const ZONE_MAPS := {
 		["narration", 264, Color("4a5a8a")],
 		["tap hint", 40, Color("7a6a4a")],
 	],
+	# Two templates, picked by button count -- see story_screen.gd's
+	# art_height(). Three choices buy their room from the illustration,
+	# because the alternative was the third button off the bottom of the page.
 	"choice": [
 		["art (fixed)", 680, Color("a24a3a")],
 		["heading", 50, Color("c2884a")],
 		["narration", 132, Color("4a5a8a")],
 		["choices x2", 216, Color("8a7a2a")],
+	],
+	"choice3": [
+		["art (shorter for 3)", 572, Color("a24a3a")],
+		["heading", 50, Color("c2884a")],
+		["narration", 132, Color("4a5a8a")],
+		["choices x3", 324, Color("8a7a2a")],
 	],
 	# Keep in sync with hub_screen.gd's ZONE_* constants.
 	"hub": [

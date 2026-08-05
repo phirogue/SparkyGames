@@ -1,15 +1,25 @@
 extends Control
-## The Casebook: Deeds (what you did, choices you made) and Knowledge (what
-## Ash has observed — creatures and places). Knowledge-as-progression per the
+## The Casebook: Deeds (what you did, choices you made), Knowledge (what Ash
+## has observed — creatures and places), and Lessons (every rule the game has
+## ever taught, replayable on demand). Knowledge-as-progression per the
 ## influences research (Blue Prince verdict).
+##
+## LESSONS exist because a tutorial you can only ever see once is a tutorial
+## you saw on the night you were not paying attention (owner rule
+## 2026-08-04). Anything already met can be read again; anything with rules
+## you learn with your paws re-opens the real screen on practice content.
 
 signal closed
+## Replay a lesson: game.gd owns the playing, because a practice lesson
+## swaps screens and the Casebook must not be in the business of that.
+signal replay_lesson(lesson_id: String)
 
 var catalog: Catalog
 var profile: Dictionary
 
 var _deeds_button: Button
 var _knowledge_button: Button
+var _lessons_button: Button
 var _scroll: ScrollContainer
 var _list: VBoxContainer
 
@@ -61,6 +71,12 @@ func _ready() -> void:
 	_knowledge_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_knowledge_button.pressed.connect(_show_knowledge)
 	tabs.add_child(_knowledge_button)
+	_lessons_button = Button.new()
+	_lessons_button.text = "Lessons"
+	_lessons_button.custom_minimum_size = Vector2(0, 96)
+	_lessons_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_lessons_button.pressed.connect(_show_lessons)
+	tabs.add_child(_lessons_button)
 
 	_scroll = ScrollContainer.new()
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -102,6 +118,65 @@ func _show_knowledge() -> void:
 		if catalog.environments.has(place_id):
 			var place: Dictionary = catalog.environments[place_id]
 			_entry("%s — %s" % [place["name"], place.get("rule_text", "")])
+
+
+## Every lesson in the game, in teaching order. Ones already met are live;
+## ones not met yet are listed but greyed — seeing that there IS a lesson
+## about wards before you have met a ward is a promise, not a spoiler.
+func _show_lessons() -> void:
+	_clear()
+	_heading("Lessons")
+	var taught: Array = profile.get("taught", [])
+	var ids: Array = catalog.lessons.keys()
+	ids.sort_custom(func(a, b) -> bool:
+		var left := int(catalog.lessons[a].get("order", 0))
+		var right := int(catalog.lessons[b].get("order", 0))
+		return left < right)
+	for lesson_id in ids:
+		var lesson: Dictionary = catalog.lessons[lesson_id]
+		var met: bool = taught.has(lesson_id)
+		# A PLAIN panel, not the sprigged note plate: that plate keeps printed
+		# leaves in its outer 130px and a dashed rule 46px in, and a list row
+		# laid out to the rect ran its title through both (owner tour,
+		# 2026-08-04 — the same defect the Mantel's quest notes had).
+		var pad := 22.0
+		var wrap := float(UITheme.CONTENT_WIDTH) - pad * 2.0 - 32.0
+		var title_text: String = String(lesson["name"])
+		if String(lesson.get("kind", "")) == "practice" and met:
+			title_text += "  ·  practise"
+		var blurb_text: String = String(lesson.get("blurb", "")) if met else "Not yet met."
+		# Law 2: measured, not guessed. A two-line lesson name is normal.
+		var title_height := UITheme.measure_text(title_text,
+			UITheme.display_font(), 28, wrap).y
+		var blurb_height := UITheme.measure_text(blurb_text,
+			UITheme.italic_font(), 20, wrap).y
+		var height := title_height + blurb_height + pad * 2.0 + 4.0
+		var row := Button.new()
+		row.custom_minimum_size = Vector2(0, maxf(96.0, height))
+		row.disabled = not met
+		row.add_theme_stylebox_override("normal", UITheme.panel_stylebox(int(pad)))
+		row.add_theme_stylebox_override("hover", UITheme.panel_stylebox(int(pad)))
+		row.add_theme_stylebox_override("pressed", UITheme.panel_stylebox(int(pad)))
+		var faded := UITheme.panel_stylebox(int(pad))
+		faded.bg_color = Color("efe0c2").darkened(0.06)
+		faded.border_color = Color("4a3b2c") * Color(1, 1, 1, 0.4)
+		row.add_theme_stylebox_override("disabled", faded)
+		row.pressed.connect(func() -> void: replay_lesson.emit(lesson_id))
+		_list.add_child(row)
+		var text := VBoxContainer.new()
+		text.add_theme_constant_override("separation", 2)
+		text.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		text.offset_left = pad
+		text.offset_right = -pad
+		text.offset_top = pad
+		text.offset_bottom = -pad
+		text.alignment = BoxContainer.ALIGNMENT_CENTER
+		text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(text)
+		text.add_child(UITheme.measured_label(title_text, 28, wrap,
+			UITheme.display_font(), UITheme.INK if met else UITheme.INK_FADED))
+		text.add_child(UITheme.measured_label(blurb_text, 20, wrap,
+			UITheme.italic_font(), UITheme.INK_SOFT))
 
 
 func _heading(text: String) -> void:

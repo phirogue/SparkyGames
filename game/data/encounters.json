@@ -116,5 +116,37 @@
       "the_vole"
     ],
     "environment": "rooftop_dusk"
+  },
+  "q_saw_gutter": {
+    "id": "q_saw_gutter",
+    "name": "Still Here, Then",
+    "enemies": [
+      "gutter_wisp"
+    ],
+    "environment": "needle_lane"
+  },
+  "q_rats_doorman": {
+    "id": "q_rats_doorman",
+    "name": "The Doorman Objects",
+    "enemies": [
+      "garden_watch"
+    ],
+    "environment": "shambles_market"
+  },
+  "q_claws_first": {
+    "id": "q_claws_first",
+    "name": "Something That Fights Back",
+    "enemies": [
+      "garden_watch"
+    ],
+    "environment": "back_gardens"
+  },
+  "q_claws_second": {
+    "id": "q_claws_second",
+    "name": "Something That Fights Back, Harder",
+    "enemies": [
+      "chained_dog"
+    ],
+    "environment": "back_gardens"
   }
 }

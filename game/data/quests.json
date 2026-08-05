@@ -1,4 +1,22 @@
 {
+  "_notes": [
+    "CHAPTER 1 OPENING ARC (owner brief 2026-08-04). Six pieces of work, in",
+    "the order the board offers them, each teaching exactly one thing:",
+    "  find_the_magpie   -- the Exchange, and gleam being worth something",
+    "  the_carrying      -- the witches come for her; the Case Board opens",
+    "  what_i_saw        -- Ash goes back over last night alone (Crossing)",
+    "  ask_the_rats      -- the Ratsmeet, and how to ask a question (Testimony)",
+    "  sharpen_the_claws -- growth: he decides to get harder to kill",
+    "  the_wake          -- her funeral; her last seam, sewn by the player",
+    "Quests are ProwlScript `steps` now, not bare fight-chains: a step may be",
+    "a fight, a story beat, a minigame or a lesson. Lessons play ONCE (see",
+    "data/lessons.json) and are replayable from the Casebook afterwards.",
+    "GATING: the_carrying is the only thing on the board after the Magpie,",
+    "because a body being carried out of your house does not wait its turn.",
+    "The three middle jobs then open together -- the owner asked for a board",
+    "with real choices on it, and this is where the night stops being a",
+    "corridor. the_wake waits for all three: he is not ready before that."
+  ],
   "find_the_magpie": {
     "id": "find_the_magpie",
     "name": "Find the Magpie",
@@ -8,13 +26,468 @@
     "once": true,
     "requires": {},
     "board_card": "A cat with a question and no answers needs a fence. Brindle keeps a stall in the Shambles and keeps everything else besides.",
-    "encounters": [
-      "q_magpie_gutter",
-      "q_magpie_stall"
+    "steps": [
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "portrait": "sc_shambles_day",
+        "lines": [
+          "Everyone in this city knows one thing and sells it. Brindle knows all of them and sells most.",
+          "She is a magpie. Not a metaphor — an actual magpie, with an actual stall, and an actual opinion about your posture.",
+          "She will not talk to me for nothing. Nobody talks for nothing. That is the first true thing about Hollowmere."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_magpie_gutter"
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "lines": [
+          "'You are the witch's cat,' she says, before I have said anything at all.",
+          "'Was,' I say.",
+          "She does not say sorry. I like her enormously for it. Instead she tips her head at the alley behind the stall, where something has been coming for her stock three nights running."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_magpie_stall"
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "portrait": "npc_brindle",
+        "art_desc": "Brindle the magpie fence behind a market stall of buttons, teeth and small keys, one bright eye, night market lanterns",
+        "lines": [
+          "'Right,' says Brindle. 'You're not useless. That's the whole interview.'",
+          "'I need to know who was on Needle Lane last night.'",
+          "'You need a lot of things. Bring me buttons and I'll remember harder.' She taps the stall with one black claw. 'Doors open now. Mind the step.'"
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "the_exchange"
+      }
     ],
     "reward_bonus": 6,
     "repeatable": false,
     "unlock_skill": "swat"
+  },
+  "the_carrying": {
+    "id": "the_carrying",
+    "name": "The Carrying",
+    "kind": "core",
+    "district": "thimblefield",
+    "guild": "",
+    "once": true,
+    "requires": {
+      "quests": [
+        "find_the_magpie"
+      ]
+    },
+    "board_card": "There are women at the door of the house. They have brought a sheet. This is not something to be attended — it is something to be witnessed.",
+    "steps": [
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "lines": [
+          "Three of them, at first light. They do not knock. Witches do not knock at a house where a witch has died; the door is already theirs.",
+          "The eldest is enormous and moves like weather. The other two are young enough to still be frightened of the job.",
+          "They have brought a sheet of undyed linen. It is the only clean thing in the room."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "portrait": "sc_the_carrying",
+        "art_desc": "Three witches in grey lifting a shrouded body from a chair in a cold parlor at dawn, a black cat watching from the mantel",
+        "lines": [
+          "They lift her the way you lift someone who is asleep and might wake — which is not necessary, and is not for her.",
+          "The eldest stops in the doorway. Looks at the walls. All those cut threads, hanging like torn hems.",
+          "'Who did this to the room,' she says. Not a question. She already knows it was not a burglar, because burglars take things."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "flag": "carrying_answer",
+        "lines": [
+          "She is looking at me now. Everyone else is looking at the floor.",
+          "One chance to be taken seriously by a woman who has already decided what I am."
+        ],
+        "choices": [
+          "Tell her exactly what came in the door.",
+          "Say nothing. Watch what she does with silence.",
+          "Ask what unpicks a witch's own stitching."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "when_flag": {
+          "flag": "carrying_answer",
+          "value": 0
+        },
+        "lines": [
+          "I tell it. All of it, in order, the way she taught me to report a thing.",
+          "The young ones look at each other. The eldest does not look at anyone. When I finish she says: 'A shape wearing her work.' And then, quieter, to nobody: 'Again.'",
+          "AGAIN. She puts the word down like something she had not meant to be holding."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "when_flag": {
+          "flag": "carrying_answer",
+          "value": 1
+        },
+        "lines": [
+          "I say nothing. Cats are good at nothing; it is most of what we do.",
+          "She waits me out, which nobody does, and then gives up first, which nobody does either.",
+          "'Suit yourself.' At the door she stops. 'It has happened before, you know. Twice that I will admit to.' Gone before I can decide whether that was a kindness or a hook."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "when_flag": {
+          "flag": "carrying_answer",
+          "value": 2
+        },
+        "lines": [
+          "'What unpicks a witch's own stitching?' I ask.",
+          "The room gets colder in a way the room is not responsible for.",
+          "'Something that learned it from her,' says the eldest. 'Or from one of us.' She looks at her two frightened girls, and does not look at them for quite long enough."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "grant_evidence": [
+          "candle_stub"
+        ],
+        "lead": "l1",
+        "lines": [
+          "When they have gone I go over the room the way she went over a hem. Slowly. Twice.",
+          "Under the window, where nobody was standing and nobody had reason to stand: a candle stub. Beeswax, not tallow, sealed with a guild mark.",
+          "She burned tallow. She burned tallow her whole life and complained about it in a way that was almost a hobby. Somebody else's light was in this room."
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "the_case_board"
+      }
+    ],
+    "reward_bonus": 4,
+    "repeatable": false
+  },
+  "what_i_saw": {
+    "id": "what_i_saw",
+    "name": "What I Saw",
+    "kind": "core",
+    "district": "thimblefield",
+    "guild": "",
+    "once": true,
+    "requires": {
+      "quests": [
+        "the_carrying"
+      ]
+    },
+    "board_card": "Nobody asked me to do this. I am going to walk last night again, in order, until it stops making sense in a useful way.",
+    "steps": [
+      {
+        "type": "story",
+        "environment": "needle_lane",
+        "lines": [
+          "A thing I have learned about being the only witness: everyone believes you, and nobody acts on it.",
+          "So. From the top. The roof, the market, the lane, the lamps that were wrong.",
+          "Not for anybody. For the order of it."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_saw_gutter"
+      },
+      {
+        "type": "story",
+        "environment": "needle_lane_wrong",
+        "lines": [
+          "The lamps on Needle Lane are still out. Nobody has been up the ladders — the Lamplighters are not coming, which is itself a fact.",
+          "And the fog off the Mere has come up over the whole street, sitting where fog does not sit, thick as a held breath.",
+          "There is no fighting through this. There is only getting across it."
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "crossings"
+      },
+      {
+        "type": "minigame",
+        "module": "crossing",
+        "id": "crossing_practice",
+        "on_loss_lines": [
+          "I come out of it four streets wrong and shaking, which is data of a kind.",
+          "Whatever is in that fog does not want the lane walked. Noted."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "needle_lane_wrong",
+        "grant_evidence": [
+          "cart_docket"
+        ],
+        "lead": "l5",
+        "lines": [
+          "Out the far end, at the mouth of the lane, in the gutter where a wheel would throw it:",
+          "A cart docket. Delivery, night of, Needle Lane — and the consignee line filled in by a hand that then thought better of it and scratched it out.",
+          "Somebody drove a cart down a street with no lamps on it, at night, and did not want to be the sort of person who had. That takes a professional. That takes a QUIET one."
+        ]
+      }
+    ],
+    "reward_bonus": 10,
+    "repeatable": false
+  },
+  "ask_the_rats": {
+    "id": "ask_the_rats",
+    "name": "Ask the Rats",
+    "kind": "core",
+    "district": "shambles",
+    "guild": "",
+    "once": true,
+    "requires": {
+      "quests": [
+        "the_carrying"
+      ]
+    },
+    "board_card": "Nothing crosses this city at night without a rat watching it and pricing the information. Brindle says go to the Ratsmeet. Brindle says wear my patience.",
+    "steps": [
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "lines": [
+          "The Ratsmeet convenes under the fish market in the hour the ice melts, and every rat in Hollowmere sends somebody.",
+          "There is a protocol. You do not eat anything. You do not say the word 'trap' or the word 'terrier'. You do not, under any circumstances, be a cat about it.",
+          "I have been a cat about it exactly once. We do not discuss the terrier."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_rats_doorman"
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "portrait": "npc_rat_boss",
+        "art_desc": "The boss of the Ratsmeet: an ancient grey rat on a throne of market crates under a fish market, chalk tallies and ledgers around him",
+        "lines": [
+          "Their boss is grey to the point of transparency and has run the under-market since before the ninth bell came down.",
+          "'The witch's cat,' he says. 'We had a lively night. Everyone had a lively night.'",
+          "He will talk. Rats always talk. The trick is that a rat tells you a story SHAPED like the truth, and you have to find the strand of it that cannot hold its own weight."
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "asking_questions"
+      },
+      {
+        "type": "minigame",
+        "module": "testimony",
+        "id": "ratsmeet",
+        "on_loss_lines": [
+          "He tells it beautifully and I cannot get a claw into any of it.",
+          "'Come back when you know more,' he says, which is the politest possible way of saying I have wasted an hour of a rat's time."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "standing": {
+          "chandlers": -1
+        },
+        "lines": [
+          "The strand that will not hold: he says the lane was empty. He also says his people cleared out of the lane at the ninth hour BECAUSE of the cart.",
+          "You cannot clear out of an empty street.",
+          "'All right,' he says, with no embarrassment whatsoever. 'There was a cart. Chandlers' cart, no chandler on it. And a gentleman walking behind it who did not walk like a man who was walking anywhere.'"
+        ]
+      }
+    ],
+    "reward_bonus": 12,
+    "repeatable": false
+  },
+  "sharpen_the_claws": {
+    "id": "sharpen_the_claws",
+    "name": "Sharpen the Claws",
+    "kind": "core",
+    "district": "thimblefield",
+    "guild": "",
+    "once": true,
+    "requires": {
+      "quests": [
+        "the_carrying"
+      ]
+    },
+    "board_card": "The thing in the parlor went through me like I was a curtain. That is not happening a second time. There is a wall behind the tannery that nobody minds about.",
+    "steps": [
+      {
+        "type": "story",
+        "environment": "back_gardens",
+        "lines": [
+          "Here is the part nobody puts in the stories: I lost.",
+          "It came into her house and I did everything I know how to do, and it did not even hurry.",
+          "So I am going to go and get better, deliberately, like a person, instead of waiting to be improved by events."
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "growing_stronger"
+      },
+      {
+        "type": "battle",
+        "encounter": "q_claws_first"
+      },
+      {
+        "type": "story",
+        "environment": "back_gardens",
+        "lines": [
+          "Again. Slower. Watch what the thing in front of you is going to do BEFORE deciding what you are going to do about it.",
+          "Elspeth used to say the difference between brave and stupid is about four seconds of looking."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_claws_second"
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "lines": [
+          "And one more thing, which is not fighting and is the reason for the fighting.",
+          "Her ward is still on the door frame, and it has a hole in it the size of the thing that walked through it.",
+          "She patched this door every autumn of my life while complaining about the weather. I have watched it four hundred times. Watching is not the same as doing. I am about to find that out."
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "warding"
+      },
+      {
+        "type": "minigame",
+        "module": "ward",
+        "id": "ward_practice",
+        "environment": "parlor_cold",
+        "on_win_lines": [
+          "It holds. It is not her work — hers was invisible and mine can be seen from the street — but it holds.",
+          "Nothing comes through that door tonight that I have not agreed to."
+        ],
+        "on_loss_lines": [
+          "I get most of it and the last corner will not take, and I sit with my nose an inch from the gap until it is light.",
+          "Fine. Not tonight, then. Tonight I just watch the door myself."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "back_gardens",
+        "grant_growth": {
+          "max_hp": 2,
+          "cards": [
+            "ferocity_2",
+            "shadow_1"
+          ]
+        },
+        "lines": [
+          "There is a wall behind the tannery that has been holding up nothing at all for sixty years.",
+          "I go at it until my legs are wrong, and then a bit past that, and then I lie down in the dark and listen to my own heart being annoyed with me.",
+          "Better. Not enough. But the kind of not-enough that has a direction in it."
+        ]
+      }
+    ],
+    "reward_bonus": 8,
+    "repeatable": false,
+    "unlock_skill": "shelf_justice"
+  },
+  "the_wake": {
+    "id": "the_wake",
+    "name": "The Wake",
+    "kind": "core",
+    "district": "thimblefield",
+    "guild": "",
+    "once": true,
+    "requires": {
+      "quests": [
+        "what_i_saw",
+        "ask_the_rats",
+        "sharpen_the_claws"
+      ]
+    },
+    "board_card": "They burn a witch at the turn of the tide, and every guild sends somebody to be seen not caring. I am expected to be decorative. I have other plans.",
+    "steps": [
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "portrait": "sc_the_wake",
+        "art_desc": "A witch's funeral at the tideline at dusk: a shrouded figure on a low bier, women in grey, guild delegates at a careful distance, a black cat on a mooring post",
+        "lines": [
+          "They do it at the tideline, at the turn, because the tide is the only thing in Hollowmere that has never once been bribed.",
+          "The Lamplighters send four, in their good coats. The Chandlers send one, and he is early, and he stands where he can be seen being sorry.",
+          "Nobody sends anybody to a witch's burning because they liked her. They send somebody so it can be noted that they came."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "lines": [
+          "The eldest does the seam. That is the whole rite: you sew the shroud shut in the dead woman's own pattern, and if you get it wrong she goes out into the water unfinished.",
+          "She gets four stitches in. Then she stops, and holds the linen up, and her hands are not steady.",
+          "'I don't know her hand,' she says. 'Sixty years, and I don't know her hand.' She looks around the tideline at a hundred people, and not one of them can do it either."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "lines": [
+          "I have watched those hands from a windowsill every evening of my life.",
+          "I know the hand. I know the hand better than I know my own name, which she also gave me.",
+          "I get up onto the bier. Somebody starts to stop me and the eldest says, 'let him.'"
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "stitching"
+      },
+      {
+        "type": "minigame",
+        "module": "stitch",
+        "id": "chart_shroud",
+        "on_loss_lines": [
+          "My paws are not hands. I get it most of the way and the last corner beats me, and the eldest finishes it without a word about it.",
+          "She does not say I did well. She puts one enormous hand flat on my back for a moment, which is not a thing witches do to cats they have just met."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "standing": {
+          "lamplighters": 1
+        },
+        "lines": [
+          "The seam closes. The tide takes her out the way it takes everything, without discussion.",
+          "The eldest gives me her name, which is Mother Cardew, and a thing she calls a grey debt, which she says I will know when to spend.",
+          "'It has happened twice before,' she says, watching the water. 'Both times a stitcher. Both times nobody looked. I am too old and too watched. You are neither.'"
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "lines": [
+          "Home, to a house with nobody in it. The kettle is where I left it, off the fire, which is the wrongest thing in the room.",
+          "Three days ago my job was to be somewhere warm at the correct time.",
+          "All right, then. New job."
+        ]
+      }
+    ],
+    "reward_bonus": 14,
+    "repeatable": false
   },
   "night_rounds": {
     "id": "night_rounds",
@@ -35,8 +508,7 @@
       "q_rounds_dog"
     ],
     "reward_bonus": 8,
-    "repeatable": true,
-    "unlock_skill": "shelf_justice"
+    "repeatable": true
   },
   "garden_route": {
     "id": "garden_route",
@@ -51,13 +523,41 @@
       ]
     },
     "board_card": "Cross the back gardens. Wake nothing. The dahlias are not the danger.",
-    "encounters": [
-      "q_garden_watch",
-      "q_garden_watch_deep"
-    ],
     "reward_bonus": 12,
     "repeatable": true,
-    "unlock_skill": "swat"
+    "unlock_skill": "swat",
+    "steps": [
+      {
+        "type": "story",
+        "environment": "back_gardens",
+        "lines": [
+          "Six gardens between the Shambles and Thimblefield, and the fastest way through all of them is a gate nobody has opened since the old captain died.",
+          "It is not locked. It is WOVEN — withies through withies, and whoever did it knew what they were doing."
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "unpicking"
+      },
+      {
+        "type": "minigame",
+        "module": "lattice",
+        "id": "lattice_elastic",
+        "environment": "back_gardens",
+        "on_loss_lines": [
+          "It tightens on me twice and I go over the wall like an amateur, which costs me a claw and all of my composure.",
+          "Somebody good made that gate. I would like to meet them and I would like to not."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_garden_watch"
+      },
+      {
+        "type": "battle",
+        "encounter": "q_garden_watch_deep"
+      }
+    ]
   },
   "empty_coat": {
     "id": "empty_coat",
@@ -69,7 +569,10 @@
     "requires": {
       "quests": [
         "find_the_magpie"
-      ]
+      ],
+      "standing": {
+        "lamplighters": 1
+      }
     },
     "standing": {
       "lamplighters": 1
