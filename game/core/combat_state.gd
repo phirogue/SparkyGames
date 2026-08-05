@@ -94,6 +94,9 @@ var hp_floor: int = 0
 ## cannot be beaten and should not be ground against; on this turn it simply
 ## finishes what it came to do.
 var doom_turn: int = 0
+## Concentrations left in this fight. Carried like a skill charge so the
+## button can show the count -- an unlimited escape hatch is not a decision.
+var concentrate_left: int = CONCENTRATE_USES
 
 ## Human-readable record of what each action actually DID — damage rolled,
 ## block soaked, cards lifted. The chronicle reads from here, so the log can
@@ -497,12 +500,23 @@ func _cmd_discard(hand_index: int) -> Dictionary:
 	return {"ok": true, "error": ""}
 
 
-## Concentrate (owner mechanic 2026-08-01): give up the whole turn to will
-## one spent energy back. The chosen humour's best spent card goes to the
-## top of the deck, then the enemy acts — this IS your turn.
+## Concentrate (owner mechanic 2026-08-01, priced 2026-08-05): give up the
+## whole turn to will one spent energy back.
+##
+## Three costs, and the player must be able to feel all three:
+##   1. THE TURN. The enemy acts; this IS your turn.
+##   2. THE DELAY. The card goes to the top of the DECK, not into the hand —
+##      it arrives on next turn's draw. Nothing is playable this turn.
+##   3. A LIMIT. Twice a fight. Unlimited concentration made every losing
+##      position recoverable by grinding, which is not a decision, it is a
+##      chore (owner: "there should be a cost to it").
+const CONCENTRATE_USES := 2
+
 func _cmd_concentrate(humour: String) -> Dictionary:
 	if statuses.get("loafed", 0) > 0:
 		return _fail("loafed: all paws are committed")
+	if concentrate_left <= 0:
+		return _fail("nothing left to concentrate with tonight")
 	var best_index := -1
 	var best_value := -1
 	for i in spent.size():
@@ -514,6 +528,7 @@ func _cmd_concentrate(humour: String) -> Dictionary:
 		return _fail("no spent %s to will back" % humour)
 	deck.push_back(spent[best_index])  # top of the deck: first draw next turn
 	spent.remove_at(best_index)
+	concentrate_left -= 1
 	_events.append("concentrated")
 	return _cmd_end_turn()
 

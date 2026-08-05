@@ -106,7 +106,8 @@
       "walk_in_desc": "Spend nothing. A door is a door."
     },
     "withdraw_default": "This is not a fight. It is weather. Go around it.",
-    "concentrate_desc": "Will one spent energy back to the top of the deck. It costs the whole turn — the enemy acts."
+    "concentrate_desc": "Give up the whole turn to will one spent energy back onto the TOP OF THE DECK — you draw it next turn, not now. The enemy still moves. Twice a fight.",
+    "concentrate_label": "Concentrate ×%d"
   },
   "exchange": {
     "greeting": "'Everything shines to somebody, pet. Have a look at what fell off the world this week.'",

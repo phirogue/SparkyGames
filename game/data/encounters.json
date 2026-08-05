@@ -24,7 +24,10 @@
     "environment": "needle_lane_wrong",
     "hp_floor": 1,
     "withdraw_after": 4,
-    "withdraw_text": "It has no throat to go for and no eyes to bluff. This is not a fight, it is weather — and Ash does not lose fights, he declines them. Go around."
+    "withdraw_text": "It has no throat to go for and no eyes to bluff. This is not a fight, it is weather — and Ash does not lose fights, he declines them. Go around.",
+    "approaches": [
+      "stalk"
+    ]
   },
   "prologue_parlor": {
     "id": "prologue_parlor",

@@ -30,11 +30,16 @@ const RULE_CARD_WIDTH := 300.0
 ## cap is a runaway guard, not an editorial choice.
 const LOG_HISTORY := 200
 const CARD_SCALE := 1.2    # energy cards (base 94x128, owner +20%)
-## Five abilities out at once (owner 2026-08-03, up from four) — more room to
-## play. WIDTH BUDGET: 5x107 + 4x7 separation + 2x8 tray margin = 579 <= 582.
+## Five abilities out at once (owner 2026-08-03, up from four). The tray
+## SCROLLS sideways rather than shrinking to fit them (owner 2026-08-05: "now
+## that we can scroll it doesn't have to have 5 visible, the text should be
+## legible") — five cards squeezed into the width made every name and count
+## too small to read at arm's length.
+## WIDTH BUDGET: 4 cards VISIBLE at 130 + 3x8 separation + 2x8 tray margin
+## = 560 <= 576. The fifth is one flick away.
 const SKILL_COLUMNS := 5
-const SKILL_TRAY_SEP := 7
-const SKILL_CARD_SIZE := Vector2(107, 134)
+const SKILL_TRAY_SEP := 8
+const SKILL_CARD_SIZE := Vector2(130, 134)
 
 signal encounter_finished(state: CombatState)
 
@@ -632,10 +637,26 @@ func _drain_events() -> void:
 func _maybe_offer_approach() -> void:
 	if no_approach or not state.can_approach():
 		return
-	for mode in CombatState.APPROACHES:
+	for mode in _offered_approaches():
 		if state.can_pay(CombatState.APPROACHES[mode]["cost"]):
 			approach_overlay.visible = true
 			return
+
+
+## Which entrances this fight allows. An encounter may name `approaches`, and
+## the rag-wraith does (owner 2026-08-05): the story has it coming STRAIGHT
+## AT Ash down the middle of the lane, so "Ambush" and "Case It" describe a
+## fight nobody is having. You can still try to melt into the fog, or you can
+## walk in. What the fiction says has happened limits what the UI may offer.
+func _offered_approaches() -> Array:
+	var allowed: Array = encounter_def.get("approaches", [])
+	if allowed.is_empty():
+		return CombatState.APPROACHES.keys()
+	var out: Array = []
+	for mode in CombatState.APPROACHES:
+		if allowed.has(mode):
+			out.append(mode)
+	return out
 
 
 func _show_outcome() -> void:
@@ -848,16 +869,21 @@ func _build_ui() -> void:
 	hand_fan.add_child(hand_cards)
 
 	# --- Zone F: skills tray ----------------------------------------------
-	# WIDTH BUDGET: 4 cards at 134 + 3x8 sep + 2x8 tray margin = 566 <= 582.
+	# Four cards visible, the rest a flick away. The ScrollContainer is what
+	# lets the cards stay big enough to read (see SKILL_CARD_SIZE).
 	var tray := PanelContainer.new()
 	var tray_style := UITheme.panel_stylebox(8)
 	tray.add_theme_stylebox_override("panel", tray_style)
 	root.add_child(tray)
+	var tray_scroll := ScrollContainer.new()
+	tray_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	tray_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	tray.add_child(tray_scroll)
 	skills_grid = GridContainer.new()
 	skills_grid.columns = SKILL_COLUMNS
 	skills_grid.add_theme_constant_override("h_separation", SKILL_TRAY_SEP)
 	skills_grid.add_theme_constant_override("v_separation", SKILL_TRAY_SEP)
-	tray.add_child(skills_grid)
+	tray_scroll.add_child(skills_grid)
 
 	# Detail popup: a centered modal over a DIMMED battle — the card close-up
 	# is the only bright thing on screen (owner rule). Magnified art left,
@@ -946,11 +972,9 @@ func _build_ui() -> void:
 	end_turn_button.pressed.connect(_on_end_turn)
 	action_row.add_child(end_turn_button)
 	concentrate_button = Button.new()
-	concentrate_button.text = "Concentrate"
 	concentrate_button.custom_minimum_size = Vector2(148, ZONE_ACTIONS)
 	concentrate_button.add_theme_font_override("font", UITheme.smallcaps_font())
 	concentrate_button.add_theme_font_size_override("font_size", 22)
-	concentrate_button.tooltip_text = "Give up the turn to will one spent energy back"
 	concentrate_button.pressed.connect(_on_concentrate_pressed)
 	action_row.add_child(concentrate_button)
 	slip_button = UITheme.dark_button("Slip Away", 24, Vector2(148, ZONE_ACTIONS))
@@ -1237,6 +1261,13 @@ func _refresh() -> void:
 	if hints.has(hint_key) and _last_hint_turn != state.turn:
 		_last_hint_turn = state.turn
 		_log(Strings.line("chronicle.hint", [String(hints[hint_key])]))
+	# Concentrate is limited and it SAYS so (owner 2026-08-05: it gave the
+	# energy back "any number of times" and read as free). The count is on the
+	# button, and it greys out when the last one is gone.
+	concentrate_button.text = Strings.line("battle.concentrate_label",
+		[state.concentrate_left])
+	concentrate_button.disabled = state.concentrate_left <= 0
+	concentrate_button.tooltip_text = Strings.line("battle.concentrate_desc")
 	hp_label.text = "%d/%d" % [maxi(state.player_hp, 0), state.player_max_hp]
 	block_label.text = str(state.player_block)
 	deck_label.text = str(state.deck.size())
@@ -1411,7 +1442,7 @@ func _skill_button(skill_id: String) -> Button:
 	if band != "":
 		var pips_label := Label.new()
 		pips_label.text = band
-		pips_label.add_theme_font_size_override("font_size", 22)
+		pips_label.add_theme_font_size_override("font_size", 24)
 		pips_label.add_theme_color_override("font_color", pip_color)
 		pips_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 		pips_label.set_offset(SIDE_TOP, -50)
@@ -1460,7 +1491,7 @@ func _skill_button(skill_id: String) -> Button:
 	var name_label := Label.new()
 	name_label.text = String(def["name"])
 	name_label.add_theme_font_override("font", UITheme.smallcaps_font())
-	name_label.add_theme_font_size_override("font_size", 20)
+	name_label.add_theme_font_size_override("font_size", 24)
 	name_label.add_theme_color_override("font_color", UITheme.INK)
 	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	name_label.set_offset(SIDE_TOP, -28)

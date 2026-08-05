@@ -504,3 +504,48 @@ func test_a_real_action_still_closes_the_approach() -> void:
 	assert_true(not state.can_approach(), "acting spends the moment for an entrance")
 	assert_rejected(state.do_command({"type": "approach", "mode": "stalk"}),
 		"the entrance after acting")
+
+
+## Concentrate is PRICED (owner rule 2026-08-05: "it gives the desired energy
+## immediately and any number of times — it should become active for the next
+## turn, and there should be a cost"). Three prices: the turn, the delay, and
+## a hard limit per fight.
+func test_concentrate_costs_the_turn_and_runs_out() -> void:
+	var state := CombatState.create(catalog, 11, {
+		"player_hp": 30, "shuffle": false, "enemy": "the_vole",
+		"deck": ["ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1"],
+	})
+	# Spend something so there is a card to will back.
+	state.spent.append("ferocity_1")
+	var before_turn := state.turn
+	var hand_before := state.hand.size()
+	assert_eq(state.concentrate_left, CombatState.CONCENTRATE_USES,
+		"a fight opens with the full allowance")
+	var result := state.do_command({"type": "concentrate", "humour": "ferocity"})
+	assert_true(result["ok"], "concentrating with a spent Ferocity is legal")
+	assert_true(state.turn > before_turn, "it costs the WHOLE turn — the enemy acts")
+	assert_eq(state.concentrate_left, CombatState.CONCENTRATE_USES - 1,
+		"and one of the allowance")
+	assert_true(state.hand.size() <= hand_before + 1,
+		"the card returns to the DECK, not straight into the hand")
+
+	# Burn the rest, then be refused.
+	while state.concentrate_left > 0 and state.outcome == CombatState.Outcome.ONGOING:
+		state.spent.append("ferocity_1")
+		state.do_command({"type": "concentrate", "humour": "ferocity"})
+	state.spent.append("ferocity_1")
+	var refused := state.do_command({"type": "concentrate", "humour": "ferocity"})
+	assert_true(not refused["ok"],
+		"an unlimited escape hatch is not a decision — it must run out")
+
+
+func test_concentrate_is_refused_with_nothing_spent_of_that_humour() -> void:
+	var state := CombatState.create(catalog, 12, {
+		"player_hp": 30, "shuffle": false, "enemy": "the_vole",
+		"deck": ["ferocity_1", "ferocity_1", "ferocity_1"],
+	})
+	var before := state.concentrate_left
+	var result := state.do_command({"type": "concentrate", "humour": "shadow"})
+	assert_true(not result["ok"], "there is no spent Shadow to will back")
+	assert_eq(state.concentrate_left, before,
+		"a REJECTED command changes nothing — not even the allowance (law 14)")

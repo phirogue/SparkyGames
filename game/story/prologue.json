@@ -294,8 +294,8 @@
       "shuffle": false,
       "opening_cards": [
         "guile_1",
-        "mysticism_1",
-        "ferocity_1"
+        "guile_1",
+        "mysticism_1"
       ],
       "skills": [
         "pounce",
@@ -462,7 +462,12 @@
         "2": "It will not be enough.",
         "3": "Spend it anyway.",
         "5": "Her room makes Moonlight cheaper. She is still helping. It still will not be enough."
-      }
+      },
+      "opening_cards": [
+        "mysticism_1",
+        "mysticism_1",
+        "ferocity_1"
+      ]
     },
     {
       "type": "hollow_court_if_died"
