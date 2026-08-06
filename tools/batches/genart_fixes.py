@@ -13,24 +13,15 @@ we kept getting.
 """
 
 import sys
+from pathlib import Path
+
+# Moved into tools/batches/ 2026-08-06; genart.py is one level up.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import time
 
-from genart import RATIO_TO_SIZE, generate, load_key, next_free_path
+from genart import (RATIO_TO_SIZE, STRICT_STYLE, generate, load_key,
+                    next_free_path)
 
-STRICT_STYLE = (
-    "Hand-drawn storybook illustration on visible cream watercolor paper: "
-    "paper grain and a soft torn deckle edge are visible at the borders. "
-    "Loose, scratchy ink linework sits ON TOP of muted granulated watercolor "
-    "washes, with large areas of untouched bare paper. Warm amber light used "
-    "sparingly as the accent against blue-grey shadow. Cozy-gothic children's "
-    "book aesthetic. Selective detail only -- the focal subject is drawn, and "
-    "everything behind it dissolves into loose transparent wash. "
-    "IMPORTANT NEGATIVES: this must NOT look like a digital painting, 3D "
-    "render, matte painting, or photograph. No airbrushed or smooth gradient "
-    "blending. No crushed pure-black darks -- shadows stay transparent. No "
-    "mosaic, scale, or stipple texture on flat surfaces. No uniform "
-    "edge-to-edge detail. No text anywhere in the image."
-)
 
 JOBS = [
     # --- worst offenders from the library audit ---

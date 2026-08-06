@@ -46,7 +46,7 @@ last beat before the title card. Anything set earlier uses
 
 ## 3. Generate
 
-Always `STRICT_STYLE` from `tools/genart_fixes.py` — never the old style block
+Always `STRICT_STYLE` from `tools/genart.py` — never the old style block
 in the docs. The old one described what we wanted but never forbade what we
 kept getting, and nine images drifted into a "full-bleed digital render" look
 before anyone noticed.

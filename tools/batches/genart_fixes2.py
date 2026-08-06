@@ -7,10 +7,14 @@ Run:  python tools/genart_fixes2.py [--dry-run]
 """
 
 import sys
+from pathlib import Path
+
+# Moved into tools/batches/ 2026-08-06; genart.py is one level up.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import time
 
-from genart import RATIO_TO_SIZE, generate, load_key, next_free_path
-from genart_fixes import STRICT_STYLE
+from genart import (RATIO_TO_SIZE, STRICT_STYLE, generate, load_key,
+                    next_free_path)
 
 JOBS = [
     # --- remainder of the full-bleed digital cluster ---

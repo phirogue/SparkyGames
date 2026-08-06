@@ -126,17 +126,22 @@ static func approach_desc(mode: String) -> String:
 	return Strings.line("battle.approach." + mode)
 
 
+## An approach's NAME is writing (story/interface.json); its PRICE is a rule
+## (data/rules.json, reached through the live state). Neither belongs here.
+static func approach_name(mode: String) -> String:
+	return Strings.line("battle.approach_name." + mode)
+
+
 ## Max 3 options ever shown (owner readability rule): 2 approaches + Walk In.
 ## The title names the PRICE in words — "Stalk — Shadow 2" read as a stat, not
 ## as a bill (owner defect list). Costs are the environment-adjusted ones, so
 ## the fog discount on Needle Lane is visible before you commit, not after.
 func _approach_title(mode: String) -> String:
-	var cost: Dictionary = CombatState.APPROACHES[mode]["cost"]
+	var cost: Dictionary = state.approaches[mode]["cost"]
 	var parts: Array[String] = []
 	for humour in cost:
 		parts.append("%d %s" % [int(cost[humour]), Catalog.humour_name(String(humour))])
-	return "%s — Spend %s Energy" % [
-		CombatState.APPROACHES[mode]["name"], ", ".join(parts)]
+	return "%s — Spend %s Energy" % [approach_name(mode), ", ".join(parts)]
 
 var catalog: Catalog
 var state: CombatState
@@ -413,7 +418,7 @@ func _charge_pick(humour: String) -> Dictionary:
 			if card["humour"] == humour and \
 					(best.is_empty() or int(card["value"]) < int(best["value"])):
 				best = pick
-			elif card["humour"] == CombatState.WILD_HUMOUR and \
+			elif card["humour"] == state.wild_humour and \
 					(best_wild.is_empty() or int(card["value"]) < int(best_wild["value"])):
 				best_wild = pick
 	return best if not best.is_empty() else best_wild
@@ -477,7 +482,7 @@ func _on_card_pressed(hand_index: int) -> void:
 	var wrap := 560.0 - 32.0
 	card_body.custom_minimum_size = Vector2(wrap, UITheme.measure_text(
 		body_text, UITheme.body_font(), 26, wrap).y)
-	card_bank.disabled = state.banked.size() >= CombatState.BANK_LIMIT or state.paws_left < 1
+	card_bank.disabled = state.banked.size() >= state.bank_limit or state.paws_left < 1
 	card_overlay.visible = true
 
 
@@ -638,7 +643,7 @@ func _maybe_offer_approach() -> void:
 	if no_approach or not state.can_approach():
 		return
 	for mode in _offered_approaches():
-		if state.can_pay(CombatState.APPROACHES[mode]["cost"]):
+		if state.can_pay(state.approaches[mode]["cost"]):
 			approach_overlay.visible = true
 			return
 
@@ -651,9 +656,9 @@ func _maybe_offer_approach() -> void:
 func _offered_approaches() -> Array:
 	var allowed: Array = encounter_def.get("approaches", [])
 	if allowed.is_empty():
-		return CombatState.APPROACHES.keys()
+		return state.approaches.keys()
 	var out: Array = []
-	for mode in CombatState.APPROACHES:
+	for mode in state.approaches:
 		if allowed.has(mode):
 			out.append(mode)
 	return out
@@ -1014,9 +1019,9 @@ func _build_approach_overlay() -> Control:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
 	var affordable: Array[String] = []
-	for mode in CombatState.APPROACHES:
+	for mode in state.approaches:
 		if affordable.size() < 2 and \
-				state.can_pay(CombatState.APPROACHES[mode]["cost"]):
+				state.can_pay(state.approaches[mode]["cost"]):
 			affordable.append(mode)
 	for mode in affordable:
 		box.add_child(_approach_button(_approach_title(mode), approach_desc(mode), mode))

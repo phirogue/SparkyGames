@@ -21,6 +21,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Moved into tools/batches/ 2026-08-06; genart.py is one level up.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from pathlib import Path
+
 REPO = Path(__file__).resolve().parent.parent
 REF_ASH = "assets/library/characters/ref_ash.png"
 

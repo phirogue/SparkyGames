@@ -1,0 +1,66 @@
+{
+  "$comment": [
+    "Project-level Claude Code settings for SparkyGames.",
+    "",
+    "permissions.allow lists the commands this project runs CONSTANTLY, so a",
+    "normal working session stops asking. Everything here is read-only or",
+    "regenerates output that is already disposable (tests, sims, screenshots,",
+    "the import cache). Anything that spends money (tools/genart*.py hits a",
+    "billed image API), rewrites history, or pushes is deliberately absent —",
+    "those should always ask.",
+    "",
+    "hooks.PreToolUse enforces CLAUDE.md law 4 mechanically. See",
+    "docs/architecture/ for which laws are enforced by machine and which are",
+    "still only written down."
+  ],
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git branch:*)",
+      "Bash(git count-objects:*)",
+      "Bash(git rev-list:*)",
+      "Bash(git cat-file:*)",
+      "Bash(git add:*)",
+      "Bash(python tools/verify.py:*)",
+      "Bash(python tools/tour_all.py:*)",
+      "Bash(python tools/art_repetition.py:*)",
+      "Bash(python tools/wire_assets.py:*)",
+      "Bash(python tools/kb_check.py:*)",
+      "Bash(python -c:*)",
+      "Bash(C:/Users/yurim/tools/godot/Godot_v4.4.1-stable_win64_console.exe --headless --path game -s tests/*)",
+      "Bash(C:/Users/yurim/tools/godot/Godot_v4.4.1-stable_win64_console.exe --headless --path game --import)",
+      "Bash(C:/Users/yurim/tools/godot/Godot_v4.4.1-stable_win64_console.exe --path game -- --tour*)",
+      "Bash(C:/Users/yurim/tools/godot/Godot_v4.4.1-stable_win64_console.exe --path game -- --scene*)",
+      "Bash(C:/Users/yurim/tools/godot/Godot_v4.4.1-stable_win64_console.exe --path game -- --rect-probe*)",
+      "PowerShell(& \"C:\\Users\\yurim\\tools\\godot\\Godot_v4.4.1-stable_win64_console.exe\" --headless --path game -s tests/*)",
+      "PowerShell(& \"C:\\Users\\yurim\\tools\\godot\\Godot_v4.4.1-stable_win64_console.exe\" --headless --path game --import)",
+      "PowerShell(& \"C:\\Users\\yurim\\tools\\godot\\Godot_v4.4.1-stable_win64_console.exe\" --path game -- --tour*)",
+      "PowerShell(& \"C:\\Users\\yurim\\tools\\godot\\Godot_v4.4.1-stable_win64_console.exe\" --path game -- --scene*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git filter-repo:*)",
+      "Bash(python tools/genart.py:*)",
+      "Bash(python tools/genart_ui.py:*)",
+      "Bash(python tools/promote.py:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/tools/hooks/guard_encoding.py\""
+          }
+        ]
+      }
+    ]
+  }
+}

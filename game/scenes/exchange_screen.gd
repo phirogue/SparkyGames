@@ -25,33 +25,29 @@ const SHELF_COLUMNS := 2
 const GOOD_WIDTH := (UITheme.CONTENT_WIDTH - SEPARATION) / SHELF_COLUMNS  # 285
 const GOOD_HEIGHT := 216
 
-const ADD_CARD_COST := 12
-const RARE_CARD_COST := 30
-const REMOVE_CARD_COST := 15
-const TONIC_COST := 25
-const MAX_HP_CAP := 30
-const DECK_FLOOR := 10   # he will not thin a deck past this
+## THE SHELF IS DATA. What each good COSTS is a rule (data/rules.json
+## `exchange`), what it is CALLED is writing (story/interface.json, keyed by
+## mode — law 20), and this screen owns neither. Until 2026-08-05 the whole
+## price list was a const block here, which put the game's economy inside a
+## file about laying out panels.
+##
+##   exchange.goods       [{mode, cost, seal}] — the shelf, in shelf order
+##   exchange.max_hp_cap  the ceiling a tonic will not lift Ash past
+##   exchange.deck_floor  the thinnest deck Brindle will sell you down to
+func _goods() -> Array: return catalog.rules.list("exchange.goods")
+func _max_hp_cap() -> int: return catalog.rules.count("exchange.max_hp_cap")
+func _deck_floor() -> int: return catalog.rules.count("exchange.deck_floor")
 
-## The shelf: what each good COSTS is a rule, what it is CALLED is writing
-## (law 20). Names and blurbs come from story/interface.json keyed by mode.
-const GOODS := [
-	{
-		"mode": "add", "cost": ADD_CARD_COST,
-		"seal": "ui/ui_seal_red",
-	},
-	{
-		"mode": "rare", "cost": RARE_CARD_COST,
-		"seal": "ui/ui_seal_gold",
-	},
-	{
-		"mode": "remove", "cost": REMOVE_CARD_COST,
-		"seal": "ui/ui_seal_blue",
-	},
-	{
-		"mode": "tonic", "cost": TONIC_COST,
-		"seal": "ui/ui_seal_red",
-	},
-]
+
+## What one good costs, by mode. A mode with no shelf entry returns a price
+## nobody can pay rather than a free good — a missing dial must never hand the
+## player something for nothing.
+func _cost(mode: String) -> int:
+	for good: Dictionary in _goods():
+		if String(good.get("mode", "")) == mode:
+			return int(good.get("cost", 0))
+	push_error("exchange: no good on the shelf for mode '%s'" % mode)
+	return 999999
 
 var catalog: Catalog
 var profile: Dictionary
@@ -168,7 +164,7 @@ func _build_shelf(column: VBoxContainer) -> void:
 	_shelf.add_theme_constant_override("h_separation", SEPARATION)
 	_shelf.add_theme_constant_override("v_separation", SEPARATION)
 	holder.add_child(_shelf)
-	for good: Dictionary in GOODS:
+	for good: Dictionary in _goods():
 		_shelf.add_child(_good_card(good))
 
 
@@ -241,7 +237,7 @@ func _refresh() -> void:
 	for child in _shelf.get_children():
 		_shelf.remove_child(child)
 		child.queue_free()
-	for good: Dictionary in GOODS:
+	for good: Dictionary in _goods():
 		_shelf.add_child(_good_card(good))
 
 
@@ -285,7 +281,7 @@ func _on_good_pressed(mode: String) -> void:
 				_option("%s (%s)" % [String(catalog.energy_cards[card_id]["name"]),
 					Catalog.humour_name(humour)], _on_add_rare.bind(card_id))
 		"remove":
-			if profile["deck"].size() <= DECK_FLOOR:
+			if profile["deck"].size() <= _deck_floor():
 				_say(Strings.line("exchange.patter.too_thin"))
 				return
 			_say(Strings.line("exchange.patter.remove"))
@@ -297,10 +293,10 @@ func _on_good_pressed(mode: String) -> void:
 				_option(String(catalog.energy_cards[card_id]["name"]),
 					_on_remove.bind(String(card_id)))
 		"tonic":
-			if int(profile["max_hp"]) >= MAX_HP_CAP:
+			if int(profile["max_hp"]) >= _max_hp_cap():
 				_say(Strings.line("exchange.patter.no_more_tonic"))
 				return
-			_spend(TONIC_COST, "a tonic", func() -> void:
+			_spend(_cost("tonic"), "a tonic", func() -> void:
 				profile["max_hp"] = int(profile["max_hp"]) + 2
 				_say(Strings.line("exchange.patter.tonic")))
 
@@ -319,20 +315,20 @@ func _option(text: String, on_pressed: Callable) -> void:
 
 
 func _on_add_card(humour: String) -> void:
-	_spend(ADD_CARD_COST, Catalog.humour_name(humour) + " 2", func() -> void:
+	_spend(_cost("add"), Catalog.humour_name(humour) + " 2", func() -> void:
 		profile["deck"].append(humour + "_2")
 		_say(Strings.line("exchange.patter.bought_card")))
 
 
 func _on_add_rare(card_id: String) -> void:
-	_spend(RARE_CARD_COST, String(catalog.energy_cards[card_id]["name"]),
+	_spend(_cost("rare"), String(catalog.energy_cards[card_id]["name"]),
 		func() -> void:
 			profile["deck"].append(card_id)
 			_say(Strings.line("exchange.patter.bought_rare")))
 
 
 func _on_remove(card_id: String) -> void:
-	_spend(REMOVE_CARD_COST, "cutting " + String(catalog.energy_cards[card_id]["name"]),
+	_spend(_cost("remove"), "cutting " + String(catalog.energy_cards[card_id]["name"]),
 		func() -> void:
 			profile["deck"].erase(card_id)
 			_say(Strings.line("exchange.patter.cut")))

@@ -28,7 +28,16 @@ own `ref_` anchor the moment it exists (library rule 4).
 | ~~`ev_docket`~~ | **DONE 2026-08-04.** Folded cart docket, consignee line scratched out. Wired. |
 | `npc_wick` | Guildmaster Ellery Wick — charming-awful, never cartoon-evil |
 | `npc_gentleman` | The Quiet Gentleman — a fixer nobody remembers meeting first |
+| `npc_shift_boss` | The Lamplighters' shift boss — the third suspect on the board |
 | `npc_bodkin` | Bodkin: a scarred one-eyed grey tom. Enters at L1 as an ally |
+
+**This list is now checked mechanically.** `python tools/kb_check.py` fails
+while any id named in `game/data/*.json` or `game/story/*.json` has no file in
+`game/assets/`, so a gap cannot quietly stop being noticed — and it also
+catches the opposite trap (a file that exists but was never imported, which
+renders exactly as black as one that does not, law 11). The six ids above are
+the outstanding set as of 2026-08-06; `npc_shift_boss` was found by that check
+and had never been written down anywhere.
 
 **Read `docs/design/the-unraveler.md` before prompting Bodkin.** How he is
 drawn is a fair-play matter, not a taste one.

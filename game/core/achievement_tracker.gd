@@ -42,7 +42,7 @@ func record_encounter(state: CombatState) -> Array:
 				newly.append_array(increment("flawless_wins"))
 			if state.deck.is_empty():
 				newly.append_array(increment("exhausted_wins"))
-			if state.banked.size() >= CombatState.BANK_LIMIT:
+			if state.banked.size() >= state.bank_limit:
 				newly.append_array(increment("full_bank_wins"))
 			if flags["killing_skill"] == "shelf_justice":
 				newly.append_array(increment("shelf_justice_kills"))

@@ -28,7 +28,38 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 # /v1/models endpoint before assuming this is still the newest.
 DEFAULT_MODEL = "gpt-image-2"
 
+# THE HOUSE STYLE. Lives here, in the tool everything calls, because for a
+# while it did not: this file kept the loose 2026-08-01 block below while the
+# strict one lived in `genart_fixes.py` -- a one-off batch script. Anybody who
+# ran `genart.py` directly therefore got the style that drifts, which is the
+# opposite of what CLAUDE.md's art rule 7 says happens.
+#
+# What makes it work is the NEGATIVES. "Ink linework with muted watercolour
+# washes" is perfectly satisfiable by a digital painting imitating that look,
+# and nine images drifted exactly that way before anyone compared them side by
+# side. They shared three precise tells, which meant they were one bad preset
+# and one fix repaired all nine. Naming the failure modes is the whole trick.
 STYLE = (
+    "Hand-drawn storybook illustration on visible cream watercolor paper: "
+    "paper grain and a soft torn deckle edge are visible at the borders. "
+    "Loose, scratchy ink linework sits ON TOP of muted granulated watercolor "
+    "washes, with large areas of untouched bare paper. Warm amber light used "
+    "sparingly as the accent against blue-grey shadow. Cozy-gothic children's "
+    "book aesthetic. Selective detail only -- the focal subject is drawn, and "
+    "everything behind it dissolves into loose transparent wash. "
+    "IMPORTANT NEGATIVES: this must NOT look like a digital painting, 3D "
+    "render, matte painting, or photograph. No airbrushed or smooth gradient "
+    "blending. No crushed pure-black darks -- shadows stay transparent. No "
+    "mosaic, scale, or stipple texture on flat surfaces. No uniform "
+    "edge-to-edge detail. No text anywhere in the image."
+)
+
+# The name the batch scripts and CLAUDE.md use. Same string, one definition.
+STRICT_STYLE = STYLE
+
+# The pre-audit block, kept only so the 2026-08-03 style audit stays legible:
+# this is what the drifted images were generated with. Do not use it.
+LEGACY_STYLE_2026_08_01 = (
     "Hand-drawn storybook illustration style: ink linework with muted "
     "watercolor washes, warm amber light against blue-grey fog, cozy-gothic "
     "children's book aesthetic, high resolution, no text in the image."

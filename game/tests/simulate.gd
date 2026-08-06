@@ -124,9 +124,9 @@ func _choose_approach(state: CombatState, bot: String) -> void:
 		"defender":
 			pick = "ward"
 		"random":
-			var modes := CombatState.APPROACHES.keys()
+			var modes := state.approaches.keys()
 			pick = modes[state.rng.pick_index(modes.size())]
-	if pick != "" and state.can_pay(CombatState.APPROACHES[pick]["cost"]):
+	if pick != "" and state.can_pay(state.approaches[pick]["cost"]):
 		state.do_command({"type": "approach", "mode": pick})
 
 

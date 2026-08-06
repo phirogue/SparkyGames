@@ -9,6 +9,20 @@ env:
   GODOT_VERSION: "4.4.1"
 
 jobs:
+  # Cheap and fast: catches a broken reference or a stale manifest in seconds,
+  # with no engine download. Runs first so an obvious mistake does not wait on
+  # a 4-minute Godot job.
+  propagation:
+    name: Propagation checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Where every change has to reach
+        run: python tools/kb_check.py
+
   tests:
     name: Headless import + unit tests
     runs-on: ubuntu-latest
@@ -32,7 +46,9 @@ jobs:
           mv ~/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 ~/godot/godot
           chmod +x ~/godot/godot
 
-      - name: Import project (first pass generates .godot cache)
+      # First pass builds the .godot cache and registers new class_name
+      # scripts. Without it a newly added class fails to parse (law 23).
+      - name: Import project
         run: ~/godot/godot --headless --path game --import || true
 
       - name: Run unit tests
@@ -40,3 +56,24 @@ jobs:
 
       - name: Boot smoke test (screens must have real size)
         run: ~/godot/godot --headless --path game -s tests/smoke_boot.gd
+
+      # The puzzles must be playable and unbreakable. Bots, not assertions
+      # about bots — this is the harness that proves a chart has a solution a
+      # player can actually reach.
+      - name: Minigame bots
+        run: ~/godot/godot --headless --path game -s tests/minigames.gd
+
+      # Play badly on purpose (law 19). The sensible-play sim cannot find a
+      # state the game should not be able to reach; this can.
+      - name: Chaos sweep
+        run: ~/godot/godot --headless --path game -s tests/fuzz.gd -- --seeds 60
+
+  # NOT RUN IN CI, on purpose — recorded here so the gap is visible rather
+  # than forgotten:
+  #   * the screenshot tour and the every-quest sweep need a display and take
+  #     ~20 minutes; run locally with `python tools/verify.py full`
+  #   * the balance sim is long and its output wants a human comparing it to
+  #     docs/design/balance-notes.md, not a pass/fail
+  #   * art generation costs money and needs an API key
+  #   * the story-critic and first-timer passes are agents, not scripts —
+  #     see /ownerpass

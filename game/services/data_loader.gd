@@ -23,6 +23,11 @@ static func load_catalog(data_dir: String = DATA_DIR) -> Catalog:
 		"lattices": _load_json(data_dir + "/lattices.json"),
 		"crossings": _load_json(data_dir + "/crossings.json"),
 		"lessons": _load_json(data_dir + "/lessons.json").get("lessons", {}),
+		# The tuning dials. Unlike the content files this one is a nested
+		# config rather than an id->record map, and every key has a shipped
+		# default in Rules.DEFAULTS — so a missing or half-written rules.json
+		# degrades to the shipped balance instead of to an unplayable game.
+		"rules": _load_json(data_dir + "/rules.json"),
 	})
 
 

@@ -97,6 +97,18 @@
     "tap": "— tap to continue —"
   },
   "battle": {
+    "_approach_notes": [
+      "An approach's PRICE is a rule and lives in data/rules.json; its NAME",
+      "and what it reads like are writing and live here (law 20). The names",
+      "were a `name` field inside CombatState.APPROACHES until 2026-08-05,",
+      "which meant renaming 'Case It' meant editing a rules engine."
+    ],
+    "approach_name": {
+      "stalk": "Stalk",
+      "ambush": "Ambush",
+      "case": "Case It",
+      "ward": "Ward"
+    },
     "approach": {
       "stalk": "Begin hidden. Its first move misses. First hit +1.",
       "ambush": "Strike first for 3. It comes up angry.",

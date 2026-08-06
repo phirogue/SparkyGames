@@ -1,0 +1,219 @@
+{
+  "_notes": [
+    "WHERE A CHANGE HAS TO REACH.",
+    "",
+    "Every component in this game is assembled from pieces in different files.",
+    "A minigame is a rules class AND a screen AND a data file AND a bot AND a",
+    "launch spec. Adding one and forgetting another does not fail loudly -- it",
+    "fails as a dead button, a quest nobody photographed, a portrait that",
+    "renders as a black rectangle. Those are the defects that reached owner",
+    "reviews, over and over, and they are all propagation failures.",
+    "",
+    "This file is the answer to 'I changed X -- what else has to move?'. It is",
+    "machine-readable so `python tools/kb_check.py` can prove the paths still",
+    "exist and, for several of these chains, that the propagation actually",
+    "happened. The prose companion is docs/architecture/README.md.",
+    "",
+    "HOW TO USE IT: find your change below, walk `touch` in order, then run",
+    "everything in `verify`. Steps marked \"auto\": true need no action -- some",
+    "other file already derives from the one you edited, and that is worth",
+    "knowing so you do not go looking for a list to update.",
+    "",
+    "HOW TO MAINTAIN IT: when you add a component kind, add its chain here in",
+    "the same edit. kb_check fails on a path that stops existing, which is what",
+    "keeps this file from rotting into fiction."
+  ],
+
+  "layers": {
+    "_notes": [
+      "The engine boundary, stated once. A change that crosses a layer is the",
+      "kind most likely to need propagation."
+    ],
+    "game/core/": "Pure rules. RefCounted only -- no Node, no rendering, no FileAccess, no global RNG. All randomness through CoreRng, all player actions through do_command(). Load-bearing for deterministic tests, the balance sims and replay debugging.",
+    "game/services/": "The only layer that touches the filesystem: DataLoader (content in), SaveService (profile out), Strings (interface prose).",
+    "game/scenes/": "UI. Screens subscribe to core state and never mutate it directly. game.gd is the flow orchestrator and the only file that decides what comes next.",
+    "game/ui/": "Shared widgets and the layout contract (UITheme).",
+    "game/data/": "Content and tuning as JSON, keyed by stable string ids.",
+    "game/story/": "Prose. Scene scripts, and the game's own voice outside a scripted scene.",
+    "game/tests/": "Unit tests plus the harnesses: tour, page guard, balance sim, chaos fuzzer, minigame bots, bestiary generator."
+  },
+
+  "changes": {
+    "add-or-change-a-skill": {
+      "summary": "A new card in the tray, or a change to what one costs or does.",
+      "touch": [
+        { "path": "game/data/skills.json", "why": "the definition: cost, charges, effects, instinct flag, flavor" },
+        { "path": "assets/library/skills", "why": "art named sk_<id>.png; check the library FIRST, never regenerate what exists" },
+        { "path": "tools/wire_assets.py", "why": "run it -- never hand-copy from the library into game/assets", "command": "python tools/wire_assets.py" },
+        { "path": "game/data/rules.json", "why": "ONLY if the loadout law changes; the tray is built with one column per slot", "optional": true },
+        { "path": "game/core/catalog.gd", "why": "add validation if the skill introduces a new field", "optional": true },
+        { "path": "docs/design/balance-notes.md", "why": "record what the sim says after the change" }
+      ],
+      "verify": [
+        "godot --headless --path game --import",
+        "godot --headless --path game -s tests/run_tests.gd",
+        "godot --headless --path game -s tests/simulate.gd",
+        "godot --headless --path game -s tests/fuzz.gd -- --seeds 60",
+        "python tools/kb_check.py"
+      ],
+      "laws": [8, 11, 14]
+    },
+
+    "add-an-enemy": {
+      "summary": "A new creature, or a change to its hp, gleam or intent cycle.",
+      "touch": [
+        { "path": "game/data/enemies.json", "why": "hp, gleam, intents, flavor, image" },
+        { "path": "game/data/encounters.json", "why": "an enemy nothing fights is an enemy nobody meets" },
+        { "path": "assets/library/enemies", "why": "art as a scene vignette -- subject dominant, setting dissolving into wash (en_chained_dog is the reference)" },
+        { "path": "docs/design/bestiary.md", "why": "GENERATED -- never hand-edit", "command": "godot --headless --path game -s tests/bestiary.gd" },
+        { "path": "game/data/quests.json", "why": "the encounter needs a prowl to appear in", "optional": true }
+      ],
+      "verify": [
+        "godot --headless --path game --import",
+        "godot --headless --path game -s tests/run_tests.gd",
+        "godot --headless --path game -s tests/simulate.gd",
+        "godot --headless --path game -s tests/bestiary.gd",
+        "python tools/kb_check.py"
+      ],
+      "laws": [8, 11, 14]
+    },
+
+    "add-a-quest": {
+      "summary": "A new prowl: a run of fights, story beats, minigames and lessons.",
+      "touch": [
+        { "path": "game/data/quests.json", "why": "the script itself -- steps, gating, rewards, board card" },
+        { "path": "game/data/encounters.json", "why": "any new fight it names" },
+        { "path": "game/data/environments.json", "why": "any new place it visits" },
+        { "path": "play/parts.json", "why": "a launcher so the quest can be reached without a playthrough" },
+        { "path": "play/play.ps1", "why": "regenerate the shims -- never hand-write a .cmd", "command": "play/play.ps1 -Install" },
+        { "path": "tools/tour_all.py", "why": "nothing to do: it reads quests.json directly", "auto": true },
+        { "path": "docs/design/chapters", "why": "the chapter doc this quest belongs to", "optional": true }
+      ],
+      "verify": [
+        "godot --headless --path game -s tests/run_tests.gd",
+        "python tools/tour_all.py <quest_id>",
+        "python tools/art_repetition.py",
+        "python tools/kb_check.py"
+      ],
+      "laws": [17, 19, 21, 22]
+    },
+
+    "add-a-screen": {
+      "summary": "A new page in the book.",
+      "touch": [
+        { "path": "game/scenes", "why": "the screen script; start from UITheme.page_scaffold, never hand-roll the margins" },
+        { "path": "game/scenes/game.gd", "why": "a _show_<screen>() and a route into it -- an unreferenced screen cannot be reached or photographed" },
+        { "path": "game/scenes/dev_menu_screen.gd", "why": "a jump spec, so the screen can be opened directly", "optional": true },
+        { "path": "game/tests/calibrate.gd", "why": "a zone map for the new screen type", "optional": true },
+        { "path": "play/parts.json", "why": "a launcher if the owner will want to open it on a whim", "optional": true }
+      ],
+      "verify": [
+        "godot --path game -- --scene <spec>",
+        "godot --headless --path game -s tests/run_tests.gd",
+        "godot --path game -- --tour",
+        "python tools/kb_check.py"
+      ],
+      "laws": [1, 2, 5, 12, 13]
+    },
+
+    "add-a-minigame-module": {
+      "summary": "A sixth mission module. All five pieces or it is a dead button.",
+      "touch": [
+        { "path": "game/core", "why": "<module>_state.gd -- pure rules, same do_command contract as combat" },
+        { "path": "game/data", "why": "the puzzle content as JSON" },
+        { "path": "game/services/data_loader.gd", "why": "load the new content file" },
+        { "path": "game/core/catalog.gd", "why": "hold it, and validate that a puzzle is actually solvable" },
+        { "path": "game/scenes/minigames", "why": "<module>_screen.gd" },
+        { "path": "game/scenes/game.gd", "why": "_show_<module>() plus a case in _launch_minigame and _dev_launch" },
+        { "path": "game/tests/minigame_bots.gd", "why": "a bot that proves it is playable and unbreakable" },
+        { "path": "tools/kb_check.py", "why": "add the module to MODULES so the five-piece check covers it" },
+        { "path": "docs/design/minigames.md", "why": "the spec" }
+      ],
+      "verify": [
+        "godot --headless --path game -s tests/run_tests.gd",
+        "godot --headless --path game -s tests/minigames.gd",
+        "godot --path game -- --scene <module>:<id>",
+        "python tools/kb_check.py"
+      ],
+      "laws": [13, 14]
+    },
+
+    "change-a-tuning-number": {
+      "summary": "Costs, caps, limits, rates, prices, the starting kit.",
+      "touch": [
+        { "path": "game/data/rules.json", "why": "the dial itself -- this is the only place a number should be edited" },
+        { "path": "game/core/rules.gd", "why": "the matching entry in DEFAULTS; tests/unit/test_rules.gd fails if they disagree" },
+        { "path": "docs/design/balance-notes.md", "why": "what the sim said before and after" }
+      ],
+      "verify": [
+        "godot --headless --path game -s tests/run_tests.gd",
+        "godot --headless --path game -s tests/simulate.gd",
+        "godot --headless --path game -s tests/fuzz.gd -- --seeds 60"
+      ],
+      "laws": [8, 14]
+    },
+
+    "add-a-profile-field": {
+      "summary": "New state that has to survive a quit.",
+      "touch": [
+        { "path": "game/services/save_service.gd", "why": "DEFAULT_PROFILE, and a migration that answers 'what does an old save IMPLY?'" },
+        { "path": "game/tests/unit/test_save.gd", "why": "a migration test -- old saves deep-merge against defaults" },
+        { "path": "game/tests/scenarios", "why": "any scenario that should set the new field", "optional": true }
+      ],
+      "verify": ["godot --headless --path game -s tests/run_tests.gd"],
+      "laws": [7]
+    },
+
+    "add-or-change-art": {
+      "summary": "Any image the game shows.",
+      "touch": [
+        { "path": "assets/library", "why": "CHECK IT FIRST -- never generate what already exists" },
+        { "path": "assets/archive", "why": "check here before regenerating a CHANGE: an earlier take is often what is wanted, and restoring one is free" },
+        { "path": "tools/genart.py", "why": "generate through the tool, with STRICT_STYLE and --ref for any recurring character", "command": "python tools/genart.py" },
+        { "path": "tools/promote.py", "why": "file and retire -- never delete art" },
+        { "path": "tools/wire_assets.py", "why": "wire the library into game/assets", "command": "python tools/wire_assets.py" },
+        { "path": "game/assets", "why": "run the import pass or the tour shows black placeholders", "command": "godot --headless --path game --import" },
+        { "path": "docs/design/art-needed.md", "why": "strike what is now done" }
+      ],
+      "verify": [
+        "read every generated image before calling it done (law 1 applies to art)",
+        "python tools/art_repetition.py",
+        "python tools/kb_check.py",
+        "godot --path game -- --tour"
+      ],
+      "laws": [1, 3, 11, 19]
+    },
+
+    "change-player-facing-prose": {
+      "summary": "Anything a player reads.",
+      "touch": [
+        { "path": "game/story/prologue.json", "why": "prologue scenes", "optional": true },
+        { "path": "game/story/interface.json", "why": "the game's own voice outside a scripted scene", "optional": true },
+        { "path": "game/data/quests.json", "why": "quest beats", "optional": true },
+        { "path": "game/data/lessons.json", "why": "teaching pages", "optional": true }
+      ],
+      "verify": [
+        "godot --headless --path game -s tests/run_tests.gd",
+        "the story-critic agent",
+        "python tools/art_repetition.py"
+      ],
+      "laws": [16, 20, 21, 22],
+      "never": "Player-facing prose in a .gd file. A string embedded in code is a string no content tool can validate, translate or review."
+    },
+
+    "change-the-layout-contract": {
+      "summary": "Page margins, content size, or a screen's zone template.",
+      "touch": [
+        { "path": "game/ui/ui_theme.gd", "why": "PAGE_MARGIN_*, CONTENT_WIDTH/HEIGHT" },
+        { "path": "game/tests/calibrate.gd", "why": "re-run the boundary box and the zone maps", "command": "godot --headless --path game -s tests/calibrate.gd -- zones battle" },
+        { "path": "game/scenes", "why": "every screen's ZONE_* consts must still sum to CONTENT_HEIGHT exactly" },
+        { "path": "game/tests/unit/test_layout.gd", "why": "the sum is asserted here" }
+      ],
+      "verify": [
+        "godot --headless --path game -s tests/run_tests.gd",
+        "python tools/tour_all.py"
+      ],
+      "laws": [1, 2, 5, 12, 17]
+    }
+  }
+}

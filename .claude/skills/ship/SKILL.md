@@ -1,35 +1,65 @@
 ---
 name: ship
-description: Full pre-commit gate for SparkyGames - tests, smoke boot, screenshot tour, then commit and push. Usage: /ship <commit subject>
+description: Full pre-commit gate for SparkyGames - verify, propagate, then commit and push. Usage: /ship <commit subject>
 ---
 
 # Ship — the only road to a commit
 
-Nothing lands on main without passing every gate, in order:
+Nothing lands on main red. One command runs the gates in the right order and
+stops at the first failure that makes later steps meaningless:
 
-1. **Unit tests**:
-   `& "C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe" --headless --path game -s tests/run_tests.gd`
-   Must print ALL GREEN.
-2. **Smoke boot** (screens have real size):
-   `... -s tests/smoke_boot.gd` — must print OK.
-3. **EVERY-QUEST sweep** if anything visual or content changed this session:
-   `python tools/tour_all.py` -- photographs the prologue AND every quest,
-   and FAILS on content outside the page (law 17). Read the shots the change
-   touched (see /uitour). Skippable only for pure docs commits.
-   Then `python tools/art_repetition.py` (law 19: no picture carries more
-   than 3 beats in a row).
-4. **Sim check** if enemies/skills/costs/deck data changed:
-   `... -s tests/simulate.gd` — compare against docs/design/balance-notes.md;
-   update that doc if numbers moved.
-5. Commit with a body explaining WHY (per CLAUDE.md git rules, with the
-   Co-Authored-By line), then `git push`.
-6. **`/ownerpass`** before any commit that ends a piece of work the owner
-   will look at -- it adds the story-critic and first-timer passes on top of
-   these gates (law 22). Cheap to skip mid-change; never skip it before
-   saying "ready to review".
-7. If any gate fails: fix first. Never commit red; never skip with
-   --no-verify.
+```powershell
+python tools/verify.py standard
+```
 
-Also remember: new profile keys need SaveService.DEFAULT_PROFILE entries and
-a migration thought; new story scenes with battles need when_outcome
-variants for retreat/defeat.
+That covers: import pass · unit tests · propagation checks · minigame bots ·
+chaos fuzzer. It prints why each step exists and what failed.
+
+## Then, depending on what changed
+
+| Changed | Also run |
+|---|---|
+| anything visual or any content | `python tools/verify.py full` — adds the every-quest sweep and art repetition |
+| enemies / skills / costs / deck data | `godot --headless --path game -s tests/simulate.gd`, then update `docs/design/balance-notes.md` if numbers moved |
+| enemy stats or intents | `godot --headless --path game -s tests/bestiary.gd` — the bestiary doc is GENERATED |
+
+**Read the screenshots.** The sweep proves they were produced, not that they
+look right. Law 1 is a human (or Claude) looking at the images the change
+touched — see `/uitour`.
+
+## Before a commit the owner will look at
+
+Run **`/ownerpass`** (law 3). It adds the story-critic and first-timer passes
+on top of these gates. Cheap to skip mid-change; **never** skip it before
+saying "ready to review", and never report ready with a known unfixed defect
+unmentioned.
+
+## Committing
+
+Short imperative subject; body explains *why* when it isn't obvious. End with:
+
+```
+Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+```
+
+Then `git push`. Remote is `origin` → github.com/phirogue/SparkyGames.
+
+**Never** commit red and never bypass hooks with `--no-verify`. If a gate
+fails, fix the cause.
+
+## Things that are easy to forget at commit time
+
+- **New `class_name` script or new image?** `godot --headless --path game
+  --import` first — otherwise a class "is not declared in the current scope"
+  and new art renders black.
+- **New profile key?** It needs a `SaveService.DEFAULT_PROFILE` entry *and* a
+  migration that answers "what does an old save imply?" (law 14).
+- **New story scene with a battle?** It needs `when_outcome` variants —
+  victory text after a retreat is a canon bug (law 17).
+- **New tuning number?** `game/data/rules.json` **and** `Rules.DEFAULTS`, or
+  `tests/unit/test_rules.gd` will say so.
+- **Screenshots are not tracked** (owner decision 2026-08-06) — except the
+  curated `screenshots/reference/` set. A tour run produces no commit noise.
+- Never commit secrets, keystores, certificates or store credentials.
+
+If you are unsure what else your change has to touch, that is `/propagate`.

@@ -19,12 +19,21 @@ const WardScreen := preload("res://scenes/minigames/ward_screen.gd")
 const LatticeScreen := preload("res://scenes/minigames/lattice_screen.gd")
 const CrossingScreen := preload("res://scenes/minigames/crossing_screen.gd")
 
-## The remembered-day tint: one sepia constant, used by every flashback so
-## memory reads the same everywhere (a scene may override with image_tint).
-const FLASHBACK_TINT := "#d9b689"
-
-const PRESS_ON_MULT := 0.25   # satchel multiplier growth per depth
-const TOLL_RATE := 0.25       # the Hollow Court's cut of banked gleam on death
+## THE ECONOMY IS A DIAL, NOT A CONSTANT. These live in data/rules.json and
+## are read through `catalog.rules`; the accessors below are the only readers.
+## They were consts here until 2026-08-05, which meant a balance pass on the
+## satchel wager was an edit to a scene script — and meant tests/simulate.gd
+## could not see the numbers the game actually ran on.
+##   prowl.press_on_mult  satchel multiplier growth per fight of depth
+##   prowl.toll_rate      the Hollow Court's cut of banked gleam on a death
+##   prowl.slip_forfeit   what goes over the wall when you leave in a hurry
+##   presentation.flashback_tint  the one sepia every Remembered Day uses, so
+##                                memory reads the same everywhere (a scene
+##                                may still override with image_tint)
+func _press_on_mult() -> float: return catalog.rules.num("prowl.press_on_mult")
+func _toll_rate() -> float: return catalog.rules.num("prowl.toll_rate")
+func _slip_forfeit() -> float: return catalog.rules.num("prowl.slip_forfeit")
+func _flashback_tint() -> String: return catalog.rules.text("presentation.flashback_tint")
 
 var catalog: Catalog
 var profile: Dictionary
@@ -1007,7 +1016,7 @@ func _run_prologue_scene(index: int) -> void:
 			_apply_scene_spine(scene)
 			var flash := _story_config(scene["environment"], scene["lines"])
 			flash["flashback"] = true
-			flash["image_tint"] = scene.get("image_tint", FLASHBACK_TINT)
+			flash["image_tint"] = scene.get("image_tint", _flashback_tint())
 			flash["heading"] = "Remembered Day — %s" % scene.get("title", "")
 			if scene.has("portrait"):
 				flash["portrait"] = scene["portrait"]
@@ -1311,7 +1320,7 @@ func _on_prowl_battle_done(state: CombatState) -> void:
 		CombatState.Outcome.VICTORY:
 			# Depth is counted in FIGHTS, not steps: walking to the Ratsmeet
 			# is not danger and must not inflate the satchel multiplier.
-			var mult := 1.0 + PRESS_ON_MULT * ProwlScript.depth_at(quest, encounter_index)
+			var mult := 1.0 + _press_on_mult() * ProwlScript.depth_at(quest, encounter_index)
 			var earned := int(ceil(int(catalog.enemies[state.enemy_id].get("gleam", 0)) * mult))
 			satchel += earned
 			if ProwlScript.has_battle_after(quest, encounter_index):
@@ -1349,7 +1358,7 @@ func _offer_press_on(just_earned: int) -> void:
 		"heading": environment.get("name", ""),
 		"choices": [Strings.line("prowl.press_on.press"),
 			Strings.line("prowl.press_on.slip", [
-				satchel - int(floor(satchel * SLIP_FORFEIT)), satchel])],
+				satchel - int(floor(satchel * _slip_forfeit())), satchel])],
 	}, func(choice: int) -> void:
 		if choice == 0:
 			tracker.increment("pressed_on")
@@ -1400,11 +1409,9 @@ func _finish_quest() -> void:
 ## consequence to slipping away"). Two of them, in fact: the enemy's parting
 ## move lands in CombatState, and going over the wall in a hurry spills half
 ## the satchel. Pressing on one more room is a real bet again.
-const SLIP_FORFEIT := 0.5
-
-
+## The fraction is data/rules.json `prowl.slip_forfeit`.
 func _prowl_retreat() -> void:
-	var dropped := int(floor(satchel * SLIP_FORFEIT))
+	var dropped := int(floor(satchel * _slip_forfeit()))
 	var kept := satchel - dropped
 	profile["gleam"] = int(profile["gleam"]) + kept
 	if not quest.is_empty():
@@ -1426,7 +1433,7 @@ func _prowl_death() -> void:
 	var first_ever: bool = int(tracker.stats.get("lives_spent", 0)) <= 1
 	var toll := 0
 	if not first_ever:
-		toll = int(ceil(int(profile["gleam"]) * TOLL_RATE))
+		toll = int(ceil(int(profile["gleam"]) * _toll_rate()))
 		profile["gleam"] = int(profile["gleam"]) - toll
 	_save()
 	var extra: Array = []

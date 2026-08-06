@@ -21,7 +21,10 @@ extends RefCounted
 ## combat share one stamina, which is the point. The night presses from
 ## turn 8 exactly as in combat — gusts double.
 
+## Shipped default; the live value is the per-state `night_presses_turn`
+## field, read from data/rules.json `minigames.crossing.night_presses_turn`.
 const NIGHT_PRESSES_TURN := 8
+var night_presses_turn: int = NIGHT_PRESSES_TURN
 
 var crossing: Dictionary = {}
 var length: int = 10
@@ -61,14 +64,20 @@ static func create(catalog: Catalog, seed_value: int,
 	state.hazard = int(crossing_data.get("hazard", 1))
 	state._script = crossing_data.get("gust_script", []).duplicate()
 	state._gust_weights = crossing_data.get("gust_weights", {})
+	# Shared dials: the crossing spends the same paws and opens the same hand
+	# as a fight, because it IS a fight against weather (owner framing: same
+	# energy deck, different actions — no new resources).
+	var dials := catalog.rules
+	state.night_presses_turn = dials.count("minigames.crossing.night_presses_turn")
 	state.player_max_hp = int(config.get("player_max_hp", config.get("player_hp", 10)))
 	state.player_hp = int(config.get("player_hp", state.player_max_hp))
-	state.paw_limit = int(config.get("paws", 3))
+	state.paw_limit = int(config.get("paws", dials.count("combat.paws")))
 	state.paws = state.paw_limit
 	state.deck = Array(config.get("deck", [])).duplicate()
 	if config.get("shuffle", true):
 		state.rng.shuffle(state.deck)
-	for i in mini(int(config.get("opening_hand", 3)), state.deck.size()):
+	for i in mini(int(config.get("opening_hand", dials.count("combat.opening_hand"))),
+			state.deck.size()):
 		state.hand.append(state.deck.pop_back())
 	state.gust = state._roll_gust()
 	return state
@@ -202,7 +211,7 @@ func _cmd_shelter() -> Dictionary:
 	peeked = false
 	turn += 1
 	paws = paw_limit
-	if turn >= NIGHT_PRESSES_TURN:
+	if turn >= night_presses_turn:
 		hazard = int(crossing.get("hazard", 1)) * 2
 		_events.append("night_presses")
 	_events.append("sheltered")

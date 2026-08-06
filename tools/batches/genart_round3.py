@@ -15,11 +15,14 @@ Run:  python tools/genart_round3.py [--dry-run]
 """
 
 import sys
+from pathlib import Path
+
+# Moved into tools/batches/ 2026-08-06; genart.py is one level up.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import time
 from pathlib import Path
 
 from genart import RATIO_TO_SIZE, edit, generate, load_key, next_free_path
-from genart_fixes import STRICT_STYLE
 
 REPO = Path(__file__).resolve().parent.parent
 PROC = REPO / "assets" / "incoming" / "procedural"

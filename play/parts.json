@@ -163,6 +163,48 @@
       "about": "The cold-launch card alone. With no evidence it drops to the hub — as designed."
     },
     {
+      "name": "case-find-the-magpie",
+      "title": "Case: Find the Magpie",
+      "group": "Chapter 1",
+      "spec": "quest:find_the_magpie",
+      "about": "Finding the fence who knows what the city is selling. Opens the Exchange."
+    },
+    {
+      "name": "case-the-carrying",
+      "title": "Case: The Carrying",
+      "group": "Chapter 1",
+      "spec": "quest:the_carrying",
+      "about": "Her parlor at first light. The quest with no fight in it."
+    },
+    {
+      "name": "case-the-wake",
+      "title": "Case: The Wake",
+      "group": "Chapter 1",
+      "spec": "quest:the_wake",
+      "about": "What the house does after. Sets the thread into the city."
+    },
+    {
+      "name": "case-what-i-saw",
+      "title": "Case: What I Saw",
+      "group": "Chapter 1",
+      "spec": "quest:what_i_saw",
+      "about": "The witness beat — Testimony, and what a cat may press."
+    },
+    {
+      "name": "case-ask-the-rats",
+      "title": "Case: Ask the Rats",
+      "group": "Chapter 1",
+      "spec": "quest:ask_the_rats",
+      "about": "The Ratsmeet. Talking is a way through, not only fighting."
+    },
+    {
+      "name": "case-sharpen-the-claws",
+      "title": "Case: Sharpen the Claws",
+      "group": "Chapter 1",
+      "spec": "quest:sharpen_the_claws",
+      "about": "The training prowl. Ash gets permanently harder to kill (once)."
+    },
+    {
       "name": "dev-menu",
       "title": "Developer Mode (jump anywhere)",
       "group": "Developer",

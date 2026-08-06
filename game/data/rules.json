@@ -1,0 +1,122 @@
+{
+  "_notes": [
+    "THE TUNING DIALS. Every number here was a `const` in a .gd file until",
+    "2026-08-05. They are decisions a DESIGNER makes, not structure a",
+    "programmer owns, so they live in data where a balance pass can move them",
+    "without touching a program, and where tests/simulate.gd can read the same",
+    "values the game runs on.",
+    "",
+    "What belongs here: costs, caps, limits, rates, the starting kit, prices.",
+    "What does NOT: layout geometry (that is a per-screen zone template, law",
+    "12), file paths, type names, and anything the engine's structure depends",
+    "on. If changing the number can only ever break the build rather than",
+    "change the game, it is not a dial.",
+    "",
+    "Every key here has a matching default in core/rules.gd. A missing key",
+    "falls back to that default rather than crashing, so a half-written file",
+    "degrades to the shipped balance instead of to a black screen. Catalog",
+    "validation checks the values are sane; tests/unit/test_rules.gd checks",
+    "that this file and the defaults still agree on the shipped numbers."
+  ],
+
+  "combat": {
+    "_notes": [
+      "Hand and bank are the shape of a turn; paws are how much you may DO in",
+      "one. Spent energy never reshuffles (owner rule, load-bearing) -- that",
+      "is structure, not a dial, and has no key here on purpose."
+    ],
+    "hand_limit": 5,
+    "bank_limit": 2,
+    "paws": 3,
+    "opening_hand": 3,
+    "concentrate_uses": 2,
+    "loadout_size": 5,
+    "wild_humour": "mysticism"
+  },
+
+  "approaches": {
+    "_notes": [
+      "How Ash enters a fight. Prices are FLAT -- the environment's cost_mod",
+      "deliberately does not touch them (owner rule 2026-08-03): how you go in",
+      "is about you, not about the alley. A discount here once made the",
+      "chooser quote a price the player could not predict.",
+      "Display names live in story/interface.json under battle.approach.* --",
+      "what an approach COSTS is a rule, what it READS like is writing."
+    ],
+    "stalk": { "cost": { "shadow": 2 } },
+    "ambush": { "cost": { "ferocity": 2 } },
+    "case": { "cost": { "guile": 2 } },
+    "ward": { "cost": { "mysticism": 2 } }
+  },
+
+  "prowl": {
+    "_notes": [
+      "The wager. press_on_mult is how much richer each fight deeper makes",
+      "the satchel; slip_forfeit is what going over the wall in a hurry",
+      "spills; toll_rate is the Hollow Court's cut of banked gleam on a death",
+      "after the first."
+    ],
+    "press_on_mult": 0.25,
+    "slip_forfeit": 0.5,
+    "toll_rate": 0.25
+  },
+
+  "start": {
+    "_notes": [
+      "Level-1 Ash (owner calibration 2026-08-01): 10 HP, and a starter deck",
+      "of 15 cards that are ALL value 1 -- potent 2s and 3s are rewards, not",
+      "starting kit (owner rarity rule). Growth arrives as the residue of",
+      "difficult work; there is no XP bar and no level number in the game.",
+      "prologue_skills is what a finished prologue IMPLIES for a save that",
+      "predates progressive unlocks (law 7)."
+    ],
+    "max_hp": 10,
+    "skills": ["scratch"],
+    "deck": [
+      "ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1",
+      "guile_1", "guile_1", "guile_1",
+      "shadow_1", "shadow_1", "shadow_1", "shadow_1",
+      "mysticism_1", "mysticism_1", "mysticism_1"
+    ],
+    "prologue_skills": ["scratch", "pounce", "slink", "purr", "loaf"],
+    "lessons_implied_by_prologue": ["growing_stronger"]
+  },
+
+  "exchange": {
+    "_notes": [
+      "The Magpie Exchange. What each good COSTS is a rule; what it is CALLED",
+      "is writing and lives in story/interface.json keyed by mode (law 20).",
+      "deck_floor is the thinnest deck Brindle will sell you down to -- an",
+      "unbounded thinner turns the spool from a fuel gauge into a combo."
+    ],
+    "max_hp_cap": 30,
+    "deck_floor": 10,
+    "goods": [
+      { "mode": "add", "cost": 12, "seal": "ui/ui_seal_red" },
+      { "mode": "rare", "cost": 30, "seal": "ui/ui_seal_gold" },
+      { "mode": "remove", "cost": 15, "seal": "ui/ui_seal_blue" },
+      { "mode": "tonic", "cost": 25, "seal": "ui/ui_seal_red" }
+    ]
+  },
+
+  "minigames": {
+    "_notes": [
+      "Shared module dials. crossing.night_presses_turn is when The Long Way",
+      "Round stops being patient with you."
+    ],
+    "crossing": { "night_presses_turn": 8 }
+  },
+
+  "presentation": {
+    "_notes": [
+      "Numbers the WRITING depends on. recap_line_max is a text budget, not a",
+      "style choice: a lead's recap line shares one story page with two other",
+      "lines and a fixed illustration, and the story screen silently retires",
+      "whatever overflows -- so an over-long line does not look like a bug, it",
+      "looks like a missing line. flashback_tint is the one sepia every",
+      "Remembered Day uses, so memory reads the same everywhere."
+    ],
+    "recap_line_max": 70,
+    "flashback_tint": "#d9b689"
+  }
+}

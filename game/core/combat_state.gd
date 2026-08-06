@@ -12,6 +12,11 @@ extends RefCounted
 
 enum Outcome { ONGOING, VICTORY, DEFEAT, RETREATED }
 
+## THE DIALS BELOW ARE DEFAULTS, NOT THE TRUTH. Every one of them is a key in
+## data/rules.json, read into the per-state `hand_limit` / `bank_limit` /
+## `paw_limit` / `opening_hand` / `approaches` fields by create(). A designer
+## retunes the JSON; these consts are what a Catalog-less caller falls back to
+## and what Rules.DEFAULTS is checked against. Read the FIELDS, not the consts.
 const HAND_LIMIT := 5
 const BANK_LIMIT := 2
 ## Paw action points (owner mechanic 2026-08-01): every energy card PLACED
@@ -19,7 +24,7 @@ const BANK_LIMIT := 2
 ## slipping away cost none. Paws refill at the start of each turn.
 const DEFAULT_PAWS := 3
 ## Battles open with a small hand (owner rule 2026-08-01): 3 cards, then
-## the end-of-turn draw refills toward HAND_LIMIT as before.
+## the end-of-turn draw refills toward hand_limit as before.
 const OPENING_HAND := 3
 
 var catalog: Catalog
@@ -41,6 +46,14 @@ var instinct_used: bool = false        # free instinct is once per turn
 var sharpened: bool = false            # lingering: next damage effect +1, once
 var paw_limit: int = DEFAULT_PAWS      # energy placements allowed per turn
 var paws_left: int = DEFAULT_PAWS
+## Per-fight copies of the tuning dials (data/rules.json). Held on the state
+## rather than read from the catalog on every check, so one fight's rules
+## cannot change underneath it mid-encounter — and so a test can build a
+## deliberately odd fight by setting these directly.
+var hand_limit: int = HAND_LIMIT
+var bank_limit: int = BANK_LIMIT
+var opening_hand: int = OPENING_HAND
+var wild_humour: String = WILD_HUMOUR
 
 # --- The Approach (how Ash enters the fight; owner concept 2026-07-30) ---
 ## Locked once any other command is taken. Initiative emerges from the
@@ -51,12 +64,16 @@ var paws_left: int = DEFAULT_PAWS
 ## (owner rule 2026-08-03). How you go in is about you, not about the alley,
 ## and a discount here made the chooser quote a price the player could not
 ## predict: "Stalk" cost 2 Shadow on the roof and 1 in the fog.
+## Shipped default; the live table is the per-state `approaches` field, read
+## from data/rules.json. Names are NOT here — an approach's price is a rule,
+## its label is writing and lives in story/interface.json (law 20).
 const APPROACHES := {
-	"stalk": {"cost": {"shadow": 2}, "name": "Stalk"},
-	"ambush": {"cost": {"ferocity": 2}, "name": "Ambush"},
-	"case": {"cost": {"guile": 2}, "name": "Case It"},
-	"ward": {"cost": {"mysticism": 2}, "name": "Ward"},
+	"stalk": {"cost": {"shadow": 2}},
+	"ambush": {"cost": {"ferocity": 2}},
+	"case": {"cost": {"guile": 2}},
+	"ward": {"cost": {"mysticism": 2}},
 }
+var approaches: Dictionary = APPROACHES
 var approach := ""                     # chosen mode, "" until locked
 var approach_locked: bool = false
 var hidden: bool = false               # stalk: enemy's first act is wasted
@@ -137,6 +154,16 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 	state.catalog = p_catalog
 	state.rng = CoreRng.new(seed_value)
 	state.log = CommandLog.new()
+	# The dials, taken once at the top of the fight. A Catalog built by a unit
+	# test with no rules block answers entirely from Rules.DEFAULTS, so this is
+	# safe for every caller.
+	var dials := p_catalog.rules
+	state.hand_limit = dials.count("combat.hand_limit")
+	state.bank_limit = dials.count("combat.bank_limit")
+	state.opening_hand = dials.count("combat.opening_hand")
+	state.wild_humour = dials.text("combat.wild_humour")
+	state.approaches = dials.approaches()
+	state.concentrate_left = dials.count("combat.concentrate_uses")
 	state.player_max_hp = int(config.get("player_max_hp", config.get("player_hp", 20)))
 	state.player_hp = int(config.get("player_hp", state.player_max_hp))
 	state.deck = Array(config.get("deck", [])).duplicate()
@@ -153,7 +180,7 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 			"powered": {},  # humour -> energy fed onto the card (owner rule:
 			                # skills fire only once fully powered)
 		})
-	state.paw_limit = int(config.get("paws", DEFAULT_PAWS))
+	state.paw_limit = int(config.get("paws", dials.count("combat.paws")))
 	state.paws_left = state.paw_limit
 	state.no_retreat = bool(config.get("no_retreat", false))
 	state.hp_floor = int(config.get("hp_floor", 0))
@@ -187,13 +214,13 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 	# which made the spool jump UP mid-night (owner defect list). Named cards
 	# the deck no longer holds are simply skipped; the normal draw fills in.
 	for card_id in config.get("opening_cards", []):
-		if state.hand.size() >= HAND_LIMIT:
+		if state.hand.size() >= state.hand_limit:
 			break
 		var index := state.deck.rfind(card_id)  # nearest the top of the deck
 		if index >= 0:
 			state.hand.append(state.deck[index])
 			state.deck.remove_at(index)
-	var opening := mini(int(config.get("opening_hand", OPENING_HAND)), HAND_LIMIT)
+	var opening := mini(int(config.get("opening_hand", state.opening_hand)), state.hand_limit)
 	while state.hand.size() < opening and not state.deck.is_empty():
 		state._draw_one()
 	return state
@@ -318,9 +345,9 @@ func can_approach() -> bool:
 func _cmd_approach(mode: String) -> Dictionary:
 	if not can_approach():
 		return _fail("the moment for a clever entrance has passed")
-	if not APPROACHES.has(mode):
+	if not approaches.has(mode):
 		return _fail("unknown approach '%s'" % mode)
-	var cost: Dictionary = APPROACHES[mode]["cost"]
+	var cost: Dictionary = approaches[mode]["cost"]
 	if not can_pay(cost):
 		return _fail("not enough energy to %s" % mode)
 	_pay(cost)
@@ -383,7 +410,7 @@ func _cmd_charge_skill(skill_id: String, source: String, index: int) -> Dictiona
 	# A wild (mysticism) card powers whatever the skill still needs.
 	var target_humour := humour
 	if not remaining.has(target_humour):
-		if humour == WILD_HUMOUR and not remaining.is_empty():
+		if humour == wild_humour and not remaining.is_empty():
 			target_humour = remaining.keys()[0]
 		else:
 			return _fail("'%s' has no use for %s" % [def["name"], humour])
@@ -480,7 +507,7 @@ func _cmd_slip_away() -> Dictionary:
 func _cmd_bank(hand_index: int) -> Dictionary:
 	if hand_index < 0 or hand_index >= hand.size():
 		return _fail("no card at hand index %d" % hand_index)
-	if banked.size() >= BANK_LIMIT:
+	if banked.size() >= bank_limit:
 		return _fail("bank is full")
 	if paws_left < 1:
 		return _fail("no paws left this turn")
@@ -614,7 +641,7 @@ func _payment_plan(cost: Dictionary) -> Dictionary:
 	var shortfalls: Array = []
 	for humour in cost:
 		var remaining := int(cost[humour])
-		if humour != WILD_HUMOUR:
+		if humour != wild_humour:
 			remaining = _plan_spend(String(humour), remaining, used, picks)
 		if remaining > 0:
 			shortfalls.append(remaining)
@@ -622,7 +649,7 @@ func _payment_plan(cost: Dictionary) -> Dictionary:
 	shortfalls.reverse()
 	var covered := true
 	for shortfall: int in shortfalls:
-		if _plan_spend(WILD_HUMOUR, shortfall, used, picks) > 0:
+		if _plan_spend(wild_humour, shortfall, used, picks) > 0:
 			covered = false
 	return {"covered": covered, "count": picks.size(), "picks": picks}
 
@@ -773,7 +800,7 @@ func _enemy_act() -> void:
 
 
 func _draw_one() -> void:
-	if deck.is_empty() or hand.size() >= HAND_LIMIT:
+	if deck.is_empty() or hand.size() >= hand_limit:
 		return  # NO reshuffle: an empty deck is an exhausted cat
 	hand.append(deck.pop_back())
 

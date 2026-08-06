@@ -179,9 +179,9 @@ func _check_accepted(state: CombatState, command: Dictionary,
 	if state.paws_left < 0 or state.paws_left > state.paw_limit:
 		_violation("paws %d outside 0..%d after '%s'" % [
 			state.paws_left, state.paw_limit, kind])
-	if state.banked.size() > CombatState.BANK_LIMIT:
+	if state.banked.size() > state.bank_limit:
 		_violation("bank holds %d, limit is %d" % [
-			state.banked.size(), CombatState.BANK_LIMIT])
+			state.banked.size(), state.bank_limit])
 	if state.alarm < 0:
 		_violation("negative alarm (%d) after '%s'" % [state.alarm, kind])
 	if state.enemy_hp > state.enemy_max_hp:
@@ -259,7 +259,7 @@ func _next_command(state: CombatState, persona: String, stall: int) -> Dictionar
 		"hoarder":
 			# Never fires anything: banks, charges, and hoards until the
 			# night presses kill him. Exercises full banks and over-charge.
-			if state.banked.size() < CombatState.BANK_LIMIT and not state.hand.is_empty():
+			if state.banked.size() < state.bank_limit and not state.hand.is_empty():
 				return {"type": "bank", "hand_index": 0}
 			if not state.hand.is_empty() and not state.skills.is_empty():
 				return {"type": "charge_skill",
@@ -295,7 +295,7 @@ func _next_command(state: CombatState, persona: String, stall: int) -> Dictionar
 		"approach_spammer":
 			# Approaches are turn-1 only and lock after any action; spamming
 			# them proves the lock holds and the cost is paid exactly once.
-			var modes := CombatState.APPROACHES.keys()
+			var modes := state.approaches.keys()
 			if state.turn <= 1:
 				return {"type": "approach",
 					"mode": modes[_rng.pick_index(modes.size())]}
@@ -326,7 +326,7 @@ func _legal_commands(state: CombatState) -> Array[Dictionary]:
 	for humour in Catalog.HUMOURS:
 		options.append({"type": "concentrate", "humour": humour})
 	if state.can_approach():
-		for mode in CombatState.APPROACHES:
+		for mode in state.approaches:
 			options.append({"type": "approach", "mode": mode})
 	return options
 

@@ -34,11 +34,18 @@ const QUEST_KINDS: Array[String] = ["core", "side"]
 ## It lives HERE, in core, because it is a rule — the battle tray is built
 ## with one column per slot and the Mantel opens its loadout door only once
 ## the kit outgrows it, so scenes and services read it rather than owning it.
+##
+## The DIAL is data/rules.json `combat.loadout_size`; this const is the
+## shipped default and the door static callers knock on when they have no
+## Catalog in hand (SaveService.battle_loadout is static by design so the
+## loadout law is testable without a scene tree). Instance callers should
+## prefer `catalog.rules.count("combat.loadout_size")`.
 const LOADOUT_SIZE := 5
 
 ## A lead's recap line shares one story page with two other lines and a
 ## fixed-size illustration. Measured against the story screen's text budget:
 ## ~70 characters is two wrapped lines at 37px, which fits; more does not.
+## Dial: data/rules.json `presentation.recap_line_max`.
 const RECAP_LINE_MAX := 70
 
 var energy_cards: Dictionary = {}   # id -> {id, humour, value}
@@ -61,6 +68,11 @@ var crossings: Dictionary = {}      # id -> {length, hazard, gusts}
 ## Teachable concepts — taught once at the moment they first matter, and
 ## replayable from the Casebook forever after (owner rule 2026-08-04).
 var lessons: Dictionary = {}        # id -> {id, name, blurb, kind, order, pages, scene}
+## The tuning dials (data/rules.json). Everything the game BALANCES on —
+## costs, caps, limits, rates, prices, the starting kit — reached through
+## `rules.count("combat.hand_limit")` and friends. Never null: an absent file
+## yields a Rules that answers entirely from its shipped defaults.
+var rules: Rules = Rules.new()
 
 func _init(data: Dictionary = {}) -> void:
 	energy_cards = data.get("energy_cards", {})
@@ -79,6 +91,7 @@ func _init(data: Dictionary = {}) -> void:
 	lattices = data.get("lattices", {})
 	crossings = data.get("crossings", {})
 	lessons = data.get("lessons", {})
+	rules = Rules.new(data.get("rules", {}))
 
 
 ## Every evidence id defined by any case — quest gates reference these
@@ -164,6 +177,36 @@ func validate() -> Array[String]:
 	problems.append_array(_validate_minigames())
 	problems.append_array(_validate_lessons())
 	problems.append_array(_validate_humour_names())
+	# The dials are content too: an incoherent balance file (a zero hand
+	# limit, a deck floor above the starting deck) must stop at boot with a
+	# readable page, not divide by zero four screens in.
+	problems.append_array(rules.validate())
+	problems.append_array(_validate_rule_references())
+	return problems
+
+
+## The dials name CONTENT — starting cards, starting skills, approach humours.
+## A typo there is invisible until a player boots with an empty deck, so the
+## cross-file check lives with every other cross-file check.
+func _validate_rule_references() -> Array[String]:
+	var problems: Array[String] = []
+	if energy_cards.is_empty() and skills.is_empty():
+		return problems  # a Catalog built for a unit test, not the real one
+	for card_id in rules.list("start.deck"):
+		if not energy_cards.has(String(card_id)):
+			problems.append("rules: start.deck names unknown energy card '%s'" % card_id)
+	for key in ["start.skills", "start.prologue_skills"]:
+		for skill_id in rules.list(key):
+			if not skills.has(String(skill_id)):
+				problems.append("rules: %s names unknown skill '%s'" % [key, skill_id])
+	for lesson_id in rules.list("start.lessons_implied_by_prologue"):
+		if not lessons.is_empty() and not lessons.has(String(lesson_id)):
+			problems.append("rules: start.lessons_implied_by_prologue names unknown lesson '%s'"
+				% lesson_id)
+	for mode in rules.approaches():
+		for humour in rules.table("approaches.%s.cost" % mode):
+			if not HUMOURS.has(String(humour)):
+				problems.append("rules: approach '%s' costs unknown humour '%s'" % [mode, humour])
 	return problems
 
 

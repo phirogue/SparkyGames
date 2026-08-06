@@ -14,9 +14,10 @@ Each leg runs the real game through the component runner --
 reach and its shots land in `screenshots/quests/<id>/`. Legs are independent:
 one broken quest does not stop the sweep, it is reported at the end.
 
-Pair with `tools/shotcheck.py`, which reads the output and fails on content
-outside the page margins. Together they are the "see it before you say it is
-done" law applied to content that is not the prologue.
+Pairs with `tests/page_guard.gd`, which runs inside each leg and reports any
+content outside the page margins; this script surfaces those as LAYOUT lines
+and fails the sweep on them. Together they are the "see it before you say it
+is done" law applied to content that is not the prologue.
 """
 
 import argparse
