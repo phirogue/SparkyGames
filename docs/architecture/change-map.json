@@ -187,7 +187,8 @@
     "change-player-facing-prose": {
       "summary": "Anything a player reads.",
       "touch": [
-        { "path": "game/story/prologue.json", "why": "prologue scenes", "optional": true },
+        { "path": "game/story/prologue", "why": "prologue scenes — one file per arc, assembled in the order index.json names them", "optional": true },
+        { "path": "game/story/world", "why": "worldbuilding the Casebook and the writing both read from", "optional": true },
         { "path": "game/story/interface.json", "why": "the game's own voice outside a scripted scene", "optional": true },
         { "path": "game/data/quests.json", "why": "quest beats", "optional": true },
         { "path": "game/data/lessons.json", "why": "teaching pages", "optional": true }

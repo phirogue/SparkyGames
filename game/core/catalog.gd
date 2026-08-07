@@ -73,6 +73,11 @@ var lessons: Dictionary = {}        # id -> {id, name, blurb, kind, order, pages
 ## `rules.count("combat.hand_limit")` and friends. Never null: an absent file
 ## yields a Rules that answers entirely from its shipped defaults.
 var rules: Rules = Rules.new()
+## Worldbuilding (story/world/*.json), keyed by filename stem: "city",
+## "weft", "factions". Reference material the game can read — districts,
+## what each humour MEANS as opposed to what it costs, who the guilds are.
+## Its ids are validated against the ids that reference them.
+var world: Dictionary = {}
 
 func _init(data: Dictionary = {}) -> void:
 	energy_cards = data.get("energy_cards", {})
@@ -92,6 +97,7 @@ func _init(data: Dictionary = {}) -> void:
 	crossings = data.get("crossings", {})
 	lessons = data.get("lessons", {})
 	rules = Rules.new(data.get("rules", {}))
+	world = data.get("world", {})
 
 
 ## Every evidence id defined by any case — quest gates reference these
@@ -182,6 +188,51 @@ func validate() -> Array[String]:
 	# readable page, not divide by zero four screens in.
 	problems.append_array(rules.validate())
 	problems.append_array(_validate_rule_references())
+	problems.append_array(_validate_world())
+	return problems
+
+
+## The world files name the same things content names. Prose in a design doc
+## cannot be checked against a quest; this can — so a district renamed in one
+## place and not the other is caught at boot instead of by a player finding a
+## quest that belongs to nowhere.
+func _validate_world() -> Array[String]:
+	var problems: Array[String] = []
+	if world.is_empty():
+		return problems  # a Catalog built for a unit test, not the real one
+	var districts: Dictionary = world.get("city", {}).get("districts", {})
+	if not districts.is_empty():
+		for district_id in districts:
+			if not DISTRICTS.has(String(district_id)):
+				problems.append("world/city.json describes district '%s', which the code does not know"
+					% district_id)
+		for district_id in DISTRICTS:
+			if not districts.has(district_id):
+				problems.append("district '%s' has no entry in world/city.json" % district_id)
+	var humours: Dictionary = world.get("weft", {}).get("humours", {})
+	if not humours.is_empty():
+		for humour_id in humours:
+			if String(humour_id).begins_with("_"):
+				continue
+			if not HUMOURS.has(String(humour_id)):
+				problems.append("world/weft.json describes humour '%s', which is not one of the four"
+					% humour_id)
+		for humour_id in HUMOURS:
+			if not humours.has(humour_id):
+				problems.append("humour '%s' has no entry in world/weft.json" % humour_id)
+			elif String(humours[humour_id].get("name", "")) != humour_name(humour_id):
+				# The Moonlight trap, from the other direction: the world file
+				# is where a writer would look up what the fourth humour is
+				# called, so it must not be the place that says "Mysticism".
+				problems.append("world/weft.json calls '%s' by the wrong name — it is %s"
+					% [humour_id, humour_name(humour_id)])
+	var factions: Dictionary = world.get("factions", {}).get("factions", {})
+	for faction_id in factions:
+		if String(faction_id).begins_with("_"):
+			continue
+		if not guilds.is_empty() and not guilds.has(String(faction_id)):
+			problems.append("world/factions.json describes '%s', which is not a guild in data/guilds.json"
+				% faction_id)
 	return problems
 
 

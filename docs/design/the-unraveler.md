@@ -138,7 +138,7 @@ player uses daily is not a trick, which protects the Exchange's charm.)
 ## Consequences for content already shipped
 
 No shipped line contradicts this answer (audited against
-game/story/prologue.json, enemies.json, achievements.json — the strand,
+game/story/prologue/, enemies.json, achievements.json — the strand,
 the third thread, the pigeons, the lamp-hook, the Unpicked's behavior,
 and the Clerk's "irregular" all land as planted clues). Two obligations
 going forward:

@@ -1,0 +1,26 @@
+{
+  "_notes": [
+    "THE PROLOGUE, IN ORDER. StoryLoader reads this file, concatenates",
+    "`arcs` in the order listed, and merges `interludes` on top -- the",
+    "result is exactly the dictionary game.gd used to load from the single",
+    "prologue.json, so nothing downstream had to learn a new shape.",
+    "",
+    "Why split: one 23KB file held 33 scenes plus four page-sets, so every",
+    "edit touched the same file and no filename told you where a beat was.",
+    "An arc is now a file you can open, read end to end, and hand to a",
+    "critic on its own.",
+    "",
+    "To add an arc: write the file, add it to `arcs` in the right place.",
+    "To reorder: move the filename. Scene INDICES shift when you do, and",
+    "`--scene story:<index>` counts across the whole prologue -- so a",
+    "reorder invalidates any index you had written down."
+  ],
+  "arcs": [
+    "01_the_gift.json",
+    "02_into_the_city.json",
+    "03_the_wrong_lamps.json",
+    "04_the_way_home.json",
+    "05_the_parlor.json"
+  ],
+  "interludes": "interludes.json"
+}

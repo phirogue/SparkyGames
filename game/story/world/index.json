@@ -1,0 +1,46 @@
+{
+  "_notes": [
+    "THE WORLD, IN A FORM THE GAME CAN READ.",
+    "",
+    "Hollowmere's canon lived only in docs/design/world-bible.md -- prose for",
+    "humans, invisible to every tool. That is fine for a setting nobody has to",
+    "agree with, and this is not one: quests name districts, guilds carry",
+    "standing, the four humours have both a rule and a meaning, and all of it",
+    "has to stay consistent across content written weeks apart.",
+    "",
+    "So the parts of the world that CONTENT REFERENCES live here as data, with",
+    "stable ids that match game/data/*.json, and Catalog.validate() checks the",
+    "two halves still agree. The world bible stays the long-form source; this",
+    "is the half a program can check and a screen can show.",
+    "",
+    "WHAT BELONGS HERE: anything a quest, a screen or a validator refers to by",
+    "id -- districts, the humours' meaning, the factions, recurring cast.",
+    "WHAT DOES NOT: backdrop nobody names. The bible is a better home for the",
+    "seven older cities under Hollowmere than a JSON file is.",
+    "",
+    "Every `id` here is a promise. Renaming one breaks the quest that names it,",
+    "so ids are stable and display names are free to change (the same rule that",
+    "keeps `mysticism` in the save while the player reads 'Moonlight')."
+  ],
+
+  "files": {
+    "city.json": "Hollowmere itself, and the five districts quests are set in. District ids MUST match Catalog.DISTRICTS.",
+    "weft.json": "The magic system, and what each of the four humours MEANS as opposed to what it costs. Humour ids MUST match Catalog.HUMOURS.",
+    "factions.json": "The guilds, expanded from data/guilds.json. Ids MUST match that file."
+  },
+
+  "canon_anchors": {
+    "_notes": [
+      "The handful of facts that everything else has to bend around. They are",
+      "here rather than in a doc because they have all been contradicted at",
+      "least once by content written later."
+    ],
+    "the_hush": "The seam between the day-side and the night-side, sewn by generations of witches. Not a wall — a seam. Loosening since Elspeth's murder.",
+    "who_sees": "Cats, children, drunks, and the recently bereaved see both sides. Cats are the seam's unpaid inspectors, by ancient arrangement.",
+    "magic_is_labour": "Witches stitch. A ward is a hem, a curse is a knot in someone else's thread, a binding is a seam. Great workings are maintained, not cast — which is why witches are paid like plumbers and respected like surgeons.",
+    "costs_are_real": "Thread pulled must come from somewhere: memory, warmth, years, luck. Any magic shown in-game must have a visible cost.",
+    "the_dead": "Ghosts are stitches that were never tied off. The Hollow Court exists to do the tying.",
+    "ash_wears_one_thing": "A cat cannot dress himself and would not choose to. Everything carried rides in the nine shadow-pockets Elspeth sewed; the collar is the one thing he wears.",
+    "neckerchief": "Ash has NO red neckerchief before `sc_collar`, the last beat before the title card. Art set earlier must show him bare-necked."
+  }
+}

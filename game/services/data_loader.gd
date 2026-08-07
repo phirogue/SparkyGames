@@ -4,6 +4,7 @@ extends RefCounted
 ## receives a built Catalog and never touches FileAccess.
 
 const DATA_DIR := "res://data"
+const WORLD_DIR := "res://story/world"
 
 static func load_catalog(data_dir: String = DATA_DIR) -> Catalog:
 	return Catalog.new({
@@ -28,7 +29,24 @@ static func load_catalog(data_dir: String = DATA_DIR) -> Catalog:
 		# default in Rules.DEFAULTS — so a missing or half-written rules.json
 		# degrades to the shipped balance instead of to an unplayable game.
 		"rules": _load_json(data_dir + "/rules.json"),
+		# Worldbuilding the game itself reads. Canon that content REFERENCES by
+		# id (districts, the humours' meaning, the factions) has to be checkable
+		# against the ids that reference it — prose in a design doc cannot be.
+		"world": _load_world(),
 	})
+
+
+## story/world/*.json, merged into one dictionary keyed by filename stem.
+## Missing entirely is not fatal: the world is reference material, and a game
+## that cannot show a district's blurb is still a game.
+static func _load_world(world_dir: String = WORLD_DIR) -> Dictionary:
+	var world := {}
+	for file_name in DirAccess.get_files_at(world_dir):
+		var name := String(file_name).trim_suffix(".remap")
+		if not name.ends_with(".json") or name == "index.json":
+			continue
+		world[name.trim_suffix(".json")] = _load_json("%s/%s" % [world_dir, name])
+	return world
 
 
 static func _load_json(path: String) -> Dictionary:

@@ -10,7 +10,7 @@
     "order and the count when rewriting, tests/unit/test_strings.gd checks",
     "that every key the code asks for exists and takes the arguments given.",
     "",
-    "Scene prose does NOT live here -- that is story/prologue.json and the",
+    "Scene prose does NOT live here -- that is story/prologue/ and the",
     "quests' own steps. This file is the game's own voice: the prowl's",
     "book-keeping, the chronicle's event lines, and the room's captions."
   ],

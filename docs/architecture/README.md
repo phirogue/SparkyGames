@@ -61,7 +61,8 @@ is a string no content tool can validate, translate or review.
 
 | The words are… | They live in |
 |---|---|
-| a prologue scene | `story/prologue.json` |
+| a prologue scene | `story/prologue/<arc>.json` (order in `index.json`) |
+| worldbuilding the game reads | `story/world/*.json` |
 | the game's own voice (prowl book-keeping, chronicle, captions) | `story/interface.json` |
 | a quest beat | `data/quests.json` |
 | a teaching page | `data/lessons.json` |

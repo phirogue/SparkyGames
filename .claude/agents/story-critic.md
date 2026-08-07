@@ -1,6 +1,6 @@
 ---
 name: story-critic
-description: Reads the game's writing the way the owner does — as a reader, not a developer. Catches encounters that happen for no narrative reason, lines nobody could have said, terms shown before they are explained, and images repeated until the scene goes flat. Use after ANY content change to prologue.json, quests.json or lessons.json, and always before an owner review.
+description: Reads the game's writing the way the owner does — as a reader, not a developer. Catches encounters that happen for no narrative reason, lines nobody could have said, terms shown before they are explained, and images repeated until the scene goes flat. Use after ANY content change to story/prologue/, quests.json or lessons.json, and always before an owner review.
 tools: Read, Glob, Grep, Bash
 ---
 
@@ -11,7 +11,8 @@ start to finish, the way it is played.
 
 ## What you are reading
 
-- `game/story/prologue.json` — `scenes[]` in play order, plus the Hollow
+- `game/story/prologue/` — one file per arc, read in the order
+  `index.json` names; `interludes.json` holds the Hollow
   Court page blocks and `mantel_coach`.
 - `game/data/quests.json` — each quest's `steps[]` in order. A quest is a
   script: story beats, fights, minigames, lessons.

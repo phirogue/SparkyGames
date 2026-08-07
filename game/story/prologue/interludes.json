@@ -1,0 +1,110 @@
+{
+  "_notes": [
+    "PAGES THE PROLOGUE REACHES BY SITUATION, NOT BY INDEX.",
+    "",
+    "The Hollow Court is played as a small SCENE rather than one wall of",
+    "text (owner 2026-08-04: the first visit read as if Ash already knew",
+    "the place). First death gets the arrival; every death after that gets",
+    "the short form, because by then he does know it. Repeated content must",
+    "vary -- a death that reads identically to the last death tells the",
+    "player nothing happened (law 15).",
+    "",
+    "mantel_coach walks the room once, the first time it is entered.",
+    "unpicked_won is the scene for beating a fight that is not meant to be",
+    "winnable -- it exists because somebody will."
+  ],
+  "hollow_court_first": [
+    {
+      "lines": [
+        "The cold goes first. Then the noise. Then the part of me that was worried about the noise.",
+        "What is left over is standing in a corridor that is all filing and no building, under a ceiling too far up to be a ceiling.",
+        "Nothing hurts. I would like it on record that I find this deeply suspicious."
+      ]
+    },
+    {
+      "portrait": "sc_hollow_court_desk",
+      "art_desc": "The Hollow Court: a translucent clerk at a lamplit desk before endless filing shelves, one empty chair facing him",
+      "lines": [
+        "A desk. A lamp. A queue of one, and the one is me.",
+        "The Clerk does not look up. 'Name?'"
+      ],
+      "choices": [
+        "I am a cat.",
+        "Ashcat. Of Needle Lane.",
+        "Say nothing. Sit. Wait."
+      ],
+      "answers": [
+        [
+          "'Everyone here is something.' He turns a page without touching it. '...Vane's familiar. There you are.'",
+          "'Nine allotted. One spent. Try to be interesting about the rest.'"
+        ],
+        [
+          "'Needle Lane.' Something moves behind the spectacles that is almost interest. 'Yes. We have had a busy evening from Needle Lane.'",
+          "'Vane's familiar. Nine allotted, one spent.' He does not say whose the busy evening was. I do not ask, because I already know."
+        ],
+        [
+          "The silence goes on long enough to become a position. He allows it, and then writes something anyway.",
+          "'Vane's familiar. Nine allotted, one spent.' — 'You will find that not answering is also an answer, and that I have a great deal of filing.'"
+        ]
+      ]
+    },
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "'The arrangement, since it is your first: you are difficult to kill and not impossible. When you are killed you come here, we take the Toll, and you go back up.'",
+        {
+          "text": "Dying costs a life and a quarter of your banked gleam. Whatever was in your satchel stays where you dropped it. Nothing else is lost — not your kit, not your case, not what you have already worked out.",
+          "rule": true
+        },
+        "'The first visit is complimentary. Do consider it a courtesy rather than a habit.'",
+        "The stamp comes down. It is, I notice, a paw print. Neither of us remarks on this.",
+        "The stairs up are longer than the fall down. They always are."
+      ]
+    }
+  ],
+  "hollow_court_repeat": [
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "The desk again. The lamp again. The Clerk does not look up.",
+        "'Back so soon. The form remembers you, which saves us both time.'",
+        "The Toll is taken. Professionally. Almost gently.",
+        "The stairs up are longer than the fall down. They always are."
+      ]
+    }
+  ],
+  "mantel_coach": [
+    {
+      "target": "",
+      "text": "Her parlor. Cold, and still hers. This is where a night begins and, with luck, ends."
+    },
+    {
+      "target": "board",
+      "text": "What the city is asking of you gets pinned to the chimney breast. One thing tonight. There will be more; there is always more."
+    },
+    {
+      "target": "note",
+      "text": "Tap a note to take the work. A prowl is two or three rooms deep — press on for a bigger purse, or come home while you still can."
+    },
+    {
+      "target": "purse",
+      "text": "Gleam. Buttons, mostly, and the occasional tooth. It buys cards, and it is what the Court takes when you die."
+    },
+    {
+      "target": "status",
+      "text": "Lives, the spool, and deeds recorded. The spool is the one to watch: it does not refill mid-prowl."
+    },
+    {
+      "target": "doors",
+      "text": "One door for now — the Casebook, which is only my own memory and has always been open. The rest of this room opens when I have earned it. Find the Magpie first."
+    },
+    {
+      "target": "footer",
+      "text": "And that. For when you want to go back and stand in the worst night again. I do not recommend it. I do it constantly."
+    }
+  ],
+  "unpicked_won": [
+    "It comes apart. Thread by thread. That was not supposed to happen.",
+    "Somewhere below the city, a clerk files something under 'irregular'."
+  ]
+}

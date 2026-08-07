@@ -15,7 +15,9 @@ the data.
 
 ## What to read
 
-- `game/story/prologue.json` — `scenes[]`, especially every `coach` array.
+- `game/story/prologue/` — the arcs in the order `index.json` names them;
+  read `scenes[]` and especially every `coach` array. `interludes.json`
+  holds the Hollow Court and the Mantel walkthrough.
 - `game/data/lessons.json` — what the game explains, and when.
 - `game/data/quests.json` — `steps[]`, and where `lesson` steps sit.
 - `game/data/skills.json`, `enemies.json`, `environments.json`,

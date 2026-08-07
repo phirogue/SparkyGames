@@ -14,7 +14,7 @@ backdrop, so a run of pages set in the same place with no portraits IS a run
 of the same image — which is exactly the case that got missed by eye.
 
 Reads the same content the game does:
-  game/story/prologue.json  scenes[] (and the Hollow Court page blocks)
+  game/story/prologue/      every arc, assembled (plus the Hollow Court blocks)
   game/data/quests.json     each quest's steps[]
   game/data/environments.json  for the fallback image per environment
 """
@@ -48,6 +48,29 @@ def image_of(beat: dict, environments: dict, carried: str) -> str:
     if environment:
         return environments.get(environment, "") or f"<{environment}>"
     return carried
+
+
+def load_prologue() -> dict:
+    """The prologue, assembled from story/prologue/ the way the game does.
+
+    Mirrors game/services/story_loader.gd: read index.json, concatenate the
+    arcs it names in order, merge the interludes on top. A run of one image
+    that spans an arc boundary still counts as one run — which is the whole
+    point of checking the assembled book rather than each file alone.
+    """
+    directory = REPO / "game/story/prologue"
+    index = json.loads((directory / "index.json").read_text(encoding="utf-8"))
+    book = {"scenes": []}
+    for arc_file in index.get("arcs", []):
+        arc = json.loads((directory / arc_file).read_text(encoding="utf-8"))
+        book["scenes"].extend(arc.get("scenes", []))
+    interludes_name = index.get("interludes")
+    if interludes_name:
+        for key, value in json.loads(
+                (directory / interludes_name).read_text(encoding="utf-8")).items():
+            if not key.startswith("_"):
+                book[key] = value
+    return book
 
 
 def beats_of_story(story: dict, environments: dict) -> list:
@@ -107,9 +130,7 @@ def main() -> None:
     args = parser.parse_args()
 
     environments = env_images()
-    sources = {"prologue": beats_of_story(
-        json.loads((REPO / "game/story/prologue.json").read_text(encoding="utf-8")),
-        environments)}
+    sources = {"prologue": beats_of_story(load_prologue(), environments)}
     for quest_id, quest in load(DATA / "quests.json").items():
         sources[f"quest:{quest_id}"] = beats_of_quest(quest, environments)
 

@@ -1,0 +1,71 @@
+{
+  "_notes": [
+    "THE WEFT -- the magic system, and what the four humours MEAN.",
+    "",
+    "data/energy_cards.json says what a humour COSTS. This says what it IS.",
+    "The split matters: a rules change should never need a writer, and a",
+    "rewrite of what Moonlight means to Ash should never need a programmer.",
+    "",
+    "Humour ids MUST match Catalog.HUMOURS. The fourth humour's id is",
+    "`mysticism` for save-file stability and its name is Moonlight everywhere a",
+    "player can see it -- Catalog.validate() fails any content field that shows",
+    "the player the id, because the Parlor's hand-written rule card did exactly",
+    "that and shipped for a chapter."
+  ],
+
+  "weft": {
+    "name": "The Weft",
+    "blurb": "Threads of intention running through everything, visible to almost no one.",
+    "truth": "Magic is needlework. Witches stitch; cats read the stitching. You have watched a cat stare at an empty corner — that is what it was doing."
+  },
+
+  "humours": {
+    "_notes": [
+      "`nature` is the cat's own reading of it. `teaches` names the prologue",
+      "beat that introduces it, so a writer can find where a player first met",
+      "the idea before assuming they know it (the terms-before-explanation",
+      "defect, which every owner review has found at least once)."
+    ],
+    "ferocity": {
+      "name": "Ferocity",
+      "blurb": "The red one. The oldest there is, and the only one a cat is born knowing.",
+      "nature": "Want, arriving faster than thought. It pays for the things you do before deciding to.",
+      "teaches": "prologue — the vole on the rooftop"
+    },
+    "guile": {
+      "name": "Guile",
+      "blurb": "The green one. Patience with a plan behind it.",
+      "nature": "Knowing which of the two doors is the one nobody watches.",
+      "teaches": "prologue — the streets down from the roofs"
+    },
+    "shadow": {
+      "name": "Shadow",
+      "blurb": "The black one. Being somewhere without having arrived.",
+      "nature": "Not invisibility — unnoticeability, which is cheaper and lasts longer.",
+      "teaches": "prologue — the gutter-wisp on Needle Lane"
+    },
+    "mysticism": {
+      "name": "Moonlight",
+      "blurb": "The blue one. Elspeth's unfinished magic, which Ash spends but cannot yet make.",
+      "nature": "The moon is the world's needle's-eye and moonlight is thread that has not been used yet. Thread that has not been used can still become any stitch — which is exactly why Moonlight can be spent in place of any other humour.",
+      "teaches": "prologue — the cold parlor",
+      "data_id_warning": "The DATA id is `mysticism` and always will be (old saves name it). The player is only ever shown `Moonlight`. UI goes through Catalog.humour_name()."
+    }
+  },
+
+  "costs": {
+    "_notes": [
+      "The rule that keeps the writing honest: thread pulled must come from",
+      "somewhere. Any working shown in-game states its price."
+    ],
+    "rule": "Thread pulled must come from somewhere: memory, warmth, years, luck.",
+    "why": "It keeps the fiction honest and makes mechanics-as-narrative easy — a cost the player pays in cards is the same cost the story is describing."
+  },
+
+  "the_pockets": {
+    "name": "The Shadow-Stitched Pockets",
+    "blurb": "Nine pockets sewn into Ash's shadow, one for each life — Elspeth's last finished working.",
+    "truth": "Anything Ash can carry in his mouth slides into a pocket and travels weightless wherever his shadow goes. Losing a life tears a pocket, which is where the Hollow Court's Toll comes FROM rather than merely what it costs.",
+    "open_thread": "What happens when all nine have been torn and re-sewn — and whose stitching repairs them, if the Needle is dead."
+  }
+}

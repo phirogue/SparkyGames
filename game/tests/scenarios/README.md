@@ -37,7 +37,7 @@ throwaway: scenarios NEVER touch the real save.
 - `story` replaces the prologue's scene list with the spec's own, so
   `launch: "story:0"` walks scenes that live nowhere else. This is how a
   story SYSTEM gets exercised before the chapter that uses it is written.
-  Same schema as `story/prologue.json`.
+  Same schema as an arc file in `story/prologue/`.
 
 ## Shipped scenarios
 

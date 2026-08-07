@@ -1,0 +1,162 @@
+{
+  "_arc": "The Gift",
+  "_notes": [
+    "Dusk on the rooftops. The vole hunt that teaches Ferocity, and the choice of what to do with a gift that will not be given.",
+    "",
+    "Scenes 0-5 of the prologue as it was before the split; `--scene story:<index>` still counts across the whole prologue, not within this file."
+  ],
+  "scenes": [
+    {
+      "type": "story",
+      "environment": "rooftop_dusk",
+      "lines": [
+        "Dusk over Hollowmere. The lamps going up, one by one, like the city buttoning its coat.",
+        "She puts the kettle on when the lamps go up. I am punctual. She is predictable. The arrangement works.",
+        "Tonight calls for a gift. A vole, ideally. Voles say what flowers cannot."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "rooftop_dusk",
+      "portrait": "sc_vole_stalk",
+      "art_desc": "Ash pressed low on rooftop tiles, stalking an unaware vole near a chimney pot, warm dusk light",
+      "lines": [
+        "There. Under the chimney pot. Fat, smug, unaware.",
+        "Tonight the world is simple, and the world is RED."
+      ]
+    },
+    {
+      "type": "notice",
+      "grant": [
+        "pounce"
+      ],
+      "notes": [
+        "❋ FEROCITY, the red energy — the oldest there is, and the only one a cat is born knowing. It pays for POUNCE."
+      ]
+    },
+    {
+      "type": "battle",
+      "encounter": "prologue_vole",
+      "no_approach": true,
+      "shuffle": false,
+      "deck": [
+        "mysticism_1",
+        "mysticism_1",
+        "mysticism_1",
+        "mysticism_1",
+        "guile_1",
+        "guile_1",
+        "guile_1",
+        "guile_1",
+        "shadow_1",
+        "shadow_1",
+        "shadow_1",
+        "shadow_1",
+        "shadow_1",
+        "ferocity_1",
+        "ferocity_1",
+        "ferocity_1",
+        "ferocity_1",
+        "ferocity_1",
+        "ferocity_1",
+        "ferocity_1",
+        "ferocity_1"
+      ],
+      "opening_cards": [
+        "ferocity_1",
+        "ferocity_1",
+        "ferocity_1"
+      ],
+      "coach": [
+        {
+          "target": "portrait",
+          "text": "The opposition. Tonight: one vole of tremendous conviction."
+        },
+        {
+          "target": "thread",
+          "text": "Its life is a red thread. Claws do the unstitching."
+        },
+        {
+          "target": "intent",
+          "text": "It telegraphs its next move here. Honesty is its one virtue."
+        },
+        {
+          "target": "hp",
+          "text": "The heart: your lives-worth of tonight. Guard it."
+        },
+        {
+          "target": "guard",
+          "text": "The shield: GUARD soaks a hit, then fades at turn's end."
+        },
+        {
+          "target": "deck",
+          "text": "The spool: energy still wound in your deck. It only ever unwinds — spent stays spent."
+        },
+        {
+          "target": "paws",
+          "text": "Paws are actions. Placing an energy anywhere spends one. Three a turn."
+        },
+        {
+          "target": "hand",
+          "text": "Your hand is ENERGY — tonight, all Ferocity."
+        },
+        {
+          "target": "skill:pounce",
+          "text": "Tap POUNCE.",
+          "wait": true
+        },
+        {
+          "target": "charge",
+          "text": "Two empty pips, two Ferocity owed. Feed it one.",
+          "wait": true
+        },
+        {
+          "target": "charge",
+          "text": "One to go. A skill fires only once every pip is filled.",
+          "wait": true
+        },
+        {
+          "target": "use",
+          "text": "Full. A willing card. Tap USE.",
+          "wait": true
+        },
+        {
+          "target": "thread",
+          "text": "Four off its thread — that is what a powered card buys."
+        },
+        {
+          "target": "hand",
+          "text": "And two energies lighter. The spool does not rewind."
+        },
+        {
+          "target": "paws",
+          "text": "Two paws gone with them. Placing energy is the cost of doing anything."
+        },
+        {
+          "target": "skill:scratch",
+          "text": "A breath left in it. SCRATCH — free, once a turn. Finish politely.",
+          "wait": true
+        }
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "rooftop_dusk",
+      "when_outcome": "victory",
+      "portrait": "sc_ash_vole_gift",
+      "lines": [
+        "Acquired. Thoughtfully dead.",
+        "She will say 'not on the table', and mean 'thank you'."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "rooftop_dusk",
+      "when_outcome": "retreat",
+      "lines": [
+        "The vole declines to be a gift tonight. Dignity intact. Mostly.",
+        "She will have to make do with my company, which is worth several voles."
+      ]
+    }
+  ]
+}

@@ -38,7 +38,7 @@ func _flashback_tint() -> String: return catalog.rules.text("presentation.flashb
 var catalog: Catalog
 var profile: Dictionary
 var tracker: AchievementTracker
-var story: Dictionary          # story/prologue.json
+var story: Dictionary          # assembled from story/prologue/ by StoryLoader
 
 var current_screen: Control
 var toasts: Array[String] = [] # achievement lines to surface on the next story screen
@@ -107,12 +107,13 @@ func _ready() -> void:
 		profile = SaveService.load_profile()
 	tracker = AchievementTracker.new(catalog)
 	tracker.from_dict(profile.get("achievements", {}))
-	var file := FileAccess.open("res://story/prologue.json", FileAccess.READ)
-	var parsed: Variant = null if file == null else JSON.parse_string(file.get_as_text())
-	if not (parsed is Dictionary):
-		_fatal("This copy of the game is missing its story.\n(story/prologue.json)")
+	# The prologue is assembled from story/prologue/ — an index naming the arcs
+	# in order, one file per arc. StoryLoader hands back the same shape the
+	# single prologue.json used to have, so everything below is unchanged.
+	story = StoryLoader.load_prologue()
+	if story.is_empty():
+		_fatal("This copy of the game is missing its story.\n(story/prologue/)")
 		return
-	story = parsed
 	_build_settings_layer()
 	# The tour node attaches BEFORE the first screen is swapped in, and
 	# regardless of how the game is launched: `--tour --scene scenario:<name>`
@@ -285,7 +286,7 @@ func _launch_scenario(scenario_name: String) -> void:
 	# A scenario may carry its OWN story scenes, which is how a story system
 	# gets exercised before the chapter that uses it is written: the spec
 	# becomes the scene list `story:<index>` walks. Same schema as
-	# story/prologue.json.
+	# story/prologue/.
 	if spec.has("story"):
 		story = {"scenes": spec["story"]}
 	carryover = spec.get("carryover", {})

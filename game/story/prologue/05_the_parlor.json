@@ -1,0 +1,92 @@
+{
+  "_arc": "The Parlor",
+  "_notes": [
+    "The Unpicked, wearing her red. The fight that cannot be won, what is left afterwards, and the title card.",
+    "",
+    "Scenes 26-32 of the prologue as it was before the split; `--scene story:<index>` still counts across the whole prologue, not within this file."
+  ],
+  "scenes": [
+    {
+      "type": "battle",
+      "encounter": "prologue_parlor",
+      "shuffle": false,
+      "skills": [
+        "pounce",
+        "slink",
+        "purr",
+        "loaf"
+      ],
+      "start_hidden_if_flag": {
+        "flag": "prologue_route",
+        "value": 1
+      },
+      "coach": [
+        {
+          "target": "hand",
+          "text": "MOONLIGHT — the pale card. It is WILD: it pays any cost you own, whatever the colour of the pips. Hers always did work on anything."
+        },
+        {
+          "target": "concentrate",
+          "text": "And CONCENTRATE: give up the whole turn to stare one spent energy back onto the spool. It is the last thing you have when the hand is empty. It will not be enough. Do it anyway."
+        }
+      ],
+      "hints": {
+        "1": "Moonlight is hers, and it is WILD — a Moonlight card pays for anything you own. Spend it. Spend everything.",
+        "2": "It will not be enough.",
+        "3": "Spend it anyway.",
+        "5": "Her room makes Moonlight cheaper. She is still helping. It still will not be enough."
+      },
+      "opening_cards": [
+        "mysticism_1",
+        "mysticism_1",
+        "ferocity_1"
+      ]
+    },
+    {
+      "type": "hollow_court_if_died"
+    },
+    {
+      "type": "story",
+      "environment": "parlor_cold",
+      "when_outcome": "defeat",
+      "lines": [
+        "Something comes back on before I do. Hearing, I think.",
+        "Floorboards under one cheek. The smell of cold hearth. Four paws — count them. Four.",
+        "Whatever was standing in the doorway is not standing in the doorway. Get up, Ash."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "parlor_cold",
+      "portrait": "sc_elspeth_still",
+      "lines": [
+        "The parlor.",
+        "Elspeth in her chair. The light gone out of her hands.",
+        "..."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "parlor_cold",
+      "portrait": "sc_kettle",
+      "lines": [
+        "The kettle is still screaming. It has been screaming this whole time, and I did not hear it until now.",
+        "She hates it when it does that.",
+        "I took it off the fire. One paw. It took three tries. Nobody will ever know."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "parlor_cold",
+      "portrait": "sc_collar",
+      "lines": [
+        "The thread at my chest — the one that was always hers — cut.",
+        "Not quite. One strand left. Thin as spite. Running out under the window, into the city.",
+        "Then that is where we are going."
+      ]
+    },
+    {
+      "type": "title"
+    }
+  ]
+}

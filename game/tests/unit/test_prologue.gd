@@ -10,7 +10,10 @@ extends TestCase
 
 const BattleScreen := preload("res://scenes/battle.gd")
 
-const STORY_PATH := "res://story/prologue.json"
+## The prologue is assembled from story/prologue/ (an index plus one file per
+## arc). Tests load it the way the game does, through StoryLoader, so a split
+## that assembles wrongly fails here rather than on somebody's phone.
+const STORY_DIR := "res://story/prologue"
 
 ## Coach target keys the battle screen knows how to resolve. "skill:<id>" is
 ## handled separately because the id half is checked against the catalog.
@@ -22,11 +25,7 @@ const COACH_KEYS := [
 
 
 func _story() -> Dictionary:
-	var file := FileAccess.open(STORY_PATH, FileAccess.READ)
-	if file == null:
-		return {}
-	var parsed: Variant = JSON.parse_string(file.get_as_text())
-	return parsed if parsed is Dictionary else {}
+	return StoryLoader.load_prologue(STORY_DIR)
 
 
 func _lines_of(scene: Dictionary) -> Array:
@@ -35,7 +34,8 @@ func _lines_of(scene: Dictionary) -> Array:
 
 func test_prologue_parses_and_every_scene_has_a_known_type() -> void:
 	var story := _story()
-	assert_true(not story.is_empty(), "story/prologue.json must parse as an object")
+	assert_true(not story.is_empty(),
+		"story/prologue/ must assemble — check index.json and every arc it names")
 	var known := ["story", "notice", "battle", "title", "hollow_court_if_died",
 		"flashback", "favor_redeem"]
 	for scene in story.get("scenes", []):

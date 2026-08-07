@@ -1,0 +1,86 @@
+{
+  "_arc": "The Wrong Lamps",
+  "_notes": [
+    "The lamps are lit in the wrong order and the Lamplighters are nowhere. The rag-wraith is the lesson about declining a fight.",
+    "",
+    "Scenes 12-17 of the prologue as it was before the split; `--scene story:<index>` still counts across the whole prologue, not within this file."
+  ],
+  "scenes": [
+    {
+      "type": "story",
+      "environment": "needle_lane",
+      "lines": [
+        "Something is wrong tonight, and it is not the wisp. No pigeons. Pigeons are never quiet; quiet is against their religion."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "needle_lane_wrong",
+      "lines": [
+        "The lamps on Needle Lane are lit wrong — and the Lamplighters never miss. The dog at Number Twelve is awake and does not bark, which it has never once failed to do.",
+        "Halfway down, the fog stops being fog.",
+        "It has sleeves. A collar. The shape of a person who is not in it — and every cut thread on this street is running towards it, like water finding a drain.",
+        "It turns what it has instead of a face towards me. Whatever unpicked the lamps is still working, and I am standing in its light."
+      ]
+    },
+    {
+      "type": "notice",
+      "grant": [
+        "loaf",
+        "purr"
+      ],
+      "notes": [
+        "❋ GUILE, the green patience — and MOONLIGHT, which is hers. Moonlight is WILD: one Moonlight card pays for anything you own."
+      ]
+    },
+    {
+      "type": "battle",
+      "encounter": "prologue_wraith",
+      "shuffle": false,
+      "opening_cards": [
+        "guile_1",
+        "guile_1",
+        "mysticism_1"
+      ],
+      "skills": [
+        "pounce",
+        "slink",
+        "purr",
+        "loaf"
+      ],
+      "coach": [
+        {
+          "target": "portrait",
+          "text": "A RAG-WRAITH: clothes whose owner is missing. Not dead — missing. It is above your weight, and it knows it."
+        },
+        {
+          "target": "skill:purr",
+          "text": "PURR heals 2 a turn for two turns — but breaks if you're hit. Purr behind a block."
+        },
+        {
+          "target": "slip",
+          "text": "You do not have to win this. SLIP AWAY — though it gets its move in as you go."
+        }
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "needle_lane_wrong",
+      "when_outcome": "retreat",
+      "lines": [
+        "Three streets before I stop, and I stop because my legs decide it, not me.",
+        "Nothing followed. Nothing is missing. Ash: one. The weather: nothing. I would like that entered in the record.",
+        "And yet: it was not hunting me. It was WORKING. Whatever it is doing to this street, I interrupted about as much as a fly interrupts a window."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "needle_lane_wrong",
+      "when_outcome": "victory",
+      "lines": [
+        "It comes apart in the middle of the road, and the threads it was pulling go slack.",
+        "That was not supposed to be possible, and I do not feel clever about it. I feel like something let go."
+      ]
+    }
+  ]
+}

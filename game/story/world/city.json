@@ -1,0 +1,53 @@
+{
+  "_notes": [
+    "HOLLOWMERE AND ITS DISTRICTS.",
+    "",
+    "District ids MUST match Catalog.DISTRICTS -- a quest names one, and a typo",
+    "there would silently orphan the quest from its region. Catalog.validate()",
+    "checks both directions: every district here is known to the code, and",
+    "every district the code knows has an entry here.",
+    "",
+    "`blurb` is the one line a screen would show. `truth` is for whoever writes",
+    "the next quest set here -- it is not player-facing and does not need to",
+    "fit any text budget."
+  ],
+
+  "city": {
+    "name": "Hollowmere",
+    "blurb": "A fog-buttoned city wrapped around a black lake, with chimney forests, canals, too many stairs and exactly the right number of rooftops.",
+    "truth": "Built on seven older cities the way a cat sits on yesterday's newspaper — deliberately and without apology. The Mere is the black lake at its centre, and since Elspeth's murder the Mere has begun to hope, which is worse than it sounds."
+  },
+
+  "districts": {
+    "thimblefield": {
+      "name": "Thimblefield",
+      "blurb": "Witches' row. Elspeth's parlor is here, and so is home.",
+      "truth": "The hub district. Quiet, respectable, full of people who mend things for a living. Ash's whole world was four streets of it until the night the kettle screamed.",
+      "launch": true
+    },
+    "wickrow": {
+      "name": "Wickrow",
+      "blurb": "The Chandlers' district — wax, wicks, and the smell of a hundred small flames.",
+      "truth": "Chapter 1's spine runs through here. The Chandlers' Guild is powerful, respectable and extremely interested in who has been buying beeswax in quantity.",
+      "launch": true
+    },
+    "shambles": {
+      "name": "The Shambles",
+      "blurb": "A market maze that rearranges itself when nobody is measuring.",
+      "truth": "Home of the Magpie Exchange. The best place in the city to sell something that should not be sold, and the second-best place to be robbed.",
+      "launch": true
+    },
+    "gravamen": {
+      "name": "Gravamen",
+      "blurb": "Court-adjacent. Undertakers, clerks, and the polite bureaucracy of death.",
+      "truth": "Where the night-side does its paperwork. The Hollow Court's reach is longest here. Post-launch district.",
+      "launch": false
+    },
+    "mereside": {
+      "name": "The Mereside",
+      "blurb": "Drowned terraces going down into the black water, one storey at a time.",
+      "truth": "Nobody has lived on the lowest three streets in living memory, which has not stopped anything from being at home there. Post-launch district.",
+      "launch": false
+    }
+  }
+}

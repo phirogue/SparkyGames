@@ -1,0 +1,42 @@
+{
+  "_notes": [
+    "THE GUILDS, as people rather than as meters.",
+    "",
+    "data/guilds.json holds what a guild DOES mechanically: the standing",
+    "thresholds, the notice lines that fire when you cross one. This holds who",
+    "they are, so a writer starting a quest in Wickrow does not have to infer",
+    "the Chandlers' character from a table of integers.",
+    "",
+    "Ids MUST match data/guilds.json -- Catalog.validate() rejects a faction",
+    "here that no guild backs, because a described faction the game cannot",
+    "grant standing with is worldbuilding that will quietly contradict itself.",
+    "",
+    "Standing is not a grind: it is paid ONCE per quest even for repeatable",
+    "ones, because a farmable reputation meter would make every `requires.",
+    "standing` gate meaningless."
+  ],
+
+  "factions": {
+    "chandlers": {
+      "name": "The Chandlers' Guild",
+      "blurb": "Wax, wicks, and a great deal of quiet money.",
+      "truth": "Respectable in the way that takes three generations to arrange. They make the light the whole city reads by, and they are extremely interested in who has been buying beeswax in quantity — which is Chapter 1's thread whether they like it or not.",
+      "district": "wickrow",
+      "how_they_see_a_cat": "As livestock with opinions. Politely. They will not stop you and will remember you were there."
+    },
+    "lamplighters": {
+      "name": "The Lamplighters",
+      "blurb": "They light the lamps in an order, and the order is the point.",
+      "truth": "A working guild with a working guild's memory. The sequence they walk each night is itself a stitch across the city — which is why lamps lit in the wrong order is not sloppiness but sabotage, and why the hall standing empty at eight bells is the loudest thing in the prologue.",
+      "district": "wickrow",
+      "how_they_see_a_cat": "As a colleague of sorts. Cats inspect seams; so do they. Nobody has ever said this out loud."
+    },
+    "hollow_court": {
+      "name": "The Hollow Court",
+      "blurb": "The polite bureaucracy of death. They tie off what was left loose.",
+      "truth": "Not villains and not friends — clerks. A ghost is a stitch nobody finished and the Court finishes it, with paperwork. They take a cut of what a dead thing was carrying, which is the Toll, and they take it because a torn pocket has to be paid for by somebody.",
+      "district": "gravamen",
+      "how_they_see_a_cat": "As a recurring administrative irregularity with nine chances to become somebody else's problem."
+    }
+  }
+}

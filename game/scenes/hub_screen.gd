@@ -78,7 +78,8 @@ var _deed_label: Label
 var _footer: HBoxContainer
 
 ## First-visit walkthrough of the room, using the same Coach the tutorial
-## fights use. Steps come from story/prologue.json so the words stay content.
+## fights use. Steps come from story/prologue/interludes.json (mantel_coach)
+## so the words stay content.
 var coach_steps: Array = []
 var coach: Coach = null
 
