@@ -23,17 +23,42 @@ Godot editor (`game/` folder) and press F5.
 
 ## Repository layout
 
+The code is an **engine**; the game is **JSON**.
+
 ```
+game/
+  core/          pure rules — RefCounted only, no Node/FileAccess/global RNG
+  services/      the only layer that touches the disk (content, save, prose)
+  scenes/        UI; game.gd is the one file that decides what comes next
+  ui/            shared widgets and the layout contract (UITheme)
+  data/          content + tuning as JSON, keyed by stable string ids
+  story/         prose — prologue/ (one file per arc) and world/ (canon)
+  tests/         unit tests, the tour, the balance sim, the chaos fuzzer
 docs/
-  research/      Market, monetization, and tech-stack research reports
-  design/        Game design documents (gameplay, story, cards, economy)
-  brainstorm/    Idea explorations and concept pitches
-game/            Godot 4 project — core/ (pure rules), scenes/, services/,
-                 ui/, tests/, data/ (JSON content)
-assets/          Card art, UI, audio (raw generated images land here)
-reference/       Visual reference material for UI verification
-screenshots/     Output of the automated screenshot tour
+  architecture/  HOW IT FITS TOGETHER — read this before changing anything
+  design/        design documents (ART-INDEX.md indexes the art ones)
+  research/      dated reports; read-only history
+  brainstorm/    idea explorations, including rejected ones
+tools/           verification and generation scripts (verify.py, kb_check.py)
+  batches/       one-off generation runs, kept as history
+play/            double-clickable launchers, generated from parts.json
+assets/          the art library and its archive
+screenshots/     tour output — generated and untracked, except reference/
 ```
+
+## Working on it
+
+```powershell
+python tools/verify.py fast        # ~20s   before saying "that should work"
+python tools/verify.py standard    # ~4min  before every commit
+python tools/verify.py full        # ~20min before a review
+python tools/kb_check.py           # did the change reach everywhere?
+```
+
+[`docs/architecture/README.md`](docs/architecture/README.md) says where each
+kind of thing lives.
+[`change-map.json`](docs/architecture/change-map.json) says, for each kind of
+change, everywhere else it has to reach.
 
 ## Status
 

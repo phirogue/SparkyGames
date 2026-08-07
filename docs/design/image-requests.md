@@ -1,5 +1,10 @@
 # Image Requests — Prologue Gaps (ChatGPT, copy-paste ready)
 
+> **SUPERSEDED 2026-08-06** by [art-needed.md](art-needed.md), which is the
+> live checklist and is checked mechanically by `tools/kb_check.py`.
+> Index: [ART-INDEX.md](ART-INDEX.md).
+
+
 *2026-07-30. Everything below is a nice-to-have — the prologue is fully
 playable with current art. Listed in priority order. Since ChatGPT can do
 same-scene variants, several of these are "generate A, then ask for variant

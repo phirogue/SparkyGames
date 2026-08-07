@@ -1,5 +1,11 @@
 # Master Image Prompt List — everything to generate (ChatGPT)
 
+> **SUPERSEDED 2026-08-06.** The prompt archive from before generation was
+> scripted. The prompt that made an image now lives in the batch script
+> that made it (`tools/batches/`), which is the only record of *why it
+> looks like that*. Index: [ART-INDEX.md](ART-INDEX.md).
+
+
 *2026-07-31. The single source of truth for image generation. Every prompt
 ends with its aspect ratio. Save results to `assets/library/<kind>/<id>.png`
 (UI pieces to `assets/library/ui/`). Anything not yet generated shows

@@ -1,5 +1,12 @@
 # Asset Pipeline — Images, Music, SFX, Animation
 
+> **SUPERSEDED 2026-08-06.** This describes the owner pasting prompts into
+> ChatGPT and dropping files in `assets/incoming/`. Claude generates
+> directly through the OpenAI API now — see the `/genart` skill and
+> CLAUDE.md's art rules. Kept for the reasoning, not the procedure.
+> Index: [ART-INDEX.md](ART-INDEX.md).
+
+
 *2026-07-29. Owner has active credits on: **ChatGPT** and **Kling** (no
 Midjourney after all — correction 2026-07-29). Budget stance: free where
 possible, no new subscriptions yet.*

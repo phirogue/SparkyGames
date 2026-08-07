@@ -1,5 +1,10 @@
 # UI Look & Feel — ChatGPT Mockup Prompts
 
+> **SUPERSEDED 2026-08-06** by [ui-template-prompts.md](ui-template-prompts.md).
+> Written when the in-game UI was grey placeholder buttons; it no longer is.
+> Index: [ART-INDEX.md](ART-INDEX.md).
+
+
 *2026-07-30. The current in-game UI is functional placeholder (grey buttons,
 colored panels). These prompts generate visual mockups in ChatGPT to choose a
 UI direction. Workflow: generate 3–4 takes per prompt, steer with follow-ups

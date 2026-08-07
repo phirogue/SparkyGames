@@ -1,5 +1,11 @@
 # Art Style Tests — Kling Prompts (copy-paste ready)
 
+> **DECIDED — historical record.** The bake-off that locked Style A on
+> 2026-07-29. Kept as the evidence behind a settled decision; the live
+> style block is `STRICT_STYLE` in `tools/genart.py`.
+> Index: [ART-INDEX.md](ART-INDEX.md).
+
+
 > **DECIDED 2026-07-29: Style A (Storybook Ink & Wash) wins.** The locked
 > style block and the full production prompt list live in
 > [art-manifest.md](art-manifest.md). This doc is kept as history.
