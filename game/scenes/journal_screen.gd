@@ -90,13 +90,32 @@ func _ready() -> void:
 	_show_deeds()
 
 
+## What Ash has done, newest first.
+##
+## The chronicle stores FACTS; the sentences are made here, now, from
+## story/interface.json — which is why rewriting a line re-reads the whole
+## history and why this screen is the layer that does it (core is not allowed
+## to read the prose file).
+##
+## Saves written before v5 hold finished sentences with no facts behind them.
+## Those are shown underneath rather than converted: guessing which enemy
+## "Spent a life to the Chained Dog" referred to would be inventing a player's
+## history, and a player's history is theirs.
 func _show_deeds() -> void:
 	_clear()
-	var journal: Array = profile.get("journal", [])
-	if journal.is_empty():
+	var chronicle := Chronicle.from_list(profile.get("chronicle", []))
+	var entries := chronicle.describe(catalog)
+	var legacy: Array = profile.get("journal", [])
+	if entries.is_empty() and legacy.is_empty():
 		_entry("The pages are blank. For now.", true)
-	for i in range(journal.size() - 1, -1, -1):
-		_entry(String(journal[i]))
+		return
+	for entry in entries:
+		_entry(Strings.line(String(entry["key"]), entry["args"]))
+	if legacy.is_empty():
+		return
+	_heading("Earlier")
+	for i in range(legacy.size() - 1, -1, -1):
+		_entry(String(legacy[i]))
 
 
 func _show_knowledge() -> void:

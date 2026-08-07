@@ -7,6 +7,24 @@ Launch with:
 where `<name>` is a file in this folder (without `.json`). The world is
 throwaway: scenarios NEVER touch the real save.
 
+## The fast way to make one: export it (the warm start)
+
+Play until the thing you want to reproduce is actually happening, then:
+
+    godot --path game -- --export-scenario last_life
+
+That writes the **current** save out as a spec and prints where it landed
+(`user://`, since `res://` is read-only on a device). Copy it into this folder
+to keep it.
+
+Only values that DIFFER from the defaults are written, so the file stays short
+and readable — and it does not silently freeze the starting deck of the day it
+was made. The chronicle is left out too: a warm start wants the state, not the
+history that produced it.
+
+This is the answer to *"it only happens when…"*. Export it once and the repro
+is one command forever after.
+
 ## Spec format
 
 ```json

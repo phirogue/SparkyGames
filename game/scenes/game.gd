@@ -123,6 +123,14 @@ func _ready() -> void:
 		add_child(load("res://tests/tour.gd").new())
 	if OS.get_cmdline_user_args().has("--rect-probe"):
 		add_child(load("res://tests/rect_probe.gd").new())
+	# Warm start: dump the REAL save as a scenario spec and quit, without
+	# touching it. Runs before any dev launch replaces `profile`, so what gets
+	# exported is the player's actual state rather than a throwaway one.
+	var export_name := _cmdline_value("--export-scenario")
+	if export_name != "":
+		_export_scenario(export_name)
+		get_tree().quit()
+		return
 	var dev_scene := _cmdline_value("--scene")
 	if dev_scene != "":
 		# Component runner (owner rule 2026-08-01): jump straight to one
@@ -165,6 +173,31 @@ func _equip_for_testing() -> void:
 			profile["skills"].append(skill_id)
 	profile["loadout"] = []   # auto-fills the tray from what is owned
 	profile["gleam"] = maxi(int(profile["gleam"]), 40)
+
+
+## Writes the CURRENT state out as a scenario spec, so it can be dropped back
+## into later without playing to it again (the warm start).
+##
+##   godot --path game -- --export-scenario last_life
+##
+## Lands in user:// rather than res://: an export is read-only on a device, and
+## the path is printed so the file can be copied into game/tests/scenarios/ to
+## keep. Exporting is the fast way to answer "only happens when…" — play until
+## it happens, export, and the repro is one command from then on.
+func _export_scenario(scenario_name: String) -> void:
+	var spec := SaveService.to_scenario(profile, carryover,
+		"hub" if quest.is_empty() else "quest:" + String(quest.get("id", "")),
+		"Exported from live play.", _dev_seed)
+	var path := "user://%s.json" % scenario_name
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		push_error("cannot write scenario to %s" % path)
+		return
+	file.store_string(JSON.stringify(spec, "  "))
+	file.close()
+	print("scenario written: ", ProjectSettings.globalize_path(path))
+	print("copy it into game/tests/scenarios/ to keep it, then run it with")
+	print("  godot --path game -- --scene scenario:", scenario_name)
 
 
 func _cmdline_value(flag: String) -> String:
@@ -651,7 +684,7 @@ func _find_evidence(evidence_id: String) -> bool:
 		if String(entry["id"]) == evidence_id:
 			toasts.append("✎ Case Board: %s — %s" % [
 				entry["name"], entry.get("found_line", "")])
-			profile["journal"].append("Found: %s" % entry["name"])
+			_remember("evidence_found", {"evidence": evidence_id})
 			break
 	return true
 
@@ -830,8 +863,7 @@ func _digest(state: CombatState) -> void:
 	if _last_encounter_env != "" and not codex["places"].has(_last_encounter_env):
 		codex["places"].append(_last_encounter_env)
 	if state.outcome == CombatState.Outcome.DEFEAT:
-		profile["journal"].append("Spent a life to %s. The Court noted it." %
-			catalog.enemies[state.enemy_id]["name"])
+		_remember("life_spent", {"enemy": state.enemy_id})
 	for id in tracker.record_encounter(state):
 		toasts.append("★ %s — %s" % [
 			catalog.achievements[id]["name"], catalog.achievements[id]["description"],
@@ -864,6 +896,20 @@ func _digest(state: CombatState) -> void:
 	_save()
 
 
+## Writes one thing that happened into the player's chronicle.
+##
+## Records FACTS — a kind plus the ids and numbers involved — never sentences.
+## The Casebook turns them into prose when it is opened, from
+## story/interface.json, so a rewrite of a line re-reads every past entry and
+## no wording is ever trapped in a save file. Three of these call sites used to
+## build player-facing strings inline here, which law 20 forbids.
+func _remember(kind: String, ids: Dictionary = {}, nums: Dictionary = {},
+		texts: Dictionary = {}) -> void:
+	var chronicle := Chronicle.from_list(profile.get("chronicle", []))
+	chronicle.record(kind, ids, nums, texts)
+	profile["chronicle"] = chronicle.to_list()
+
+
 func _save() -> void:
 	# Tour AND component-runner/scenario worlds are throwaway — writing them
 	# would clobber the player's real profile with test state.
@@ -881,7 +927,7 @@ func _run_prologue_scene(index: int) -> void:
 		if not profile["prologue_done"]:
 			profile["prologue_done"] = true
 			# Endowed progress: the Casebook opens already inscribed.
-			profile["journal"].append(Strings.line("prowl.journal_prologue"))
+			_remember("prologue_done")
 		_save()
 		_show_hub()
 		return
@@ -967,7 +1013,8 @@ func _run_prologue_scene(index: int) -> void:
 				_show_story(config, func(choice: int) -> void:
 					if scene.has("flag"):
 						profile["flags"][scene["flag"]] = choice
-						profile["journal"].append("Chose: %s" % String(scene["choices"][choice]))
+						_remember("choice_made", {}, {},
+							{"choice": String(scene["choices"][choice])})
 						_save()
 					_run_prologue_scene(index + 1))
 			else:
@@ -1293,7 +1340,8 @@ func _run_prowl_story(step: Dictionary, on_done: Callable) -> void:
 	_show_story(config, func(choice: int) -> void:
 		if step.has("flag"):
 			profile["flags"][step["flag"]] = choice
-			profile["journal"].append("Chose: %s" % String(step["choices"][choice]))
+			_remember("choice_made", {}, {},
+				{"choice": String(step["choices"][choice])})
 			_save()
 		on_done.call())
 
@@ -1372,8 +1420,7 @@ func _finish_quest() -> void:
 	var bonus := int(quest.get("reward_bonus", 0))
 	var banked := satchel + bonus
 	profile["gleam"] = int(profile["gleam"]) + banked
-	profile["journal"].append(
-		Strings.line("prowl.journal_done", [quest["name"], banked]))
+	_remember("quest_done", {"quest": String(quest["id"])}, {"gleam": banked})
 	if quest.has("unlock_skill") and not profile["skills"].has(quest["unlock_skill"]):
 		_grant_skills([quest["unlock_skill"]])
 	# Standing and knots are paid ONCE per quest, even for repeatable ones:
@@ -1416,8 +1463,7 @@ func _prowl_retreat() -> void:
 	var kept := satchel - dropped
 	profile["gleam"] = int(profile["gleam"]) + kept
 	if not quest.is_empty():
-		profile["journal"].append(
-			Strings.line("prowl.journal_withdrew", [quest["name"]]))
+		_remember("quest_withdrawn", {"quest": String(quest["id"])})
 	if kept > 0:
 		for id in tracker.increment("gleam_banked", kept):
 			toasts.append("★ %s" % catalog.achievements[id]["name"])

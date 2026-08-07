@@ -267,7 +267,12 @@ func test_migration_gives_old_saves_the_chapter_spine() -> void:
 	var merged := SaveService._migrate({
 		"schema_version": 2, "prologue_done": true, "gleam": 30,
 	})
-	assert_eq(int(merged["schema_version"]), 4, "schema version bumped")
+	# Against the CURRENT schema, not a literal: the chain must run all the way
+	# to today's version in one load, and a test pinned to a number goes red
+	# every time the schema moves without saying anything useful about why.
+	assert_eq(int(merged["schema_version"]),
+		int(SaveService.DEFAULT_PROFILE["schema_version"]),
+		"an old save migrates all the way to the current schema")
 	assert_eq(String(merged["case"]["active"]), "wax_and_wick",
 		"a finished prologue implies the case is open (law 7)")
 	assert_eq(merged["case"]["evidence"], [] as Array, "with nothing proved yet")

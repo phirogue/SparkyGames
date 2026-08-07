@@ -8,7 +8,7 @@ const TEMP_PATH := "user://profile.tmp"
 const BACKUP_PATH := "user://profile.bak"
 
 const DEFAULT_PROFILE := {
-	"schema_version": 4,
+	"schema_version": 5,
 	"prologue_done": false,
 	"gleam": 0,
 	# Level-1 Ash (owner calibration 2026-08-01): 10 HP; growth comes as
@@ -31,6 +31,15 @@ const DEFAULT_PROFILE := {
 	# the moment it first matters; the Casebook replays any of them on demand
 	# forever after (owner rule 2026-08-04).
 	"taught": [],
+	# WHAT THE PLAYER HAS DONE, as facts (core/chronicle.gd). Each entry is a
+	# kind plus the ids and numbers involved; the words are rendered when the
+	# Casebook is opened, from story/interface.json. See `journal` below for
+	# what this replaced and why.
+	"chronicle": [],
+	# LEGACY (pre-v5): finished sentences, appended as they happened. Kept
+	# because a player's existing history is theirs and re-deriving it from
+	# prose is guesswork — the Casebook shows these under the structured ones.
+	# Nothing writes to it any more.
 	"journal": [],
 	"codex": { "enemies": [], "places": [] },
 	"achievements": {},
@@ -139,6 +148,20 @@ static func _migrate(profile: Dictionary) -> Dictionary:
 				if not merged["taught"].has(lesson_id):
 					merged["taught"].append(lesson_id)
 		merged["schema_version"] = 4
+	# v5 (2026-08-06): the chronicle. Law 7 -- what does an old save IMPLY?
+	# Its `journal` holds finished sentences that cannot be turned back into
+	# the facts behind them, so they are NOT converted: guessing which enemy
+	# "Spent a life to the Chained Dog" refers to would be inventing history.
+	# The old lines stay readable in the Casebook and the structured log starts
+	# empty. A finished prologue does imply its one certain event, so that much
+	# is seeded -- otherwise a returning player's Casebook opens blank and
+	# reads as if the game forgot them.
+	if int(profile.get("schema_version", 1)) < 5:
+		if merged["prologue_done"] and Array(merged["chronicle"]).is_empty():
+			var chronicle := Chronicle.new()
+			chronicle.record("prologue_done")
+			merged["chronicle"] = chronicle.to_list()
+		merged["schema_version"] = 5
 	return merged
 
 
@@ -168,6 +191,53 @@ static func battle_loadout(profile: Dictionary) -> Array:
 			if skill_id != "scratch":
 				picked.append(skill_id)
 	return ["scratch"] + picked
+
+
+## The player's CURRENT state as a scenario spec — the warm start.
+##
+## A scenario is how any player state gets reproduced without playing to it
+## (game/tests/scenarios/README.md). Writing one by hand means guessing at a
+## profile shape; this turns whatever is actually happening right now into one.
+##
+##     "it only breaks when I'm on my last life with a thin deck"
+##     -> export it, and the repro is one command forever
+##
+## Only what makes a state DIFFERENT is written: keys equal to the defaults are
+## dropped, so the spec stays readable and keeps working when the defaults move
+## (a spec that pins every key silently freezes the starting deck of the day it
+## was written). The chronicle is dropped too — a warm start wants the state,
+## not the history that produced it.
+static func to_scenario(profile: Dictionary, carryover: Dictionary = {},
+		launch: String = "hub", comment: String = "", seed_value: int = 0) -> Dictionary:
+	var spec := {}
+	if not comment.is_empty():
+		spec["comment"] = comment
+	spec["profile"] = _difference(DEFAULT_PROFILE, profile)
+	for noise in ["schema_version", "chronicle", "journal", "achievements"]:
+		spec["profile"].erase(noise)
+	if not carryover.is_empty():
+		spec["carryover"] = carryover.duplicate(true)
+	if seed_value != 0:
+		spec["seed"] = seed_value
+	spec["launch"] = launch
+	return spec
+
+
+## Keys where `current` differs from `base`. Nested dictionaries recurse, so a
+## profile that changed one setting exports one setting rather than the block.
+static func _difference(base: Dictionary, current: Dictionary) -> Dictionary:
+	var out := {}
+	for key in current:
+		if not base.has(key):
+			out[key] = current[key]
+			continue
+		if base[key] is Dictionary and current[key] is Dictionary:
+			var nested := _difference(base[key], current[key])
+			if not nested.is_empty():
+				out[key] = nested
+		elif base[key] != current[key]:
+			out[key] = current[key]
+	return out
 
 
 ## Recursive merge: the save's values win, but NESTED dictionaries merge

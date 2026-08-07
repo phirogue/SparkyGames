@@ -92,6 +92,32 @@
     "name": "THE NINE LIVES OF ASHCAT",
     "prologue_done": "Prologue complete. The Mantel is open."
   },
+  "chronicle_log": {
+    "_notes": [
+      "THE CASEBOOK'S RECORD OF WHAT THE PLAYER HAS DONE.",
+      "",
+      "core/chronicle.gd stores FACTS -- a kind, the ids involved, the numbers",
+      "involved. These are the sentences those facts are rendered into, at the",
+      "moment the Casebook is opened rather than at the moment the thing",
+      "happened. Rewrite a line here and every past entry re-reads with the new",
+      "wording; there is no migration, because no sentence was ever stored.",
+      "",
+      "Three of these used to be string literals inside game.gd (law 20).",
+      "",
+      "Keys MUST match Chronicle.KINDS exactly -- tests/unit/test_chronicle.gd",
+      "fails on a kind with no template and on a template with no kind. The %s",
+      "and %d placeholders are filled positionally in the order that file",
+      "declares: ids first, then texts, then numbers."
+    ],
+    "prologue_done": "The night the kettle screamed. Elspeth is gone. The thread leads into the city.",
+    "evidence_found": "Found: %s",
+    "life_spent": "Spent a life to %s. The Court noted it.",
+    "choice_made": "Chose: %s",
+    "quest_done": "%s: done. %d gleam banked.",
+    "quest_withdrawn": "Withdrew from %s. The quest keeps.",
+    "skill_gained": "Learned: %s.",
+    "favor_tied": "A knot in the thread: %s owes me."
+  },
   "notices": {
     "heading": "Noted, with interest",
     "tap": "— tap to continue —"

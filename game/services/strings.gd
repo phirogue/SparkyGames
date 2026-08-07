@@ -54,6 +54,15 @@ static func has(key: String) -> bool:
 	return _at(key) != null
 
 
+## A whole block of the file, for the checks that need to look at prose from
+## the OTHER direction: not "does this key exist?" but "is there a line here
+## that nothing will ever show?". A template with no code behind it is
+## invisible rot — it reads as covered and is not.
+static func section(key: String) -> Dictionary:
+	var found: Variant = _at(key)
+	return found if found is Dictionary else {}
+
+
 ## One line. `args` fills %s/%d placeholders positionally.
 static func line(key: String, args: Array = []) -> String:
 	var found: Variant = _at(key)
