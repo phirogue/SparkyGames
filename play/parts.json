@@ -308,6 +308,13 @@
       "group": "Player states",
       "spec": "scenario:coat_finale",
       "about": "Garden-route-first ordering, pinned seed."
+    },
+    {
+      "name": "state-casebook-full",
+      "title": "State: a Casebook with history",
+      "group": "Player states",
+      "spec": "scenario:casebook_full",
+      "about": "Every event kind in the chronicle, plus pre-v5 prose lines under 'Earlier'."
     }
   ]
 }

@@ -1,0 +1,26 @@
+{
+  "comment": "A Casebook with history in it. Exists because a dev launch starts on a throwaway profile with an empty chronicle, so the Deeds page always photographed as 'The pages are blank' -- which proves the empty state and nothing about the rendering. This exercises every event kind AND the pre-v5 prose lines, which are shown under an 'Earlier' heading rather than converted.",
+  "profile": {
+    "prologue_done": true,
+    "gleam": 64,
+    "skills": ["scratch", "pounce", "slink", "purr", "loaf"],
+    "codex": {
+      "enemies": ["the_vole", "gutter_wisp", "rag_wraith"],
+      "places": ["rooftop_dusk", "needle_lane", "parlor_cold"]
+    },
+    "chronicle": [
+      { "seq": 1, "kind": "prologue_done" },
+      { "seq": 2, "kind": "choice_made", "texts": { "choice": "Over the fences" } },
+      { "seq": 3, "kind": "life_spent", "ids": { "enemy": "the_unpicked" } },
+      { "seq": 4, "kind": "skill_gained", "ids": { "skill": "shelf_justice" } },
+      { "seq": 5, "kind": "quest_done", "ids": { "quest": "night_rounds" }, "nums": { "gleam": 34 } },
+      { "seq": 6, "kind": "evidence_found", "ids": { "evidence": "candle_stub" } },
+      { "seq": 7, "kind": "quest_withdrawn", "ids": { "quest": "garden_route" } }
+    ],
+    "journal": [
+      "Found: an older line, written before the chronicle existed.",
+      "Chose: to keep it rather than guess at the facts behind it."
+    ]
+  },
+  "launch": "journal"
+}

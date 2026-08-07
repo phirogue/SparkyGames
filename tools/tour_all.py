@@ -22,7 +22,6 @@ is done" law applied to content that is not the prologue.
 
 import argparse
 import json
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -43,11 +42,29 @@ def quest_ids() -> list:
     return [k for k in data if not k.startswith("_")]
 
 
+def clear_shots(out: Path) -> None:
+    """Empty a leg's output folder without removing the folder itself.
+
+    `shutil.rmtree` fails here with WinError 5: the repo lives under OneDrive,
+    which keeps a handle on directories it is syncing, and a sweep that dies
+    on that is a sweep nobody runs — which is exactly how content stops being
+    photographed (law 17). Deleting the PNGs is what actually matters; a stale
+    empty directory harms nothing.
+    """
+    if not out.exists():
+        out.mkdir(parents=True, exist_ok=True)
+        return
+    for stale in out.glob("*.png"):
+        try:
+            stale.unlink()
+        except OSError:
+            pass  # a locked file gets overwritten by the run anyway
+
+
 def run_leg(scene: str, tag: str, timeout: int) -> tuple:
     """One tour leg. Returns (tag, shot_count, error-or-None)."""
     out = SHOTS / tag
-    if out.exists():
-        shutil.rmtree(out)
+    clear_shots(out)
     command = [
         str(GODOT), "--path", str(REPO / "game"), "--",
         "--tour", "--tour-out", tag,

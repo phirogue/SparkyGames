@@ -1,18 +1,4 @@
 {
-  "$comment": [
-    "Project-level Claude Code settings for SparkyGames.",
-    "",
-    "permissions.allow lists the commands this project runs CONSTANTLY, so a",
-    "normal working session stops asking. Everything here is read-only or",
-    "regenerates output that is already disposable (tests, sims, screenshots,",
-    "the import cache). Anything that spends money (tools/genart*.py hits a",
-    "billed image API), rewrites history, or pushes is deliberately absent —",
-    "those should always ask.",
-    "",
-    "hooks.PreToolUse enforces CLAUDE.md law 4 mechanically. See",
-    "docs/architecture/ for which laws are enforced by machine and which are",
-    "still only written down."
-  ],
   "permissions": {
     "allow": [
       "Bash(git status:*)",
@@ -39,7 +25,10 @@
       "PowerShell(& \"C:\\Users\\yurim\\tools\\godot\\Godot_v4.4.1-stable_win64_console.exe\" --headless --path game -s tests/*)",
       "PowerShell(& \"C:\\Users\\yurim\\tools\\godot\\Godot_v4.4.1-stable_win64_console.exe\" --headless --path game --import)",
       "PowerShell(& \"C:\\Users\\yurim\\tools\\godot\\Godot_v4.4.1-stable_win64_console.exe\" --path game -- --tour*)",
-      "PowerShell(& \"C:\\Users\\yurim\\tools\\godot\\Godot_v4.4.1-stable_win64_console.exe\" --path game -- --scene*)"
+      "PowerShell(& \"C:\\Users\\yurim\\tools\\godot\\Godot_v4.4.1-stable_win64_console.exe\" --path game -- --scene*)",
+      "Bash(git count-objects *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
     ],
     "ask": [
       "Bash(git push:*)",
@@ -62,5 +51,19 @@
         ]
       }
     ]
-  }
+  },
+  "$comment": [
+    "Project-level Claude Code settings for SparkyGames.",
+    "",
+    "permissions.allow lists the commands this project runs CONSTANTLY, so a",
+    "normal working session stops asking. Everything here is read-only or",
+    "regenerates output that is already disposable (tests, sims, screenshots,",
+    "the import cache). Anything that spends money (tools/genart*.py hits a",
+    "billed image API), rewrites history, or pushes is deliberately absent —",
+    "those should always ask.",
+    "",
+    "hooks.PreToolUse enforces CLAUDE.md law 4 mechanically. See",
+    "docs/architecture/ for which laws are enforced by machine and which are",
+    "still only written down."
+  ]
 }
