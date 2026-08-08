@@ -532,9 +532,21 @@ func _show_story(config: Dictionary, on_done: Callable) -> void:
 ## costs. Every death after that gets the short form, because by then he does
 ## know the place. Extra lines (the Toll) are appended to the last page.
 func _show_hollow_court(on_done: Callable, extra_lines: Array = []) -> void:
-	var first: bool = int(tracker.stats.get("lives_spent", 0)) <= 1
-	var pages: Array = (story["hollow_court_first"] if first
-		else story["hollow_court_repeat"]).duplicate(true)
+	var lives_spent := int(tracker.stats.get("lives_spent", 0))
+	var pages: Array
+	if lives_spent <= 1:
+		pages = story["hollow_court_first"].duplicate(true)
+	else:
+		# EVERY DEATH IS A DIFFERENT VISIT (owner rule 2026-08-05, law 15).
+		# `hollow_court_repeat` is a list of alternative visits, not one page
+		# shown again — the Clerk has a different thing to say each time, and
+		# the ninth life gets the one that has been waiting for it. A death
+		# that reads exactly like the last death tells the player nothing
+		# happened, and this is the screen they will see most often.
+		var visits: Array = story["hollow_court_repeat"]
+		var index: int = mini(lives_spent - 2, visits.size() - 1)
+		pages = [visits[index].duplicate(true)] if visits[index] is Dictionary \
+			else Array(visits[index]).duplicate(true)
 	if not extra_lines.is_empty() and not pages.is_empty():
 		var last: Dictionary = pages[pages.size() - 1]
 		last["lines"] = Array(last["lines"]) + extra_lines

@@ -227,11 +227,19 @@ func _refresh_doors() -> void:
 			"ui/ui_medallions", func() -> void: open_journal.emit()))
 
 
+## The readouts sit on their OWN PLATE, not straight on the room (owner
+## 2026-08-05: "the health, spool and deeds blend into the background image").
+## Cream ink on a lamplit painting of a parlor is unreadable at any size —
+## the numbers that tell you whether you can survive tonight cannot be a
+## thing you squint for.
 func _build_status(column: VBoxContainer) -> void:
+	var plate := PanelContainer.new()
+	plate.custom_minimum_size = Vector2(0, ZONE_STATUS)
+	plate.add_theme_stylebox_override("panel", UITheme.panel_stylebox(6))
+	column.add_child(plate)
 	_status = HBoxContainer.new()
-	_status.custom_minimum_size = Vector2(0, ZONE_STATUS)
 	_status.add_theme_constant_override("separation", SEPARATION)
-	column.add_child(_status)
+	plate.add_child(_status)
 
 
 func _build_footer(column: VBoxContainer) -> void:
@@ -246,11 +254,9 @@ func _build_footer(column: VBoxContainer) -> void:
 	_deed_label.size_flags_vertical = Control.SIZE_FILL
 	_deed_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.add_child(_deed_label)
-	var replay := UITheme.dark_button("Relive the worst night", 22,
-		Vector2(260, 72))
-	replay.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	replay.pressed.connect(func() -> void: replay_prologue.emit())
-	footer.add_child(replay)
+	# No "relive the worst night" button (owner 2026-08-05). Replaying the
+	# prologue is not something the room should be offering him. The signal
+	# stays for the dev menu, which is where that belongs.
 
 
 # ----------------------------------------------------------------- contents
@@ -394,7 +400,6 @@ func _door(name_text: String, blurb: String, icon_id: String,
 ## One reading off the mantel: an object, its number, and what it counts.
 func _chip(icon_id: String, value: String, caption: String) -> Control:
 	var chip := HBoxContainer.new()
-	chip.custom_minimum_size = Vector2(0, ZONE_STATUS)
 	chip.add_theme_constant_override("separation", 6)
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var icon := UITheme.icon(icon_id, 52.0)
@@ -405,10 +410,11 @@ func _chip(icon_id: String, value: String, caption: String) -> Control:
 	text.alignment = BoxContainer.ALIGNMENT_CENTER
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	chip.add_child(text)
+	# INK, not the room's cream: this chip is on a parchment plate now.
 	text.add_child(UITheme.measured_label(value, 30, 120.0,
-		UITheme.display_font(), ROOM_TEXT))
+		UITheme.display_font(), UITheme.INK))
 	text.add_child(UITheme.measured_label(caption, 17, 120.0,
-		UITheme.body_font(), ROOM_TEXT_SOFT))
+		UITheme.body_font(), UITheme.INK_SOFT))
 	return chip
 
 

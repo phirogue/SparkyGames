@@ -185,5 +185,16 @@
   },
   "settings": {
     "ai_disclosure": "Art, music and code on this game were made with AI assistance. Every line, picture and decision was chosen by a person."
+  },
+  "codex": {
+    "threads": "%d threads on its life",
+    "close": "Close the file",
+    "target": {
+      "health": "comes for your health",
+      "hand": "comes for your hand",
+      "skills": "jams an action",
+      "block": "guards itself",
+      "heal": "mends itself"
+    }
   }
 }

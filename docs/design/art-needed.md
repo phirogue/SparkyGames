@@ -22,14 +22,29 @@ own `ref_` anchor the moment it exists (library rule 4).
 | id | what it is |
 |---|---|
 | ~~`ev_candle_stub`~~ | **DONE 2026-08-04.** Beeswax stub, burnt low, bee seal pressed into the flank. Wired. |
-| `ev_ledger` | a torn ledger page in a guildmaster's hand (L2) |
-| `ev_tally` | a Lamplighters' shift-tally, chalk on a wooden slat (L3) |
-| `ev_seam` | a hand's length of ward-thread, unpicked and backward (L4) |
+| ~~`ev_ledger`~~ | **DONE 2026-08-07.** Torn ledger half-page, ruled columns, illegible copperplate, grease blob. Wired. |
+| ~~`ev_tally`~~ | **DONE 2026-08-07.** Weathered oak slat, scored tallies in fives, leather thong. Wired. |
+| ~~`ev_seam`~~ | **DONE 2026-08-07.** Waxed thread, four intact stitches leaning wrong, the rest pulled slack. Wired. |
 | ~~`ev_docket`~~ | **DONE 2026-08-04.** Folded cart docket, consignee line scratched out. Wired. |
-| `npc_wick` | Guildmaster Ellery Wick — charming-awful, never cartoon-evil |
-| `npc_gentleman` | The Quiet Gentleman — a fixer nobody remembers meeting first |
-| `npc_shift_boss` | The Lamplighters' shift boss — the third suspect on the board |
+| ~~`npc_wick`~~ | **DONE 2026-08-07.** Warm, entirely trustworthy smile — no villain cues anywhere, which is the point. Wired. |
+| ~~`npc_gentleman`~~ | **DONE 2026-08-07.** Face turned away, half-lost in fog; nothing an eye catches on. Wired. |
+| ~~`npc_shift_boss`~~ | **DONE 2026-08-07.** Shift-Boss Merrow — a **cat** (testimonies.json says `species: cat`, and Ash cannot press humans). Torn ear, lamplighter's cord, chalked tally behind him. Wired. |
 | `npc_bodkin` | Bodkin: a scarred one-eyed grey tom. Enters at L1 as an ally |
+
+**Chapter 1 wave 1 is complete** (2026-08-07) apart from Bodkin, who is not
+wanted yet — read `docs/design/the-unraveler.md` before prompting him, because
+how he is drawn is a fair-play matter rather than a taste one.
+
+Also drawn 2026-08-07: `sc_hollow_stairs`, for the new Hollow Court beat ("The
+stairs up are longer than the fall down"). Ash is a bare silhouette from
+behind with **nothing at his throat** — that page can render both before and
+after `sc_collar`, so a neckerchief either way would be wrong half the time
+(art rule 6). The first take had one and was rejected; it is in
+`assets/archive/superseded/sc_hollow_stairs__2.png`.
+
+**There are now no missing art references at all** — `python tools/kb_check.py`
+reports 44 ids present and imported, and `docs/architecture/known-gaps.json`
+is empty.
 
 **This list is now checked mechanically.** `python tools/kb_check.py` fails
 while any id named in `game/data/*.json` or `game/story/*.json` has no file in

@@ -23,7 +23,7 @@
       "lines": [
         "Street level. The fog rolls up from the Mere, and the shadows deepen — deep enough to wear.",
         "Something small and hungry climbs out of the gutter: a GUTTER-WISP.",
-        "Bottle-sized. It eats small lies, and it heard mine — the one about not chasing the silver thread. It has come back for seconds."
+        "Bottle-sized. It eats small lies, and it heard mine — the one about not WANTING to chase the silver thread. It has come back for seconds."
       ]
     },
     {
@@ -47,12 +47,19 @@
       "coach": [
         {
           "target": "approach",
-          "text": "Every fight opens with the going-in. STALK it — spend 2 Shadow to begin unseen.",
+          "text": "Every fight opens with the going-in. STALK costs 2 Shadow and starts you unseen — or walk in and keep the cards.",
           "wait": true
         },
         {
           "target": "hand",
-          "text": "Two Shadow went on the entrance. That is what an approach costs — up front, out of hand."
+          "text": "This is your hand: ENERGY, not actions. You spend it to power the things you do.",
+          "text_by_approach": {
+            "stalk": "Two Shadow went on the entrance — that is what an approach costs, up front, out of hand. What is left is your hand: ENERGY, not actions.",
+            "walk_in": "You spent nothing to get in, so the hand is untouched. This is ENERGY, not actions — you feed it to the things you do.",
+            "ambush": "Two Ferocity went on the entrance. What is left is your hand: ENERGY, not actions.",
+            "case": "Two Guile went on the entrance, and it bought you a longer look. What is left is your hand: ENERGY, not actions.",
+            "ward": "Two Moonlight went on the entrance. What is left is your hand: ENERGY, not actions."
+          }
         },
         {
           "target": "rule",
@@ -60,11 +67,11 @@
         },
         {
           "target": "intent",
-          "text": "Read the chip up top. Some moves come for your HEALTH. Others come for your HAND — and a guard stops teeth, not fingers."
+          "text": "Read the chip up top: it tells you the next move BEFORE it happens. Some moves take HEALTH. Some take a card out of your HAND. Guard stops damage only — it does not stop a theft."
         },
         {
           "target": "skill:slink",
-          "text": "SLINK blocks 3. Free in the fog — but only three times tonight.",
+          "text": "SLINK: guard 3. The fog makes it free — but it has 3 USES, and uses do not come back until Ash sleeps at the Mantel. Tonight is all you get.",
           "wait": true
         },
         {
@@ -74,16 +81,15 @@
         },
         {
           "target": "guard",
-          "text": "Three guard, until the turn ends. It will soak a bite. It will not stop a theft — energy already fed onto a card is the only energy nothing can take."
+          "text": "Three guard, until this turn ends. It will soak a bite. It will NOT stop a theft — for that, spend the card: energy already fed onto an action cannot be stolen."
         },
         {
           "target": "skill:pounce",
-          "text": "Note the count on POUNCE: two left. Charges do not come back until a long rest at the Mantel. Spend them like a cat, not like a dog."
+          "text": "POUNCE carried over from the roof with 2 uses left. Charges are a whole night's budget, not a per-fight one — they refill at the Mantel and nowhere else."
         },
         {
           "target": "end_turn",
-          "text": "When your paws are spent, END TURN. The night moves too.",
-          "wait": true
+          "text": "When you have nothing left worth doing, END TURN — the night moves too. Or stay: there is a free Scratch in the tray and energy in your hand. It is your turn."
         }
       ]
     },

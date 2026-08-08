@@ -50,16 +50,28 @@
       ],
       "coach": [
         {
+          "target": "status",
+          "text": "Nothing was healed on the walk here. Your heart, your spool and every action's remaining uses carried straight over from the wisp — one night, one budget, all the way to the end of it."
+        },
+        {
           "target": "portrait",
           "text": "A RAG-WRAITH: clothes whose owner is missing. Not dead — missing. It is above your weight, and it knows it."
         },
         {
+          "target": "hand",
+          "text": "Guile in hand, which is what the LOAF wants. New energy, new action, first fight for both."
+        },
+        {
           "target": "skill:purr",
-          "text": "PURR heals 2 a turn for two turns — but breaks if you're hit. Purr behind a block."
+          "text": "PURR heals 2 a turn for two turns — but it breaks the moment you are hit. Purr behind a guard, never in the open."
+        },
+        {
+          "target": "concentrate",
+          "text": "CONCENTRATE, for when the hand is empty and the spool is not: give up the whole turn to will one spent energy back onto the top of the deck. You draw it NEXT turn. The wraith still moves. Twice a fight, and no more."
         },
         {
           "target": "slip",
-          "text": "You do not have to win this. SLIP AWAY — though it gets its move in as you go."
+          "text": "And you do not have to win this. SLIP AWAY is a real answer — though it gets its telegraphed move in as you go."
         }
       ]
     },

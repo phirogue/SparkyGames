@@ -29,6 +29,11 @@ extends Control
 var steps: Array = []
 var index := -1
 var resolver: Callable          # (target_key: String) -> Control or null
+## Optional (step: Dictionary) -> String. Lets the host pick the wording from
+## the CURRENT state instead of a line written once for all states — the wisp
+## lesson said "two Shadow went on the entrance" to a player who had walked
+## in and spent nothing (owner 2026-08-05). Unset means "use step.text".
+var text_resolver: Callable = Callable()
 
 var _dims: Array[ColorRect] = []
 var _hole_catcher: ColorRect
@@ -158,6 +163,10 @@ func force_advance() -> void:
 		return
 	_hole_catcher.visible = not waits_for_action()
 	var text := String(steps[index].get("text", ""))
+	if text_resolver.is_valid():
+		var chosen: Variant = text_resolver.call(steps[index])
+		if chosen is String and not String(chosen).is_empty():
+			text = String(chosen)
 	_text_label.text = text
 	# Size the LABEL from measured text; the panel then derives its own size
 	# from label + stylebox margins (no double-counted padding).

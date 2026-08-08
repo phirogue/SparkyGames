@@ -18,7 +18,8 @@
       }
     ],
     "flavor": "Bottle-sized. Eats small lies. Wants what you're holding.",
-    "image": "en_gutter_wisp"
+    "image": "en_gutter_wisp",
+    "codex": "A knot of marsh-light off the Mere that got into the drains and stayed. It feeds on small dishonesty — the sort everyone tells and nobody counts — which is why it is always found near people and never near the dead. Bottle-sized. Bites like a wasp with opinions."
   },
   "wisp_pair": {
     "id": "wisp_pair",
@@ -44,7 +45,8 @@
       }
     ],
     "flavor": "Two wisps. One shared opinion about your belongings.",
-    "image": "en_wisp_pair"
+    "image": "en_wisp_pair",
+    "codex": "Two wisps that have started finishing each other's sentences. Nobody knows whether this is one creature or two, including, apparently, them. They share appetite and grudges and are twice as hard to lie past."
   },
   "chained_dog": {
     "id": "chained_dog",
@@ -71,7 +73,8 @@
       }
     ],
     "flavor": "Wished to discuss territory. The meeting was declined.",
-    "image": "en_chained_dog"
+    "image": "en_chained_dog",
+    "codex": "Fourteen stone of yard dog on eleven feet of chain, which he has measured to the inch and will not discuss. Within the circle he is absolute. Outside it he is a large, sad animal who would very much like to meet a cat properly."
   },
   "garden_watch": {
     "id": "garden_watch",
@@ -97,7 +100,8 @@
       }
     ],
     "flavor": "A goose. Nobody warned you about the goose.",
-    "image": "en_garden_watch"
+    "image": "en_garden_watch",
+    "codex": "A goose, kept for the purpose. The Watch commission them because a goose cannot be bribed, cannot be reasoned with, and does not sleep so much as briefly stop."
   },
   "garden_watch_captain": {
     "id": "garden_watch_captain",
@@ -125,7 +129,8 @@
       }
     ],
     "flavor": "The goose has a chain of office. It is load-bearing.",
-    "image": "en_garden_watch_captain"
+    "image": "en_garden_watch_captain",
+    "codex": "The senior goose. It has a chain of office, and the chain of office is load-bearing: the others take their cue from it and will not commit until it does."
   },
   "rag_wraith": {
     "id": "rag_wraith",
@@ -152,7 +157,8 @@
       }
     ],
     "flavor": "Clothes whose owner is missing. Not dead. Missing.",
-    "image": "en_rag_wraith"
+    "image": "en_rag_wraith",
+    "codex": "Clothing with the person taken out of it, still holding the shape. Where a rag-wraith walks, cut threads run towards it like water to a drain. Elspeth would have known the word for what makes one. I did not think to ask."
   },
   "the_unpicked": {
     "id": "the_unpicked",
@@ -184,7 +190,8 @@
       }
     ],
     "flavor": "A shape wearing the room's unravelled threads. Prologue only: it is not meant to be beaten. Yet.",
-    "image": "en_the_unpicked"
+    "image": "en_the_unpicked",
+    "codex": "The shape in her parlor. Made of her own work, pulled out of the walls and put ON, and it did not stop when it saw me — it decided I was not an interruption and went back to what it was doing. That is the part I keep."
   },
   "the_vole": {
     "id": "the_vole",
@@ -205,7 +212,8 @@
       }
     ],
     "flavor": "It holds very still. It believes this is working.",
-    "image": "en_the_vole"
+    "image": "en_the_vole",
+    "codex": "Microtus, the common field vole. Eats grass, fears everything, and has exactly one plan: be somewhere else, immediately, in a straight line. Not a monster. Not an enemy. A gift, if you are quick, and an apology if you are not."
   },
   "the_empty_coat": {
     "id": "the_empty_coat",
@@ -231,6 +239,7 @@
       }
     ],
     "flavor": "Out wearing someone's evening. It fits nobody. It tries everyone.",
-    "image": "en_rag_wraith"
+    "image": "en_rag_wraith",
+    "codex": "A rag-wraith that has found a whole coat rather than scraps, and is wearing somebody's evening around. Fuller than its cousins, and better dressed than most of the people it passes."
   }
 }

@@ -169,6 +169,16 @@ func test_narration_lines_are_strings_or_rule_objects() -> void:
 			if line is Dictionary:
 				assert_true(line.has("text"),
 					"a narration object must carry 'text': %s" % str(line))
+			elif line is Array:
+				# VERSE: a beat broken across the author's own lines, for the
+				# ones that need the weight ("Her window is ahead now. /
+				# Dark."). Every entry must still be text; an empty entry is a
+				# deliberate blank line.
+				for part in line:
+					assert_true(part is String,
+						"a verse line must be text: %s" % str(part))
+				assert_true(Array(line).size() <= 5,
+					"verse is a beat, not a page: %s" % str(line))
 			else:
 				assert_true(line is String, "a narration line must be text: %s" % str(line))
 

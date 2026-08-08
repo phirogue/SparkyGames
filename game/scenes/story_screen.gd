@@ -51,7 +51,21 @@ func setup(config: Dictionary) -> void:
 ## A narration line is either a plain string (story) or
 ## {"text": "...", "rule": true} (the game explaining itself).
 static func _line_text(line: Variant) -> String:
+	if line is Array:
+		# VERSE: an array is a beat broken across its own lines, exactly where
+		# the author broke it. Owner 2026-08-05, on "Her window is ahead now.
+		# / Dark. // Her window is never dark." — "this gives the text a bit
+		# more visual impact." An empty entry is a blank line, so a beat can
+		# breathe between its halves.
+		return "
+".join(PackedStringArray(line))
 	return String(line["text"]) if line is Dictionary else String(line)
+
+
+## A verse beat is a whole page's worth of emphasis: bigger type, and the
+## author's own line breaks kept instead of being re-wrapped into prose.
+static func _is_verse(line: Variant) -> bool:
+	return line is Array
 
 
 func _is_rule(line: Variant) -> bool:
@@ -157,6 +171,8 @@ func _ready() -> void:
 			label.add_theme_font_size_override("font_size", 54 if big_style else 37)
 			label.add_theme_color_override("font_color",
 				UITheme.ACCENT_WARM.darkened(0.35) if flashback else UITheme.INK)
+		if _is_verse(line):
+			label.add_theme_font_size_override("font_size", 46)
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		# HIDDEN, not merely transparent (owner tour, 2026-08-05). An alpha-0
@@ -222,12 +238,18 @@ func _retire_overflow() -> void:
 	while _first_visible < _revealed - 1:
 		var total := 0.0
 		for i in range(_first_visible, _revealed):
-			# Rule lines are set in a different face and size — measure each
-			# line the way it is actually drawn, or the budget lies.
+			# Rule and verse lines are set in a different face or size —
+			# measure each line the way it is ACTUALLY DRAWN, or the budget
+			# lies and the page overruns (law 5).
 			var rule := _is_rule(lines[i])
+			var size_here := line_size
+			if rule:
+				size_here = 32
+			elif _is_verse(lines[i]):
+				size_here = 46
 			total += UITheme.measure_text(_line_labels[i].text,
 				UITheme.smallcaps_font() if rule else line_font,
-				32 if rule else line_size, float(UITheme.CONTENT_WIDTH)).y + 18.0
+				size_here, float(UITheme.CONTENT_WIDTH)).y + 18.0
 		if total <= budget:
 			break
 		_line_labels[_first_visible].visible = false

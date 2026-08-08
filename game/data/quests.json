@@ -32,9 +32,18 @@
         "environment": "shambles_market",
         "portrait": "sc_shambles_day",
         "lines": [
-          "Everyone in this city knows one thing and sells it. Brindle knows all of them and sells most.",
-          "She is a magpie. Not a metaphor — an actual magpie, with an actual stall, and an actual opinion about your posture.",
-          "She will not talk to me for nothing. Nobody talks for nothing. That is the first true thing about Hollowmere."
+          "Everyone in this city knows one thing and sells it. Brindle knows all of them and sells most of them twice.",
+          "She keeps a stall in the Shambles after the market has gone to bed, and she will not talk to me for nothing. Nobody talks for nothing. That is the first true thing about Hollowmere.",
+          "So I bring payment: a candle stub with a guild seal on it, wrapped in my own mouth, which is undignified and the only pocket I have."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "lines": [
+          "Halfway down the Shambles the stub starts to matter to something else.",
+          "A gutter-wisp comes up out of a drain and does not go for me at all — it goes for my MOUTH, for the wax, for the little seal that somebody paid to press into it.",
+          "Small lies and small valuables. It cannot tell the difference and it has never once needed to."
         ]
       },
       {
@@ -44,10 +53,21 @@
       {
         "type": "story",
         "environment": "shambles_market",
+        "portrait": "npc_brindle_magpie",
+        "art_desc": "Brindle the magpie fence behind a market stall of buttons, teeth and small keys, one bright eye, night market lanterns",
         "lines": [
-          "'You are the witch's cat,' she says, before I have said anything at all.",
-          "'Was,' I say.",
-          "She does not say sorry. I like her enormously for it. Instead she tips her head at the alley behind the stall, where something has been coming for her stock three nights running."
+          "I arrive at the stall with the stub still in my teeth and my dignity somewhere behind me on the cobbles.",
+          "'You are the witch's cat,' says Brindle, before I have said anything at all.",
+          "'Was,' I say. She does not say sorry, and I like her enormously for it — everyone else this week has said sorry, and not one of them has said anything useful afterwards."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "lines": [
+          "She looks at the stub for a long moment and does not take it.",
+          "'That is worth an answer,' she says. 'It is not worth an answer from ME. I have had wisps in the back alley three nights running, going through my stock for anything with a seal on it, and I am one bird.'",
+          "'Clear them out and we can have a conversation like professionals.'"
         ]
       },
       {
@@ -58,11 +78,10 @@
         "type": "story",
         "environment": "shambles_market",
         "portrait": "npc_brindle_magpie",
-        "art_desc": "Brindle the magpie fence behind a market stall of buttons, teeth and small keys, one bright eye, night market lanterns",
         "lines": [
-          "'Right,' says Brindle. 'You're not useless. That's the whole interview.'",
+          "'Right,' says Brindle, when the alley is quiet. 'You're not useless. That's the whole interview.'",
           "'I need to know who was on Needle Lane last night.'",
-          "'You need a lot of things. Bring me buttons and I'll remember harder.' She taps the stall with one black claw. 'Doors open now. Mind the step.'"
+          "'You need a lot of things.' She takes the stub at last, and turns it seal-up, and stops being amused. 'Bring me buttons and I'll remember harder. Doors open now. Mind the step.'"
         ]
       },
       {
@@ -120,7 +139,9 @@
           "Tell her exactly what came in the door.",
           "Say nothing. Watch what she does with silence.",
           "Ask what unpicks a witch's own stitching."
-        ]
+        ],
+        "portrait": "sc_parlor_doorway",
+        "art_desc": "The workroom doorway from inside: cut threads hanging the length of the frame, scissors and pinned patterns on the table, cold morning light"
       },
       {
         "type": "story",
@@ -172,7 +193,8 @@
           "When they have gone I go over the room the way she went over a hem. Slowly. Twice.",
           "Under the window, where nobody was standing and nobody had reason to stand: a candle stub. Beeswax, not tallow, sealed with a guild mark.",
           "She burned tallow. She burned tallow her whole life and complained about it in a way that was almost a hobby. Somebody else's light was in this room."
-        ]
+        ],
+        "portrait": "sc_parlor_doorway"
       },
       {
         "type": "lesson",

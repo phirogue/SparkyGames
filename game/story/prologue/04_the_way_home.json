@@ -10,7 +10,12 @@
       "type": "story",
       "environment": "needle_lane_wrong",
       "lines": [
-        "Her window is ahead now. Dark. Her window is never dark."
+        [
+          "Her window is ahead now.",
+          "Dark.",
+          "",
+          "Her window is never dark."
+        ]
       ]
     },
     {
@@ -20,12 +25,14 @@
       "lines": [
         "Two ways home from here.",
         "The long way passes the Lamplighters' hall — whatever silenced the lamps went wrong there first.",
-        "The fast way is over the fences. Now. While the kettle still screams."
+        "The fast way is over the fences. Now."
       ],
       "choices": [
         "The long way — see what silenced the lamps",
         "Over the fences — home, NOW"
-      ]
+      ],
+      "portrait": "sc_needle_lane_deep",
+      "art_desc": "Deep in the fogged lane at night, every street lamp dark, one lamplighter's ladder still leaning against an unlit lamp"
     },
     {
       "type": "story",
@@ -87,7 +94,7 @@
       "lines": [
         "The threads on the walls — cut. All of them. Hanging like torn hems.",
         "Forty years of her work, and every single one snipped at the same height, as if by someone tidying.",
-        "The room is very cold and very quiet and I have not gone through to the parlor yet."
+        "The parlor door is open and I am not going through it. Not yet. I am a cat who has learned to look at a room before he is in it."
       ]
     },
     {

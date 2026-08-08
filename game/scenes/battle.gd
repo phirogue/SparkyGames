@@ -270,7 +270,22 @@ func _ready() -> void:
 func _start_coach() -> void:
 	_coach_pending = false
 	coach = Coach.new(coach_steps, _coach_target)
+	coach.text_resolver = _coach_text
 	add_child(coach)
+
+
+## Lets a lesson say the true thing about the state the player is actually
+## in. A step may carry `text_by_approach`, keyed by the approach taken
+## ("stalk", "ambush", "case", "ward", or "walk_in" for none), with `text` as
+## the fallback. Written once for all states, the wisp lesson told a player
+## who had walked in that "two Shadow went on the entrance" — they had spent
+## nothing, and the tutorial was simply wrong at them (owner 2026-08-05).
+func _coach_text(step: Dictionary) -> String:
+	var variants: Dictionary = step.get("text_by_approach", {})
+	if variants.is_empty():
+		return ""
+	var taken := state.approach if state.approach != "" else "walk_in"
+	return String(variants.get(taken, step.get("text", "")))
 
 
 func _coach_target(key: String) -> Control:

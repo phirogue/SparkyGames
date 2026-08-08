@@ -35,15 +35,18 @@
       ],
       "answers": [
         [
-          "'Everyone here is something.' He turns a page without touching it. '...Vane's familiar. There you are.'",
-          "'Nine allotted. One spent. Try to be interesting about the rest.'"
+          "'Everyone here is something.' He turns a page without touching it, and then stops turning it.",
+          "'Nine.' He looks at me over the spectacles for the first time. 'You have NINE.' He checks the sheet again, and then a second sheet, and his face does what a clerk's face does when the arithmetic is somebody else's problem.",
+          "'...Vane's familiar. Well. That is what it says.' He writes it down exactly as written. 'Nine allotted. One spent.'"
         ],
         [
           "'Needle Lane.' Something moves behind the spectacles that is almost interest. 'Yes. We have had a busy evening from Needle Lane.'",
-          "'Vane's familiar. Nine allotted, one spent.' He does not say whose the busy evening was. I do not ask, because I already know."
+          "Then he reaches the column that matters and stops. 'Nine allotted.' He says it to the paper, not to me. 'I have not filed a nine since before the bell came down.'",
+          "'Vane's familiar. One spent.' He does not say whose the busy evening was, and I do not ask, because I already know."
         ],
         [
-          "The silence goes on long enough to become a position. He allows it, and then writes something anyway.",
+          "The silence goes on long enough to become a position. He allows it, and writes anyway.",
+          "Halfway down he stops. 'Nine,' he says, to nobody. He turns the sheet over as though the back might explain it. It does not.",
           "'Vane's familiar. Nine allotted, one spent.' — 'You will find that not answering is also an answer, and that I have a great deal of filing.'"
         ]
       ]
@@ -57,8 +60,19 @@
           "rule": true
         },
         "'The first visit is complimentary. Do consider it a courtesy rather than a habit.'",
-        "The stamp comes down. It is, I notice, a paw print. Neither of us remarks on this.",
-        "The stairs up are longer than the fall down. They always are."
+        "The stamp comes down. It is, I notice, a paw print. Neither of us remarks on this."
+      ]
+    },
+    {
+      "portrait": "sc_hollow_stairs",
+      "art_desc": "A narrow stone stair climbing out of the Hollow Court's filing dark towards a small warm doorway far above, one black cat starting up it",
+      "lines": [
+        [
+          "The stairs up are longer",
+          "than the fall down.",
+          "",
+          "They always are."
+        ]
       ]
     }
   ],
@@ -66,10 +80,57 @@
     {
       "portrait": "sc_hollow_court_desk",
       "lines": [
-        "The desk again. The lamp again. The Clerk does not look up.",
+        "The desk again. The lamp again. He does not look up.",
         "'Back so soon. The form remembers you, which saves us both time.'",
-        "The Toll is taken. Professionally. Almost gently.",
-        "The stairs up are longer than the fall down. They always are."
+        "The Toll is taken. Professionally. Almost gently."
+      ]
+    },
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "Third. He has the stamp out before I reach the chair, which I choose to find efficient rather than insulting.",
+        "'You are making a habit of an arrangement,' he says. 'Habits are how arrangements become entitlements. I mention it only professionally.'",
+        "I sit anyway. He lets me."
+      ]
+    },
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "'Four,' says the Clerk, and for once does not write it down immediately.",
+        "'May I ask what you are doing up there?' — I am looking for someone. — 'Ah. Yes. That is the usual answer, and the usual number of lives it takes.'",
+        "The stamp comes down softer than it needs to."
+      ]
+    },
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "He has started keeping my file on the desk rather than in the drawer. Out is worse than filed; he told me so himself, once.",
+        "'Halfway,' he says. Not unkindly. That is the trouble with him.",
+        "'I am obliged to remind you that the allotment is not a budget. It is a quantity of you.'"
+      ]
+    },
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "There is a chair at the desk that was not there before. It is exactly cat-sized. Neither of us mentions it.",
+        "'The Toll,' he says, and takes it, and then sits with his hands folded for a moment longer than the work requires.",
+        "'Go carefully. That is not in the form. I am saying it anyway.'"
+      ]
+    },
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "He counts what is left twice. He is not a man who counts twice.",
+        "'Two,' he says. 'You will want to know what happens at nought. It is not dramatic. The file closes and the desk is empty and there is a great deal of filing that afternoon.'",
+        "'I would rather not do the filing.'"
+      ]
+    },
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "The lamp is turned up. He has turned the lamp up, for me, which is the most alarming thing that has happened tonight.",
+        "'One,' says the Clerk. 'I will not lecture you. You know precisely what you are spending and precisely what you are spending it on.'",
+        "'Whatever it is up there — do finish it.'"
       ]
     }
   ],
@@ -80,11 +141,11 @@
     },
     {
       "target": "board",
-      "text": "What the city is asking of you gets pinned to the chimney breast. One thing tonight. There will be more; there is always more."
+      "text": "What the city wants doing gets pinned to the chimney breast. One thing tonight."
     },
     {
       "target": "note",
-      "text": "Tap a note to take the work. A prowl is two or three rooms deep — press on for a bigger purse, or come home while you still can."
+      "text": "Tap a note to take the work. Whatever you carry back is yours; whatever you are carrying when you fall is not."
     },
     {
       "target": "purse",
@@ -92,15 +153,11 @@
     },
     {
       "target": "status",
-      "text": "Lives, the spool, and deeds recorded. The spool is the one to watch: it does not refill mid-prowl."
+      "text": "Lives, the spool, and deeds recorded. Watch the spool: it does not refill while you are out."
     },
     {
       "target": "doors",
-      "text": "One door for now — the Casebook, which is only my own memory and has always been open. The rest of this room opens when I have earned it. Find the Magpie first."
-    },
-    {
-      "target": "footer",
-      "text": "And that. For when you want to go back and stand in the worst night again. I do not recommend it. I do it constantly."
+      "text": "The Casebook is here, because the Casebook is only my own memory and I have always had that. There will be more along this wall when I have reason to put it there."
     }
   ],
   "unpicked_won": [

@@ -23,11 +23,15 @@
       "coach": [
         {
           "target": "hand",
-          "text": "MOONLIGHT — the pale card. It is WILD: it pays any cost you own, whatever the colour of the pips. Hers always did work on anything."
+          "text": "MOONLIGHT — the pale card, and hers. It is WILD: one Moonlight pays any cost you own, whatever colour the pips are. Everything she made worked on anything."
+        },
+        {
+          "target": "rule",
+          "text": "Her room is still helping. Moonlight costs one less in here, which is the last thing she does for you."
         },
         {
           "target": "concentrate",
-          "text": "And CONCENTRATE: give up the whole turn to stare one spent energy back onto the spool. It is the last thing you have when the hand is empty. It will not be enough. Do it anyway."
+          "text": "And when the hand is empty: CONCENTRATE. The whole turn for one spent card back, arriving next turn. It will not be enough. Do it anyway."
         }
       ],
       "hints": {
@@ -73,6 +77,22 @@
         "The kettle is still screaming. It has been screaming this whole time, and I did not hear it until now.",
         "She hates it when it does that.",
         "I took it off the fire. One paw. It took three tries. Nobody will ever know."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "parlor_cold",
+      "portrait": "sc_elspeth_still",
+      "lines": [
+        "And then the house is quiet, and there is nothing else to take off any fire.",
+        "I get up on the arm of the chair, which I am not allowed to do, and nobody tells me to get down.",
+        [
+          "Fifteen years.",
+          "Every evening.",
+          "",
+          "She always came to the window."
+        ],
+        "I do not know how to be a cat that nobody is expecting."
       ]
     },
     {

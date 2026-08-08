@@ -8,38 +8,22 @@
     "check everybody learns to scroll past, which is worse than not having it.",
     "",
     "So a gap can be accepted HERE, and only here. An accepted gap is still",
-    "PRINTED on every run (as 'known', not 'ok') -- it is visible, it just does",
+    "PRINTED on every run (as 'gap', not 'ok') -- it is visible, it just does",
     "not fail the build. Accepting one is a deliberate edit to a tracked file,",
     "with a reason and a place where the real work is written down.",
     "",
     "Delete an entry the moment the gap closes. kb_check reports an accepted",
-    "gap that no longer exists as a failure, so this file cannot rot into a",
-    "list of things that were fixed years ago."
-  ],
-
-  "missing_art": {
-    "_why": [
-      "Six ids in game/data/case.json name art that does not exist in",
-      "assets/library, assets/archive or game/assets. The Case Board renders",
-      "them through UITheme.art_or_placeholder, so they degrade to a labelled",
-      "placeholder rather than a black box -- the screen is legible, just",
-      "unfinished.",
-      "",
-      "Not fixed here because generating them spends real money on a billed",
-      "image API (~$0.19 each) and two are recurring characters, which under",
-      "art library rule 4 need a ref_ anchor established deliberately rather",
-      "than as a side effect of a maintenance pass.",
-      "",
-      "Tracked in docs/design/art-needed.md, 'Chapter 1, wave 1'."
-    ],
-    "tracked_in": "docs/design/art-needed.md",
-    "ids": [
-      "ev_ledger",
-      "ev_seam",
-      "ev_tally",
-      "npc_gentleman",
-      "npc_shift_boss",
-      "npc_wick"
-    ]
-  }
+    "gap that no longer exists as a FAILURE, so this file cannot rot into a",
+    "list of things that were fixed years ago. That guard has already fired",
+    "once, on 2026-08-07, when the six missing Case Board images were drawn --",
+    "which is the only reason this file is empty rather than stale.",
+    "",
+    "THERE ARE NO ACCEPTED GAPS RIGHT NOW. Keep it that way where you can.",
+    "",
+    "To accept one, add a key with `_why` (several sentences -- why it is not",
+    "being fixed, not merely what is missing), `tracked_in` (the doc holding",
+    "the real work), and whatever the matching check reads. Only the",
+    "`missing_art` key has a reader today; adding a new kind of gap means",
+    "teaching the relevant check to look for it."
+  ]
 }
