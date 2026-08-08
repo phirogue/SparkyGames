@@ -28,7 +28,8 @@
       "PowerShell(& \"C:\\Users\\yurim\\tools\\godot\\Godot_v4.4.1-stable_win64_console.exe\" --path game -- --scene*)",
       "Bash(git count-objects *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(timeout 180 git commit -q -F -)"
     ],
     "ask": [
       "Bash(git push:*)",
