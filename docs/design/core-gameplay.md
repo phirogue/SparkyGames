@@ -188,6 +188,8 @@ a real decision:
 | **Health** | Classic damage; 0 HP = a life spent | Block/dodge skills, Moonlight wards |
 | **Skills** | Jams a skill (locks it 1 turn) or burns one of its remaining charges | Guile counters; jam-resistant equipment |
 | **Hand** | Forces a discard — can shatter a combo you were saving up | Spend it, or Loaf (nothing loose to take) |
+| **Itself: guard** (`block`) | Raises a guard that soaks your damage until its next move | Time the big hit for the open turn |
+| **Itself: mend** (`heal`) | Repairs its own thread | Out-pace the mending; slow fights favour it |
 
 This makes *saving for a combo* a push-your-luck act in itself, and gives
 enemies personality without new rules: brutes hit Health, hexers hit Skills,

@@ -205,6 +205,48 @@
       "about": "The training prowl. Ash gets permanently harder to kill (once)."
     },
     {
+      "name": "case-creditors",
+      "title": "Case: Creditors",
+      "group": "Chapter 1",
+      "spec": "quest:creditors",
+      "about": "The counting-house ledger trail: the Tallow Hound, then the golem on night shift."
+    },
+    {
+      "name": "case-lamplighters-talk",
+      "title": "Case: The Lamplighters Talk",
+      "group": "Chapter 1",
+      "spec": "quest:the_lamplighters_talk",
+      "about": "The Lamplighters' professional gossip: wisps, a testimony, a ward to patch."
+    },
+    {
+      "name": "case-ward-that-failed",
+      "title": "Case: The Ward That Failed",
+      "group": "Chapter 1",
+      "spec": "quest:the_ward_that_failed",
+      "about": "Her seam, undone in her own hand — with the first Remembered Day."
+    },
+    {
+      "name": "case-audience-of-wax",
+      "title": "Case: An Audience of Wax",
+      "group": "Chapter 1",
+      "spec": "quest:an_audience_of_wax",
+      "about": "The Tallowman. Guards itself, mends itself, and would rather you left."
+    },
+    {
+      "name": "case-milk-debt",
+      "title": "Case: The Milk Debt",
+      "group": "Chapter 1",
+      "spec": "quest:the_milk_debt",
+      "about": "A kitten sold her purr. The Court considers this actionable. No fight in it."
+    },
+    {
+      "name": "case-pigeon-ballot",
+      "title": "Case: The Pigeon Ballot",
+      "group": "Chapter 1",
+      "spec": "quest:the_pigeon_ballot",
+      "about": "The Perch votes. Testimony decides what it votes for."
+    },
+    {
       "name": "dev-menu",
       "title": "Developer Mode (jump anywhere)",
       "group": "Developer",

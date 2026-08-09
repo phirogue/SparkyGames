@@ -120,6 +120,46 @@
     ],
     "environment": "rooftop_dusk"
   },
+  "q_cred_hound": {
+    "id": "q_cred_hound",
+    "name": "The Yard's Opinion",
+    "enemies": [
+      "tallow_hound"
+    ],
+    "environment": "wickrow_night"
+  },
+  "q_cred_golem": {
+    "id": "q_cred_golem",
+    "name": "The Night Shift",
+    "enemies": [
+      "candle_golem"
+    ],
+    "environment": "wickrow_night"
+  },
+  "q_lamp_wisps": {
+    "id": "q_lamp_wisps",
+    "name": "Bought Appetite",
+    "enemies": [
+      "wisp_pair"
+    ],
+    "environment": "wickrow_night"
+  },
+  "q_ward_drowned": {
+    "id": "q_ward_drowned",
+    "name": "Always Arriving",
+    "enemies": [
+      "the_drowned"
+    ],
+    "environment": "mereside_edge"
+  },
+  "q_wax_tallowman": {
+    "id": "q_wax_tallowman",
+    "name": "An Audience of Wax",
+    "enemies": [
+      "the_tallowman"
+    ],
+    "environment": "guildhall"
+  },
   "q_saw_gutter": {
     "id": "q_saw_gutter",
     "name": "Still Here, Then",

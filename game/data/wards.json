@@ -29,6 +29,32 @@
       "walk_away": "Ash leaves the tear as he found it. The hall stays cold and stays theirs."
     }
   },
+  "ward_parlor_door": {
+    "id": "ward_parlor_door",
+    "name": "Her Door Frame",
+    "guild": "",
+    "width": 6,
+    "height": 5,
+    "hole": [
+      "0,2", "0,3",
+      "1,2", "1,3",
+      "2,2", "2,3",
+      "3,2", "3,3"
+    ],
+    "rack": [
+      { "id": "p_square", "humour": "shadow", "shape": [[0, 0], [0, 1], [1, 0], [1, 1]] },
+      { "id": "p_ell", "humour": "guile", "shape": [[0, 0], [0, 1], [1, 0]] },
+      { "id": "p_dot", "humour": "mysticism", "shape": [[0, 0]] }
+    ],
+    "gap_effect": "cold",
+    "perfect_effect": "warmed",
+    "rewards": {},
+    "when_outcome": {
+      "success": "The last corner takes. The doorway closes its eye.",
+      "partial": "Patched where it counts. The gap keeps a sliver of the night.",
+      "walk_away": "The tear stays. Tonight the door is watched, not warded."
+    }
+  },
   "ward_practice": {
     "id": "ward_practice",
     "name": "A Practice Tear",

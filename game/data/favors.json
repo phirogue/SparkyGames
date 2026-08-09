@@ -11,6 +11,18 @@
       "The knot slips loose. Debts settled are the only kind that stop being useful."
     ]
   },
+  "cardew_grey_debt": {
+    "id": "cardew_grey_debt",
+    "name": "A Grey Debt",
+    "guild": "",
+    "flavor": "Tied at the tideline by Mother Cardew. Grey debts are the kind witches honor without being asked twice.",
+    "redeem_heading": "A grey debt comes due",
+    "redeem_lines": [
+      "Ash lifts his chin, and the grey knot in his thread catches what light there is.",
+      "'So it is now,' says Mother Cardew, as if she had been told a time and kept the evening free.",
+      "The knot slips loose. She does not ask what it is for. That was the gift of it."
+    ]
+  },
   "wick_knot": {
     "id": "wick_knot",
     "name": "A Guildmaster's Knot",

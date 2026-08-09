@@ -23,6 +23,8 @@ the strategy, which is why it is printed in order.
 | `skills` + `jam` | Locks a skill for N turns | Spread the loadout; hold a second answer |
 | `skills` + `burn` | Destroys a skill charge **permanently** | Spend charges before they are taken |
 | `hand` | Steals energy from your hand | Play cards out; Loaf guards them |
+| `block` | Guards itself — soaks your damage until its next move | Wait it out, or overwhelm it |
+| `heal` | Mends its own thread | Out-pace the mending or finish it first |
 
 From **turn 8** every enemy strike gains +2 per turn (the night
 presses). No fight is meant to last past ~turn 10.
@@ -35,13 +37,37 @@ different problem in a different place.
 | Place | Rule | Cost changes | Sunbeams | Alarm |
 |---|---|---|---|---|
 | The Back Gardens | Sleeping houses: Ferocity costs 1 more and raises the Alarm. | Ferocity +1 | - | spotted at 5 |
+| The Counting-House, After Hours | Sleeping money: Ferocity costs 1 more and raises the Alarm. | Ferocity +1 | - | spotted at 4 |
+| The Chandlers' Guildhall | The guild's own light: Moonlight costs 1 more; Guile 1 less. | Moonlight +1, Guile -1 | - | - |
 | The Hollow Court | No sun has ever reached this desk. | - | - | - |
+| The Mereside, Fog | The Mere's breath: Shadow costs 1 less. The water is listening. | Shadow -1 | - | - |
 | Needle Lane, Night | Deep fog: Shadow costs 1 less. | Shadow -1 | - | - |
 | Needle Lane, Wrong | The lamps are out. The dark is deeper than it should be. | Shadow -1 | - | - |
 | The Parlor | Her room remembers her: Moonlight costs 1 less. | Moonlight -1 | - | - |
 | The Parlor, Before | Warm, and hers. | Moonlight -1 | turns 2, 4 | - |
 | The Rooftops, Dusk | Last light: sunbeams on turns 2 and 4 return a spent card. | - | turns 2, 4 | - |
 | The Shambles, After Hours | Everything is negotiable: Guile costs 1 less. | Guile -1 | turns 3 | - |
+| The Wickhouse | Her stitching holds these walls: Moonlight costs 1 less. | Moonlight -1 | - | - |
+| Wickrow, Under Ward-Light | Ward-lit streets: Moonlight costs 1 more; Guile 1 less. | Moonlight +1, Guile -1 | - | - |
+
+---
+
+## A Candle-Golem  <sub>`candle_golem`</sub>
+
+> Votive wax, walking. It is very sorry about the scalding.
+
+**16 hp**  ·  **10 gleam**  ·  cycle of 4, repeating
+
+Fought in: The Night Shift (Wickrow, Under Ward-Light)
+
+| Turn | Move | Target | Effect |
+|---|---|---|---|
+| 1 | **Scald** | `health` | 3 damage, blockable |
+| 2 | **Hold the Light** | `block` | guards itself for 4 — soaks your damage until its next move |
+| 3 | **Wax Over** | `skills / jam` | jams a random ready skill for 1 turn(s) |
+| 4 | **Drip** | `health` | 2 damage, blockable |
+
+**Strategy:** Averages **1.3 damage a turn** over its cycle (biggest single hit 3). Takes roughly **6 turns to bring down** at 3 damage a turn. **Jams** — bring a second answer, or a jam lands on your only one. **Guards itself** — its raised guard soaks your damage until its next move; time the big hit for the open turn.
 
 ---
 
@@ -134,6 +160,42 @@ Fought in: The Wrong Quiet (Needle Lane, Wrong)
 
 ---
 
+## The Tallow Hound  <sub>`tallow_hound`</sub>
+
+> The render-yards' dog. Nobody owns him. Everybody feeds him.
+
+**14 hp**  ·  **8 gleam**  ·  cycle of 3, repeating
+
+Fought in: The Yard's Opinion (Wickrow, Under Ward-Light)
+
+| Turn | Move | Target | Effect |
+|---|---|---|---|
+| 1 | **Grease Lunge** | `health` | 4 damage, blockable |
+| 2 | **Bay the Yard** | `hand` | steals 1 energy from your hand |
+| 3 | **Worry the Bone** | `health` | 2 damage, blockable |
+
+**Strategy:** Averages **2.0 damage a turn** over its cycle (biggest single hit 4). Takes roughly **5 turns to bring down** at 3 damage a turn. **Steals energy** — play cards out rather than holding a fat hand.
+
+---
+
+## One of the Drowned  <sub>`the_drowned`</sub>
+
+> Dry-footed on a wet street. Never fast. Always arriving.
+
+**18 hp**  ·  **11 gleam**  ·  cycle of 3, repeating
+
+Fought in: Always Arriving (The Mereside, Fog)
+
+| Turn | Move | Target | Effect |
+|---|---|---|---|
+| 1 | **Arriving** | `block` | guards itself for 3 — soaks your damage until its next move |
+| 2 | **Undertow** | `hand` | steals 1 energy from your hand |
+| 3 | **Cold Hands** | `health` | 5 damage, blockable |
+
+**Strategy:** Averages **1.7 damage a turn** over its cycle (biggest single hit 5). Takes roughly **6 turns to bring down** at 3 damage a turn. **Steals energy** — play cards out rather than holding a fat hand. **Guards itself** — its raised guard soaks your damage until its next move; time the big hit for the open turn.
+
+---
+
 ## The Empty Coat  <sub>`the_empty_coat`</sub>
 
 > Out wearing someone's evening. It fits nobody. It tries everyone.
@@ -149,6 +211,26 @@ Fought in: The Coat Itself (Needle Lane, Night)
 | 3 | **Wrap Tight** | `health` | 4 damage, blockable |
 
 **Strategy:** Averages **2.3 damage a turn** over its cycle (biggest single hit 4). Takes roughly **5 turns to bring down** at 3 damage a turn. **Steals energy** — play cards out rather than holding a fat hand.
+
+---
+
+## The Tallowman  <sub>`the_tallowman`</sub>
+
+> Wick's bodyguard: a gentle-voiced tower of votive wax. It would rather you left.
+
+**32 hp**  ·  **30 gleam**  ·  cycle of 5, repeating
+
+Fought in: An Audience of Wax (The Chandlers' Guildhall)
+
+| Turn | Move | Target | Effect |
+|---|---|---|---|
+| 1 | **Warm Regards** | `health` | 5 damage, blockable |
+| 2 | **A Kindly Grip** | `hand` | steals 1 energy from your hand |
+| 3 | **Reform** | `heal` | mends itself 4 |
+| 4 | **Candle Discipline** | `skills / jam` | jams a random ready skill for 1 turn(s) |
+| 5 | **Hot Wax (past the guard)** | `health / pierce` | 3 damage, **ignores block** |
+
+**Strategy:** Averages **1.6 damage a turn** over its cycle (biggest single hit 5). Takes roughly **11 turns to bring down** at 3 damage a turn. **Pierces** — blocking is not an answer here, and a defensive kit will lose the race. **Jams** — bring a second answer, or a jam lands on your only one. **Steals energy** — play cards out rather than holding a fat hand. **Mends itself** — every slow turn gives some of your work back.
 
 ---
 
@@ -194,7 +276,7 @@ Fought in: The Hunt (The Rooftops, Dusk)
 
 **12 hp**  ·  **6 gleam**  ·  cycle of 3, repeating
 
-Fought in: Witnesses (The Shambles, After Hours), Her Doorstep, Guarded (The Shambles, After Hours), Their Little Friends (Needle Lane, Night)
+Fought in: Witnesses (The Shambles, After Hours), Bought Appetite (Wickrow, Under Ward-Light), Her Doorstep, Guarded (The Shambles, After Hours), Their Little Friends (Needle Lane, Night)
 
 | Turn | Move | Target | Effect |
 |---|---|---|---|

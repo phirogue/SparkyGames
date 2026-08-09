@@ -20,6 +20,56 @@
       "walk_away": "Ash leaves the lattice standing. Some knots are somebody else's evening."
     }
   },
+  "lattice_garden_gate": {
+    "id": "lattice_garden_gate",
+    "name": "The Woven Gate",
+    "error_cost": "alarm",
+    "alarm_per_mistake": 1,
+    "alarm_threshold": 3,
+    "threads": [
+      { "id": "g_bind", "over": ["g_left", "g_right"], "path": [[0, 0], [3, 3]] },
+      { "id": "g_left", "over": ["g_root"], "path": [[0, 3], [2, 0]] },
+      { "id": "g_right", "over": ["g_root"], "path": [[1, 0], [3, 2]] },
+      { "id": "g_root", "over": [], "path": [[2, 3], [3, 0]] }
+    ],
+    "elastic": [
+      {
+        "when_removed": "g_bind",
+        "adds": [{ "thread": "g_right", "over": "g_left" }]
+      }
+    ],
+    "rewards": {},
+    "when_outcome": {
+      "success": "The gate un-weaves into six polite withies. The old captain would have wept.",
+      "partial": "Half-open. A gate for thinner cats.",
+      "walk_away": "The weave settles back, smug. Somebody good made this."
+    }
+  },
+  "lattice_purr_knot": {
+    "id": "lattice_purr_knot",
+    "name": "The Purr, In Escrow",
+    "error_cost": "alarm",
+    "alarm_per_mistake": 1,
+    "alarm_threshold": 3,
+    "threads": [
+      { "id": "k_interest", "over": ["k_clause"], "path": [[0, 0], [2, 3]] },
+      { "id": "k_clause", "over": ["k_purr"], "path": [[0, 3], [3, 0]] },
+      { "id": "k_seal", "over": ["k_purr"], "path": [[1, 0], [3, 3]] },
+      { "id": "k_purr", "over": [], "path": [[2, 0], [0, 2]] }
+    ],
+    "elastic": [
+      {
+        "when_removed": "k_interest",
+        "adds": [{ "thread": "k_seal", "over": "k_clause" }]
+      }
+    ],
+    "rewards": {},
+    "when_outcome": {
+      "success": "The knot gives up the purr with a sound like a cork. Somebody small starts vibrating.",
+      "partial": "The knot tightens around what it holds. It has been paid to.",
+      "walk_away": "I step back from somebody's signature. For now."
+    }
+  },
   "lattice_elastic": {
     "id": "lattice_elastic",
     "name": "A Working That Argues Back",

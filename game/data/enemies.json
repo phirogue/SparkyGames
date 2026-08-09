@@ -215,6 +215,132 @@
     "image": "en_the_vole",
     "codex": "Microtus, the common field vole. Eats grass, fears everything, and has exactly one plan: be somewhere else, immediately, in a straight line. Not a monster. Not an enemy. A gift, if you are quick, and an apology if you are not."
   },
+  "tallow_hound": {
+    "id": "tallow_hound",
+    "name": "The Tallow Hound",
+    "hp": 14,
+    "gleam": 8,
+    "color": "#b89a6f",
+    "intents": [
+      {
+        "name": "Grease Lunge",
+        "target": "health",
+        "amount": 4
+      },
+      {
+        "name": "Bay the Yard",
+        "target": "hand",
+        "amount": 1
+      },
+      {
+        "name": "Worry the Bone",
+        "target": "health",
+        "amount": 2
+      }
+    ],
+    "flavor": "The render-yards' dog. Nobody owns him. Everybody feeds him.",
+    "image": "en_chained_dog",
+    "codex": "A yard dog gone glossy on render-scraps, patrolling the wax-yards on the theory that whoever feeds you is whoever you work for. No chain on this one. The Chandlers found it cheaper to be generous."
+  },
+  "candle_golem": {
+    "id": "candle_golem",
+    "name": "A Candle-Golem",
+    "hp": 16,
+    "gleam": 10,
+    "color": "#e0c88a",
+    "intents": [
+      {
+        "name": "Scald",
+        "target": "health",
+        "amount": 3
+      },
+      {
+        "name": "Hold the Light",
+        "target": "block",
+        "amount": 4
+      },
+      {
+        "name": "Wax Over",
+        "target": "skills",
+        "amount": 1,
+        "mode": "jam"
+      },
+      {
+        "name": "Drip",
+        "target": "health",
+        "amount": 2
+      }
+    ],
+    "flavor": "Votive wax, walking. It is very sorry about the scalding.",
+    "image": "en_candle_golem",
+    "codex": "The Chandlers' night staff: poured men of votive wax with a lit wick where the thinking would go. Smashing one splashes. Smothering the wick stops it politely. It does not hate you; it is on shift."
+  },
+  "the_drowned": {
+    "id": "the_drowned",
+    "name": "One of the Drowned",
+    "hp": 18,
+    "gleam": 11,
+    "color": "#5f7d82",
+    "intents": [
+      {
+        "name": "Arriving",
+        "target": "block",
+        "amount": 3
+      },
+      {
+        "name": "Undertow",
+        "target": "hand",
+        "amount": 1
+      },
+      {
+        "name": "Cold Hands",
+        "target": "health",
+        "amount": 5
+      }
+    ],
+    "flavor": "Dry-footed on a wet street. Never fast. Always arriving.",
+    "image": "en_the_drowned",
+    "codex": "The Mere's patient people. They do not chase; they are simply nearer each time you look, the way the tide is. What they want is not you. It is for you to stop holding the door."
+  },
+  "the_tallowman": {
+    "id": "the_tallowman",
+    "name": "The Tallowman",
+    "hp": 32,
+    "gleam": 30,
+    "color": "#e8d5a0",
+    "intents": [
+      {
+        "name": "Warm Regards",
+        "target": "health",
+        "amount": 5
+      },
+      {
+        "name": "A Kindly Grip",
+        "target": "hand",
+        "amount": 1
+      },
+      {
+        "name": "Reform",
+        "target": "heal",
+        "amount": 4
+      },
+      {
+        "name": "Candle Discipline",
+        "target": "skills",
+        "amount": 1,
+        "mode": "jam"
+      },
+      {
+        "name": "Hot Wax (past the guard)",
+        "target": "health",
+        "amount": 3,
+        "mode": "pierce"
+      }
+    ],
+    "flavor": "Wick's bodyguard: a gentle-voiced tower of votive wax. It would rather you left.",
+    "image": "en_the_tallowman",
+    "codex": "A hundred years of guild votives poured into one patient shape. It speaks softly, apologizes sincerely, and reforms whatever you cut off. It has never once raised its voice. It has never once needed to."
+  },
   "the_empty_coat": {
     "id": "the_empty_coat",
     "name": "The Empty Coat",

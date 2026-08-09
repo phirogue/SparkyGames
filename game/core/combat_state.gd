@@ -91,6 +91,10 @@ var flags: Dictionary = {
 var enemy_id: String
 var enemy_hp: int
 var enemy_max_hp: int
+## Guard the enemy raised with a `block` intent. Soaks the player's damage
+## and expires when the enemy next acts (same rhythm as the player's own
+## block: yours resets at the turn-over, its resets when it moves).
+var enemy_block: int = 0
 var _intent_index: int = 0
 
 var turn: int = 1
@@ -249,7 +253,8 @@ func effective_cost(cost: Dictionary) -> Dictionary:
 	return adjusted
 
 
-## The enemy's telegraphed next move: {target: "health"|"skills"|"hand", amount, name}.
+## The enemy's telegraphed next move:
+## {target: "health"|"skills"|"hand"|"block"|"heal", amount, name}.
 func current_intent() -> Dictionary:
 	var intents: Array = catalog.enemies[enemy_id]["intents"]
 	return intents[_intent_index % intents.size()]
@@ -684,10 +689,14 @@ func _apply_effects(effects: Array) -> Array[String]:
 					amount += 1
 					sharpened = false
 					_events.append("sharpened_strike")
-				amount = mini(amount, maxi(enemy_hp, 0))
+				var turned := mini(enemy_block, amount)
+				enemy_block -= turned
+				amount = mini(amount - turned, maxi(enemy_hp, 0))
 				enemy_hp -= amount
-				_events.append("enemy_hurt:%d" % amount)
-				done.append("%d damage" % amount)
+				if amount > 0:
+					_events.append("enemy_hurt:%d" % amount)
+				done.append("%d damage%s" % [amount,
+					" (%d turned by its guard)" % turned if turned > 0 else ""])
 			"block":
 				player_block += int(effect["amount"])
 				done.append("Guard +%d (now %d)" % [
@@ -741,6 +750,8 @@ func _enemy_act() -> void:
 			"target": "health",
 			"amount": maxi(int(intent.get("amount", 2)) + 1, 3),
 		}
+	# Whatever guard it raised last move has served its turn.
+	enemy_block = 0
 	var name := String(intent["name"])
 	match intent["target"]:
 		"health":
@@ -803,6 +814,17 @@ func _enemy_act() -> void:
 				_journal.append("%s: %s — takes %s." % [
 					catalog.enemies[enemy_id]["name"], name,
 					", ".join(taken) if not taken.is_empty() else "nothing (empty paws)"])
+		"block":
+			# It guards itself: the raised guard soaks the player's damage
+			# until the enemy's NEXT act (cleared above).
+			enemy_block += int(intent["amount"])
+			_journal.append("%s: %s — it guards itself (+%d)." % [
+				catalog.enemies[enemy_id]["name"], name, int(intent["amount"])])
+		"heal":
+			var mended := mini(enemy_max_hp - enemy_hp, int(intent["amount"]))
+			enemy_hp += mended
+			_journal.append("%s: %s — it mends %d." % [
+				catalog.enemies[enemy_id]["name"], name, mended])
 	_check_end()
 
 

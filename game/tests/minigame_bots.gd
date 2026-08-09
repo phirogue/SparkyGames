@@ -203,11 +203,35 @@ func solve_testimony(testimony_id: String, held: Array) -> Dictionary:
 	commands += 1
 	if state.outcome != Minigame.Outcome.SUCCESS:
 		_violation("the correct presentation did not break the testimony")
-	if state.break_effects().is_empty():
+	# A break must land SOMEWHERE: in case effects, or in a quest that routes
+	# on the outcome (`when_minigame`), or in a lesson that runs it as
+	# practice. A testimony none of those consume resolves into silence.
+	if state.break_effects().is_empty() and not _testimony_is_consumed(testimony_id):
 		_violation("the break handed back nothing for the story to use")
 	_guard_finished(state, [{"type": "press", "ribbon": target},
 		{"type": "leave"}], _testimony_snapshot)
 	return {"commands": commands, "outcome": state.outcome}
+
+
+## Where an effect-less break is still consumed: a quest step that plays this
+## testimony and later routes a story page on `when_minigame`, or a lesson
+## whose practice scene is this testimony (the lesson is the consumer).
+func _testimony_is_consumed(testimony_id: String) -> bool:
+	for lesson_id in catalog.lessons:
+		if String(catalog.lessons[lesson_id].get("scene", "")) == "testimony:%s" % testimony_id:
+			return true
+	for quest_id in catalog.quests:
+		var steps := ProwlScript.steps_of(catalog.quests[quest_id])
+		var plays_it_at := -1
+		for i in steps.size():
+			var step: Dictionary = steps[i]
+			if ProwlScript.type_of(step) == ProwlScript.MINIGAME \
+					and String(step.get("module", "")) == "testimony" \
+					and String(step.get("id", "")) == testimony_id:
+				plays_it_at = i
+			elif plays_it_at >= 0 and i > plays_it_at and step.has("when_minigame"):
+				return true
+	return false
 
 
 ## Patience must run out into PARTIAL, never into a wall, and every wrong

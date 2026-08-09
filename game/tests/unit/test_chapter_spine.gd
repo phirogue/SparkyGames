@@ -25,8 +25,11 @@ func _profile(evidence: Array = [], standing: Dictionary = {},
 func test_shipped_case_content_is_coherent() -> void:
 	var catalog := _catalog()
 	assert_true(catalog.cases.has(CASE_ID), "Chapter 1's case file must exist")
-	assert_eq(catalog.cases[CASE_ID]["evidence"].size(), 5,
-		"Wax & Wick is a five-evidence case (chapters/01)")
+	# Six, not five, since 2026-08-08: the opening arc finds the docket early,
+	# which orphaned lead l5 — the strongbox counterfoil restores the finale's
+	# own THING (chapters/01 L5) and keeps the recap pointing at Wick.
+	assert_eq(catalog.cases[CASE_ID]["evidence"].size(), 6,
+		"Wax & Wick is a six-evidence case (chapters/01, amended 2026-08-08)")
 	assert_eq(catalog.cases[CASE_ID]["leads"].size(), 5, "five main leads")
 	assert_true(catalog.guilds.size() >= 2, "guild standing needs guilds")
 	assert_true(not catalog.favors.is_empty(), "favor-knots need favors")
@@ -81,7 +84,7 @@ func test_evidence_is_recorded_once() -> void:
 
 func test_evidence_slots_show_what_is_still_missing() -> void:
 	var slots := CaseState.evidence_slots(_catalog(), _profile(["candle_stub"]))
-	assert_eq(slots.size(), 5, "every slot is shown, found or not")
+	assert_eq(slots.size(), 6, "every slot is shown, found or not")
 	assert_true(slots[0]["found"], "the found one is marked found")
 	assert_true(not slots[1]["found"], "the rest are still out there")
 
@@ -144,7 +147,7 @@ func test_recap_names_the_last_find_and_the_next_pull() -> void:
 	var lines := CaseState.recap_lines(catalog, _profile(["candle_stub"]))
 	assert_eq(lines.size(), 3, "last find, tally, next lead")
 	assert_true(lines[0].contains("The Sealed Stub"), "opens on the last thing found")
-	assert_true(lines[1].contains("1 of 5"), "counts the board")
+	assert_true(lines[1].contains("1 of 6"), "counts the board")
 	assert_eq(lines[2], String(CaseState.next_lead(catalog,
 		_profile(["candle_stub"]))["recap_line"]),
 		"and closes on the next lead's recap line, not its longer board card")

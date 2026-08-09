@@ -70,6 +70,57 @@
     "stealth_threshold": 5,
     "rule_text": "Sleeping houses: Ferocity costs 1 more and raises the Alarm."
   },
+  "wickrow_night": {
+    "id": "wickrow_night",
+    "name": "Wickrow, Under Ward-Light",
+    "color": "#4a3423",
+    "accent": "#e8b46a",
+    "image": "bg_wickrow",
+    "sunbeam_turns": [],
+    "cost_mod": { "mysticism": 1, "guile": -1 },
+    "rule_text": "Ward-lit streets: Moonlight costs 1 more; Guile 1 less."
+  },
+  "counting_house": {
+    "id": "counting_house",
+    "name": "The Counting-House, After Hours",
+    "color": "#3d3226",
+    "accent": "#c8a25f",
+    "image": "bg_hollow_court",
+    "sunbeam_turns": [],
+    "cost_mod": { "ferocity": 1 },
+    "stealth_threshold": 4,
+    "rule_text": "Sleeping money: Ferocity costs 1 more and raises the Alarm."
+  },
+  "mereside_edge": {
+    "id": "mereside_edge",
+    "name": "The Mereside, Fog",
+    "color": "#2c3d40",
+    "accent": "#8fb4b8",
+    "image": "bg_mereside",
+    "sunbeam_turns": [],
+    "cost_mod": { "shadow": -1 },
+    "rule_text": "The Mere's breath: Shadow costs 1 less. The water is listening."
+  },
+  "guildhall": {
+    "id": "guildhall",
+    "name": "The Chandlers' Guildhall",
+    "color": "#4d3a26",
+    "accent": "#e8c48a",
+    "image": "bg_guildhall",
+    "sunbeam_turns": [],
+    "cost_mod": { "mysticism": 1, "guile": -1 },
+    "rule_text": "The guild's own light: Moonlight costs 1 more; Guile 1 less."
+  },
+  "wickhouse": {
+    "id": "wickhouse",
+    "name": "The Wickhouse",
+    "color": "#33302c",
+    "accent": "#b8c4d4",
+    "image": "bg_needle_lane_wrong",
+    "sunbeam_turns": [],
+    "cost_mod": { "mysticism": -1 },
+    "rule_text": "Her stitching holds these walls: Moonlight costs 1 less."
+  },
   "shambles_market": {
     "id": "shambles_market",
     "name": "The Shambles, After Hours",

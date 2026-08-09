@@ -11,6 +11,9 @@ extends RefCounted
 ## Step types:
 ##   battle    {"encounter": id}                       — a fight
 ##   story     {...story scene fields...}              — a page (or a choice)
+##   flashback {"title", "environment", "lines"}      — a Remembered Day:
+##             a story page, tinted and headed, that can offer no choices
+##             (you cannot re-decide a memory)
 ##   minigame  {"module": stitch|testimony|ward|lattice|crossing, "id": ...}
 ##   lesson    {"lesson": id}                          — teach once, then skip
 ##   notice    {"notes": [...]}                        — the rules card
@@ -21,6 +24,7 @@ extends RefCounted
 
 const BATTLE := "battle"
 const STORY := "story"
+const FLASHBACK := "flashback"
 const MINIGAME := "minigame"
 const LESSON := "lesson"
 const NOTICE := "notice"

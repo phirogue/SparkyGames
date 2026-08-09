@@ -13,6 +13,34 @@
       "walk_away": "The long way round becomes the very long way round."
     }
   },
+  "crossing_needle_fog": {
+    "id": "crossing_needle_fog",
+    "name": "The Lane, Fogged Shut",
+    "length": 26,
+    "hazard": 2,
+    "environment": "needle_lane_wrong",
+    "gust_script": ["shadow", "guile", "shadow", "ferocity", "shadow", "mysticism"],
+    "rewards": {},
+    "when_outcome": {
+      "success": "Out the far end, with the fog still guessing which wall I hugged.",
+      "partial": "The lane lets me through, minus some dignity and a card or two.",
+      "walk_away": "I back out the way I came. The lane keeps its opinion of me."
+    }
+  },
+  "crossing_rooftops": {
+    "id": "crossing_rooftops",
+    "name": "The Seed Trail",
+    "length": 24,
+    "hazard": 1,
+    "environment": "rooftop_dusk",
+    "gust_script": ["guile", "shadow", "guile", "ferocity", "guile"],
+    "rewards": {},
+    "when_outcome": {
+      "success": "The trail holds all the way up. Somebody bought a great deal of seed, and carried it high.",
+      "partial": "I keep the trail, mostly, and lose a little of everything else.",
+      "walk_away": "The seed keeps its secret tonight. Pigeons watch me leave, voting."
+    }
+  },
   "crossing_mereside": {
     "id": "crossing_mereside",
     "name": "The Mereside Approach",

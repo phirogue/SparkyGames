@@ -1283,6 +1283,9 @@ func _start_quest(quest_id: String) -> void:
 	encounter_index = 0
 	satchel = 0
 	carryover = {}
+	# A stale outcome from a previous quest's minigame must never route this
+	# quest's `when_minigame` pages.
+	last_minigame_won = false
 	# The opening card is set wherever the quest actually STARTS, which is no
 	# longer always a fight — "The Carrying" opens in her parlor at first
 	# light and has no fight in it at all.
@@ -1316,7 +1319,7 @@ func _run_step(index: int) -> void:
 	match ProwlScript.type_of(step):
 		ProwlScript.BATTLE:
 			_show_battle(String(step["encounter"]), _on_prowl_battle_done)
-		ProwlScript.STORY:
+		ProwlScript.STORY, ProwlScript.FLASHBACK:
 			_run_prowl_story(step, next)
 		ProwlScript.MINIGAME:
 			_run_prowl_minigame(step, next)
@@ -1355,6 +1358,12 @@ func _run_prowl_story(step: Dictionary, on_done: Callable) -> void:
 	for key in ["portrait", "art_desc", "heading"]:
 		if step.has(key):
 			config[key] = step[key]
+	# A Remembered Day inside a prowl: the same page, tinted and headed, with
+	# choices refused (the validator guarantees none were written).
+	if ProwlScript.type_of(step) == ProwlScript.FLASHBACK:
+		config["flashback"] = true
+		config["image_tint"] = step.get("image_tint", _flashback_tint())
+		config["heading"] = "Remembered Day — %s" % step.get("title", "")
 	if not step.has("choices"):
 		_show_story(config, func(_i: int) -> void: on_done.call())
 		return

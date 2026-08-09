@@ -1267,7 +1267,11 @@ func _refresh() -> void:
 	# display_name may carry a deliberate line break (e.g. "The Dog\n(On a
 	# Chain)") — autowrap alone broke names badly.
 	enemy_label.text = String(enemy.get("display_name", enemy["name"]))
-	enemy_hp_label.text = "%d / %d" % [maxi(state.enemy_hp, 0), state.enemy_max_hp]
+	# "(+N)" is its raised guard — kept terse so the label never outgrows the
+	# slim column; the intent chip and chronicle carry the words.
+	enemy_hp_label.text = "%d/%d (+%d)" % [maxi(state.enemy_hp, 0),
+		state.enemy_max_hp, state.enemy_block] if state.enemy_block > 0 \
+		else "%d / %d" % [maxi(state.enemy_hp, 0), state.enemy_max_hp]
 	thread_bar.set_health(maxi(state.enemy_hp, 0), state.enemy_max_hp)
 	var intent := state.current_intent()
 	if state.hidden:
@@ -1629,6 +1633,8 @@ func _intent_text(intent: Dictionary) -> String:
 		"health": return "%d damage" % int(intent["amount"])
 		"skills": return "burns a charge" if intent.get("mode", "jam") == "burn" else "jams a skill"
 		"hand": return "steals %d card(s)" % int(intent["amount"])
+		"block": return "guards itself +%d" % int(intent["amount"])
+		"heal": return "mends itself %d" % int(intent["amount"])
 	return "?"
 
 

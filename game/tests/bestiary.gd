@@ -46,6 +46,8 @@ func _initialize() -> void:
 	lines.append("| `skills` + `jam` | Locks a skill for N turns | Spread the loadout; hold a second answer |")
 	lines.append("| `skills` + `burn` | Destroys a skill charge **permanently** | Spend charges before they are taken |")
 	lines.append("| `hand` | Steals energy from your hand | Play cards out; Loaf guards them |")
+	lines.append("| `block` | Guards itself — soaks your damage until its next move | Wait it out, or overwhelm it |")
+	lines.append("| `heal` | Mends its own thread | Out-pace the mending or finish it first |")
 	lines.append("")
 	lines.append("From **turn 8** every enemy strike gains +2 per turn (the night")
 	lines.append("presses). No fight is meant to last past ~turn 10.")
@@ -147,6 +149,10 @@ func _intent_effect(intent: Dictionary) -> String:
 			return "jams a random ready skill for %d turn(s)" % maxi(amount, 1)
 		"hand":
 			return "steals %d energy from your hand" % amount
+		"block":
+			return "guards itself for %d — soaks your damage until its next move" % amount
+		"heal":
+			return "mends itself %d" % amount
 	return "-"
 
 
@@ -172,6 +178,8 @@ func _strategy(enemy: Dictionary, intents: Array) -> String:
 	var jams := false
 	var burns := false
 	var steals := false
+	var guards := false
+	var mends := false
 	for intent in intents:
 		match String(intent.get("target", "")):
 			"health":
@@ -186,6 +194,10 @@ func _strategy(enemy: Dictionary, intents: Array) -> String:
 					jams = true
 			"hand":
 				steals = true
+			"block":
+				guards = true
+			"heal":
+				mends = true
 	var parts: Array[String] = []
 	var per_turn := float(damage) / maxf(intents.size(), 1.0)
 	parts.append("Averages **%.1f damage a turn** over its cycle (biggest single hit %d)" % [
@@ -200,6 +212,10 @@ func _strategy(enemy: Dictionary, intents: Array) -> String:
 		parts.append("**Jams** — bring a second answer, or a jam lands on your only one")
 	if steals:
 		parts.append("**Steals energy** — play cards out rather than holding a fat hand")
-	if not pierces and not burns and not jams and not steals:
+	if guards:
+		parts.append("**Guards itself** — its raised guard soaks your damage until its next move; time the big hit for the open turn")
+	if mends:
+		parts.append("**Mends itself** — every slow turn gives some of your work back")
+	if not pierces and not burns and not jams and not steals and not guards and not mends:
 		parts.append("No tricks: a pure damage race, and the fight the block economy is tuned against")
 	return ". ".join(parts) + "."

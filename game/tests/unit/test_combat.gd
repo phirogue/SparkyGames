@@ -514,6 +514,52 @@ func test_pierce_intent_ignores_block() -> void:
 	assert_ok(state.do_command({"type": "end_turn"}))
 	assert_eq(state.player_hp, 7, "pierce 3 lands through block 3 untouched")
 
+## Chapter 1 enemies raise a guard ("block" intent): it soaks the player's
+## damage and expires when the enemy next moves — the fight teaches timing
+## the big hit for the open turn.
+func test_enemy_guard_soaks_damage_until_its_next_move() -> void:
+	var state := CombatState.create(catalog, 5, {
+		"player_hp": 30, "shuffle": false,
+		"deck": ["ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1",
+				"ferocity_1", "ferocity_1"],
+		"skills": ["pounce"], "enemy": "candle_golem",
+	})
+	state._intent_index = 1  # Hold the Light: it guards itself +4
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_eq(state.enemy_block, 4, "the guard is raised")
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "pounce"}), "pounce into it")
+	assert_eq(state.enemy_hp, 16, "the guard turned the whole pounce")
+	assert_eq(state.enemy_block, 0, "and was spent doing it")
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "scratch"}))
+	assert_eq(state.enemy_hp, 15, "the next hit lands clean")
+
+
+func test_enemy_guard_expires_when_it_moves() -> void:
+	var state := CombatState.create(catalog, 5, {
+		"player_hp": 30, "shuffle": false,
+		"deck": ["guile_1", "guile_1", "guile_1"],
+		"skills": [], "enemy": "candle_golem",
+	})
+	state._intent_index = 1  # Hold the Light
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_eq(state.enemy_block, 4, "guard up")
+	assert_ok(state.do_command({"type": "end_turn"}))  # Wax Over (jam) — its next move
+	assert_eq(state.enemy_block, 0, "an unspent guard does not stack across its moves")
+
+
+func test_enemy_heal_mends_and_caps_at_full_thread() -> void:
+	var state := CombatState.create(catalog, 5, {
+		"player_hp": 30, "shuffle": false,
+		"deck": ["guile_1", "guile_1", "guile_1"],
+		"skills": [], "enemy": "the_tallowman",
+	})
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "scratch"}))
+	assert_eq(state.enemy_hp, 31, "scratched once")
+	state._intent_index = 2  # Reform: it mends 4
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_eq(state.enemy_hp, 32, "mending stops at its full thread — never over")
+
+
 # --- found by the chaos harness (tests/chaos_play.gd), 2026-08-03 ---------
 
 ## A command that was REJECTED must change nothing at all. approach_locked

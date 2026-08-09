@@ -2,7 +2,7 @@
   "wax_and_wick": {
     "id": "wax_and_wick",
     "name": "Case File I — Wax & Wick",
-    "question": "Elspeth died the week the Chandlers bought all her debts.",
+    "question": "Somebody paid for the light she died by.",
     "aphorism": "Cats do not believe in coincidence. Coincidence is what mice call carelessness.",
     "suspects": [
       {
@@ -15,14 +15,14 @@
       {
         "id": "wick",
         "name": "Guildmaster Wick",
-        "line": "Master of the Chandlers. Bought every debt she owed, the week she died.",
+        "line": "Master of the Chandlers. The bee on the stub answers to him.",
         "art": "npc_wick",
         "revealed_by": "candle_stub"
       },
       {
         "id": "gentleman",
         "name": "The Quiet Gentleman",
-        "line": "A fixer who owns favors the way banks own houses.",
+        "line": "Somebody with paper for a cart-slot, who wanted her street, quietly, that night.",
         "art": "npc_gentleman",
         "revealed_by": "cart_docket"
       }
@@ -72,6 +72,15 @@
         "implicates": ["gentleman", "unpicked"],
         "found_line": "A delivery docket for Needle Lane. Signed out on the night. Never delivered.",
         "note": "Someone borrowed the Chandlers' cart-slot to walk up her street unremarked. Someone with guild paper, or very good forgeries."
+      },
+      {
+        "id": "wick_counterfoil",
+        "name": "The Signed-Out Slot",
+        "art": "ev_docket",
+        "lead": "l5",
+        "implicates": ["gentleman"],
+        "found_line": "The counterfoil for the cart-slot, from Wick's own strongbox. It was not bought with guild ink.",
+        "note": "The slot was signed out against FAVOR-paper — a debt the Chandlers themselves owed, called in without a name. Wick kept the counterfoil because it frightened him. It should."
       }
     ],
     "leads": [
@@ -90,8 +99,8 @@
         "kind": "heist",
         "evidence": "wick_ledger",
         "requires": ["candle_stub"],
-        "recap_line": "The Chandlers bought every debt she owed. Last month.",
-        "board_card": "The Chandlers' bank bought every debt Elspeth owed. Last month. All at once. Banks are not sentimental."
+        "recap_line": "The stub is Chandlers' wax. The counting-house keeps the paper.",
+        "board_card": "The bee on the stub answers to the counting-house, and the counting-house keeps paper on everything. Go read it."
       },
       {
         "id": "l3",
@@ -115,7 +124,7 @@
         "id": "l5",
         "name": "An Audience of Wax",
         "kind": "boss",
-        "evidence": "cart_docket",
+        "evidence": "wick_counterfoil",
         "requires": ["backward_seam"],
         "recap_line": "Guildmaster Wick will see you now. Mind the big one.",
         "board_card": "Guildmaster Wick will see you now. Everyone in Wickrow is suddenly very polite. Mind the big one."

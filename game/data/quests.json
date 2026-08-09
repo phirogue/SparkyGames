@@ -1,21 +1,32 @@
 {
   "_notes": [
-    "CHAPTER 1 OPENING ARC (owner brief 2026-08-04). Six pieces of work, in",
-    "the order the board offers them, each teaching exactly one thing:",
+    "CHAPTER 1, COMPLETE (opening arc: owner brief 2026-08-04; back half:",
+    "2026-08-08, from chapters/01-case-file-wax-and-wick.md as amended).",
+    "The opening arc, in the order the board offers it:",
     "  find_the_magpie   -- the Exchange, and gleam being worth something",
     "  the_carrying      -- the witches come for her; the Case Board opens",
     "  what_i_saw        -- Ash goes back over last night alone (Crossing)",
     "  ask_the_rats      -- the Ratsmeet, and how to ask a question (Testimony)",
     "  sharpen_the_claws -- growth: he decides to get harder to kill",
     "  the_wake          -- her funeral; her last seam, sewn by the player",
-    "Quests are ProwlScript `steps` now, not bare fight-chains: a step may be",
-    "a fight, a story beat, a minigame or a lesson. Lessons play ONCE (see",
-    "data/lessons.json) and are replayable from the Casebook afterwards.",
-    "GATING: the_carrying is the only thing on the board after the Magpie,",
-    "because a body being carried out of your house does not wait its turn.",
-    "The three middle jobs then open together -- the owner asked for a board",
-    "with real choices on it, and this is where the night stops being a",
-    "corridor. the_wake waits for all three: he is not ready before that."
+    "Then the investigation proper, chained on evidence, not on quest ids:",
+    "  creditors            -- the counting-house heist; the ledger; BODKIN ENTERS",
+    "  the_lamplighters_talk-- Merrow's round, her testimony, the hall ward mended",
+    "  the_ward_that_failed -- the Wickhouse; the backward seam; Remembered Day 1",
+    "  an_audience_of_wax   -- the Tallowman, Wick's books, the verdict choice",
+    "Sides: night_rounds / garden_route / empty_coat (fight-chains with faces),",
+    "the_milk_debt (Tansy + the Gentleman's paper), the_pigeon_ballot (the",
+    "murder-night seed; needs the docket, so its break is always possible).",
+    "Quests are ProwlScript `steps`: fight, story, flashback, minigame, lesson.",
+    "Lessons play ONCE (data/lessons.json) and replay from the Casebook. A",
+    "story step may gate on `when_minigame` success/loss -- a lost testimony",
+    "must never be followed by the page narrating the confession (law 17).",
+    "GATING: the_carrying is the only CORE work after the Magpie, because a",
+    "body being carried out of your house does not wait its turn. The three",
+    "middle jobs open together; the_wake waits for all three; the back half",
+    "waits for the_wake and then chains itself on the evidence each lead",
+    "yields. Every Bodkin line is LITERALLY TRUE (docs/design/the-unraveler.md",
+    "-- read it before giving him a single new word)."
   ],
   "find_the_magpie": {
     "id": "find_the_magpie",
@@ -32,17 +43,17 @@
         "environment": "shambles_market",
         "portrait": "sc_shambles_day",
         "lines": [
-          "Everyone in this city knows one thing and sells it. Brindle knows all of them and sells most of them twice.",
-          "She keeps a stall in the Shambles after the market has gone to bed, and she will not talk to me for nothing. Nobody talks for nothing. That is the first true thing about Hollowmere.",
-          "So I bring payment: a candle stub with a guild seal on it, wrapped in my own mouth, which is undignified and the only pocket I have."
+          "I cannot stay in this room tonight, and the room knows it. The thread runs into the city, and the city sells answers.",
+          "Brindle keeps a stall in the Shambles after the market has gone to bed, and nobody talks for nothing. That is the first true thing about Hollowmere.",
+          "So I bring payment: her second-best thimble, carried in my own mouth. Undignified, and the pocket nearest my pride."
         ]
       },
       {
         "type": "story",
         "environment": "shambles_market",
         "lines": [
-          "Halfway down the Shambles the stub starts to matter to something else.",
-          "A gutter-wisp comes up out of a drain and does not go for me at all — it goes for my MOUTH, for the wax, for the little seal that somebody paid to press into it.",
+          "Halfway down the Shambles, something comes up out of a drain for the shine in my mouth.",
+          "A gutter-wisp — and it is not after ME at all. It wants the thimble: small silver, small grief, easy to carry.",
           "Small lies and small valuables. It cannot tell the difference and it has never once needed to."
         ]
       },
@@ -56,7 +67,7 @@
         "portrait": "npc_brindle_magpie",
         "art_desc": "Brindle the magpie fence behind a market stall of buttons, teeth and small keys, one bright eye, night market lanterns",
         "lines": [
-          "I arrive at the stall with the stub still in my teeth and my dignity somewhere behind me on the cobbles.",
+          "I arrive at the stall with the thimble still in my teeth and my dignity somewhere behind me on the cobbles.",
           "'You are the witch's cat,' says Brindle, before I have said anything at all.",
           "'Was,' I say. She does not say sorry, and I like her enormously for it — everyone else this week has said sorry, and not one of them has said anything useful afterwards."
         ]
@@ -65,9 +76,9 @@
         "type": "story",
         "environment": "shambles_market",
         "lines": [
-          "She looks at the stub for a long moment and does not take it.",
-          "'That is worth an answer,' she says. 'It is not worth an answer from ME. I have had wisps in the back alley three nights running, going through my stock for anything with a seal on it, and I am one bird.'",
-          "'Clear them out and we can have a conversation like professionals.'"
+          "'Clear the wisps out of my back alley and we can have a conversation like professionals.'",
+          "She has not touched the thimble. 'Three nights they have been in my stock, hunting anything with a seal or a shine on it, and I am one bird.'",
+          "A fence with a wisp problem. Payment, it turns out, comes in kinds."
         ]
       },
       {
@@ -79,9 +90,9 @@
         "environment": "shambles_market",
         "portrait": "npc_brindle_magpie",
         "lines": [
-          "'Right,' says Brindle, when the alley is quiet. 'You're not useless. That's the whole interview.'",
           "'I need to know who was on Needle Lane last night.'",
-          "'You need a lot of things.' She takes the stub at last, and turns it seal-up, and stops being amused. 'Bring me buttons and I'll remember harder. Doors open now. Mind the step.'"
+          "'Right,' says Brindle, when the alley is quiet. 'You're not useless. That's the whole interview.' She takes the thimble at last, and holds it a moment longer than trade requires.",
+          "'Bring me buttons and I'll remember harder. Doors open now. Mind the step.'"
         ]
       },
       {
@@ -191,7 +202,7 @@
         "lead": "l1",
         "lines": [
           "When they have gone I go over the room the way she went over a hem. Slowly. Twice.",
-          "Under the window, where nobody was standing and nobody had reason to stand: a candle stub. Beeswax, not tallow, sealed with a guild mark.",
+          "Under the window, where nobody had reason to stand: a candle stub. Beeswax, not tallow — and pressed into the flank, the Chandlers' bee. Even I know the bee. It is on half the lanterns in the city.",
           "She burned tallow. She burned tallow her whole life and complained about it in a way that was almost a hobby. Somebody else's light was in this room."
         ],
         "portrait": "sc_parlor_doorway"
@@ -216,15 +227,15 @@
         "the_carrying"
       ]
     },
-    "board_card": "Nobody asked me to do this. I am going to walk last night again, in order, until it stops making sense in a useful way.",
+    "board_card": "Nobody asked me to do this. I am going to walk last night again, in order, until the order of it gives something up.",
     "steps": [
       {
         "type": "story",
         "environment": "needle_lane",
         "lines": [
           "A thing I have learned about being the only witness: everyone believes you, and nobody acts on it.",
-          "So. From the top. The roof, the market, the lane, the lamps that were wrong.",
-          "Not for anybody. For the order of it."
+          "So. From the top: the roof, the market, the lane, the lamps. Not for anybody — for the order of it.",
+          "The gutter first, where the wisp came up for my little lie. There is another one in it tonight. There is always another one."
         ]
       },
       {
@@ -256,14 +267,27 @@
       {
         "type": "story",
         "environment": "needle_lane_wrong",
+        "when_minigame": "success",
         "grant_evidence": [
           "cart_docket"
         ],
-        "lead": "l5",
         "lines": [
           "Out the far end, at the mouth of the lane, in the gutter where a wheel would throw it:",
-          "A cart docket. Delivery, night of, Needle Lane — and the consignee line filled in by a hand that then thought better of it and scratched it out.",
+          "A cart docket. Chandlers' paper — the bee in the corner — for a delivery, night of, Needle Lane. And the consignee line filled in by a hand that then thought better of it and scratched it out.",
           "Somebody drove a cart down a street with no lamps on it, at night, and did not want to be the sort of person who had. That takes a professional. That takes a QUIET one."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "needle_lane_wrong",
+        "when_minigame": "loss",
+        "grant_evidence": [
+          "cart_docket"
+        ],
+        "lines": [
+          "The long way round, then — streets I know, to the lane's far mouth, arriving like a tourist.",
+          "And there, in the gutter where a wheel would throw it: a cart docket. Chandlers' paper — the bee in the corner — night of, Needle Lane, consignee scratched out.",
+          "Somebody drove a cart down a dark street and did not want to have. That takes a professional. That takes a QUIET one."
         ]
       }
     ],
@@ -289,8 +313,8 @@
         "environment": "shambles_market",
         "lines": [
           "The Ratsmeet convenes under the fish market in the hour the ice melts, and every rat in Hollowmere sends somebody.",
-          "There is a protocol. You do not eat anything. You do not say the word 'trap' or the word 'terrier'. You do not, under any circumstances, be a cat about it.",
-          "I have been a cat about it exactly once. We do not discuss the terrier."
+          "There is a protocol. You do not eat anybody. You do not say 'trap' or 'terrier'. You do not be a cat about it. (Once. We do not discuss the terrier.)",
+          "And you do not argue with the doorman. The doorman is a goose. Rats are not stupid: a goose cannot be bribed, and has never once liked a cat."
         ]
       },
       {
@@ -303,9 +327,9 @@
         "portrait": "npc_rat_boss",
         "art_desc": "The boss of the Ratsmeet: an ancient grey rat on a throne of market crates under a fish market, chalk tallies and ledgers around him",
         "lines": [
-          "Their boss is grey to the point of transparency and has run the under-market since before the ninth bell came down.",
+          "Their boss is grey to the point of transparency. He will tell you he remembers the ninth bell. Nobody argues with him.",
           "'The witch's cat,' he says. 'We had a lively night. Everyone had a lively night.'",
-          "He will talk. Rats always talk. The trick is that a rat tells you a story SHAPED like the truth, and you have to find the strand of it that cannot hold its own weight."
+          "He will talk. Rats always talk — for a price, in a shape. While he finishes his ice, I limber up on the doorman."
         ]
       },
       {
@@ -318,19 +342,33 @@
         "id": "ratsmeet",
         "on_loss_lines": [
           "He tells it beautifully and I cannot get a claw into any of it.",
-          "'Come back when you know more,' he says, which is the politest possible way of saying I have wasted an hour of a rat's time."
+          "'Come back when you know more,' he says, which is the politest possible way to bill me for an hour of rat time."
         ]
       },
       {
         "type": "story",
         "environment": "shambles_market",
+        "when_minigame": "success",
         "standing": {
           "chandlers": -1
         },
         "lines": [
-          "The strand that will not hold: he says the lane was empty. He also says his people cleared out of the lane at the ninth hour BECAUSE of the cart.",
-          "You cannot clear out of an empty street.",
-          "'All right,' he says, with no embarrassment whatsoever. 'There was a cart. Chandlers' cart, no chandler on it. And a gentleman walking behind it who did not walk like a man who was walking anywhere.'"
+          "A cart with no chandler on it, and a gentleman behind it going nowhere in particular. The Grey Boss charges honest rates once he has stopped lying.",
+          "You cannot clear out of an empty street. I will be keeping that one.",
+          "By morning the Chandlers will know a cat was asking about their cart. Good."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "when_minigame": "loss",
+        "standing": {
+          "chandlers": -1
+        },
+        "lines": [
+          "A rat's silence is a price list. He knows the lane's story; the lane knows; I am the only one paying retail.",
+          "Still: 'a lively night,' he called it, on a lane he swears was empty. Empty lanes are not lively. I will come back armed.",
+          "By morning the Chandlers will know a cat was asking about Needle Lane. Word is the one thing this market gives away free."
         ]
       }
     ],
@@ -365,6 +403,14 @@
         "lesson": "growing_stronger"
       },
       {
+        "type": "story",
+        "environment": "back_gardens",
+        "lines": [
+          "First: the Watch goose behind the tannery, which has never lost an argument in its life. That is what makes it worth arguing with.",
+          "Elspeth used to say the difference between brave and stupid is about four seconds of looking. Watch it. THEN decide."
+        ]
+      },
+      {
         "type": "battle",
         "encounter": "q_claws_first"
       },
@@ -372,8 +418,8 @@
         "type": "story",
         "environment": "back_gardens",
         "lines": [
-          "Again. Slower. Watch what the thing in front of you is going to do BEFORE deciding what you are going to do about it.",
-          "Elspeth used to say the difference between brave and stupid is about four seconds of looking."
+          "Next lesson: the dog at Number Twelve, who has eleven feet of chain, no appointments, and a standing offer to discuss territory.",
+          "Slower this time. Watch what the thing in front of you is going to do BEFORE deciding what you are going to do about it."
         ]
       },
       {
@@ -396,7 +442,7 @@
       {
         "type": "minigame",
         "module": "ward",
-        "id": "ward_practice",
+        "id": "ward_parlor_door",
         "environment": "parlor_cold",
         "on_win_lines": [
           "It holds. It is not her work — hers was invisible and mine can be seen from the street — but it holds.",
@@ -442,7 +488,7 @@
         "sharpen_the_claws"
       ]
     },
-    "board_card": "They burn a witch at the turn of the tide, and every guild sends somebody to be seen not caring. I am expected to be decorative. I have other plans.",
+    "board_card": "They give a witch to the tide at the turn of it, and every guild sends somebody to be seen not caring. I am expected to be decorative. She expected better.",
     "steps": [
       {
         "type": "story",
@@ -451,8 +497,8 @@
         "art_desc": "A witch's funeral at the tideline at dusk: a shrouded figure on a low bier, women in grey, guild delegates at a careful distance, a black cat on a mooring post",
         "lines": [
           "They do it at the tideline, at the turn, because the tide is the only thing in Hollowmere that has never once been bribed.",
-          "The Lamplighters send four, in their good coats. The Chandlers send one, and he is early, and he stands where he can be seen being sorry.",
-          "Nobody sends anybody to a witch's burning because they liked her. They send somebody so it can be noted that they came."
+          "The Lamplighters send four — which is everyone the hall has left — in their good coats. The Chandlers send one, and he is early, and stands where he can be seen being sorry.",
+          "Nobody sends anybody to a witch's leaving because they liked her. They send somebody so it can be noted that they came."
         ]
       },
       {
@@ -494,8 +540,20 @@
         },
         "lines": [
           "The seam closes. The tide takes her out the way it takes everything, without discussion.",
-          "The eldest gives me her name, which is Mother Cardew, and a thing she calls a grey debt, which she says I will know when to spend.",
-          "'It has happened twice before,' she says, watching the water. 'Both times a stitcher. Both times nobody looked. I am too old and too watched. You are neither.'"
+          "The four in good coats watch it close, and stand very straight. One of them forgets not to salute.",
+          "The eldest gives me her name, which is Mother Cardew, and ties a small grey knot into the thread at my chest. 'A debt,' she says. 'Mine. You will know when to spend it.'"
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "favor_knots"
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "lines": [
+          "'It has happened twice before,' says Mother Cardew, watching the water. 'Both times a stitcher. Both times nobody looked.'",
+          "'I am too old and too watched. You are neither.'"
         ]
       },
       {
@@ -503,13 +561,553 @@
         "environment": "parlor_cold",
         "lines": [
           "Home, to a house with nobody in it. The kettle is where I left it, off the fire, which is the wrongest thing in the room.",
-          "Three days ago my job was to be somewhere warm at the correct time.",
+          "My whole job used to be: be somewhere warm at the correct time.",
           "All right, then. New job."
         ]
       }
     ],
     "reward_bonus": 14,
+    "repeatable": false,
+    "grant_favor": "cardew_grey_debt"
+  },
+  "creditors": {
+    "id": "creditors",
+    "name": "Creditors",
+    "kind": "core",
+    "district": "wickrow",
+    "guild": "",
+    "once": true,
+    "requires": {
+      "quests": [
+        "the_wake"
+      ]
+    },
+    "board_card": "The counting-house keeps paper on everything the Chandlers do. Somebody should read it. Cats cannot be arrested, only despised.",
+    "steps": [
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "portrait": "npc_brindle_magpie",
+        "lines": [
+          "Brindle first. I bring her the docket, because paper is her native language.",
+          "She reads it the way I read a room — and at the cart-slot seal she stops. Half a second. Cats collect half-seconds.",
+          "'Counting-house paper,' she says, flat, setting it down like it had a temperature. 'The originals live under the ledgers, second yard off Wick Row. Mind the night shift, pet.'"
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "lines": [
+          "Wickrow. Every doorway wears a little flame, and every flame is a ward with a bee stamped in the base.",
+          "This district sells light to people frightened of the dark, and I have never once seen it dark. Interesting, what a guild needs its customers to keep feeling.",
+          "The counting-house squats over the second yard. Between me and it: the yards, and whatever the yards feed."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_cred_hound"
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "lines": [
+          "Out of the yard-gate's shadow a paw hooks my scruff and hauls me sideways into a doorway — and the watch walks past the spot where I was standing.",
+          "A grey tom. One eye, one ear and a half, whiskers like bent wire. 'You fight like a housecat,' he says.",
+          "'I was one.' — 'Were,' he agrees, and does not say sorry, which makes two of them now I like for it."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "lines": [
+          "'Watch the paws, not the claws,' he says, nodding at the yard. 'Claws are a rumor. Paws are an appointment. Everything a thing is about to do, the paws say first.'",
+          "'You want the counting-house. Wax door, second yard. The ledgers sleep lighter than the clerks do — and Wick's paper is worth the reading.'",
+          "'They call me Bodkin,' he says, going. 'I knew your witch to look at. Everyone did.'"
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_cred_golem"
+      },
+      {
+        "type": "lesson",
+        "lesson": "unpicking"
+      },
+      {
+        "type": "minigame",
+        "module": "lattice",
+        "id": "lattice_counting_room",
+        "environment": "counting_house",
+        "on_loss_lines": [
+          "The ward re-crosses itself faster than I can read it, and somewhere below a bell taps twice, politely.",
+          "The counting-house knows a cat is in it. Fine. Cats have been despised by better buildings than this one."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "counting_house",
+        "portrait": "ev_ledger",
+        "grant_evidence": [
+          "wick_ledger"
+        ],
+        "lead": "l2",
+        "lines": [
+          "The ledger, under the ledgers. Her name, in a guildmaster's own hand.",
+          "'Buy Vane's paper. All of it. Call it due Lady's Day. She sells, or the Court sells it for her.' Every debt she owed, bought quiet, in one week.",
+          "He wanted her OUT. You do not evict a woman you have had killed — you evict a woman you expect to answer the door. So whose light was burning in her parlor?"
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "lines": [
+          "Over the yards and out, with a page of a rich man's handwriting folded into my shadow.",
+          "Paper says what Wick WANTED. Paper does not say what he DID. For that you need people who watch the Chandlers professionally, and hate them fluently.",
+          "The Lamplighters' hall keeps a light burning at the door these days. Time it answered some questions."
+        ]
+      }
+    ],
+    "reward_bonus": 14,
     "repeatable": false
+  },
+  "the_lamplighters_talk": {
+    "id": "the_lamplighters_talk",
+    "name": "The Lamplighters Talk",
+    "kind": "core",
+    "district": "wickrow",
+    "guild": "lamplighters",
+    "once": true,
+    "requires": {
+      "evidence": [
+        "wick_ledger"
+      ]
+    },
+    "board_card": "The Lamplighters hate the Chandlers professionally. Hate is chatty — and their hall has questions of its own about that night.",
+    "steps": [
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "portrait": "sc_lamplighters_hall",
+        "lines": [
+          "The hall keeps lamps burning at its own door now — a guild that cannot spare the oil, making a point to the dark.",
+          "Inside, half the coats on the pegs hang over boots nobody has come back for. They have stopped saying 'missing'. They have not started saying anything else.",
+          "Forty lamplighters used to walk this city. What is left fits in one cold room, and it goes quiet, professionally, when a cat walks in."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "flag": "lamp_approach",
+        "lines": [
+          "A cat, in a grieving hall, wanting something. There are ways to do this.",
+          "The one they all glance at first — torn ear, chalk on her paws — is the one to convince. Shift-Boss Merrow."
+        ],
+        "choices": [
+          "Lay the ledger page on the floor between us.",
+          "Ask after their missing, and listen.",
+          "Sit. Wait to be spoken to. Cats are good at nothing."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "when_flag": {
+          "flag": "lamp_approach",
+          "value": 0
+        },
+        "lines": [
+          "The page goes down on the boards. Merrow reads Wick's hand upside down — which tells me she has read it before. Other pages. Other nights.",
+          "'Paper,' she says. 'The Chandlers are made of it. Walk my round with me, cat. Rounds first. Paper after.'"
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "when_flag": {
+          "flag": "lamp_approach",
+          "value": 1
+        },
+        "lines": [
+          "I ask about the coats. The room does not warm, exactly. It stops bracing.",
+          "'Not dead,' says Merrow, daring me to argue. 'The Court itself said not dead. So they are SOMEWHERE, and this hall lights lamps until they walk back in. Rounds first. Come.'"
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "when_flag": {
+          "flag": "lamp_approach",
+          "value": 2
+        },
+        "lines": [
+          "I sit. I am prepared to be furniture for an hour; furniture usually wins.",
+          "It takes four minutes. 'Fine,' says Merrow, taking up her pole. 'You do manners. Walk my round with me and we will see what else you do.'"
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "lines": [
+          "Her round is forty-one lamps, and something has been ahead of us, snuffing what she lights.",
+          "Wisps — a pair, working her lamps in ORDER, which wisps do not do. Appetite does not read route-maps. Somebody taught it to.",
+          "Merrow plants the pole. 'Get them off my round, cat, and I will believe every next thing you say.'"
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_lamp_wisps"
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "portrait": "npc_shift_boss",
+        "lines": [
+          "The round finishes lit. Merrow looks at me differently — colleague-shaped, almost.",
+          "'Now,' she says, chalking a fresh tally on the hall door. 'You came about the night. Ask, then. And mind: I answer exactly what is asked.'"
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "asking_questions"
+      },
+      {
+        "type": "minigame",
+        "module": "testimony",
+        "id": "shift_boss",
+        "on_loss_lines": [
+          "Merrow answers exactly what I ask, and I ask it wrong, and the wall of her holds.",
+          "'Out of questions?' She is not gloating. She is disappointed, which is worse."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "when_minigame": "success",
+        "lines": [
+          "'That is Wick's hand. And that is the night nobody signed.' She said it herself, and saying it cost her something.",
+          "The tally: two years of ward-shifts at the Wickhouse, paid to nobody. She kept sewing a rich man's warehouse shut for FREE, and only a rival guild's spite-ledger noticed.",
+          "Nobody sews free. Elspeth least of all. Whatever is in the Wickhouse, she thought it was worth her thread."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "when_minigame": "loss",
+        "lines": [
+          "Questions are not the only tool in a hall full of torn things. Merrow hands me the tally anyway — two years of Wickhouse ward-shifts, paid to nobody — because the tally is her own grievance, and grievances want witnesses.",
+          "Nobody sews free. Elspeth least of all. Whatever is in the Wickhouse, she thought it was worth her thread."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "lines": [
+          "Behind the meeting-board, the hall's own ward hangs torn — ripped the night the hall emptied, and left that way, because the one who always mended it is one of the coats.",
+          "Merrow watches me look at it. The whole room watches Merrow.",
+          "Cats inspect seams. By ancient arrangement. Time somebody honored the arrangement in public."
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "warding"
+      },
+      {
+        "type": "minigame",
+        "module": "ward",
+        "id": "ward_hall",
+        "environment": "wickrow_night",
+        "on_win_lines": [
+          "The ward closes without a visible seam, which is the professional grade, which forty-odd professionals just watched a cat hit.",
+          "Nobody applauds. Several people breathe out. Merrow chalks something on the door that is not a tally."
+        ],
+        "on_loss_lines": [
+          "I patch what will take, and the last gap beats me, and Merrow puts her own paw over it without a word.",
+          "'First mend this hall has had since the night,' she says. 'Somebody had to be first.'"
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "lines": [
+          "Merrow ties the knot herself, in front of everyone — a lamplighter's knot in the thread at my chest, where the whole Weft can read it.",
+          "'The hall owes the cat,' she says, formally. And quieter: 'Wisps do not learn a route unless somebody teaches them the taste. Find the teacher.'",
+          "The Wickhouse next. Her last work is holding a rich man's dark shut, and I want to know what it is holding it shut ON."
+        ]
+      }
+    ],
+    "reward_bonus": 12,
+    "repeatable": false,
+    "grant_evidence": [
+      "shift_tally"
+    ],
+    "lead": "l3",
+    "grant_favor": "lamplighters_knot",
+    "standing": {
+      "lamplighters": 1
+    }
+  },
+  "the_ward_that_failed": {
+    "id": "the_ward_that_failed",
+    "name": "The Ward That Failed",
+    "kind": "core",
+    "district": "wickrow",
+    "guild": "",
+    "once": true,
+    "requires": {
+      "evidence": [
+        "shift_tally"
+      ]
+    },
+    "board_card": "The Wickhouse ward is Elspeth's stitching, kept for free on a warehouse full of dark. Go read her last work. Bring nothing that burns.",
+    "steps": [
+      {
+        "type": "story",
+        "environment": "mereside_edge",
+        "lines": [
+          "The Wickhouse squats on the Mere-edge, fat as a tick, warded to the chimneys in her stitch. You can smell the wax three streets off. Under the wax: the water.",
+          "Bodkin is on the sea-wall like he grew there. 'You are going to the Wickhouse.' It is not a question.",
+          "'Nothing good ever came off that water. Keep your feet dry and your business short — and go in by the wax door, not the water door.' He stays on the stone. 'I don't go in there.'"
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "crossings"
+      },
+      {
+        "type": "minigame",
+        "module": "crossing",
+        "id": "crossing_mereside",
+        "environment": "mereside_edge",
+        "on_loss_lines": [
+          "The fog rearranges the streets while I am inside them, and I arrive wet to the elbows and short a card or two.",
+          "The Mere got a taste. It will remember me. Ledger that under: mutual."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "mereside_edge",
+        "lines": [
+          "At the wax door, the fog has residents. One of them is between me and the handle, dry-footed on a wet street.",
+          "It is not fast. It does not need to be fast. It is ARRIVING, the way the tide arrives, and the door behind it is the one I need.",
+          "The seam is thin out here — I can feel her stitching through the wall, holding. Whatever the Drowned want, it is inside."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_ward_drowned"
+      },
+      {
+        "type": "story",
+        "environment": "wickhouse",
+        "lines": [
+          "In by the wax door. Wax to the rafters — white hills of it, a hundred winters of light not yet sold.",
+          "And under the merchant smell, the other one: pond-bottom, old rope, patience. Something lives at the water end of this warehouse, and the wax is not stock. The wax is FEED.",
+          "Her seam runs the length of the water wall, stitch after stitch after stitch. Fifteen years I watched her leave at odd hours with her kit. Here is where the hours went."
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "stitching"
+      },
+      {
+        "type": "minigame",
+        "module": "stitch",
+        "id": "chart_wickhouse",
+        "on_loss_lines": [
+          "I read her seam the way a kitten reads: out loud, slowly, losing the thread of the thread.",
+          "But I keep her count, and the count is the part that matters. The seam and I understand each other now."
+        ]
+      },
+      {
+        "type": "flashback",
+        "environment": "parlor_warm",
+        "title": "The Ninth Stray",
+        "lines": [
+          "Her table, years ago. This same chart, half-sewn, and a much smaller cat deployed on top of it as a paperweight.",
+          "'That winter I tried eight strays,' she tells the needle. 'Every one declined the interview. The ninth fell asleep on my work, and I took it for a signature.'",
+          "She sews around me rather than move me. Count, hook, count, mirror at the turn. I know her hand the way you know weather. I never once thought to ask what the seam was FOR."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickhouse",
+        "lines": [
+          "Back in the cold warehouse, her seam in front of me — and it is wrong at the near end. Not torn. Not burned. UNDONE: each stitch lifted out clean, in her own hand, in her own order.",
+          "Her order, run BACKWARD. To read what was done here, I have to sew it the way it was unsewn: her stitch, mirrored, back to front."
+        ]
+      },
+      {
+        "type": "minigame",
+        "module": "stitch",
+        "id": "chart_mirror",
+        "on_loss_lines": [
+          "Backward defeats me tonight. It should defeat anybody.",
+          "That is the point. I will be thinking about that all the way home."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickhouse",
+        "portrait": "ev_seam",
+        "grant_evidence": [
+          "backward_seam"
+        ],
+        "lead": "l4",
+        "lines": [
+          "A hand's length of her thread comes away with the reading — the piece the unpicker lifted and left hanging. Evidence now. Hers, then mine.",
+          "The ward did not fail. It was UNPICKED: her exact stitch, mirror-handed, faster than any needle honestly goes. Perfect technique — and Elspeth taught exactly nobody.",
+          "Cardew said it: something that learned it from her. Nobody was TAUGHT. So somebody learned without teaching, which is a different crime, with a shorter list of suspects. I do not like how short."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "mereside_edge",
+        "lines": [
+          "Out by the wax door. Bodkin is gone from the sea-wall; the fog holds his shape for a second, and then does not.",
+          "The wax feeds a thing the guild will not name. Her ward holds it. She held the ward, unpaid — and the man who profits from the holding bought her debts.",
+          "That is not a coincidence. Coincidence is what mice call carelessness. Wick will see me now; he just does not know it yet."
+        ]
+      }
+    ],
+    "reward_bonus": 16,
+    "repeatable": false,
+    "grant_growth": {
+      "cards": [
+        "mysticism_2"
+      ]
+    }
+  },
+  "an_audience_of_wax": {
+    "id": "an_audience_of_wax",
+    "name": "An Audience of Wax",
+    "kind": "core",
+    "district": "wickrow",
+    "guild": "",
+    "once": true,
+    "requires": {
+      "evidence": [
+        "backward_seam"
+      ]
+    },
+    "board_card": "Guildmaster Wick will see you now. Everyone in Wickrow is suddenly very polite. Mind the big one.",
+    "steps": [
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "lines": [
+          "A candle arrives at my door. Beeswax, bee seal, wick trimmed to burn exactly one hour: a Chandlers' invitation. You light it and start walking, and if it dies before you arrive, so does the appointment.",
+          "The first free Chandlers' light this house has ever seen, offered to the cat. Somebody up the hill has finally done his arithmetic.",
+          "I carry it lit through the streets in my teeth, like a comet with dignity problems. Wickrow makes way. Wickrow is suddenly VERY polite."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "guildhall",
+        "lines": [
+          "The Guildhall is a chapel to the bee: ten thousand votives, all lit, the heat of them standing in the room like a body.",
+          "Between me and the stairs, the votives' keeper unfolds — a tower of poured wax with a gentle face and hands like warming pans.",
+          "'The Guildmaster will see you,' it says, kindly, 'presently.' It takes up the entire floor. Presently is doing a great deal of work in that sentence."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_wax_tallowman"
+      },
+      {
+        "type": "story",
+        "environment": "guildhall",
+        "portrait": "npc_wick",
+        "lines": [
+          "Up the stairs, past the puddle with opinions, into the office: Ellery Wick, small behind a desk built to make everything else smaller, already talking.",
+          "'The ward-cat! The seam-mender! Sit — no, not there, the good chair.' He is warm the way his hall is warm: by the burning of something.",
+          "'You have questions. Everyone has questions. Ask me anything — you will find I have nothing at all to hide.' Which is what that sentence is always for."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "guildhall",
+        "lines": [
+          "So I put it all on his desk. The stub. The ledger page. The tally. The length of unpicked thread. Item by item, in the order a case is told.",
+          "He talks fast, and the books come out, and the books are TRUE, which is the awful part: he bought her debts to buy her BUILDING. The Wickhouse thing is dying; the wax is its last diet; her free wardwork was ruining the price of being afraid of the dark.",
+          "'I wanted her EVICTED,' he says, and his voice does its first honest thing all evening: it shakes. 'Evicted, and gone, and alive somewhere cheaper. You do not kill the one needle holding your roof shut. So who ELSE knew the ward was hers?'"
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "guildhall",
+        "portrait": "ev_docket",
+        "grant_evidence": [
+          "wick_counterfoil"
+        ],
+        "lines": [
+          "Then he shows me the thing he has been sitting on since the night: the counterfoil for his own cart-slot, signed out for Needle Lane — against FAVOR-paper. A debt the Chandlers owed, called in blind. No name asked.",
+          "'It came through the usual quiet channels,' he says, quieter himself now. 'Everything in this city comes through the usual quiet channels. One does not ask. The not-asking is what the quiet costs.'",
+          "Wick is guilty of everything except the murder. Cross him off. Keep the rest."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "guildhall",
+        "flag": "wick_verdict",
+        "lines": [
+          "He watches me decide what to do with him, which is the most honest fear in the room.",
+          "A guild that sells the dark. A warehouse full of teeth. A dead woman's unpaid thread. And a guildmaster who would very much like this conversation to stay between us."
+        ],
+        "choices": [
+          "Expose him. The city reads his books at eight bells.",
+          "Squeeze him. A guildmaster's knot, tied where the Weft can see."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "guildhall",
+        "when_flag": {
+          "flag": "wick_verdict",
+          "value": 0
+        },
+        "standing": {
+          "chandlers": -6,
+          "lamplighters": 2
+        },
+        "lines": [
+          "By eight bells the Lamplighters have his books, and by nine the criers do. Wickrow's little flames gutter with embarrassment. The terror margin dies on the counting-room floor.",
+          "Merrow reads the ward-shift page aloud on the hall steps. Twice. The second time slower.",
+          "Wick keeps his desk, barely, and hates me with the pure focus of a man who now NEEDS me. Useful, hate like that. It files things."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "guildhall",
+        "when_flag": {
+          "flag": "wick_verdict",
+          "value": 1
+        },
+        "grant_favor": "wick_knot",
+        "standing": {
+          "chandlers": 3
+        },
+        "lines": [
+          "'Once,' he says, when he sees what I want instead. A knot goes into my thread — a Guildmaster's knot, tied by a man who has never visibly owed anyone anything, hating every loop of it.",
+          "Overnight, the Chandlers become exquisitely civil to one particular cat. Civility, from a guild, is an invoice. We will see who ends up paying whom.",
+          "The Lamplighters will hear what I did not do with those books. Merrow will say nothing. She will just re-chalk the tally, one stroke shorter."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "lines": [
+          "Home. The board gets its last pin of the season: a counterfoil, and a thread running from it to a gentleman nobody meets.",
+          "Favor-paper drains toward Gravamen — where the carts change hands, and the Court keeps ledgers of everything owed. The quiet channels have an address now.",
+          "One suspect off the board. One name-that-is-not-a-name waiting on it. The kettle stays quiet, and so, tonight, do I."
+        ]
+      }
+    ],
+    "reward_bonus": 20,
+    "repeatable": false,
+    "lead": "l5",
+    "grant_growth": {
+      "max_hp": 2
+    }
   },
   "night_rounds": {
     "id": "night_rounds",
@@ -524,10 +1122,42 @@
       ]
     },
     "board_card": "The streets don't watch themselves. Someone ought to be paid for this. Someone is not.",
-    "encounters": [
-      "q_rounds_wisp",
-      "q_rounds_wisps",
-      "q_rounds_dog"
+    "steps": [
+      {
+        "type": "story",
+        "environment": "rooftop_dusk",
+        "lines": [
+          "The lamps are short-handed and the dark has noticed. Somebody ought to walk the streets that miss their light.",
+          "Nobody pays a cat for this. I do it so the city stays the kind of city I can work. First stop: the gutter on the corner, which is glowing."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_rounds_wisp"
+      },
+      {
+        "type": "story",
+        "environment": "needle_lane",
+        "lines": [
+          "Two more down the lane, sharing one appetite between them. Wisps used to be rare on this street.",
+          "Used to be."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_rounds_wisps"
+      },
+      {
+        "type": "story",
+        "environment": "needle_lane",
+        "lines": [
+          "Last leg, past Number Twelve, where the dog and I keep a standing appointment neither of us has ever missed."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_rounds_dog"
+      }
     ],
     "reward_bonus": 8,
     "repeatable": true
@@ -547,7 +1177,6 @@
     "board_card": "Cross the back gardens. Wake nothing. The dahlias are not the danger.",
     "reward_bonus": 12,
     "repeatable": true,
-    "unlock_skill": "swat",
     "steps": [
       {
         "type": "story",
@@ -564,7 +1193,7 @@
       {
         "type": "minigame",
         "module": "lattice",
-        "id": "lattice_elastic",
+        "id": "lattice_garden_gate",
         "environment": "back_gardens",
         "on_loss_lines": [
           "It tightens on me twice and I go over the wall like an amateur, which costs me a claw and all of my composure.",
@@ -572,8 +1201,33 @@
         ]
       },
       {
+        "type": "story",
+        "environment": "back_gardens",
+        "when_minigame": "success",
+        "lines": [
+          "The gate un-weaves without a whisper. Which leaves the Watch: a goose in the first garden with nothing to do all night but listen.",
+          "You cannot unpick a goose. Some things simply have to be argued with."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "back_gardens",
+        "when_minigame": "loss",
+        "lines": [
+          "The gate fought loud, and the first garden heard it: the Watch goose is up, and delighted about it.",
+          "Quiet was the plan. The plan has been amended."
+        ]
+      },
+      {
         "type": "battle",
         "encounter": "q_garden_watch"
+      },
+      {
+        "type": "story",
+        "environment": "back_gardens",
+        "lines": [
+          "Past the goose: the captain's lawn, and the Captain. The chain of office is load-bearing, and the bird underneath it is worse."
+        ]
       },
       {
         "type": "battle",
@@ -600,11 +1254,232 @@
       "lamplighters": 1
     },
     "board_card": "A coat on Needle Lane is out wearing someone's evening. Object to this.",
-    "encounters": [
-      "q_coat_wisp",
-      "q_coat_wraith"
+    "steps": [
+      {
+        "type": "story",
+        "environment": "needle_lane",
+        "lines": [
+          "A coat is out on Needle Lane wearing someone's evening — a Lamplighter's coat, by the cord on the shoulder.",
+          "The wisps have found it first: two of them, drinking the lie of a man who is not there."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_coat_wisp"
+      },
+      {
+        "type": "story",
+        "environment": "needle_lane",
+        "lines": [
+          "The coat has noticed me objecting. It straightens — the way he must have straightened, clocking on.",
+          "Whoever wore this is not dead. Missing. The coat remembers the shape of him, and now so do I."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_coat_wraith"
+      },
+      {
+        "type": "story",
+        "environment": "needle_lane",
+        "lines": [
+          "The coat comes quiet in the end. I walk it back to the hall and leave it on its peg, where somebody will look the day he comes home.",
+          "Nobody says anything. Everybody sees."
+        ]
+      }
     ],
     "reward_bonus": 16,
     "repeatable": true
+  },
+  "the_milk_debt": {
+    "id": "the_milk_debt",
+    "name": "The Milk Debt",
+    "kind": "side",
+    "district": "shambles",
+    "guild": "",
+    "once": true,
+    "requires": {
+      "quests": [
+        "the_carrying"
+      ]
+    },
+    "board_card": "A kitten sold her purr to the Quiet Gentleman. The Court of Whiskers considers this Everyone's Problem. Attendance is not optional.",
+    "steps": [
+      {
+        "type": "story",
+        "environment": "rooftop_dusk",
+        "lines": [
+          "The Court of Whiskers convenes on the ropewalk roof at the wrong hour, on purpose, so that attending is itself a sacrifice.",
+          "The docket tonight is small, orange, and asleep on the evidence: Tansy, of the canal litter, who sold her purr to the Quiet Gentleman for the favor that fished her brothers out.",
+          "Contract's legal, says the Clowder. Purr's gone. And if the precedent stands, by spring he will hold a MARKET in them."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "rooftop_dusk",
+        "lines": [
+          "The kitten wakes up, locates me, and announces to the Court that her counsel has arrived.",
+          "I have issued no such appointment. The Court minutes it anyway. Cats have a genius for making your dignity load-bearing.",
+          "'He never signs anything that can be settled,' warns the Clowder-mother. 'Read it before you touch it.' Sound advice for contracts, and for him."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "lines": [
+          "The contract lodges where his paper always lodges: a strongroom under the Shambles that smells of sealing-wax and of absolutely nothing else. No guards. His paper guards itself.",
+          "There it is. Her purr, in escrow: a knot of thread on a shelf, purring faintly to itself — the saddest sound I have heard in a week of funerals.",
+          "And the knot has grown a loop nobody tied. INTEREST. A purr accrues — and a debt owed to itself has its own loose end. Which makes it my kind of paper."
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "unpicking"
+      },
+      {
+        "type": "minigame",
+        "module": "lattice",
+        "id": "lattice_purr_knot",
+        "environment": "shambles_market",
+        "on_loss_lines": [
+          "The knot tightens twice, and I stop before it swallows the loose end. His work does not break. It COLLECTS.",
+          "Not tonight, then. Tonight I sit with the little knot and let it purr at me, and we both pretend that helps."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "when_minigame": "success",
+        "lines": [
+          "The purr comes loose like a cork and goes home the way purrs do: all at once, at volume, from somewhere behind the ribs.",
+          "Tansy vibrates so hard she falls off the shelf. The Court of Whiskers will call it precedent. She will call it Tuesday.",
+          "On the shelf where the knot sat: a calling card. Blank, and smelling faintly of fog. It was not there when I started. Noted, with interest."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "when_minigame": "loss",
+        "lines": [
+          "I come back the next night, and the next. The loop keeps its slack for me — interest, it turns out, is patient on both sides.",
+          "On the third night the knot gives: cork, purr, kitten, volume. Some jobs are won by arithmetic and stubbornness. Most jobs, honestly.",
+          "On the shelf where the knot sat: a calling card. Blank, and smelling faintly of fog. It was not there on the first night. Noted, with interest."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "lines": [
+          "Tansy follows me home. I explain that I live alone. She agrees enthusiastically, and moves in.",
+          "She has decided she is my apprentice. I have issued no such appointment. She is asleep on my paws as I think this, purring like a small wrong engine, which rather settles the docket.",
+          "The Gentleman never signs anything that can be settled. Somewhere tonight a page of his is one line lighter — and I intend to be a great deal more expensive before he and I are done."
+        ]
+      }
+    ],
+    "reward_bonus": 16,
+    "repeatable": false
+  },
+  "the_pigeon_ballot": {
+    "id": "the_pigeon_ballot",
+    "name": "The Pigeon Ballot",
+    "kind": "side",
+    "district": "thimblefield",
+    "guild": "",
+    "once": true,
+    "requires": {
+      "quests": [
+        "the_carrying"
+      ],
+      "evidence": [
+        "cart_docket"
+      ]
+    },
+    "board_card": "The pigeons are holding an election. Somebody is stuffing the ballot. The ballot is a hat. I wish any part of that were a joke.",
+    "steps": [
+      {
+        "type": "story",
+        "environment": "rooftop_dusk",
+        "lines": [
+          "The Pigeon Post is electing a Postmaster, which happens twice a century and is decided by hat: you perch on the brim of the candidate you back, and the hat that bows lowest wins.",
+          "A slick young cock called Toby is winning on cleaner ledges and unlimited seed. The seed is real, and pigeons do not ask where seed comes from.",
+          "Here is why it is my problem: the night my witch died, every pigeon in Hollowmere went quiet at once. And quiet, I have lately learned, is a thing that can be BOUGHT."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "rooftop_dusk",
+        "lines": [
+          "First, the seed itself: it comes up to the roosts from somewhere, in quantity, carried high and scattered wide.",
+          "Follow the trail without being seen following it. Pigeons notice a cat on a roofline the way bankers notice fire."
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "crossings"
+      },
+      {
+        "type": "minigame",
+        "module": "crossing",
+        "id": "crossing_rooftops",
+        "environment": "rooftop_dusk",
+        "on_loss_lines": [
+          "Halfway along a ridgeline the whole flock lifts at once, and I flatten into a chimney's shadow and count the feathers going over.",
+          "They know something crossed tonight. They do not know it was me. Half a win. The long way up, then."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "rooftop_dusk",
+        "lines": [
+          "The trail ends above Needle Lane: a grain-chute, swept clean, the sweepings arranged a little too neatly to be spillage.",
+          "Good seed, bought in bulk, hauled UP. Nobody hauls seed up — seed lives at street level, with the spills and the honest pigeons. This was scattered from above, wide as weather, by somebody with HANDS.",
+          "The Perch convenes at moonrise to crown the hat. Time the Post heard what its quiet cost — from the one bird whose pride will not survive lying once the paper is out."
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "asking_questions"
+      },
+      {
+        "type": "minigame",
+        "module": "testimony",
+        "id": "perch_ballot",
+        "on_loss_lines": [
+          "The Postmaster out-dignifies me in front of the entire Perch, which I did not know was possible and will be studying.",
+          "The count stands. But forty pigeons heard the word 'docket', and pigeons repeat things. Give it a week."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "rooftop_dusk",
+        "when_minigame": "success",
+        "lines": [
+          "'We voted with our beaks full, and we called the quiet weather.' From a Postmaster, before the whole Perch, that is not gossip. That is a confession with plumage.",
+          "Toby attempts a dignified molt into the crowd and is sat on by his own electors. The hat is impounded pending honesty.",
+          "So the murder night had a QUARTERMASTER: somebody fed the city's gossip until it slept, days ahead, with human hands and quiet money. The board's thin gentleman just grew a supply line."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "rooftop_dusk",
+        "when_minigame": "loss",
+        "lines": [
+          "No confession tonight. But I watched the old bird's chest deflate when the docket touched the rail, and a Perch cannot un-see what its Postmaster saw.",
+          "The seed came before the night. Scattered wide, from above, by hands. Whoever quieted the pigeons planned my witch's murder the way a clerk plans a shipment.",
+          "The Perch will finish this without me. Pride is slower than evidence, but it files the same report in the end."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "rooftop_dusk",
+        "lines": [
+          "Elections resume next moon, with fresh hats and a seed audit. Democracy, among pigeons, is self-cleaning if you kick it.",
+          "Below, a lamplighter relights Needle Lane, and the first pigeon in a month settles over her old window and says something rude about me. Good. The city is talking again.",
+          "Quiet can be bought. Noted, priced, filed. The next time a street goes silent around me, I will know I am standing in somebody's purchase."
+        ]
+      }
+    ],
+    "reward_bonus": 14,
+    "repeatable": false
   }
 }

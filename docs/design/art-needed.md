@@ -35,6 +35,24 @@ own `ref_` anchor the moment it exists (library rule 4).
 wanted yet — read `docs/design/the-unraveler.md` before prompting him, because
 how he is drawn is a fair-play matter rather than a taste one.
 
+## Chapter 1, wave 2 — the new enemies (added 2026-08-08, battles show their gaps)
+
+Three of the four new Chapter-1 enemies have no portrait yet and render as
+black-box placeholders in their fights (the Tallow Hound reuses
+`en_chained_dog` on purpose — the render-yards' dog IS a yard dog). Framing:
+**scene vignettes** (subject dominant, setting dissolving into wash —
+`en_chained_dog` is the reference), NOT parchment objects.
+
+| id | what it is |
+|---|---|
+| `en_candle_golem` | The Chandlers' night staff: a poured man of votive wax, lit wick where the thinking would go. On shift, not angry. |
+| `en_the_drowned` | One of the Drowned: dry-footed on a wet street, never fast, always arriving. |
+| `en_the_tallowman` | The Tallowman, Wick's bodyguard: a gentle-voiced tower of votive wax. Boss-sized (32 hp) — the fight of the chapter. |
+| `bg_guildhall` | Environment: the Chandlers' guildhall. |
+| `bg_mereside` | Environment: Mereside, the wet street the Drowned arrive on. |
+| `bg_wickrow` | Environment: Wickrow under ward-light. |
+| `npc_pigeon_postmaster` | The Pigeon Postmaster (portrait — check species in testimonies.json before prompting). |
+
 Also drawn 2026-08-07: `sc_hollow_stairs`, for the new Hollow Court beat ("The
 stairs up are longer than the fall down"). Ash is a bare silhouette from
 behind with **nothing at his throat** — that page can render both before and

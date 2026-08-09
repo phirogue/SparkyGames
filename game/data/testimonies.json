@@ -44,8 +44,7 @@
           ],
           "leads_done": [
             "l3"
-          ],
-          "favor": "lamplighters_knot"
+          ]
         }
       }
     ],
@@ -95,18 +94,99 @@
         "press_text": "'Weather and dark and my people's own good sense. That is the whole of it.'",
         "contradicted_by": "candle_stub",
         "break_text": "I put the stub down on his ledger, seal up. Beeswax, guild-marked, found under a window on a street where nothing came but weather. 'Weather does not deliver candles,' I say. The Grey Boss looks at it a long moment and stops performing. 'All right, cat. All right. There was a cart -- Chandlers' cart, no chandler on it. And a gentleman walking behind it who did not walk like a man going anywhere.'",
-        "rebuff_text": "'A candle end. My mother could do better than a candle end.'",
-        "break_effects": {
-          "leads_done": [
-            "l5"
-          ]
-        }
+        "rebuff_text": "'A candle end. My mother could do better than a candle end.'"
       }
     ],
     "when_outcome": {
       "success": "He gives me the cart, the hour, and a man with no destination. Rats charge for their memory, and this one has just been paid.",
       "partial": "He gives me the shape of it and keeps the corners. Rats do not lie. They invoice.",
       "walk_away": "I leave him his story intact. It will cost more next time, and he knows that I know."
+    }
+  },
+  "goose_doorman": {
+    "id": "goose_doorman",
+    "name": "The Doorman's Statement",
+    "witness": {
+      "name": "The Doorman",
+      "art": "en_garden_watch",
+      "guild": "",
+      "species": "goose"
+    },
+    "patience": 3,
+    "ribbons": [
+      {
+        "id": "g_post",
+        "initial": true,
+        "text": "HONK. (Nobody has passed this door on my watch. Nobody.)",
+        "press_text": "'HONK.' (You are standing inside, it concedes. You do not count. You were BEATEN in, which is a door matter, not a watch matter.)"
+      },
+      {
+        "id": "g_wax",
+        "initial": true,
+        "text": "HONK. (The Chandlers deliver only where they are paid.)",
+        "press_text": "'HONK HONK.' (Everyone knows it. Wax follows money. It is practically the one law left.)",
+        "contradicted_by": "candle_stub",
+        "break_text": "I set the stub on the ice, seal up. Beeswax, guild bee, found where nobody was billed for anything. The goose looks at it for a long moment. 'Honk,' it says, quietly. (Amendment: only where SOMEBODY is paid. Which is not the same thing at all.)",
+        "rebuff_text": "HONK. (A candle end proves nothing about doors.)"
+      },
+      {
+        "id": "g_ice",
+        "initial": true,
+        "text": "HONK. (The ice cart comes at eight. Nothing else comes.)",
+        "press_text": "(It stands very straight beside the ice cart. The ice cart is the one thing it has ever respected.)"
+      }
+    ],
+    "when_outcome": {
+      "success": "The goose concedes the point and bites nothing, which among geese is a formal apology.",
+      "partial": "The goose out-waits me. Geese have nowhere else to be.",
+      "walk_away": "I leave the goose its version of events. It honks once, in victory."
+    }
+  },
+  "perch_ballot": {
+    "id": "perch_ballot",
+    "name": "Testimony Before the Perch",
+    "witness": {
+      "name": "The Postmaster",
+      "art": "npc_pigeon_postmaster",
+      "guild": "",
+      "species": "pigeon"
+    },
+    "patience": 4,
+    "ribbons": [
+      {
+        "id": "p_clean",
+        "initial": true,
+        "text": "The Post has never once miscounted a ballot. Never.",
+        "press_text": "'Four hundred years of hats. Count them yourself.'",
+        "spawns": [
+          "p_seed"
+        ]
+      },
+      {
+        "id": "p_bought",
+        "initial": true,
+        "text": "And no pigeon was bought. A pigeon cannot be bought.",
+        "press_text": "'Seed is seed. Gratitude is gratitude. These are different words, cat.'"
+      },
+      {
+        "id": "p_quiet",
+        "initial": true,
+        "text": "The quiet that night was weather. Pigeons respect weather.",
+        "press_text": "'We were all... resting. Simultaneously. It happens.'",
+        "contradicted_by": "cart_docket",
+        "break_text": "I put the docket on the perch rail. A cart, that street, that night — and forty roosts saw nothing? The Postmaster's chest deflates a full size. 'The seed came before the night,' he says, quietly. 'Good seed, scattered wide, by a human hand. We voted with our beaks full — and we called the quiet weather, because the other word for it was bought.'",
+        "rebuff_text": "'Paper. You bring PAPER to a perch.'"
+      },
+      {
+        "id": "p_seed",
+        "text": "Toby's seed is honest seed. Donated. By admirers.",
+        "press_text": "'Anonymous admirers. Of pigeons. It happens constantly.'"
+      }
+    ],
+    "when_outcome": {
+      "success": "The Perch votes to count again. The hat is impounded pending honesty.",
+      "partial": "The Postmaster ruffles shut. The Perch adjourns for pecking.",
+      "walk_away": "The ballot stands. The hat has already stopped mattering to anyone but the hat."
     }
   }
 }

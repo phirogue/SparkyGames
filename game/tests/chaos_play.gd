@@ -153,6 +153,7 @@ func _snapshot(state: CombatState) -> String:
 		"statuses": state.statuses, "channel": state.channel,
 		"instinct": state.instinct_used, "sharpened": state.sharpened,
 		"paws": state.paws_left, "enemy_hp": state.enemy_hp,
+		"enemy_block": state.enemy_block,
 		"turn": state.turn, "outcome": state.outcome,
 		"alarm": state.alarm, "spotted": state.spotted,
 		"hidden": state.hidden, "approach": state.approach,
@@ -188,6 +189,8 @@ func _check_accepted(state: CombatState, command: Dictionary,
 	if state.enemy_hp > state.enemy_max_hp:
 		_violation("enemy hp %d over max %d after '%s'" % [
 			state.enemy_hp, state.enemy_max_hp, kind])
+	if state.enemy_block < 0:
+		_violation("negative enemy guard (%d) after '%s'" % [state.enemy_block, kind])
 	if state.outcome == CombatState.Outcome.ONGOING and state.player_hp <= 0:
 		_violation("player at %d hp but the encounter is still running" % state.player_hp)
 	for entry in state.skills:

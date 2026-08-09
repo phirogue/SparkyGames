@@ -141,7 +141,7 @@ func validate() -> Array[String]:
 		if intents.is_empty():
 			problems.append("enemy '%s' has no intents" % id)
 		for intent in intents:
-			if not ["health", "skills", "hand"].has(intent.get("target", "")):
+			if not ["health", "skills", "hand", "block", "heal"].has(intent.get("target", "")):
 				problems.append("enemy '%s' intent targets unknown '%s'" % [id, intent.get("target", "")])
 			var mode := String(intent.get("mode", ""))
 			var legal_modes: Array = ["pierce"] if intent.get("target") == "health" \
@@ -698,6 +698,17 @@ func _validate_prowl_script(id: String, quest: Dictionary) -> Array[String]:
 						and not ["success", "loss"].has(String(step["when_minigame"])):
 					problems.append("quest '%s' gates a beat on unknown minigame outcome '%s'"
 						% [id, step["when_minigame"]])
+			ProwlScript.FLASHBACK:
+				var flash_environment := String(step.get("environment", ""))
+				if flash_environment != "" and not environments.has(flash_environment):
+					problems.append("quest '%s' remembers an unknown environment '%s'"
+						% [id, flash_environment])
+				if Array(step.get("lines", [])).is_empty():
+					problems.append("quest '%s' has a flashback with no lines" % id)
+				# The story screen refuses choices on a memory with an assert;
+				# catch the contradiction here, at boot, in words.
+				if step.has("choices"):
+					problems.append("quest '%s' has a flashback offering choices — a memory is already decided" % id)
 			ProwlScript.NOTICE:
 				if Array(step.get("notes", [])).is_empty():
 					problems.append("quest '%s' has an empty notice step" % id)
