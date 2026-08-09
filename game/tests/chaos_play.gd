@@ -41,7 +41,6 @@ const PERSONAS: Array[String] = [
 	"random_legal",      # taps anything legal, forever
 	"chaos_illegal",     # sends malformed and illegal commands too
 	"hoarder",           # charges everything onto skills, never fires
-	"discarder",         # throws the whole hand away every turn
 	"overcharger",       # keeps feeding a skill that is already powered
 	"concentrator",      # gives up every single turn to will energy back
 	"slipper",           # slips away at arbitrary moments, including turn 1
@@ -267,10 +266,6 @@ func _next_command(state: CombatState, persona: String, stall: int) -> Dictionar
 				return {"type": "charge_skill",
 					"skill_id": state.skills[0]["id"], "source": "hand", "index": 0}
 			return {"type": "end_turn"}
-		"discarder":
-			if not state.hand.is_empty():
-				return {"type": "discard", "hand_index": 0}
-			return {"type": "end_turn"}
 		"overcharger":
 			# Keeps feeding one skill past full power.
 			if state.skills.is_empty() or state.hand.is_empty():
@@ -324,8 +319,6 @@ func _legal_commands(state: CombatState) -> Array[Dictionary]:
 		for i in state.hand.size():
 			options.append({"type": "charge_skill", "skill_id": entry["id"],
 				"source": "hand", "index": i})
-	for i in state.hand.size():
-		options.append({"type": "discard", "hand_index": i})
 	for humour in Catalog.HUMOURS:
 		options.append({"type": "concentrate", "humour": humour})
 	if state.can_approach():
@@ -347,12 +340,13 @@ func _illegal_command(state: CombatState) -> Dictionary:
 		{"type": "charge_skill", "skill_id": "pounce", "source": "pocket", "index": 0},
 		{"type": "charge_skill", "skill_id": "pounce", "source": "hand", "index": -1},
 		{"type": "charge_skill", "skill_id": "pounce", "source": "hand", "index": 999},
-		# Banking was REMOVED 2026-08-08; the command and its old energy
-		# source must stay refused forever, not quietly half-work.
+		# Banking (2026-08-08) and discarding (2026-08-09) were REMOVED; the
+		# commands and the old bank source must stay refused forever, not
+		# quietly half-work.
 		{"type": "bank", "hand_index": 0},
 		{"type": "charge_skill", "skill_id": "pounce", "source": "bank", "index": 0},
+		{"type": "discard", "hand_index": 0},
 		{"type": "discard", "hand_index": -3},
-		{"type": "discard", "hand_index": 9999},
 		{"type": "approach", "mode": "backflip"},
 		{"type": "approach", "mode": ""},
 	]

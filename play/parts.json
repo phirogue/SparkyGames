@@ -19,15 +19,15 @@
       "name": "casebook",
       "title": "The Casebook",
       "group": "Screens",
-      "spec": "journal",
-      "about": "Deeds and Knowledge — the journal page."
+      "spec": "scenario:casebook_full",
+      "about": "Deeds and Knowledge with history in it: every chronicle kind, lessons met, deeds unlocked, codex entries."
     },
     {
       "name": "case-board",
-      "title": "The Case Board (empty)",
+      "title": "The Case Board (mid-case)",
       "group": "Screens",
-      "spec": "case",
-      "about": "A fresh board: the question, one known suspect, five empty slots."
+      "spec": "scenario:case_board_full",
+      "about": "The board with content on it: two things found, threads strung, a knot owed, the Chandlers annoyed."
     },
     {
       "name": "exchange",

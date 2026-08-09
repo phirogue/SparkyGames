@@ -56,6 +56,7 @@ const DEFAULTS := {
 		"deck_floor": 10,
 		"tonic_hp": 2,
 		"goods": [
+			{"mode": "plain", "cost": 6, "seal": "ui/ui_seal_blue"},
 			{"mode": "add", "cost": 12, "seal": "ui/ui_seal_red"},
 			{"mode": "rare", "cost": 30, "seal": "ui/ui_seal_gold"},
 			{"mode": "tonic", "cost": 25, "seal": "ui/ui_seal_red"},

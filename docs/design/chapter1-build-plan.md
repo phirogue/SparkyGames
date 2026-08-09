@@ -131,6 +131,23 @@ How they land in THIS chapter:
 Minigame modules follow the Phase-1 gate rule (test + scenario + tour
 stop) plus `when_outcome` prose for success / partial / walk-away.
 
+> **Progress note 2026-08-08 — the chapter's STORY is complete.** The
+> opening arc (owner brief 2026-08-04: find_the_magpie → the_carrying →
+> {what_i_saw, ask_the_rats, sharpen_the_claws} → the_wake) reassigned two
+> evidence finds (the stub to the parlor sweep, the docket to the lane
+> walk), and the back half now follows it in quests.json: `creditors`
+> (L2 heist — Bodkin enters), `the_lamplighters_talk` (L3 choice-chain +
+> Merrow testimony + hall ward), `the_ward_that_failed` (L4 crossing +
+> seam-reading + Remembered Day 1 + the mirror reveal), and
+> `an_audience_of_wax` (L5 Tallowman + verdict). A sixth evidence, the
+> strongbox counterfoil, restores L5's own "thing" (the docket having
+> moved up-chapter). Side quests shipped: the Milk Debt, the Pigeon
+> Ballot; Fish-Giver and Gargoyle remain open. Combat batch: tallow
+> hound, candle-golem, the Drowned, the Tallowman (sim'd; art wave 2 is
+> the accepted gap in known-gaps.json). Engine gained `when_minigame`
+> story gates and success-gated module rewards on the way — the loss
+> paths are canon now, not accidents.
+
 ## Phase 2 — combat content, batch A (parallel with Phase 1 art)
 
 - **Enemies 1–4** of Ch1's eight: wax-and-wick themed street tier (e.g.

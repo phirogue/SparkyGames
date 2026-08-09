@@ -122,10 +122,15 @@ so "do I need another of these?" is answered before the popup even opens.
 
 | Zone | Height | Contents |
 |---|---|---|
-| header | 96 | back arrow, "The Magpie Exchange", gleam count |
-| brindle | 300 | portrait + her current line (her voice reacts to what you can afford) |
-| shelf | 480 | goods: Add a card 12, The good shelf 30, Tonic 25 |
-| spool | 192 | "On your spool" — deck size + per-humour counts, and the tap hint |
+| header | 96 | back arrow, "The Magpie Exchange", the purse LARGE |
+| brindle | 300 | portrait + her current line at battle-text size |
+| shelf | 480 | 2x2 goods: Plain card 6, A card for the deck 12, The good shelf 30, Tonic 25 |
+| spool | 192 | "On your spool" — one large spool + count, humours in a 2x2 grid with big ×counts |
+
+Type runs at battle-screen scale throughout (owner 2026-08-09) and a card's
+WORTH is drawn as one glyph per point — in the offer rows and the close-up —
+so a second visibly IS two of a plain card and a third is three. The tonic
+gives health, and says so.
 
 Prices for what remains are unchanged. Goods the player cannot afford are
 visibly *out of reach* (faded plate, seal greyed) rather than silently

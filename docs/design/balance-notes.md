@@ -1,5 +1,59 @@
 # Balance Notes — Simulated Playtests
 
+## Pass 8 — Chapter 1's back half, priced against the economy (2026-08-08)
+
+The four new fights (tallow hound, candle-golem, the Drowned, the
+Tallowman) are the first content tuned **from the player's purse
+outward** (owner direction): model what a player has banked by each
+fight, price what a FOCUSED buyer owns (players concentrate purchases,
+they do not spread), and sim those buildouts — not just the starter kit.
+
+**The gleam model** (no deaths, no press-on declines; toll and spills
+only lower it):
+- Opening arc, core only: ~89 banked by the_wake (fights + reward_bonus).
+- By the Drowned: ~130 core-only; ~180–220 with a side-quest pass.
+- By the Tallowman: ~160 core-only; ~240+ with sides.
+
+**The reference focused build** at Magpie prices (second 12, third 30,
+tonic 25, free re-spool to the 10-card floor): three seconds + one third
+of your humour + one tonic ≈ 91 gleam — affordable core-only by the
+boss, mid-back-half with one side pass. Simmed as `claw` (feeds
+Pounce/Swat) and `moon` (wild — and taxed +1 by Wickrow's ward-light,
+which is the district rule doing its job against the obvious best buy).
+
+| Scenario | brawler | defender | stalker | random |
+|---|---|---|---|---|
+| Tallow hound (no buys) | 33% | 76% | 95% | 15% |
+| Candle-golem (no buys) | 26% | 86% | 77% | 14% |
+| Drowned (no buys) | 33% | 63% | 98% | 8% |
+| Drowned (claw / moon) | 100 / 100 | 100 / 100 | 100 / 100 | 69 / 17 |
+| **Tallowman** (no buys) | 32% | 77% | 79% | 3% |
+| **Tallowman** (claw) | 100% | 100% | 81% (19 flee) | 7% |
+| **Tallowman** (moon) | 100% | 91% | 100% | 8% |
+
+Read:
+- **The chapter is a ladder**: street tier ~76–95% for careful shopless
+  play, the Drowned demands either care or purchases, and the boss is
+  beatable shopless with good play (77–79%) while face-tanking it fails
+  (32%) — headroom preserved for Ch2–3, which should assume the focused
+  2s/3s deck as the entry state, not the starter fifteen.
+- **Buyers feel their money**: both focused builds close the boss in
+  ~6–8 turns and walk out with the spool nearly dry (~1 card left) — the
+  finale drains the night's whole resource, as it should.
+- **Retuned during the pass**: Drowned 18→16 hp, Cold Hands 5→4 (was
+  best-bot 34%, a mid-quest wall). Tallowman 32→24 hp, Warm Regards
+  5→4, **Reform 4→2** — at heal 4 the cautious lines stalled to the turn
+  cap (defender 0% *with a purchased deck*): a heal that out-paces
+  patient damage is a 10-turn slug, which is the owner's stated not-fun.
+  Rule kept from it: **a boss's heal must lose to patient damage**; its
+  threat lives in the pierce/jam/hand pressure, not in undoing progress.
+- **No price moved.** The curve reaches the reference build on core-only
+  gleam by the boss; the plain-card good (Pass 7) already covers the
+  early-game sink. If Ch2 wants a tighter market, raise enemy gleam
+  slower rather than re-pricing the goods.
+
+---
+
 ## Pass 5 — the purr commitment + banking removed (2026-08-08)
 
 Changes this pass (owner battle review):
@@ -250,3 +304,8 @@ What this does to the economy:
   (raise it), not re-pricing the cut.
 - **New dial `exchange.tonic_hp` (2)** — was a hardcoded `+2` in the shop
   screen; the close-up popup now states it from the dial.
+- **Plain value-1 cards now sold** (owner 2026-08-09): new good `plain` at
+  **6 gleam**, priced at half a second — a second is exactly two firsts of
+  worth, so the premium on the 2s (12) and 3s (30) is convenience-per-draw,
+  not raw worth. Gives the early game a sink smaller than the 12-gleam
+  entry step. No combat number moved.

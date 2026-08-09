@@ -278,7 +278,7 @@
   "the_drowned": {
     "id": "the_drowned",
     "name": "One of the Drowned",
-    "hp": 18,
+    "hp": 16,
     "gleam": 11,
     "color": "#5f7d82",
     "intents": [
@@ -295,7 +295,7 @@
       {
         "name": "Cold Hands",
         "target": "health",
-        "amount": 5
+        "amount": 4
       }
     ],
     "flavor": "Dry-footed on a wet street. Never fast. Always arriving.",
@@ -305,14 +305,14 @@
   "the_tallowman": {
     "id": "the_tallowman",
     "name": "The Tallowman",
-    "hp": 32,
+    "hp": 24,
     "gleam": 30,
     "color": "#e8d5a0",
     "intents": [
       {
         "name": "Warm Regards",
         "target": "health",
-        "amount": 5
+        "amount": 4
       },
       {
         "name": "A Kindly Grip",
@@ -322,7 +322,7 @@
       {
         "name": "Reform",
         "target": "heal",
-        "amount": 4
+        "amount": 2
       },
       {
         "name": "Candle Discipline",

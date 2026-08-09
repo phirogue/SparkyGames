@@ -19,8 +19,8 @@ enum Outcome { ONGOING, VICTORY, DEFEAT, RETREATED }
 ## Rules.DEFAULTS is checked against. Read the FIELDS, not the consts.
 const HAND_LIMIT := 5
 ## Paw action points (owner mechanic 2026-08-01): every energy card PLACED
-## onto a skill costs one paw. Free skills, discards and slipping away cost
-## none. Paws refill at the start of each turn.
+## onto a skill costs one paw. Free skills and slipping away cost none.
+## Paws refill at the start of each turn.
 const DEFAULT_PAWS := 3
 ## Battles open with a small hand (owner rule 2026-08-01): 3 cards, then
 ## the end-of-turn draw refills toward hand_limit as before.
@@ -310,7 +310,7 @@ func do_command(command: Dictionary) -> Dictionary:
 	# ambush, and left rejected commands mutating state, which nothing else
 	# in here does. Found by the chaos harness; see tests/chaos_play.gd.
 	var kind := String(command.get("type", ""))
-	var locks_approach := ["play_skill", "charge_skill", "discard",
+	var locks_approach := ["play_skill", "charge_skill",
 		"concentrate", "end_turn"].has(kind)
 	match kind:
 		"approach":
@@ -320,8 +320,6 @@ func do_command(command: Dictionary) -> Dictionary:
 		"charge_skill":
 			result = _cmd_charge_skill(String(command.get("skill_id", "")),
 				String(command.get("source", "hand")), int(command.get("index", -1)))
-		"discard":
-			result = _cmd_discard(int(command.get("hand_index", -1)))
 		"concentrate":
 			result = _cmd_concentrate(String(command.get("humour", "")))
 		"end_turn":
@@ -436,7 +434,7 @@ func _cmd_play_skill(skill_id: String) -> Dictionary:
 	# A purring cat is a cat doing exactly one thing (owner defect 2026-08-08:
 	# "I seem to still be able to do things right after, even though purr is
 	# active"). While the channel holds, Ash acts on nothing — the purr is the
-	# turn. Damage still breaks it; discarding and slipping away stay open.
+	# turn. Damage still breaks it; slipping away stays open.
 	if not channel.is_empty():
 		return _fail("the purr holds him still")
 	if not catalog.skills.has(skill_id):
@@ -512,16 +510,6 @@ func _cmd_slip_away() -> Dictionary:
 	if outcome != Outcome.ONGOING:
 		return {"ok": true, "error": ""}
 	outcome = Outcome.DEFEAT if player_hp <= 0 else Outcome.RETREATED
-	return {"ok": true, "error": ""}
-
-
-## Toss energy you don't want (owner mechanic 2026-08-01). Free — but the
-## card is GONE until the long rest at home, like all spent energy.
-func _cmd_discard(hand_index: int) -> Dictionary:
-	if hand_index < 0 or hand_index >= hand.size():
-		return _fail("no card at hand index %d" % hand_index)
-	spent.append(hand[hand_index])
-	hand.remove_at(hand_index)
 	return {"ok": true, "error": ""}
 
 

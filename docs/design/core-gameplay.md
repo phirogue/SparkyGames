@@ -17,6 +17,10 @@
 >   coach line, and as a "purring" band in the tray.
 > - **One action, one chronicle line.** "Ash: Scratch." + "  1 damage."
 >   collapsed into "Ash: Scratch — 1 damage." (owner: single line per action).
+> - **Discard is gone too** (2026-08-09: "no reason to personally discard an
+>   energy card... it gives no benefit"). A free action that only ever hurt
+>   you was a trap, not a choice. Energy leaves the hand by powering an
+>   action or by theft; the hand-card popup is a close-up, nothing more.
 >
 > - **Charge-to-power skills.** Skills no longer fire in one tap: energy is
 >   fed onto the card one placement at a time (`charge_skill` command; the

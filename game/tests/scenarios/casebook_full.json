@@ -4,6 +4,12 @@
     "prologue_done": true,
     "gleam": 64,
     "skills": ["scratch", "pounce", "slink", "purr", "loaf"],
+    "taught": ["the_exchange", "the_case_board", "growing_stronger"],
+    "achievements": {
+      "schema_version": 1,
+      "stats": { "prowls_finished": 4, "victories": 6 },
+      "unlocked": ["the_vole_dispute", "first_visit_complimentary", "strategic_withdrawal_expert"]
+    },
     "codex": {
       "enemies": ["the_vole", "gutter_wisp", "rag_wraith"],
       "places": ["rooftop_dusk", "needle_lane", "parlor_cold"]

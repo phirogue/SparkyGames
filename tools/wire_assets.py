@@ -49,8 +49,10 @@ KINDS = {
 
 # Masters that exist but nothing draws yet. Wiring them would grow the export
 # for no pixels on screen, so they wait in the library until a screen asks.
+# (npc_pigeon_postmaster left this list 2026-08-08: the_pigeon_ballot's
+# Testimony draws him before the Perch.)
 UNWIRED = {
-    "bg_mantel", "npc_pigeon_postmaster", "ref_ash_prologue",
+    "bg_mantel", "ref_ash_prologue",
 }
 
 # The exception to the "library/ui is never wired" rule in the module note.

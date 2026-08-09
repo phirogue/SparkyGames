@@ -184,7 +184,6 @@ var card_panel: Control
 var card_title: Label
 var card_body: Label
 var card_slot: Control
-var card_discard: Button
 var selected_card := -1
 var alarm_label: Label
 var log_label: Label
@@ -519,20 +518,6 @@ func _on_card_pressed(hand_index: int) -> void:
 func _close_card() -> void:
 	selected_card = -1
 	_close_modal(card_overlay, card_panel)
-
-
-func _on_card_discard() -> void:
-	var hand_index := selected_card
-	_close_card()
-	if hand_index < 0 or hand_index >= state.hand.size():
-		return
-	var card_id: String = state.hand[hand_index]
-	var result := state.do_command({"type": "discard", "hand_index": hand_index})
-	if result["ok"]:
-		_log(Strings.line("chronicle.discarded", [catalog.energy_cards[card_id]["name"]]))
-	else:
-		_log(result["error"])
-	_after_command()
 
 
 func _on_concentrate_pressed() -> void:
@@ -1094,9 +1079,9 @@ func _build_outcome_overlay() -> Control:
 	return modal["overlay"]
 
 
-## Close-up for a tapped hand card: Discard it, or back out. (Feeding energy
-## to a skill happens from the skill's own close-up; banking is gone — owner
-## 2026-08-08: "whats the point of banking a card if it can be stolen".)
+## Close-up for a tapped hand card: a look, nothing more. Feeding energy to a
+## skill happens from the skill's own close-up; banking and discarding are
+## both gone (owner 2026-08-08/09 — neither ever benefited the player).
 func _build_card_overlay() -> Control:
 	var modal := UITheme.modal(self, 560.0)
 	card_panel = modal["panel"]
@@ -1116,18 +1101,9 @@ func _build_card_overlay() -> Control:
 	card_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	card_body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(card_body)
-	var buttons := HBoxContainer.new()
-	buttons.add_theme_constant_override("separation", 12)
-	box.add_child(buttons)
-	card_discard = UITheme.dark_button("Discard")
-	card_discard.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card_discard.pressed.connect(_on_card_discard)
-	buttons.add_child(card_discard)
-	var cancel := Button.new()
-	cancel.text = "Not now"
-	cancel.custom_minimum_size = Vector2(150, UITheme.BUTTON_HEIGHT)
-	cancel.pressed.connect(_close_card)
-	buttons.add_child(cancel)
+	var back := UITheme.amber_button("Back to the fight", 30)
+	back.pressed.connect(_close_card)
+	box.add_child(back)
 	return modal["overlay"]
 
 
@@ -1329,7 +1305,7 @@ func _refresh_hand_fan() -> void:
 	var center := (n - 1) / 2.0
 	for i in n:
 		var b := _card_button(state.hand[i], CARD_SCALE)
-		b.tooltip_text = "Tap to feed an action, or discard"
+		b.tooltip_text = "Tap for a closer look"
 		b.pressed.connect(_on_card_pressed.bind(i))
 		hand_cards.add_child(b)
 		var offset := i - center

@@ -268,8 +268,6 @@ func test_purr_holds_ash_still_until_broken() -> void:
 	assert_rejected(state.do_command({"type": "concentrate", "humour": "guile"}),
 		"no concentrating while the purr holds")
 	state.spent.pop_back()
-	assert_ok(state.do_command({"type": "discard", "hand_index": 0}),
-		"letting go of a card asks nothing of him")
 	# Turn 1 enemy intent is Bark (hand) — no damage, the purr survives.
 	assert_ok(state.do_command({"type": "end_turn"}))
 	assert_rejected(state.do_command({"type": "play_skill", "skill_id": "scratch"}),
@@ -415,25 +413,27 @@ func test_paws_limit_energy_placements() -> void:
 		"source": "hand", "index": 0}), "paw 3: feed shelf justice a guile")
 	assert_rejected(state.do_command({"type": "charge_skill", "skill_id": "shelf_justice",
 		"source": "hand", "index": 0}), "fourth placement: out of paws")
-	assert_ok(state.do_command({"type": "discard", "hand_index": 1}),
-		"discarding is free — it only hurts you")
 	assert_ok(state.do_command({"type": "end_turn"}))
 	assert_eq(state.paws_left, state.paw_limit, "paws refill each turn")
 	assert_ok(state.do_command({"type": "charge_skill", "skill_id": "shelf_justice",
 		"source": "hand", "index": 0}), "fresh paws, fresh charge")
 
-func test_discard_is_gone_until_home() -> void:
+## Discarding was REMOVED (owner 2026-08-09: "there is no reason to
+## personally discard an energy card in your hand as it gives no benefit").
+## Energy leaves the hand by powering an action, or by being stolen.
+func test_discarding_is_gone() -> void:
 	var state := _charge_fixture()
 	var hand_before := state.hand.size()
-	assert_ok(state.do_command({"type": "discard", "hand_index": 1}))
-	assert_eq(state.hand.size(), hand_before - 1, "card left the hand")
-	assert_eq(state.spent.size(), 1, "discard is spent, not recycled")
+	assert_rejected(state.do_command({"type": "discard", "hand_index": 1}),
+		"the discard command no longer exists")
+	assert_eq(state.hand.size(), hand_before, "and the hand is untouched")
 
 func test_concentrate_wills_energy_back_and_costs_the_turn() -> void:
 	var state := _charge_fixture()
 	assert_rejected(state.do_command({"type": "concentrate", "humour": "mysticism"}),
 		"nothing spent yet to will back")
-	assert_ok(state.do_command({"type": "discard", "hand_index": 0}), "spend the ferocity")
+	assert_ok(state.do_command({"type": "charge_skill", "skill_id": "pounce",
+		"source": "hand", "index": 0}), "spend the ferocity onto pounce")
 	var turn_before := state.turn
 	assert_ok(state.do_command({"type": "concentrate", "humour": "ferocity"}))
 	assert_eq(state.turn, turn_before + 1, "concentrating IS the turn")
@@ -548,16 +548,21 @@ func test_enemy_guard_expires_when_it_moves() -> void:
 
 
 func test_enemy_heal_mends_and_caps_at_full_thread() -> void:
+	# Read the fixture's numbers from the catalog: the Tallowman is LIVE
+	# balance data (balance-notes Pass 8 retuned it mid-pass), and a heal
+	# test pinned to last week's hp fails on every retune without telling
+	# anyone anything about healing.
+	var full := int(catalog.enemies["the_tallowman"]["hp"])
 	var state := CombatState.create(catalog, 5, {
 		"player_hp": 30, "shuffle": false,
 		"deck": ["guile_1", "guile_1", "guile_1"],
 		"skills": [], "enemy": "the_tallowman",
 	})
 	assert_ok(state.do_command({"type": "play_skill", "skill_id": "scratch"}))
-	assert_eq(state.enemy_hp, 31, "scratched once")
-	state._intent_index = 2  # Reform: it mends 4
+	assert_eq(state.enemy_hp, full - 1, "scratched once")
+	state._intent_index = 2  # Reform — mends more than the scratch took
 	assert_ok(state.do_command({"type": "end_turn"}))
-	assert_eq(state.enemy_hp, 32, "mending stops at its full thread — never over")
+	assert_eq(state.enemy_hp, full, "mending stops at its full thread — never over")
 
 
 # --- found by the chaos harness (tests/chaos_play.gd), 2026-08-03 ---------
@@ -572,7 +577,8 @@ func test_a_rejected_command_does_not_burn_the_approach() -> void:
 	assert_rejected(state.do_command({"type": "play_skill", "skill_id": "no_such_skill"}),
 		"an unknown skill")
 	assert_true(state.can_approach(), "a rejected skill tap must not close the window")
-	assert_rejected(state.do_command({"type": "discard", "hand_index": 99}), "a bad index")
+	assert_rejected(state.do_command({"type": "charge_skill", "skill_id": "pounce",
+		"source": "hand", "index": 99}), "a bad index")
 	assert_true(state.can_approach(), "a mis-swiped card must not close the window")
 	assert_rejected(state.do_command({"type": "concentrate", "humour": "cheese"}),
 		"a humour that does not exist")
@@ -584,7 +590,14 @@ func test_a_rejected_command_does_not_burn_the_approach() -> void:
 ## into "approaches are free whenever you like".
 func test_a_real_action_still_closes_the_approach() -> void:
 	var state := _wisp_fight()
-	assert_ok(state.do_command({"type": "discard", "hand_index": 0}), "a real action")
+	var index := -1
+	for i in state.hand.size():
+		if catalog.energy_cards[state.hand[i]]["humour"] == "ferocity":
+			index = i
+			break
+	assert_true(index >= 0, "seed 7 opening hand should contain ferocity")
+	assert_ok(state.do_command({"type": "charge_skill", "skill_id": "pounce",
+		"source": "hand", "index": index}), "a real action")
 	assert_true(not state.can_approach(), "acting spends the moment for an entrance")
 	assert_rejected(state.do_command({"type": "approach", "mode": "stalk"}),
 		"the entrance after acting")

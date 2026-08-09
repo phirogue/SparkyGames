@@ -120,8 +120,10 @@ func _build_header(column: VBoxContainer) -> void:
 	purse.add_theme_constant_override("separation", 6)
 	purse.alignment = BoxContainer.ALIGNMENT_END
 	header.add_child(purse)
-	purse.add_child(UITheme.icon("ui/ui_button_pile", 64.0))
-	_gleam_label = UITheme.measured_label("0", 36, 90.0, UITheme.display_font())
+	# The purse is the number every decision on this page hangs off, so it is
+	# drawn at battle-header scale, not caption scale (owner 2026-08-09).
+	purse.add_child(UITheme.icon("ui/ui_button_pile", 88.0))
+	_gleam_label = UITheme.measured_label("0", 46, 110.0, UITheme.display_font())
 	_gleam_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_gleam_label.size_flags_vertical = Control.SIZE_FILL
 	purse.add_child(_gleam_label)
@@ -154,9 +156,11 @@ func _build_brindle(column: VBoxContainer) -> void:
 	speech.add_theme_constant_override("separation", 8)
 	speech.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	band.add_child(speech)
-	speech.add_child(UITheme.measured_label("Brindle", 30,
+	speech.add_child(UITheme.measured_label("Brindle", 34,
 		_speech_wrap(), UITheme.display_font()))
-	_patter = UITheme.measured_label("", 24, _speech_wrap(),
+	# Her voice at battle-text size (owner 2026-08-09: the patter was set like
+	# a footnote and she is the whole top of the page).
+	_patter = UITheme.measured_label("", 32, _speech_wrap(),
 		UITheme.italic_font())
 	speech.add_child(_patter)
 
@@ -176,8 +180,9 @@ func _build_shelf(column: VBoxContainer) -> void:
 
 
 ## What the player already holds, always in view while shopping (owner
-## 2026-08-08): the spool count and each humour's share, in glyphs. The strip
-## answers "do I need another of these?" before the popup even opens.
+## 2026-08-08): the spool count and each humour's share. Owner 2026-08-09:
+## one LARGE spool, the humours on two lines, and the counts big — this
+## strip is a gauge, and gauges are read, not squinted at.
 func _build_spool(column: VBoxContainer) -> void:
 	var holder := VBoxContainer.new()
 	holder.custom_minimum_size = Vector2(0, ZONE_SPOOL)
@@ -186,11 +191,8 @@ func _build_spool(column: VBoxContainer) -> void:
 	holder.add_child(UITheme.measured_label(Strings.line("exchange.spool_heading"),
 		24, UITheme.CONTENT_WIDTH, UITheme.smallcaps_font(), UITheme.INK_SOFT))
 	_spool_strip = HBoxContainer.new()
-	_spool_strip.add_theme_constant_override("separation", 10)
+	_spool_strip.add_theme_constant_override("separation", 16)
 	holder.add_child(_spool_strip)
-	var hint := UITheme.measured_label(Strings.line("exchange.hint"), 20,
-		UITheme.CONTENT_WIDTH, UITheme.italic_font(), UITheme.INK_SOFT)
-	holder.add_child(hint)
 
 
 func _refresh_spool() -> void:
@@ -204,24 +206,35 @@ func _refresh_spool() -> void:
 	var spool := VBoxContainer.new()
 	spool.add_theme_constant_override("separation", 0)
 	_spool_strip.add_child(spool)
-	spool.add_child(UITheme.icon("ui/ui_spool", 52.0))
+	var icon := UITheme.icon("ui/ui_spool", 100.0)
+	icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	spool.add_child(icon)
 	var size_label := UITheme.measured_label(
-		"%d" % profile.get("deck", []).size(), 24, 70.0, UITheme.display_font())
+		"%d" % profile.get("deck", []).size(), 38, 110.0, UITheme.display_font())
 	size_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	spool.add_child(size_label)
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 14)
+	grid.add_theme_constant_override("v_separation", 10)
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_spool_strip.add_child(grid)
 	for humour in Catalog.HUMOURS:
-		var chip := VBoxContainer.new()
+		var chip := HBoxContainer.new()
+		chip.add_theme_constant_override("separation", 8)
 		chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		chip.add_theme_constant_override("separation", 0)
-		_spool_strip.add_child(chip)
-		var glyph := UITheme.icon(String(HUMOUR_GLYPHS[humour]), 44.0)
-		glyph.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		grid.add_child(chip)
+		var glyph := UITheme.icon(String(HUMOUR_GLYPHS[humour]), 52.0)
+		glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		chip.add_child(glyph)
-		var label := UITheme.measured_label(
-			"%s %d" % [Catalog.humour_name(humour), int(counts.get(humour, 0))],
-			18, 112.0, UITheme.body_font(), UITheme.INK_SOFT)
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		chip.add_child(label)
+		var text := VBoxContainer.new()
+		text.add_theme_constant_override("separation", 0)
+		text.alignment = BoxContainer.ALIGNMENT_CENTER
+		chip.add_child(text)
+		text.add_child(UITheme.measured_label(Catalog.humour_name(humour), 22,
+			150.0, UITheme.body_font(), UITheme.INK_SOFT))
+		text.add_child(UITheme.measured_label("×%d" % int(counts.get(humour, 0)),
+			32, 150.0, UITheme.display_font()))
 
 
 func _speech_wrap() -> float:
@@ -246,23 +259,25 @@ func _good_card(good: Dictionary) -> Control:
 	box.add_theme_constant_override("separation", 4)
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	plate.add_child(box)
+	# Battle-screen type scale (owner 2026-08-09): the shelf is read at arm's
+	# length, and 20px flavour under a 26px name was footnote territory.
 	var wrap := GOOD_WIDTH - 24
 	var ink: Color = UITheme.INK if affordable else UITheme.INK_FADED
-	box.add_child(UITheme.measured_label(Strings.lines("exchange.goods." + String(good["mode"]))[0], 26, wrap,
+	box.add_child(UITheme.measured_label(Strings.lines("exchange.goods." + String(good["mode"]))[0], 30, wrap,
 		UITheme.display_font(), ink))
 	var price := HBoxContainer.new()
-	price.add_theme_constant_override("separation", 4)
+	price.add_theme_constant_override("separation", 6)
 	box.add_child(price)
-	var seal := UITheme.icon(String(good["seal"]), 46.0)
+	var seal := UITheme.icon(String(good["seal"]), 54.0)
 	seal.modulate = Color.WHITE if affordable else Color(1, 1, 1, 0.45)
 	price.add_child(seal)
 	var price_label := UITheme.measured_label(
-		Strings.line("exchange.popup.price", [cost]), 24, 140.0,
-		UITheme.body_font(), ink)
+		Strings.line("exchange.popup.price", [cost]), 30, 160.0,
+		UITheme.display_font(), UITheme.ACCENT_WARM if affordable else ink)
 	price_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	price_label.size_flags_vertical = Control.SIZE_FILL
 	price.add_child(price_label)
-	box.add_child(UITheme.measured_label(Strings.lines("exchange.goods." + String(good["mode"]))[1], 20, wrap,
+	box.add_child(UITheme.measured_label(Strings.lines("exchange.goods." + String(good["mode"]))[1], 24, wrap,
 		UITheme.italic_font(), UITheme.INK_SOFT if affordable else UITheme.INK_FADED))
 	if affordable:
 		UITheme.tap_layer(plate).pressed.connect(
@@ -285,12 +300,15 @@ func _refresh() -> void:
 func _say(line: String) -> void:
 	_patter.text = line
 	_patter.custom_minimum_size = Vector2(_speech_wrap(),
-		UITheme.measure_text(line, UITheme.italic_font(), 24, _speech_wrap()).y)
+		UITheme.measure_text(line, UITheme.italic_font(), 32, _speech_wrap()).y)
 
 
 func _on_good_pressed(mode: String) -> void:
 	_shop_mode = mode
 	match mode:
+		"plain":
+			_say(Strings.line("exchange.patter.plain"))
+			_shop_card = ""
 		"add":
 			_say(Strings.line("exchange.patter.add"))
 			_shop_card = ""
@@ -320,14 +338,31 @@ func _build_shop_modal() -> void:
 	_shop_box = _shop["box"]
 
 
+## Which value a shelf mode sells: firsts, seconds or thirds. The VALUE is
+## the whole difference between the goods, so the popup draws it as one
+## glyph per point of worth (owner 2026-08-09: "a second is twice a plain
+## card" was invisible when every card wore a single icon).
+const MODE_VALUE := {"plain": 1, "add": 2, "rare": 3}
+
+
 func _offered_cards() -> Array[String]:
-	var value := 3 if _shop_mode == "rare" else 2
+	var value: int = MODE_VALUE.get(_shop_mode, 2)
 	var out: Array[String] = []
 	for humour in Catalog.HUMOURS:
 		var card_id := "%s_%d" % [humour, value]
 		if catalog.energy_cards.has(card_id):
 			out.append(card_id)
 	return out
+
+
+## One glyph per point of worth, in the humour's own mark.
+func _value_pips(humour: String, value: int, glyph_size: float) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 2)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for _i in value:
+		row.add_child(UITheme.icon(String(HUMOUR_GLYPHS[humour]), glyph_size))
+	return row
 
 
 func _owned_count(card_id: String) -> int:
@@ -350,11 +385,11 @@ func _refresh_shop() -> void:
 func _build_offer_list() -> void:
 	var wrap := 488.0
 	var title := UITheme.measured_label(
-		Strings.lines("exchange.goods." + _shop_mode)[0], 32, wrap,
+		Strings.lines("exchange.goods." + _shop_mode)[0], 36, wrap,
 		UITheme.display_font())
 	_shop_box.add_child(title)
 	_shop_box.add_child(UITheme.measured_label(
-		Strings.line("exchange.popup.on_offer"), 22, wrap,
+		Strings.line("exchange.popup.on_offer"), 26, wrap,
 		UITheme.smallcaps_font(), UITheme.INK_SOFT))
 	var row_index := 0
 	for card_id in _offered_cards():
@@ -364,8 +399,8 @@ func _build_offer_list() -> void:
 		row_index += 1
 
 
-## One card on the counter: glyph, its NAME (the same name the battle and the
-## spool use — owner 2026-08-08), what you hold of it, and the price.
+## One card on the counter: its worth drawn as pips, its NAME (the same name
+## the battle and the spool use), what you hold of it, and the price large.
 func _offer_row(card_id: String) -> Control:
 	var def: Dictionary = catalog.energy_cards[card_id]
 	var humour := String(def["humour"])
@@ -375,19 +410,24 @@ func _offer_row(card_id: String) -> Control:
 	row.add_theme_constant_override("separation", 10)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	plate.add_child(row)
-	var glyph := UITheme.icon(String(HUMOUR_GLYPHS[humour]), 48.0)
-	glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(glyph)
+	# Three pips of reserved width always, so the names column lines up row
+	# to row and a one-pip card is VISIBLY lighter than a three-pip one.
+	var pips := _value_pips(humour, int(def["value"]), 36.0)
+	pips.custom_minimum_size = Vector2(3 * 38.0, 40.0)
+	pips.alignment = BoxContainer.ALIGNMENT_BEGIN
+	pips.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(pips)
 	var text := VBoxContainer.new()
 	text.add_theme_constant_override("separation", 2)
 	text.alignment = BoxContainer.ALIGNMENT_CENTER
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(text)
-	text.add_child(UITheme.measured_label(String(def["name"]), 26, 250.0,
+	text.add_child(UITheme.measured_label(String(def["name"]), 30, 220.0,
 		UITheme.display_font()))
 	text.add_child(UITheme.measured_label(
-		"%s %d" % [Catalog.humour_name(humour), int(def["value"])], 19, 250.0,
+		Strings.line("exchange.popup.worth", [int(def["value"]),
+			Catalog.humour_name(humour)]), 22, 220.0,
 		UITheme.body_font(), UITheme.INK_SOFT))
 	var side := VBoxContainer.new()
 	side.add_theme_constant_override("separation", 2)
@@ -395,17 +435,17 @@ func _offer_row(card_id: String) -> Control:
 	side.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(side)
 	var price := UITheme.measured_label(
-		Strings.line("exchange.popup.price", [_cost(_shop_mode)]), 22, 130.0,
-		UITheme.body_font(), UITheme.ACCENT_WARM)
+		Strings.line("exchange.popup.price", [_cost(_shop_mode)]), 32, 140.0,
+		UITheme.display_font(), UITheme.ACCENT_WARM)
 	price.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	side.add_child(price)
 	var owned := _owned_count(card_id)
-	var held := UITheme.measured_label(
-		Strings.line("exchange.popup.you_hold", [owned]) if owned > 0
-		else Strings.line("exchange.popup.you_hold_none"), 18, 130.0,
-		UITheme.italic_font(), UITheme.INK_SOFT)
-	held.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	side.add_child(held)
+	if owned > 0:
+		var held := UITheme.measured_label(
+			Strings.line("exchange.popup.you_hold", [owned]), 20, 140.0,
+			UITheme.italic_font(), UITheme.INK_SOFT)
+		held.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		side.add_child(held)
 	UITheme.tap_layer(plate).pressed.connect(_show_card_detail.bind(card_id))
 	return plate
 
@@ -423,48 +463,62 @@ func _build_card_detail(card_id: String) -> void:
 	var def: Dictionary = catalog.energy_cards[card_id]
 	var humour := String(def["humour"])
 	var wrap := 488.0
-	var glyph := UITheme.icon(String(HUMOUR_GLYPHS[humour]), 84.0)
-	glyph.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	_shop_box.add_child(glyph)
-	var name_label := UITheme.measured_label(String(def["name"]), 34, wrap,
+	# Worth drawn, not implied: one big glyph per point, so a second reads as
+	# TWO of something and a third as three (owner 2026-08-09).
+	var pips := _value_pips(humour, int(def["value"]), 64.0)
+	pips.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_shop_box.add_child(pips)
+	var name_label := UITheme.measured_label(String(def["name"]), 40, wrap,
 		UITheme.display_font())
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_shop_box.add_child(name_label)
 	var worth := UITheme.measured_label(Strings.line("exchange.popup.worth",
-		[int(def["value"]), Catalog.humour_name(humour)]), 24, wrap,
+		[int(def["value"]), Catalog.humour_name(humour)]), 30, wrap,
 		UITheme.body_font())
 	worth.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_shop_box.add_child(worth)
 	var nature := String(catalog.world.get("weft", {}).get("humours", {}) \
 		.get(humour, {}).get("nature", ""))
 	if nature != "":
-		_shop_box.add_child(UITheme.measured_label(nature, 22, wrap,
+		_shop_box.add_child(UITheme.measured_label(nature, 26, wrap,
 			UITheme.italic_font(), UITheme.INK_SOFT))
 	var owned := _owned_count(card_id)
-	var held := UITheme.measured_label(
-		Strings.line("exchange.popup.you_hold", [owned]) if owned > 0
-		else Strings.line("exchange.popup.you_hold_none"), 20, wrap,
-		UITheme.italic_font(), UITheme.INK_SOFT)
-	held.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_shop_box.add_child(held)
+	if owned > 0:
+		var held := UITheme.measured_label(
+			Strings.line("exchange.popup.you_hold", [owned]), 24, wrap,
+			UITheme.italic_font(), UITheme.INK_SOFT)
+		held.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_shop_box.add_child(held)
+	_shop_box.add_child(_price_line(_cost(_shop_mode)))
 	_shop_box.add_child(_shop_buttons(_cost(_shop_mode)))
 
 
 func _build_tonic_detail() -> void:
 	var wrap := 488.0
 	var title := UITheme.measured_label(
-		Strings.lines("exchange.goods.tonic")[0], 34, wrap,
+		Strings.lines("exchange.goods.tonic")[0], 40, wrap,
 		UITheme.display_font())
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_shop_box.add_child(title)
 	_shop_box.add_child(UITheme.measured_label(
-		Strings.lines("exchange.goods.tonic")[1], 22, wrap,
+		Strings.lines("exchange.goods.tonic")[1], 26, wrap,
 		UITheme.italic_font(), UITheme.INK_SOFT))
 	_shop_box.add_child(UITheme.measured_label(
 		Strings.line("exchange.popup.tonic_rule",
-			[_tonic_hp(), _max_hp_cap(), int(profile["max_hp"])]), 24, wrap,
+			[_tonic_hp(), _max_hp_cap(), int(profile["max_hp"])]), 30, wrap,
 		UITheme.body_font()))
+	_shop_box.add_child(_price_line(_cost("tonic")))
 	_shop_box.add_child(_shop_buttons(_cost("tonic")))
+
+
+## The price in huge letters (owner 2026-08-09): the one number the decision
+## turns on, at the largest size on the panel.
+func _price_line(cost: int) -> Control:
+	var price := UITheme.measured_label(
+		Strings.line("exchange.popup.price", [cost]), 52, 488.0,
+		UITheme.display_font(), UITheme.ACCENT_WARM)
+	price.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	return price
 
 
 ## Back on the left, buy on the right — every close-up ends in the same two
@@ -473,12 +527,12 @@ func _build_tonic_detail() -> void:
 func _shop_buttons(cost: int) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
-	var back := UITheme.dark_button(Strings.line("exchange.popup.back"), 24,
+	var back := UITheme.dark_button(Strings.line("exchange.popup.back"), 26,
 		Vector2(0, UITheme.BUTTON_HEIGHT))
 	back.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	back.pressed.connect(_shop_back)
 	row.add_child(back)
-	var buy := UITheme.amber_button(Strings.line("exchange.popup.buy", [cost]), 26)
+	var buy := UITheme.amber_button(Strings.line("exchange.popup.buy", [cost]), 30)
 	buy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	buy.disabled = int(profile.get("gleam", 0)) < cost
 	buy.pressed.connect(_buy_current)

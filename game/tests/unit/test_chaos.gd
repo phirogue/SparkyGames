@@ -36,11 +36,11 @@ func test_illegal_commands_are_refused_without_side_effects() -> void:
 	assert_eq(violations.size(), 0, "illegal commands leaked: %s" % str(violations))
 
 
-## Degenerate strategies: never firing, throwing everything away, feeding a
-## powered skill forever, giving up every turn, and doing nothing at all.
+## Degenerate strategies: never firing, feeding a powered skill forever,
+## giving up every turn, purring into a wall, and doing nothing at all.
 func test_degenerate_strategies_survive_the_rules() -> void:
-	var violations := _sweep(["hoarder", "discarder", "overcharger",
-		"concentrator", "instinct_only", "pacifist"])
+	var violations := _sweep(["hoarder", "overcharger",
+		"concentrator", "instinct_only", "pacifist", "purrer"])
 	assert_eq(violations.size(), 0, "a degenerate strategy broke: %s" % str(violations))
 
 

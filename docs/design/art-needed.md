@@ -35,23 +35,32 @@ own `ref_` anchor the moment it exists (library rule 4).
 wanted yet — read `docs/design/the-unraveler.md` before prompting him, because
 how he is drawn is a fair-play matter rather than a taste one.
 
-## Chapter 1, wave 2 — the new enemies (added 2026-08-08, battles show their gaps)
+## Chapter 1, wave 2 — the back half's battles (accepted gaps, 2026-08-08)
 
-Three of the four new Chapter-1 enemies have no portrait yet and render as
-black-box placeholders in their fights (the Tallow Hound reuses
-`en_chained_dog` on purpose — the render-yards' dog IS a yard dog). Framing:
-**scene vignettes** (subject dominant, setting dissolving into wash —
-`en_chained_dog` is the reference), NOT parchment objects.
+The four back-half quests shipped with story complete; these six ids are
+referenced by content and accepted as gaps in
+`docs/architecture/known-gaps.json` until this wave is generated. Backdrops
+are 720 battle plates; enemies are scene vignettes (subject dominant, setting
+dissolving into wash — `en_chained_dog` is the framing reference).
 
 | id | what it is |
 |---|---|
-| `en_candle_golem` | The Chandlers' night staff: a poured man of votive wax, lit wick where the thinking would go. On shift, not angry. |
-| `en_the_drowned` | One of the Drowned: dry-footed on a wet street, never fast, always arriving. |
-| `en_the_tallowman` | The Tallowman, Wick's bodyguard: a gentle-voiced tower of votive wax. Boss-sized (32 hp) — the fight of the chapter. |
-| `bg_guildhall` | Environment: the Chandlers' guildhall. |
-| `bg_mereside` | Environment: Mereside, the wet street the Drowned arrive on. |
-| `bg_wickrow` | Environment: Wickrow under ward-light. |
-| `npc_pigeon_postmaster` | The Pigeon Postmaster (portrait — check species in testimonies.json before prompting). |
+| `bg_wickrow` | Wickrow at night: crooked shopfronts, a ward-flame in every doorway, warm bee-stamped lanterns against deep dark |
+| `bg_mereside` | the Mere-edge in fog: drowned terraces stepping down into black water, one warded warehouse wall |
+| `bg_guildhall` | the Chandlers' Guildhall interior: ten thousand lit votives banked like a chapel, heat-shimmer, one broad stair |
+| `en_candle_golem` | a poured man of votive wax, lit wick where the thinking would go, drips like slow epaulettes |
+| `en_the_drowned` | one of the Mere's people: dry-footed on wet cobbles, waterlogged clothes hanging calm, patient posture, no hurry anywhere in it |
+| `en_the_tallowman` | Wick's bodyguard: a gentle-faced tower of votive wax, hands like warming pans, votive flames guttering in its shoulders |
+| ~~`npc_pigeon_postmaster`~~ | **WIRED 2026-08-08, no generation needed** — the master was already in the library, listed UNWIRED; the Perch testimony now draws him. (Species checked: a **pigeon**, per testimonies.json — the same check that caught Merrow being a cat.) |
+
+Story-only reuse (no gap): `ev_docket` doubles as the strongbox counterfoil,
+`en_chained_dog` as the tallow hound (the render-yards' dog IS a yard dog),
+`bg_hollow_court` as the counting-house interior and `bg_needle_lane_wrong`
+as the Wickhouse interior — neither of the last two is ever rendered behind
+a battle. Also wanted, not blocking:
+two Hollow Court desk variants (the cat-sized chair; the lamp turned up) so
+the Clerk's escalation is seen as well as read — those pages currently drop
+their portrait instead (law 15).
 
 Also drawn 2026-08-07: `sc_hollow_stairs`, for the new Hollow Court beat ("The
 stairs up are longer than the fall down"). Ash is a bare silhouette from
@@ -60,17 +69,18 @@ after `sc_collar`, so a neckerchief either way would be wrong half the time
 (art rule 6). The first take had one and was rejected; it is in
 `assets/archive/superseded/sc_hollow_stairs__2.png`.
 
-**There are now no missing art references at all** — `python tools/kb_check.py`
-reports 44 ids present and imported, and `docs/architecture/known-gaps.json`
-is empty.
+**The outstanding set is exactly wave 2's six ids** (2026-08-08) —
+`python tools/kb_check.py` prints them as accepted gaps on every run and
+passes; `docs/architecture/known-gaps.json` holds the acceptance and this
+file holds the work.
 
 **This list is now checked mechanically.** `python tools/kb_check.py` fails
 while any id named in `game/data/*.json` or `game/story/*.json` has no file in
-`game/assets/`, so a gap cannot quietly stop being noticed — and it also
-catches the opposite trap (a file that exists but was never imported, which
-renders exactly as black as one that does not, law 11). The six ids above are
-the outstanding set as of 2026-08-06; `npc_shift_boss` was found by that check
-and had never been written down anywhere.
+`game/assets/` (unless deliberately accepted in known-gaps.json), so a gap
+cannot quietly stop being noticed — and it also catches the opposite trap (a
+file that exists but was never imported, which renders exactly as black as
+one that does not, law 11). `npc_shift_boss` was found by that check and had
+never been written down anywhere.
 
 **Read `docs/design/the-unraveler.md` before prompting Bodkin.** How he is
 drawn is a fair-play matter, not a taste one.

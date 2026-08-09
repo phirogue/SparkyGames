@@ -15,6 +15,45 @@ const STARTER_DECK := [
 	"mysticism_1", "mysticism_1", "mysticism_1",
 ]
 
+## What the opening arc leaves in the spool: the starter fifteen plus
+## sharpen_the_claws' growth cards (ferocity_2, shadow_1).
+const BACKHALF_DECK := [
+	"ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1",
+	"guile_1", "guile_1", "guile_1",
+	"shadow_1", "shadow_1", "shadow_1", "shadow_1",
+	"mysticism_1", "mysticism_1", "mysticism_1",
+	"ferocity_2", "shadow_1",
+]
+
+## …and the Wickhouse adds Her Stitching (the l4 growth) before the boss.
+const WICKHOUSE_DECK := [
+	"ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1",
+	"guile_1", "guile_1", "guile_1",
+	"shadow_1", "shadow_1", "shadow_1", "shadow_1",
+	"mysticism_1", "mysticism_1", "mysticism_1",
+	"ferocity_2", "shadow_1", "mysticism_2",
+]
+
+## FOCUSED BUYER BUILDS (owner direction 2026-08-08): players concentrate
+## their gleam, they do not spread it. The gleam model (balance-notes Pass 5)
+## says a core-only player banks ~90 spendable by the Drowned and ~160 by the
+## boss; prices are 12 a second, 30 a third, 25 a tonic (rules.json), and
+## re-spooling at home is free down to the 10-card floor. So the reference
+## focused build is: three seconds + one third of YOUR humour + one tonic,
+## spool thinned to 10 around it. Claw feeds Pounce/Swat; Moonlight is wild
+## and feeds everything — but Wickrow's ward-light taxes it +1, which is the
+## district rule doing its job against the obvious best build.
+const CLAW_FOCUS_DECK := [
+	"ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1",
+	"ferocity_2", "ferocity_2", "ferocity_2", "ferocity_3",
+	"shadow_1", "shadow_1",
+]
+const MOON_FOCUS_DECK := [
+	"mysticism_1", "mysticism_1", "mysticism_1",
+	"mysticism_2", "mysticism_2", "mysticism_2", "mysticism_3",
+	"shadow_1", "shadow_1", "ferocity_1",
+]
+
 ## Tutorial-stage scenarios mirror what the player actually has at that
 ## point: 10 max HP at level 1, loadout max 4 with Scratch.
 var scenarios := [
@@ -33,6 +72,37 @@ var scenarios := [
 	# The coat assumes the garden route came first: Swat (its unlock) is the
 	# cheap sustained damage that makes aggressive kits viable here.
 	{"name": "empty coat (quest)", "enemy": "the_empty_coat", "skills": ["scratch", "swat", "slink", "purr"], "hp": 12},
+	# ------------------------------------------------------------ Chapter 1 back half
+	# The back half arrives after the whole opening arc (law 21: test the
+	# fight that ships): +2 max hp and two growth cards from sharpen_the_claws,
+	# a full five-wide tray. Wickrow fights carry the ward-light rule
+	# (Moonlight +1 / Guile -1); Mereside carries the fog (Shadow -1).
+	{"name": "tallow hound (ch1)", "enemy": "tallow_hound",
+		"skills": ["scratch", "pounce", "swat", "slink", "purr"], "hp": 12,
+		"deck": BACKHALF_DECK, "environment": {"cost_mod": {"mysticism": 1, "guile": -1}}},
+	{"name": "candle golem (ch1)", "enemy": "candle_golem",
+		"skills": ["scratch", "pounce", "swat", "slink", "purr"], "hp": 12,
+		"deck": BACKHALF_DECK, "environment": {"cost_mod": {"mysticism": 1, "guile": -1}}},
+	{"name": "the drowned (no buys)", "enemy": "the_drowned",
+		"skills": ["scratch", "pounce", "swat", "slink", "purr"], "hp": 12,
+		"deck": BACKHALF_DECK, "environment": {"cost_mod": {"shadow": -1}}},
+	{"name": "the drowned (claw)", "enemy": "the_drowned",
+		"skills": ["scratch", "pounce", "swat", "slink", "purr"], "hp": 14,
+		"deck": CLAW_FOCUS_DECK, "environment": {"cost_mod": {"shadow": -1}}},
+	{"name": "the drowned (moon)", "enemy": "the_drowned",
+		"skills": ["scratch", "pounce", "swat", "slink", "purr"], "hp": 14,
+		"deck": MOON_FOCUS_DECK, "environment": {"cost_mod": {"shadow": -1}}},
+	# The boss three ways: the floor (no purchases, the case-file's "beatable
+	# with no side quests" check), and the two focused buyers.
+	{"name": "tallowman (no buys)", "enemy": "the_tallowman",
+		"skills": ["scratch", "pounce", "swat", "slink", "shelf_justice"], "hp": 12,
+		"deck": WICKHOUSE_DECK, "environment": {"cost_mod": {"mysticism": 1, "guile": -1}}},
+	{"name": "tallowman (claw)", "enemy": "the_tallowman",
+		"skills": ["scratch", "pounce", "swat", "slink", "shelf_justice"], "hp": 14,
+		"deck": CLAW_FOCUS_DECK, "environment": {"cost_mod": {"mysticism": 1, "guile": -1}}},
+	{"name": "tallowman (moon)", "enemy": "the_tallowman",
+		"skills": ["scratch", "pounce", "swat", "slink", "shelf_justice"], "hp": 14,
+		"deck": MOON_FOCUS_DECK, "environment": {"cost_mod": {"mysticism": 1, "guile": -1}}},
 ]
 
 var bots := ["brawler", "defender", "stalker", "random"]
@@ -63,7 +133,7 @@ func _run_cell(scenario: Dictionary, bot: String) -> void:
 		var state := CombatState.create(catalog, 1000 + i * 7919, {
 			"player_hp": scenario["hp"],
 			"player_max_hp": scenario["hp"],
-			"deck": STARTER_DECK,
+			"deck": scenario.get("deck", STARTER_DECK),
 			"skills": scenario["skills"].filter(func(s): return s != "scratch"),
 			"enemy": scenario["enemy"],
 			"environment": scenario.get("environment", {}),

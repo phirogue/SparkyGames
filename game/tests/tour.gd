@@ -309,7 +309,7 @@ func _tour_battle(screen: Control, fresh: bool) -> void:
 		return
 	if screen.card_overlay != null and screen.card_overlay.visible:
 		await _shot("battle_card_detail")
-		screen._on_card_discard()
+		screen._close_card()
 		return
 	if screen.concentrate_overlay != null and screen.concentrate_overlay.visible:
 		await _shot("battle_concentrate")

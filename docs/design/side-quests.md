@@ -28,7 +28,13 @@ wings (art, not text).
 *Feeds:* memory-moth bestiary; grief theme rhymes with Ash's own; the wax
 trail quietly implicates a Chandler in Chapter 1's case.
 
-## 2. The Pigeon Ballot *(Ch. 1 — rooftops)*
+## 2. The Pigeon Ballot *(Ch. 1 — rooftops)* — **BUILT 2026-08-08**
+
+*(Shipped as `the_pigeon_ballot` in quests.json: seed-trail crossing + a
+Testimony before the Perch — the pressed witness is the incumbent
+Postmaster, whose pride breaks on the cart docket, so the quest gates on
+holding it. The murder-night seed lands either way; Toby's exposure needs
+the win.)*
 
 **Board card:** "The pigeons are holding an election. Someone is stuffing the
 ballot. The ballot is a hat."
@@ -44,7 +50,10 @@ eating even one voter voids the result — the pigeons checked precedent).
 *Feeds:* unlocks pigeon rumor system (quest hints); the "particular night"
 is the murder night — a genuine case lead hidden in a comedy quest.
 
-## 3. What the Gargoyle Saw *(Ch. 1–2 — Wickrow eaves)*
+## 3. What the Gargoyle Saw *(Ch. 1–2 — Wickrow eaves)* — **DEFERRED to Ch2**
+*(2026-08-08: needs the escort module, which Phase 0 deferred. The Moth
+Collector (#1) and the Fish-Giver (#10) also remain open for Ch1's
+post-ship side pool; neither blocks the chapter.)*
 
 **Board card:** "Sootbeard has watched one street for 300 years. Last month,
 he blinked. He wants to file a report."
@@ -97,7 +106,12 @@ matron).
 no-combat quest pattern; her exit line is a clue — she was killed by the same
 half-second that made Sootbeard blink.
 
-## 6. The Milk Debt *(Ch. 1 — the Shambles)*
+## 6. The Milk Debt *(Ch. 1 — the Shambles)* — **BUILT 2026-08-08**
+
+*(Shipped as `the_milk_debt` in quests.json: Court of Whiskers summons →
+the escrow strongroom → the interest-clause insight → an Unpicking of the
+purr-knot, no combat anywhere in it. The Gentleman never appears — a blank
+calling card does, which is worse. Tansy follows Ash home.)*
 
 **Board card:** "A kitten sold her purr to the Quiet Gentleman. The Court of
 Whiskers considers this Everyone's Problem."

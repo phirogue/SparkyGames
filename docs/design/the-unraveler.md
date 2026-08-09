@@ -101,6 +101,13 @@ Every hard constraint in the docs points the same way:
   touches thread on-screen. Hindsight rule: **every Bodkin line must be
   literally true.** He is fond of Ash — the one thing he will not unpick;
   that fondness is WHY the player's helper keeps being helpful.
+  *SHIPPED 2026-08-08:* he enters in `creditors` (the first Wickrow lead
+  — "L1" of the built chapter), hauling Ash out of the watch's path after
+  the yard fight, and reappears on the sea-wall in `the_ward_that_failed`
+  ("I don't go in there" — true). Shipped lines audited against this
+  rule, including "I knew your witch to look at. Everyone did." No
+  portrait art yet, deliberately (see art-needed.md — read THIS DOC
+  before prompting him).
 - **Ch2 — the method narrows** (fabric + magic clues): the technique ages
   40 years (Understudy), the third thread hums over Gravamen, the
   Gentleman's brokerage surfaces (suspect #2), the Circuit's seatless
@@ -128,12 +135,14 @@ Every hard constraint in the docs points the same way:
 | The Mere | "suspect" the player can't accuse — becomes the antagonist reveal | everything |
 | Bodkin | never a suspect until the stitch lesson | the murder |
 
-**Brindle stays clean.** His shipped half-second pause at the seal is the
-docket's cart-slot seal: he fenced the blank it was forged from, years
-ago, as a favor — to a client he never met. Guilty of fencing, terrified
-of the connection, innocent of the rest. (The pause "reads differently in
-hindsight, never lies" — fair-play rule satisfied; and the shop NPC the
-player uses daily is not a trick, which protects the Exchange's charm.)
+**Brindle stays clean.** Her half-second pause at the seal (shipped
+2026-08-08, in `creditors` — she pauses reading the DOCKET's cart-slot
+seal, not the candle stub) is this: she fenced the blank it was forged
+from, years ago, as a favor — to a client she never met. Guilty of
+fencing, terrified of the connection, innocent of the rest. (The pause
+"reads differently in hindsight, never lies" — fair-play rule satisfied;
+and the shop NPC the player uses daily is not a trick, which protects the
+Exchange's charm. Brindle is *she* everywhere in game text.)
 
 ## Consequences for content already shipped
 

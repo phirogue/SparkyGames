@@ -1,0 +1,19 @@
+{
+  "comment": "The Case Board itself, mid-case, opened directly. Same world-state as ch1_case_open (two things found, threads strung, a knot owed, the Chandlers annoyed) but launching straight onto the board instead of the Mantel -- exists so the board can be REVIEWED with content on it: a dev launch's throwaway profile always photographed the empty board, which proves the empty state and nothing about the rendering.",
+  "profile": {
+    "prologue_done": true,
+    "gleam": 34,
+    "skills": ["scratch", "pounce", "slink", "purr", "loaf"],
+    "case": {
+      "active": "wax_and_wick",
+      "evidence": ["candle_stub", "wick_ledger"],
+      "leads_done": ["l1", "l2"]
+    },
+    "standing": {
+      "chandlers": -3,
+      "lamplighters": 2
+    },
+    "favors": ["lamplighters_knot"]
+  },
+  "launch": "case"
+}

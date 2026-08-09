@@ -41,7 +41,6 @@
     "walked_in": "Walked in. Sometimes the front door is the trick.",
     "fed": "Fed %s to %s.",
     "used": "Ash: %s.",
-    "discarded": "Discarded %s. Gone till home.",
     "concentrate": "Ash stares at nothing. A %s comes back — next turn.",
     "enemy_move": "%s: %s%s",
     "sunbeam": "A sunbeam. One spent card returns, warm.",
@@ -150,27 +149,31 @@
     "concentrate_desc": "Give up the whole turn to will one spent energy back onto the TOP OF THE DECK — you draw it next turn, not now. The enemy still moves. Twice a fight.",
     "concentrate_label": "Concentrate ×%d",
     "card_title": "%s — worth %d",
-    "card_desc": "Energy powers your actions — tap an action card below to feed it. Discard this and it is gone until you rest at home."
+    "card_desc": "Energy powers your actions — tap an action card below to feed this to it. Spent energy is gone until you rest at home."
   },
   "exchange": {
     "greeting": "'Everything shines to somebody, pet. Have a look at what fell off the world this week.'",
-    "hint": "She waits. Tap a thing on the shelf and she will tell you about it.",
     "spool_heading": "On your spool",
     "goods": {
+      "plain": [
+        "A plain card",
+        "An honest first of any humour."
+      ],
       "add": [
         "A card for the deck",
-        "A solid second of any humour. Fell off a windowsill."
+        "A second — twice a plain card."
       ],
       "rare": [
         "The good shelf",
-        "Thirds. She keeps them under the counter, wrapped."
+        "Thirds, wrapped. Three in one."
       ],
       "tonic": [
         "A tonic",
-        "Two more lives' worth of stubbornness. Tastes of pond."
+        "A swallow of health. Tastes of pond."
       ]
     },
     "patter": {
+      "plain": "'The everyday stuff. The city runs on it.'",
       "add": "'An appetite for what, exactly?'",
       "rare": "'Ah. The good shelf. For a discerning paw.'",
       "no_more_tonic": "'You are one cat. There are limits. That was the last one.'",
@@ -182,12 +185,11 @@
     "popup": {
       "on_offer": "On offer",
       "you_hold": "You hold %d",
-      "you_hold_none": "None on your spool yet",
       "price": "%d gleam",
       "buy": "Buy — %d gleam",
       "back": "Put it back",
       "worth": "Worth %d %s when spent.",
-      "tonic_rule": "%d more lives, up to a ceiling of %d. He carries %d now.",
+      "tonic_rule": "%d more health, up to a ceiling of %d. He stands at %d now.",
       "spend_title": "Spend it?",
       "spend_body": "%s, for %d gleam. She is already reaching for it.",
       "spend_yes": "Spend it",
