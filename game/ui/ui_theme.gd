@@ -126,6 +126,45 @@ static func content_region(texture: Texture2D, key: String) -> Rect2:
 	return region
 
 
+## The transparent opening inside a frame texture's opaque border, in the
+## texture's own pixel coordinates. Scanned once from the alpha channel
+## through the frame's centre (law: never trust generated textures'
+## geometry — the portrait frame's painted wood floats in transparent
+## padding AND encloses a hole, and both have to be measured, not guessed).
+static func frame_aperture(id: String) -> Rect2:
+	var cache_key := "aperture:" + id
+	if _cache.has(cache_key):
+		return _cache[cache_key]
+	var texture := tex(id)
+	if texture == null:
+		return Rect2()
+	var img := texture.get_image()
+	var region := content_region(texture, id)
+	var cx := int(region.position.x + region.size.x / 2.0)
+	var cy := int(region.position.y + region.size.y / 2.0)
+	var x0 := cx
+	while x0 - 1 > region.position.x and img.get_pixel(x0 - 1, cy).a <= 0.2:
+		x0 -= 1
+	var x1 := cx
+	while x1 + 1 < region.end.x - 1 and img.get_pixel(x1 + 1, cy).a <= 0.2:
+		x1 += 1
+	var y0 := cy
+	while y0 - 1 > region.position.y and img.get_pixel(cx, y0 - 1).a <= 0.2:
+		y0 -= 1
+	var y1 := cy
+	while y1 + 1 < region.end.y - 1 and img.get_pixel(cx, y1 + 1).a <= 0.2:
+		y1 += 1
+	var aperture := Rect2(x0, y0, x1 - x0 + 1, y1 - y0 + 1)
+	# A texture with no real hole (or an opaque centre) is not a frame;
+	# fall back to a window 12% inside the opaque bounds.
+	if aperture.size.x < region.size.x * 0.2 or aperture.size.y < region.size.y * 0.2:
+		aperture = region.grow_individual(
+			-region.size.x * 0.12, -region.size.y * 0.12,
+			-region.size.x * 0.12, -region.size.y * 0.12)
+	_cache[cache_key] = aperture
+	return aperture
+
+
 ## The texture cropped to its opaque content, so a 56px icon box shows a
 ## 56px glyph instead of a glyph drowning in its own padding.
 static func cropped_tex(id: String) -> Texture2D:

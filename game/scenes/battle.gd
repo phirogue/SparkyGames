@@ -752,18 +752,12 @@ func _build_ui() -> void:
 	rule_card.custom_minimum_size = Vector2(RULE_CARD_WIDTH, 0)
 	header.add_child(rule_card)
 	rule_plate = rule_card
-	var rule_label := Label.new()
-	rule_label.text = environment_def.get("rule_text", "")
-	rule_label.add_theme_font_size_override("font_size", 20)
-	rule_label.add_theme_color_override("font_color", UITheme.INK)
-	rule_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# Sized from a ladder (owner 2026-08-09: "make the text in the top right
+	# corner a bit bigger"): a short rule renders at 24, a long one steps
+	# down until it fits the header's fixed box instead of growing the zone.
+	var rule_label := UITheme.fitted_label(environment_def.get("rule_text", ""),
+		[24, 22, 20, 18], Vector2(RULE_CARD_WIDTH - 32.0, ZONE_HEADER - 32.0))
 	rule_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	# Label width is pinned EQUAL to the measured wrap width (law #2): the
-	# panel's flat stylebox has 16px margins each side.
-	var rule_wrap := RULE_CARD_WIDTH - 32.0
-	var rule_measured := UITheme.measure_text(
-		rule_label.text, UITheme.body_font(), 20, rule_wrap)
-	rule_label.custom_minimum_size = Vector2(rule_wrap, rule_measured.y + 4)
 	rule_card.add_child(rule_label)
 
 	# --- Zone B: opponent -------------------------------------------------
@@ -1193,24 +1187,40 @@ func _framed_portrait(image_id: String, description: String) -> Control:
 	holder.custom_minimum_size = PORTRAIT_SIZE
 	var art := UITheme.art_or_placeholder(image_id, description)
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	# Frame-art insets scale with the frame (base 38/36/38/52 at 300x366) —
-	# per AXIS, since the frame is stretched wider than it is tall now.
-	var sx := PORTRAIT_SIZE.x / 300.0
-	var sy := PORTRAIT_SIZE.y / 366.0
-	art.set_offset(SIDE_LEFT, 38 * sx)
-	art.set_offset(SIDE_TOP, 36 * sy)
-	art.set_offset(SIDE_RIGHT, -38 * sx)
-	art.set_offset(SIDE_BOTTOM, -52 * sy)
+	var frame := UITheme.tex("ui/ui_frame_portrait")
+	if frame != null:
+		# The frame texture floats in transparent padding (a whole empty band
+		# below the drawn wood), so stretched raw it ended two finger-widths
+		# above the image's bottom edge (owner 2026-08-09: "the image of the
+		# opponent is a little bigger than the frame it is in"). Law 22: the
+		# frame is drawn CROPPED to its opaque bounds so the visible wood
+		# fills the holder exactly, and the art window comes from the
+		# MEASURED aperture inside it, tucked a few px under the border.
+		var opaque := UITheme.content_region(frame, "ui/ui_frame_portrait")
+		var aperture := UITheme.frame_aperture("ui/ui_frame_portrait")
+		var sx := PORTRAIT_SIZE.x / opaque.size.x
+		var sy := PORTRAIT_SIZE.y / opaque.size.y
+		var tuck := 6.0
+		art.set_offset(SIDE_LEFT, (aperture.position.x - opaque.position.x) * sx - tuck)
+		art.set_offset(SIDE_TOP, (aperture.position.y - opaque.position.y) * sy - tuck)
+		art.set_offset(SIDE_RIGHT, -(opaque.end.x - aperture.end.x) * sx + tuck)
+		art.set_offset(SIDE_BOTTOM, -(opaque.end.y - aperture.end.y) * sy + tuck)
+	else:
+		# No frame texture (bare dev checkout): the old measured insets.
+		art.set_offset(SIDE_LEFT, 38 * PORTRAIT_SIZE.x / 300.0)
+		art.set_offset(SIDE_TOP, 36 * PORTRAIT_SIZE.y / 366.0)
+		art.set_offset(SIDE_RIGHT, -38 * PORTRAIT_SIZE.x / 300.0)
+		art.set_offset(SIDE_BOTTOM, -52 * PORTRAIT_SIZE.y / 366.0)
 	if art is TextureRect:
 		art.clip_contents = true
 	holder.add_child(art)
-	var frame := UITheme.tex("ui/ui_frame_portrait")
 	if frame != null:
 		var frame_rect := TextureRect.new()
-		frame_rect.texture = frame
+		frame_rect.texture = UITheme.cropped_tex("ui/ui_frame_portrait")
 		frame_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		frame_rect.stretch_mode = TextureRect.STRETCH_SCALE
 		frame_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+		frame_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		holder.add_child(frame_rect)
 	return holder
 
@@ -1536,12 +1546,15 @@ func _skill_button(skill_id: String) -> Button:
 		uses.add_theme_font_size_override("font_size", 32)
 		uses.add_theme_color_override("font_color",
 			UITheme.INK if charges_left > 0 else Color("8a2f22"))
-		uses.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-		uses.set_offset(SIDE_LEFT, -54)
-		uses.set_offset(SIDE_RIGHT, -6)
+		# Top-LEFT, not top-right: the fan overlaps each card's right edge
+		# with its neighbour, and a count you cannot see is a count that
+		# does not exist (owner rule: this number matters at arm's length).
+		uses.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		uses.set_offset(SIDE_LEFT, 8)
+		uses.set_offset(SIDE_RIGHT, 62)
 		uses.set_offset(SIDE_TOP, 2)
-		uses.set_offset(SIDE_BOTTOM, 32)
-		uses.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		uses.set_offset(SIDE_BOTTOM, 34)
+		uses.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 		uses.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(uses)
 
@@ -1643,9 +1656,11 @@ func _open_modal(modal_overlay: Control, panel: Control) -> void:
 	if not modal_overlay.visible:
 		return  # closed before it finished appearing
 	panel.pivot_offset = panel.size / 2.0
+	# Durations doubled across every animation here (owner 2026-08-09:
+	# "run for just a little bit longer... so they are easier to see").
 	var tween := create_tween().set_parallel()
-	tween.tween_property(modal_overlay, "modulate:a", 1.0, 0.16)
-	tween.tween_property(panel, "scale", Vector2.ONE, 0.24) \
+	tween.tween_property(modal_overlay, "modulate:a", 1.0, 0.32)
+	tween.tween_property(panel, "scale", Vector2.ONE, 0.48) \
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
@@ -1656,8 +1671,8 @@ func _close_modal(modal_overlay: Control, panel: Control) -> void:
 	var seq: int = _modal_seq[modal_overlay]
 	panel.pivot_offset = panel.size / 2.0
 	var tween := create_tween().set_parallel()
-	tween.tween_property(modal_overlay, "modulate:a", 0.0, 0.12)
-	tween.tween_property(panel, "scale", Vector2(0.8, 0.8), 0.12) \
+	tween.tween_property(modal_overlay, "modulate:a", 0.0, 0.24)
+	tween.tween_property(panel, "scale", Vector2(0.8, 0.8), 0.24) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tween.chain().tween_callback(func() -> void:
 		if int(_modal_seq.get(modal_overlay, 0)) != seq:
@@ -1679,9 +1694,9 @@ func _float_text(text: String, color: Color, at_global: Vector2) -> void:
 	add_child(label)
 	label.global_position = at_global
 	var tween := create_tween().set_parallel()
-	tween.tween_property(label, "position:y", label.position.y - 64.0, 0.8) \
+	tween.tween_property(label, "position:y", label.position.y - 64.0, 1.6) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.tween_property(label, "modulate:a", 0.0, 0.8) \
+	tween.tween_property(label, "modulate:a", 0.0, 1.6) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tween.chain().tween_callback(label.queue_free)
 
@@ -1695,8 +1710,8 @@ func _anim_player_hurt(amount: int) -> void:
 	if not _booted:
 		return
 	var tween := create_tween()
-	tween.tween_property(hit_flash, "color:a", 0.3, 0.06)
-	tween.tween_property(hit_flash, "color:a", 0.0, 0.4) \
+	tween.tween_property(hit_flash, "color:a", 0.3, 0.12)
+	tween.tween_property(hit_flash, "color:a", 0.0, 0.8) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	var hp_chip: Control = status_chips.get("hp", status_plate)
 	_float_text("-%d" % amount, Color("8a2f22"),
@@ -1710,9 +1725,9 @@ func _anim_player_blocked(amount: int) -> void:
 	var guard_chip: Control = status_chips.get("guard", status_plate)
 	guard_chip.pivot_offset = guard_chip.size / 2.0
 	var tween := create_tween()
-	tween.tween_property(guard_chip, "scale", Vector2(1.25, 1.25), 0.12) \
+	tween.tween_property(guard_chip, "scale", Vector2(1.25, 1.25), 0.24) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(guard_chip, "scale", Vector2.ONE, 0.2) \
+	tween.tween_property(guard_chip, "scale", Vector2.ONE, 0.4) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	_float_text("Blocked %d" % amount, Color("3a5a7a"),
 		_control_center(guard_chip) - Vector2(48, 56))
@@ -1724,17 +1739,17 @@ func _anim_enemy_hurt(amount: int) -> void:
 		return
 	var base := enemy_art.position
 	var shake := create_tween()
-	shake.tween_property(enemy_art, "position", base + Vector2(9, -4), 0.05)
-	shake.tween_property(enemy_art, "position", base + Vector2(-8, 3), 0.05)
-	shake.tween_property(enemy_art, "position", base + Vector2(5, -2), 0.05)
-	shake.tween_property(enemy_art, "position", base, 0.06)
+	shake.tween_property(enemy_art, "position", base + Vector2(9, -4), 0.1)
+	shake.tween_property(enemy_art, "position", base + Vector2(-8, 3), 0.1)
+	shake.tween_property(enemy_art, "position", base + Vector2(5, -2), 0.1)
+	shake.tween_property(enemy_art, "position", base, 0.12)
 	var flash := ColorRect.new()
 	flash.color = Color(1.0, 0.96, 0.85, 0.4)
 	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
 	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	enemy_art.add_child(flash)
 	var fade := create_tween()
-	fade.tween_property(flash, "color:a", 0.0, 0.28)
+	fade.tween_property(flash, "color:a", 0.0, 0.56)
 	fade.tween_callback(flash.queue_free)
 	_float_text("-%d" % amount, Color("8a2f22"),
 		_control_center(enemy_art) - Vector2(24, 40))
@@ -1751,11 +1766,11 @@ func _anim_draw(card: Control, rest: Vector2) -> void:
 	card.scale = Vector2(0.5, 0.5)
 	card.modulate.a = 0.35
 	var tween := create_tween().set_parallel()
-	tween.tween_property(card, "position", rest, 0.35) \
+	tween.tween_property(card, "position", rest, 0.7) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.tween_property(card, "scale", Vector2.ONE, 0.35) \
+	tween.tween_property(card, "scale", Vector2.ONE, 0.7) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.tween_property(card, "modulate:a", 1.0, 0.28)
+	tween.tween_property(card, "modulate:a", 1.0, 0.56)
 
 
 ## A stolen card flies from the hand to the thief and fades out.
@@ -1769,11 +1784,11 @@ func _anim_steal(card_id: String) -> void:
 	var target := _control_center(enemy_art) - ghost.size / 2.0 \
 		- global_position
 	var tween := create_tween().set_parallel()
-	tween.tween_property(ghost, "position", target, 0.5) \
+	tween.tween_property(ghost, "position", target, 1.0) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-	tween.tween_property(ghost, "scale", Vector2(0.45, 0.45), 0.5) \
+	tween.tween_property(ghost, "scale", Vector2(0.45, 0.45), 1.0) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-	tween.tween_property(ghost, "modulate:a", 0.0, 0.5)
+	tween.tween_property(ghost, "modulate:a", 0.0, 1.0)
 	tween.chain().tween_callback(ghost.queue_free)
 
 

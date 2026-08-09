@@ -76,21 +76,21 @@
       "title": "Fight: the Chained Dog",
       "group": "Battles",
       "spec": "battle:prologue_dog:pounce,slink,purr",
-      "about": "Punishes careless play. Where banking and Concentrate start to matter."
+      "about": "Punishes careless play. Where Loaf and Concentrate start to matter."
     },
     {
       "name": "battle-wraith",
       "title": "Fight: a Rag-wraith",
       "group": "Battles",
-      "spec": "battle:prologue_wraith:slink,purr,loaf",
-      "about": "The three-answer puzzle: aggression dies here, defence wins."
+      "spec": "battle:prologue_wraith:pounce,slink,purr,loaf",
+      "about": "The three-answer puzzle with the full five-wide tray: aggression dies here, defence wins."
     },
     {
       "name": "battle-coat",
       "title": "Fight: the Empty Coat",
       "group": "Battles",
-      "spec": "battle:q_coat_wraith:swat,slink,purr",
-      "about": "The quest elite, with the Swat kit the garden route unlocks."
+      "spec": "battle:q_coat_wraith:swat,slink,purr,loaf",
+      "about": "The quest elite at five wide, with the Swat kit the garden route unlocks."
     },
     {
       "name": "battle-stealth",

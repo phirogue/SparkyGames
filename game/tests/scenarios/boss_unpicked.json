@@ -1,10 +1,11 @@
 {
-  "comment": "The prologue boss alone, with the full defensive kit. The Unpicked is MEANT to be survived, not beaten (balance-notes: 0% wins) — this is the scenario for checking that losing and slipping away both feel right, and that the retreat path reads correctly.",
+  "comment": "The prologue boss alone, with the full five-wide kit (owner 2026-08-09: the app fights should show a full tray). The Unpicked is MEANT to be survived, not beaten (balance-notes: 0% wins) — this is the scenario for checking that losing and slipping away both feel right, and that the retreat path reads correctly.",
   "profile": {
     "prologue_done": true,
     "max_hp": 10,
     "skills": [
       "scratch",
+      "pounce",
       "slink",
       "purr",
       "loaf"
