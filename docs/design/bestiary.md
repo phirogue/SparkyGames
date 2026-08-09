@@ -64,7 +64,7 @@ Fought in: The Night Shift (Wickrow, Under Ward-Light)
 |---|---|---|---|
 | 1 | **Scald** | `health` | 3 damage, blockable |
 | 2 | **Hold the Light** | `block` | guards itself for 4 — soaks your damage until its next move |
-| 3 | **Wax Over** | `skills / jam` | jams a random ready skill for 1 turn(s) |
+| 3 | **Wax Over** | `skills / jam` | jams a random ready skill for 1 turn(s) *(unreadable until Ash has fought it once)* |
 | 4 | **Drip** | `health` | 2 damage, blockable |
 
 **Strategy:** Averages **1.3 damage a turn** over its cycle (biggest single hit 3). Takes roughly **6 turns to bring down** at 3 damage a turn. **Jams** — bring a second answer, or a jam lands on your only one. **Guards itself** — its raised guard soaks your damage until its next move; time the big hit for the open turn.
@@ -119,7 +119,7 @@ Fought in: The Captain's Lawn (The Back Gardens)
 |---|---|---|---|
 | 1 | **Sniff About** | `hand` | steals 1 energy from your hand |
 | 2 | **Honk of Authority** | `skills / jam` | jams a random ready skill for 1 turn(s) |
-| 3 | **Regulation Peck (past the guard)** | `health / pierce` | 3 damage, **ignores block** |
+| 3 | **Regulation Peck (past the guard)** | `health / pierce` | 3 damage, **ignores block** *(unreadable until Ash has fought it once)* |
 
 **Strategy:** Averages **1.0 damage a turn** over its cycle (biggest single hit 3). Takes roughly **6 turns to bring down** at 3 damage a turn. **Pierces** — blocking is not an answer here, and a defensive kit will lose the race. **Jams** — bring a second answer, or a jam lands on your only one. **Steals energy** — play cards out rather than holding a fat hand.
 
@@ -182,7 +182,7 @@ Fought in: The Yard's Opinion (Wickrow, Under Ward-Light)
 
 > Dry-footed on a wet street. Never fast. Always arriving.
 
-**18 hp**  ·  **11 gleam**  ·  cycle of 3, repeating
+**16 hp**  ·  **11 gleam**  ·  cycle of 3, repeating
 
 Fought in: Always Arriving (The Mereside, Fog)
 
@@ -190,9 +190,9 @@ Fought in: Always Arriving (The Mereside, Fog)
 |---|---|---|---|
 | 1 | **Arriving** | `block` | guards itself for 3 — soaks your damage until its next move |
 | 2 | **Undertow** | `hand` | steals 1 energy from your hand |
-| 3 | **Cold Hands** | `health` | 5 damage, blockable |
+| 3 | **Cold Hands** | `health` | 4 damage, blockable *(unreadable until Ash has fought it 2 times)* |
 
-**Strategy:** Averages **1.7 damage a turn** over its cycle (biggest single hit 5). Takes roughly **6 turns to bring down** at 3 damage a turn. **Steals energy** — play cards out rather than holding a fat hand. **Guards itself** — its raised guard soaks your damage until its next move; time the big hit for the open turn.
+**Strategy:** Averages **1.3 damage a turn** over its cycle (biggest single hit 4). Takes roughly **6 turns to bring down** at 3 damage a turn. **Steals energy** — play cards out rather than holding a fat hand. **Guards itself** — its raised guard soaks your damage until its next move; time the big hit for the open turn.
 
 ---
 
@@ -207,7 +207,7 @@ Fought in: The Coat Itself (Needle Lane, Night)
 | Turn | Move | Target | Effect |
 |---|---|---|---|
 | 1 | **Cold Cuff** | `health` | 3 damage, blockable |
-| 2 | **Deep Pockets** | `hand` | steals 1 energy from your hand |
+| 2 | **Deep Pockets** | `hand` | steals 1 energy from your hand *(unreadable until Ash has fought it once)* |
 | 3 | **Wrap Tight** | `health` | 4 damage, blockable |
 
 **Strategy:** Averages **2.3 damage a turn** over its cycle (biggest single hit 4). Takes roughly **5 turns to bring down** at 3 damage a turn. **Steals energy** — play cards out rather than holding a fat hand.
@@ -218,19 +218,19 @@ Fought in: The Coat Itself (Needle Lane, Night)
 
 > Wick's bodyguard: a gentle-voiced tower of votive wax. It would rather you left.
 
-**32 hp**  ·  **30 gleam**  ·  cycle of 5, repeating
+**24 hp**  ·  **30 gleam**  ·  cycle of 5, repeating
 
 Fought in: An Audience of Wax (The Chandlers' Guildhall)
 
 | Turn | Move | Target | Effect |
 |---|---|---|---|
-| 1 | **Warm Regards** | `health` | 5 damage, blockable |
+| 1 | **Warm Regards** | `health` | 4 damage, blockable |
 | 2 | **A Kindly Grip** | `hand` | steals 1 energy from your hand |
-| 3 | **Reform** | `heal` | mends itself 4 |
+| 3 | **Reform** | `heal` | mends itself 2 *(unreadable until Ash has fought it once)* |
 | 4 | **Candle Discipline** | `skills / jam` | jams a random ready skill for 1 turn(s) |
-| 5 | **Hot Wax (past the guard)** | `health / pierce` | 3 damage, **ignores block** |
+| 5 | **Hot Wax (past the guard)** | `health / pierce` | 3 damage, **ignores block** *(unreadable until Ash has fought it 2 times)* |
 
-**Strategy:** Averages **1.6 damage a turn** over its cycle (biggest single hit 5). Takes roughly **11 turns to bring down** at 3 damage a turn. **Pierces** — blocking is not an answer here, and a defensive kit will lose the race. **Jams** — bring a second answer, or a jam lands on your only one. **Steals energy** — play cards out rather than holding a fat hand. **Mends itself** — every slow turn gives some of your work back.
+**Strategy:** Averages **1.4 damage a turn** over its cycle (biggest single hit 4). Takes roughly **8 turns to bring down** at 3 damage a turn. **Pierces** — blocking is not an answer here, and a defensive kit will lose the race. **Jams** — bring a second answer, or a jam lands on your only one. **Steals energy** — play cards out rather than holding a fat hand. **Mends itself** — every slow turn gives some of your work back.
 
 ---
 

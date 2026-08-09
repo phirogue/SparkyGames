@@ -16,6 +16,9 @@ const SCREENS := {
 	"res://scenes/settings_screen.gd": "SEPARATION",
 	"res://scenes/exchange_screen.gd": "SEPARATION",
 	"res://scenes/loadout_screen.gd": "SEPARATION",
+	# One template shared by all five mission minigames, so re-budgeting it
+	# re-budgets every board at once — and must still fill the page exactly.
+	"res://scenes/minigames/minigame_shell.gd": "SEPARATION",
 }
 
 

@@ -547,6 +547,29 @@ func test_enemy_guard_expires_when_it_moves() -> void:
 	assert_eq(state.enemy_block, 0, "an unspent guard does not stack across its moves")
 
 
+## Masked intents (owner 2026-08-09): a move with `masked_until: N` is
+## unreadable until Ash has finished N fights against that enemy. Purely a
+## telegraph matter — the move itself still happens as written.
+func test_masked_intents_unmask_with_familiarity() -> void:
+	var masked_intent := {"name": "Regulation Peck (past the guard)",
+		"target": "health", "amount": 3, "masked_until": 1}
+	var stranger := CombatState.create(catalog, 5, {
+		"player_hp": 10, "deck": ["shadow_1", "shadow_1", "shadow_1"],
+		"skills": [], "enemy": "garden_watch_captain",
+	})
+	assert_true(stranger.intent_masked(masked_intent),
+		"a first meeting cannot read the trick move")
+	assert_true(not stranger.intent_masked({"target": "health", "amount": 2}),
+		"ordinary moves read from the first fight")
+	var veteran := CombatState.create(catalog, 5, {
+		"player_hp": 10, "deck": ["shadow_1", "shadow_1", "shadow_1"],
+		"skills": [], "enemy": "garden_watch_captain",
+		"familiarity": 1,
+	})
+	assert_true(not veteran.intent_masked(masked_intent),
+		"one finished fight and Ash reads it")
+
+
 func test_enemy_heal_mends_and_caps_at_full_thread() -> void:
 	# Read the fixture's numbers from the catalog: the Tallowman is LIVE
 	# balance data (balance-notes Pass 8 retuned it mid-pass), and a heal

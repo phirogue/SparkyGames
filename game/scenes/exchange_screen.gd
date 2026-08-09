@@ -442,7 +442,7 @@ func _offer_row(card_id: String) -> Control:
 	var owned := _owned_count(card_id)
 	if owned > 0:
 		var held := UITheme.measured_label(
-			Strings.line("exchange.popup.you_hold", [owned]), 20, 140.0,
+			Strings.line("exchange.popup.you_hold", [owned]), 22, 140.0,
 			UITheme.italic_font(), UITheme.INK_SOFT)
 		held.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		side.add_child(held)

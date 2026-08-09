@@ -1,6 +1,8 @@
 {
   "rooftop_dusk": {
     "id": "rooftop_dusk",
+    "codex_line": "Where the day goes to finish.",
+    "codex": "The city's upper street: warm slates, honest wind, the last of the sun laid out in stripes. Stand in the right one and a spent thing comes back to you.",
     "name": "The Rooftops, Dusk",
     "color": "#7a5233",
     "accent": "#e8b46a",
@@ -11,6 +13,8 @@
   },
   "needle_lane": {
     "id": "needle_lane",
+    "codex_line": "Our street. The fog knows me.",
+    "codex": "Home, or what is left of it. The fog comes up from the Mere most nights, and I move through it like a rumor — the lane taught me how.",
     "name": "Needle Lane, Night",
     "color": "#2e3a4e",
     "accent": "#9fb4d8",
@@ -21,6 +25,8 @@
   },
   "parlor_cold": {
     "id": "parlor_cold",
+    "codex_line": "Her room, gone quiet.",
+    "codex": "The parlor after. Her stitching is still in the walls, and the moonlight still remembers the way in.",
     "name": "The Parlor",
     "color": "#3a4350",
     "accent": "#b8c4d4",
@@ -31,6 +37,8 @@
   },
   "parlor_warm": {
     "id": "parlor_warm",
+    "codex_line": "Before. When it was warm.",
+    "codex": "The parlor as it was: kettle on, needle going, everything in the world in its right place.",
     "name": "The Parlor, Before",
     "color": "#5c4433",
     "accent": "#e8c48a",
@@ -41,6 +49,8 @@
   },
   "needle_lane_wrong": {
     "id": "needle_lane_wrong",
+    "codex_line": "The night the lamps went out.",
+    "codex": "The dark on the lane that night was not weather. I knew it, and I went in anyway.",
     "name": "Needle Lane, Wrong",
     "color": "#232c3d",
     "accent": "#8fa4c8",
@@ -51,6 +61,8 @@
   },
   "hollow_court": {
     "id": "hollow_court",
+    "codex_line": "The desk between lives.",
+    "codex": "Where cats go between lives: all filing and no building. Nothing hurts there, which I find deeply suspicious.",
     "name": "The Hollow Court",
     "color": "#2c3833",
     "accent": "#8fae9c",
@@ -61,6 +73,8 @@
   },
   "back_gardens": {
     "id": "back_gardens",
+    "codex_line": "Sleeping houses. Soft feet.",
+    "codex": "Garden walls and dark windows. Claws are loud here, and the houses keep geese on retainer.",
     "name": "The Back Gardens",
     "color": "#33402e",
     "accent": "#a8c48a",
@@ -72,6 +86,8 @@
   },
   "wickrow_night": {
     "id": "wickrow_night",
+    "codex_line": "The Chandlers' streets, lit on purpose.",
+    "codex": "Ward-light on every corner. Honest light is the hardest kind to work in.",
     "name": "Wickrow, Under Ward-Light",
     "color": "#4a3423",
     "accent": "#e8b46a",
@@ -82,6 +98,8 @@
   },
   "counting_house": {
     "id": "counting_house",
+    "codex_line": "Money, asleep. Lightly.",
+    "codex": "Ledgers and locked drawers. Money sleeps lighter than people do, and screams louder when woken.",
     "name": "The Counting-House, After Hours",
     "color": "#3d3226",
     "accent": "#c8a25f",
@@ -93,6 +111,8 @@
   },
   "mereside_edge": {
     "id": "mereside_edge",
+    "codex_line": "The water is listening.",
+    "codex": "The edge of the Mere, where the fog is thickest and the shore does not entirely agree where it is. Keep your voice down.",
     "name": "The Mereside, Fog",
     "color": "#2c3d40",
     "accent": "#8fb4b8",
@@ -103,6 +123,8 @@
   },
   "guildhall": {
     "id": "guildhall",
+    "codex_line": "Their light. Their rules.",
+    "codex": "The Chandlers' own hall. Every candle in it is a small law, lit.",
     "name": "The Chandlers' Guildhall",
     "color": "#4d3a26",
     "accent": "#e8c48a",
@@ -113,6 +135,8 @@
   },
   "wickhouse": {
     "id": "wickhouse",
+    "codex_line": "Her seams hold these walls.",
+    "codex": "The old wickhouse. Her stitching runs through the brick — the nearest thing I have left to a place that is still hers.",
     "name": "The Wickhouse",
     "color": "#33302c",
     "accent": "#b8c4d4",
@@ -123,6 +147,8 @@
   },
   "shambles_market": {
     "id": "shambles_market",
+    "codex_line": "Everything negotiable. Always.",
+    "codex": "The market after hours, where half the city's business waits for the other half to go home.",
     "name": "The Shambles, After Hours",
     "color": "#4a3a2e",
     "accent": "#d8a25f",

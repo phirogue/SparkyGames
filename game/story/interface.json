@@ -63,10 +63,9 @@
   "mantel": {
     "board_heading": "Pinned to the chimney breast",
     "board_empty": "Nothing pinned tonight. The city is being quiet at you.",
-    "no_deeds": "The thread runs out under the window.",
-    "lives": "lives in him",
-    "spool": "cards on the spool",
-    "deeds": "deeds recorded",
+    "lives": "lives",
+    "spool": "spool",
+    "deeds": "deeds",
     "doors": {
       "case_board": [
         "The Case Board",
@@ -111,14 +110,14 @@
       "and %d placeholders are filled positionally in the order that file",
       "declares: ids first, then texts, then numbers."
     ],
-    "prologue_done": "The night the kettle screamed. Elspeth is gone. The thread leads into the city.",
-    "evidence_found": "Found: %s",
-    "life_spent": "Spent a life to %s. The Court noted it.",
-    "choice_made": "Chose: %s",
-    "quest_done": "%s: done. %d gleam banked.",
-    "quest_withdrawn": "Withdrew from %s. The quest keeps.",
-    "skill_gained": "Learned: %s.",
-    "favor_tied": "A knot in the thread: %s owes me."
+    "prologue_done": "The night the kettle screamed. She is gone, and the thread leads into the city. I am writing this down so that somebody has.",
+    "evidence_found": "I brought home %s. It means something. I intend to find out what.",
+    "life_spent": "I gave a life to %s. The Court wrote it down. So do I.",
+    "choice_made": "I chose %s. I would choose it again, probably.",
+    "quest_done": "Finished %s. Came home %d gleam heavier.",
+    "quest_withdrawn": "I walked away from %s. It will keep. Work always keeps.",
+    "skill_gained": "I know %s now. My body learned it before I did.",
+    "favor_tied": "Tied a knot in the thread: %s owes me, and everyone can see it."
   },
   "notices": {
     "heading": "Noted, with interest",
@@ -148,6 +147,7 @@
     "withdraw_default": "This is not a fight. It is weather. Go around it.",
     "concentrate_desc": "Give up the whole turn to will one spent energy back onto the TOP OF THE DECK — you draw it next turn, not now. The enemy still moves. Twice a fight.",
     "concentrate_label": "Concentrate ×%d",
+    "intent_masked": "Next: something Ash cannot read. Fight this creature again and its habits will show.",
     "card_title": "%s — worth %d",
     "card_desc": "Energy powers your actions — tap an action card below to feed this to it. Spent energy is gone until you rest at home."
   },
@@ -200,8 +200,9 @@
     "slots_heading": "What goes out with you — %d, and Scratch is always one",
     "bench_heading": "Left on the mantel",
     "bench_empty": "Nothing left on the mantel — everything Ash knows is going with him.",
-    "empty_slot": "nothing chosen",
-    "always_tag": " (always)",
+    "deck_heading": "On the spool",
+    "swap_title": "Something must stay behind",
+    "swap_blurb": "The tray is full. Choose what steps aside for %s.",
     "confirm": "Confirm Loadout",
     "respool": "Re-spool",
     "spool": {
@@ -243,9 +244,84 @@
   "settings": {
     "ai_disclosure": "Art, music and code on this game were made with AI assistance. Every line, picture and decision was chosen by a person."
   },
+  "minigames": {
+    "_notes": [
+      "THE FIVE MISSION MODULES (docs/design/minigames.md). Every word a",
+      "board says: button faces, the running status line, and what an aid",
+      "tells you when you spend a paw on it. The boards themselves are drawn",
+      "geometry, so this file is the whole of their writing.",
+      "",
+      "Owner pass 2026-08-09: the buttons under a board were the same colour",
+      "and the same size as each other, the status line was too small to",
+      "read, and three modules explained nothing at all. The teaching lives",
+      "in data/minigame_tutorials.json; the labels live here."
+    ],
+    "help": "?",
+    "onward": "Onward",
+    "outcome": {
+      "success": "It holds",
+      "partial": "It half-holds",
+      "walk_away": "Left as it lies"
+    },
+    "stitch": {
+      "squint": "Squint  ·  %d",
+      "squint_spent": "Squint  ·  none",
+      "leave": "Leave it",
+      "status": "%d of %d clues answered",
+      "status_done": "The seam is closed.",
+      "mirror_banner": "MIRROR CHART — the numbers are pinned on backward. The clue on the far LEFT counts the square on the far RIGHT.",
+      "squint_wrong": "Squint: the crossed stitch is not in this seam. Take it out.",
+      "squint_sew": "Squint: the seam runs along the blue gap. Sew it.",
+      "squint_both": "Squint: take out the crossed stitch, then sew the blue gap.",
+      "squint_clean": "Squint: nothing is wrong and nothing is missing.",
+      "squint_none": "No squints left. The rest of it is yours."
+    },
+    "ward": {
+      "turn": "Turn it",
+      "finish": "Done mending",
+      "status": "%d of %d torn squares still open",
+      "status_whole": "Not a square of it left open.",
+      "paw": "Paw: %s",
+      "rack_down": "%s  (down)",
+      "rack_unaffordable": "%s  (no energy)",
+      "drag_hint": "Drag a patch off the rack and onto the tear. Tap a laid patch to lift it.",
+      "lift_warning": "Lifting frees the cloth, never the card."
+    },
+    "lattice": {
+      "leave": "Step back",
+      "status": "%d of %d threads out   ·   alarm %d of %d",
+      "status_shifted": "Something shifted — read it again.",
+      "twang": "It will not come. Something still lies across it.",
+      "free": "Out, and quietly."
+    },
+    "crossing": {
+      "press": "Press On",
+      "peek": "Pick the Line",
+      "shelter": "Shelter",
+      "away": "Slip Away",
+      "status": "%d of %d home   ·   %d safe   ·   %d hp",
+      "gust_plate": "the gust owns  %s",
+      "slipped": "The gust takes it. %d back, and it stings.",
+      "gained": "On, by %d.",
+      "peeked": "The sky says: %s next.",
+      "sheltered": "Sheltered. That much can no longer be lost."
+    },
+    "testimony": {
+      "leave": "Let it lie",
+      "status": "%d said   ·   patience %d",
+      "casebook": "The Casebook — tap a thing, then the words it breaks"
+    }
+  },
   "codex": {
     "threads": "%d threads on its life",
     "close": "Close the file",
+    "explore_creatures": "Creatures",
+    "explore_places": "Places",
+    "creatures_empty": "Nothing observed yet. Observation is coming.",
+    "places_empty": "Everywhere is still somewhere else.",
+    "deeds_empty": "The pages are blank. For now.",
+    "earlier": "Earlier",
+    "lessons_empty": "Nothing taught yet. The city will get to it.",
     "target": {
       "health": "comes for your health",
       "hand": "comes for your hand",

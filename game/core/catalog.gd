@@ -65,6 +65,11 @@ var testimonies: Dictionary = {}    # id -> {witness, ribbons, patience}
 var wards: Dictionary = {}          # id -> {width, height, hole, rack, effects}
 var lattices: Dictionary = {}       # id -> {threads, elastic, error_cost}
 var crossings: Dictionary = {}      # id -> {length, hazard, gusts}
+## How each module TEACHES itself, as coach-mark steps over the live board
+## (data/minigame_tutorials.json). Keyed by module — "stitch", "ward",
+## "lattice", "crossing", "testimony" — plus "stitch_mirror", which replaces
+## "stitch" on a mirrored chart.
+var minigame_tutorials: Dictionary = {}   # module -> {id, name, steps}
 ## Teachable concepts — taught once at the moment they first matter, and
 ## replayable from the Casebook forever after (owner rule 2026-08-04).
 var lessons: Dictionary = {}        # id -> {id, name, blurb, kind, order, pages, scene}
@@ -95,6 +100,7 @@ func _init(data: Dictionary = {}) -> void:
 	wards = data.get("wards", {})
 	lattices = data.get("lattices", {})
 	crossings = data.get("crossings", {})
+	minigame_tutorials = data.get("minigame_tutorials", {})
 	lessons = data.get("lessons", {})
 	rules = Rules.new(data.get("rules", {}))
 	world = data.get("world", {})
@@ -149,6 +155,22 @@ func validate() -> Array[String]:
 			if mode != "" and not legal_modes.has(mode):
 				problems.append("enemy '%s' intent '%s' has unknown mode '%s' for target '%s'" % [
 					id, intent.get("name", "?"), mode, intent.get("target", "")])
+			if int(intent.get("masked_until", 0)) < 0:
+				problems.append("enemy '%s' intent '%s' has a negative masked_until" % [
+					id, intent.get("name", "?")])
+		# The Casebook's Knowledge list shows codex_line (one line) and the
+		# card popup shows codex (the full entry) — an enemy without them
+		# renders a blank row the day it is first observed (owner 2026-08-09).
+		if String(enemy.get("codex_line", "")).is_empty():
+			problems.append("enemy '%s' has no codex_line for the Knowledge list" % id)
+		if String(enemy.get("codex", enemy.get("flavor", ""))).is_empty():
+			problems.append("enemy '%s' has no codex entry for its card" % id)
+	for id in environments:
+		var place: Dictionary = environments[id]
+		if String(place.get("codex_line", "")).is_empty():
+			problems.append("place '%s' has no codex_line for the Knowledge list" % id)
+		if String(place.get("codex", "")).is_empty():
+			problems.append("place '%s' has no codex entry for its card" % id)
 	for id in encounters:
 		for enemy_id in encounters[id].get("enemies", []):
 			if not enemies.has(enemy_id):
@@ -329,8 +351,22 @@ func _validate_humour_names() -> Array[String]:
 ## small (minigames.md: "at test time, not runtime") — validate() runs at
 ## boot, so the expensive checks live behind `deep` and are called by the
 ## test suite instead.
+## Every module the player can be dropped into, and therefore every module
+## that owes the player an explanation (owner 2026-08-09).
+const MINIGAME_MODULES: Array[String] = [
+	"stitch", "stitch_mirror", "ward", "lattice", "crossing", "testimony",
+]
+
+
+## The coach steps that teach a module over its own live board, or [] when
+## the module has none (which the validator does not allow to happen).
+func tutorial_steps(module: String) -> Array:
+	return minigame_tutorials.get(module, {}).get("steps", [])
+
+
 func _validate_minigames(deep := false) -> Array[String]:
 	var problems: Array[String] = []
+	problems.append_array(_validate_tutorials())
 	for id in stitch_charts:
 		problems.append_array(_validate_stitch_chart(id, stitch_charts[id]))
 	for id in testimonies:
@@ -348,6 +384,27 @@ func _validate_minigames(deep := false) -> Array[String]:
 ## Called by the tests, never at boot.
 func validate_minigames_deep() -> Array[String]:
 	return _validate_minigames(true)
+
+
+## A module nobody explains is a module the owner reported as making no
+## sense. The tutorial is content, so it is checked like content.
+func _validate_tutorials() -> Array[String]:
+	var problems: Array[String] = []
+	for module in MINIGAME_MODULES:
+		var steps := tutorial_steps(module)
+		if steps.size() < 2:
+			problems.append("minigame '%s' has no tutorial (needs 2+ steps)" % module)
+			continue
+		for i in steps.size():
+			var step: Dictionary = steps[i]
+			if String(step.get("text", "")).strip_edges().is_empty():
+				problems.append("minigame '%s' tutorial step %d has no text" % [module, i])
+			# A step that waits for an action needs something to point at, or
+			# the player is told to do a thing with no thing highlighted.
+			if bool(step.get("wait", false)) and String(step.get("target", "")).is_empty():
+				problems.append("minigame '%s' tutorial step %d waits on an untargeted action"
+					% [module, i])
+	return problems
 
 
 const OUTCOME_KEYS: Array[String] = ["success", "partial", "walk_away"]
@@ -747,6 +804,10 @@ func _validate_cases() -> Array[String]:
 			if by != "start" and not evidence_by_id.has(by):
 				problems.append("case '%s' suspect '%s' is revealed by unknown evidence '%s'" % [
 					case_id, suspect.get("id", "?"), by])
+			var cleared := String(suspect.get("cleared_by", ""))
+			if cleared != "" and not evidence_by_id.has(cleared):
+				problems.append("case '%s' suspect '%s' is cleared by unknown evidence '%s'" % [
+					case_id, suspect.get("id", "?"), cleared])
 		for entry in case_def.get("evidence", []):
 			var entry_id := String(entry.get("id", ""))
 			if String(entry.get("name", "")).is_empty():

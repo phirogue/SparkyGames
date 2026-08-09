@@ -5,6 +5,27 @@
 what the look is made of, which template assets to generate, with which
 tools, and in what order.*
 
+## The type scale (owner standing order, 2026-08-09)
+
+Small text was flagged at every owner review until it became a rule. The
+scale lives in `UITheme.TYPE_*` and the floor is **enforced** by
+`tests/unit/test_typography.gd` (source scan) plus the screenshot-critic
+agent (what a scanner can't see). The 720-wide canvas is ≈2x phone density,
+so 30px here ≈ 15sp on device.
+
+| Role | px | Used for |
+|---|---|---|
+| `TYPE_TITLE` | 44+ | screen titles |
+| `TYPE_HEADING` | 34 | section headings, popup names |
+| `TYPE_BODY` | 30 | anything the player must read to play (battle reference) |
+| `TYPE_SUPPORT` | 26 | blurbs, flavor, secondary lines |
+| `TYPE_FLOOR` | 22 | the smallest legal player-facing size |
+
+Raising a size means re-measuring its container (law 4/law 2) — the floor
+has already forced short captions ("lives", not "lives in him") rather than
+wrapped small ones, which is the intended pressure. Non-player-facing text
+(dev menu, missing-art placeholders) carries `# type-floor-exempt: <why>`.
+
 ## What the mockups tell us (analysis)
 
 1. **The UI is a storybook page.** Every screen sits on aged parchment with a

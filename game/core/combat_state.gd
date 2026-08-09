@@ -91,6 +91,12 @@ var flags: Dictionary = {
 var enemy_id: String
 var enemy_hp: int
 var enemy_max_hp: int
+## How many fights against THIS enemy the player has finished before this
+## one (config "familiarity"; the scene layer supplies it from the lifetime
+## stats). Intents carrying `masked_until: N` read as unreadable until Ash
+## has fought the creature N times — he gets better at reading an opponent
+## the more he faces it (owner mechanic 2026-08-09).
+var familiarity: int = 0
 ## Guard the enemy raised with a `block` intent. Soaks the player's damage
 ## and expires when the enemy next acts (same rhythm as the player's own
 ## block: yours resets at the turn-over, its resets when it moves).
@@ -189,6 +195,7 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 	var enemy_def: Dictionary = p_catalog.enemies[state.enemy_id]
 	state.enemy_max_hp = int(enemy_def["hp"])
 	state.enemy_hp = state.enemy_max_hp
+	state.familiarity = int(config.get("familiarity", 0))
 	var environment: Dictionary = config.get("environment", {})
 	state.cost_mod = environment.get("cost_mod", {})
 	state.sunbeam_turns = environment.get("sunbeam_turns", [])
@@ -258,6 +265,12 @@ func effective_cost(cost: Dictionary) -> Dictionary:
 func current_intent() -> Dictionary:
 	var intents: Array = catalog.enemies[enemy_id]["intents"]
 	return intents[_intent_index % intents.size()]
+
+
+## Can Ash READ this intent? Purely presentational: the move still happens
+## as written — what familiarity buys is the telegraph, not the outcome.
+func intent_masked(intent: Dictionary) -> bool:
+	return int(intent.get("masked_until", 0)) > familiarity
 
 
 func skill_state(skill_id: String) -> Dictionary:

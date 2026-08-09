@@ -35,32 +35,30 @@ own `ref_` anchor the moment it exists (library rule 4).
 wanted yet — read `docs/design/the-unraveler.md` before prompting him, because
 how he is drawn is a fair-play matter rather than a taste one.
 
-## Chapter 1, wave 2 — the back half's battles (accepted gaps, 2026-08-08)
+## Chapter 1, wave 2 — **GENERATED, READ AND WIRED 2026-08-09**
 
-The four back-half quests shipped with story complete; these six ids are
-referenced by content and accepted as gaps in
-`docs/architecture/known-gaps.json` until this wave is generated. Backdrops
-are 720 battle plates; enemies are scene vignettes (subject dominant, setting
-dissolving into wash — `en_chained_dog` is the framing reference).
+Batch script: `tools/batches/genart_wave2.py` (8 images, ~$1.52; one 520
+retry via the CLI). Every image was Read before wiring; the accepted-gap
+entry in `known-gaps.json` was deleted the same hour (its healed-gap guard
+would have failed the build otherwise). Verdicts:
 
-| id | what it is |
+| id | verdict |
 |---|---|
-| `bg_wickrow` | Wickrow at night: crooked shopfronts, a ward-flame in every doorway, warm bee-stamped lanterns against deep dark |
-| `bg_mereside` | the Mere-edge in fog: drowned terraces stepping down into black water, one warded warehouse wall |
-| `bg_guildhall` | the Chandlers' Guildhall interior: ten thousand lit votives banked like a chapel, heat-shimmer, one broad stair |
-| `en_candle_golem` | a poured man of votive wax, lit wick where the thinking would go, drips like slow epaulettes |
-| `en_the_drowned` | one of the Mere's people: dry-footed on wet cobbles, waterlogged clothes hanging calm, patient posture, no hurry anywhere in it |
-| `en_the_tallowman` | Wick's bodyguard: a gentle-faced tower of votive wax, hands like warming pans, votive flames guttering in its shoulders |
+| ~~`bg_wickrow`~~ | **DONE.** Bee and candle shop-signs read as shapes, no lettering; doorway ward-flames recede; street empty. Wired. |
+| ~~`bg_mereside`~~ | **DONE.** Terraces step into black water; the warehouse footing carries the stitch-shimmer; one warm window. Wired. |
+| ~~`bg_guildhall`~~ | **DONE.** Votive tiers with frozen wax falls, the broad stair, golden floor reflections; empty. Wired. |
+| ~~`en_candle_golem`~~ | **DONE.** Cream wax, drip epaulettes, lit wick for a head, gentle blank face — on shift, not angry. Wired. |
+| ~~`en_the_drowned`~~ | **DONE.** The dry ring around bare feet on a wet street made it in; no gore, wrongness carried by stillness. Wired. |
+| ~~`en_the_tallowman`~~ | **DONE.** Kindly, enormous, apologetic; votive flames in shoulders and crown; open warming-pan hands. Wired. |
+| ~~`sc_hollow_court_chair`~~ | **DONE** (edit of `sc_hollow_court_desk`). Same clerk, same room; one cat-sized chair added, unremarked. Wired to repeat-death visit six. |
+| ~~`sc_hollow_court_lamp`~~ | **DONE** (edit, one 520 retry). Lamp up, shadows back, one file open — script on it is illegible rhythm, no readable letters. Wired to visit eight. |
 | ~~`npc_pigeon_postmaster`~~ | **WIRED 2026-08-08, no generation needed** — the master was already in the library, listed UNWIRED; the Perch testimony now draws him. (Species checked: a **pigeon**, per testimonies.json — the same check that caught Merrow being a cat.) |
 
-Story-only reuse (no gap): `ev_docket` doubles as the strongbox counterfoil,
-`en_chained_dog` as the tallow hound (the render-yards' dog IS a yard dog),
-`bg_hollow_court` as the counting-house interior and `bg_needle_lane_wrong`
-as the Wickhouse interior — neither of the last two is ever rendered behind
-a battle. Also wanted, not blocking:
-two Hollow Court desk variants (the cat-sized chair; the lamp turned up) so
-the Clerk's escalation is seen as well as read — those pages currently drop
-their portrait instead (law 15).
+Story-only reuse (still no gap): `ev_docket` doubles as the strongbox
+counterfoil, `en_chained_dog` as the tallow hound (the render-yards' dog IS
+a yard dog), `bg_hollow_court` as the counting-house interior and
+`bg_needle_lane_wrong` as the Wickhouse interior — neither of the last two
+is ever rendered behind a battle.
 
 Also drawn 2026-08-07: `sc_hollow_stairs`, for the new Hollow Court beat ("The
 stairs up are longer than the fall down"). Ash is a bare silhouette from

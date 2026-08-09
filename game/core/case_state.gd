@@ -64,12 +64,20 @@ static func evidence_slots(catalog: Catalog, profile: Dictionary) -> Array:
 
 
 ## Suspects whose card is face-up: revealed_by "start", or by evidence held.
+## Each card is tagged "cleared" when the evidence that RULES THEM OUT is
+## held — eliminating people is the one thing a case board is for
+## (story-structure: every chapter ends with at least one suspect crossed
+## off), and the finale's "Cross him off" must be true on screen, not only
+## in Ash's narration.
 static func suspects_known(catalog: Catalog, profile: Dictionary) -> Array:
 	var known: Array = []
 	for suspect in active_case(catalog, profile).get("suspects", []):
 		var by := String(suspect.get("revealed_by", "start"))
 		if by == "start" or has_evidence(profile, by):
-			known.append(suspect)
+			var card: Dictionary = (suspect as Dictionary).duplicate()
+			var cleared_by := String(suspect.get("cleared_by", ""))
+			card["cleared"] = cleared_by != "" and has_evidence(profile, cleared_by)
+			known.append(card)
 	return known
 
 

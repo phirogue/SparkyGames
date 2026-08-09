@@ -41,6 +41,20 @@
       "walk_away": "The seed keeps its secret tonight. Pigeons watch me leave, voting."
     }
   },
+  "crossing_day_round": {
+    "id": "crossing_day_round",
+    "name": "The Dawn Round",
+    "length": 20,
+    "hazard": 1,
+    "environment": "rooftop_dusk",
+    "gust_script": ["guile", "shadow", "guile", "ferocity"],
+    "rewards": {},
+    "when_outcome": {
+      "success": "Across the morning roofs unremarked, which on the day-side is the whole art.",
+      "partial": "Across, mostly. A laundry line has opinions about me now.",
+      "walk_away": "The day-side keeps its distances this morning. I take the streets like an amateur."
+    }
+  },
   "crossing_mereside": {
     "id": "crossing_mereside",
     "name": "The Mereside Approach",

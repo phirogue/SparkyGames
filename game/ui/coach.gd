@@ -92,7 +92,7 @@ func _ready() -> void:
 	_skip.add_theme_font_override("font", UITheme.display_font())
 	_skip.add_theme_font_size_override("font_size", 24)
 	_skip.add_theme_stylebox_override("normal", UITheme.amber_stylebox())
-	_skip.add_theme_stylebox_override("hover", UITheme.amber_stylebox(Color(1.08, 1.05, 1.0)))
+	_skip.add_theme_stylebox_override("hover", UITheme.amber_stylebox())
 	_skip.add_theme_stylebox_override("pressed", UITheme.amber_stylebox(Color(0.85, 0.8, 0.75)))
 	_skip.add_theme_color_override("font_color", UITheme.INK)
 	_skip.pressed.connect(_finish)

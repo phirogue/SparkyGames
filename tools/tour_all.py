@@ -42,6 +42,20 @@ def quest_ids() -> list:
     return [k for k in data if not k.startswith("_")]
 
 
+# One board per module, plus the mirror chart, which is a different lesson and
+# a different rule (owner 2026-08-09). Minigames were not in this sweep at all
+# until that pass -- the same gap that hid a stitch grid with no right-hand
+# column, one law-2 violation wearing a different hat.
+MINIGAME_LEGS = [
+    ("stitch:chart_wickhouse", "minigames/stitch"),
+    ("stitch:chart_mirror", "minigames/stitch_mirror"),
+    ("ward:ward_hall", "minigames/ward"),
+    ("lattice:lattice_counting_room", "minigames/lattice"),
+    ("crossing:crossing_practice", "minigames/crossing"),
+    ("testimony:shift_boss", "minigames/testimony"),
+]
+
+
 def clear_shots(out: Path) -> None:
     """Empty a leg's output folder without removing the folder itself.
 
@@ -111,12 +125,19 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("ids", nargs="*", help="quest ids (default: all)")
     parser.add_argument("--quests-only", action="store_true")
+    parser.add_argument("--minigames-only", action="store_true")
     parser.add_argument("--timeout", type=int, default=420)
     args = parser.parse_args()
 
     legs = []
+    if args.minigames_only:
+        for scene, tag in MINIGAME_LEGS:
+            legs.append((scene, tag))
+        _sweep(legs, args.timeout)
+        return
     if not args.quests_only and not args.ids:
         legs.append(("", "prologue"))
+        legs.extend(MINIGAME_LEGS)
     wanted = args.ids or quest_ids()
     unknown = set(args.ids) - set(quest_ids())
     if unknown:
@@ -124,10 +145,15 @@ def main() -> None:
     for quest_id in wanted:
         legs.append((f"quest:{quest_id}", f"quests/{quest_id}"))
 
+    _sweep(legs, args.timeout)
+
+
+def _sweep(legs: list, timeout: int) -> None:
+    """Run every leg, report at the end, exit non-zero on any failure."""
     failures = []
     for scene, tag in legs:
         print(f"  {tag:34s} ", end="", flush=True)
-        tag_name, count, error, layout = run_leg(scene, tag, args.timeout)
+        tag_name, count, error, layout = run_leg(scene, tag, timeout)
         if error:
             print(f"FAIL  ({count} shots)  {error[:90]}")
             for line in layout[:8]:

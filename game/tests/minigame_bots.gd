@@ -69,7 +69,8 @@ func _guard_finished(state: Object, probes: Array, snapshot: Callable) -> void:
 func _stitch_snapshot(state) -> String:
 	return JSON.stringify({
 		"sewn": state.sewn.keys(), "paws": state.paws,
-		"outcome": state.outcome, "hint": state.squint_hint,
+		"outcome": state.outcome,
+		"hint": [state.squint_wrong, state.squint_sew],
 	})
 
 
@@ -94,19 +95,28 @@ func solve_stitch(chart_id: String) -> Dictionary:
 	return {"commands": commands, "outcome": state.outcome}
 
 
-## Squint must never lie: it may only ever name a stitch that is genuinely
-## absent from the solution, and it must be free when nothing is wrong.
+## Squint must never lie. It says two things and both are read off the
+## chart's own solution, so neither can be a guess:
+##   `wrong` is always a sewn stitch the solution does NOT use
+##   `sew`   is always a solution stitch that is NOT sewn yet
+## It charges exactly one paw, and only when it had something to say.
 func probe_stitch_squint(chart_id: String) -> void:
 	_label = "stitch/%s/squint" % chart_id
 	var chart: Dictionary = catalog.stitch_charts[chart_id]
 	var state := StitchState.create(chart)
 	var solution: Array = chart.get("solution", [])
+	# On an empty chart nothing is wrong but plenty is missing, so Squint must
+	# volunteer a stitch to sew rather than shrug (owner 2026-08-09: "Squint
+	# doesn't do anything, but should highlight a possible edge").
 	var paws_before: int = state.paws
-	var clean := state.do_command({"type": "squint"})
-	if not clean.get("clean", false):
+	var opening := state.do_command({"type": "squint"})
+	if String(opening.get("wrong", "")) != "":
 		_violation("squint claimed a wrong stitch on an empty chart")
-	if state.paws != paws_before:
-		_violation("squint charged a paw for finding nothing wrong")
+	if not solution.has(String(opening.get("sew", ""))):
+		_violation("squint suggested '%s', which is not in the solution"
+			% opening.get("sew", ""))
+	if state.paws != paws_before - 1:
+		_violation("squint did not charge its paw for a real hint")
 	# Sew one correct edge and one deliberately wrong one.
 	state.do_command({"type": "sew", "edge": String(solution[0])})
 	var wrong := ""
@@ -117,12 +127,27 @@ func probe_stitch_squint(chart_id: String) -> void:
 	if wrong == "":
 		return
 	state.do_command({"type": "sew", "edge": wrong})
+	var paws_now: int = state.paws
 	var hint := state.do_command({"type": "squint"})
-	if String(hint.get("hint", "")) != wrong:
+	if String(hint.get("wrong", "")) != wrong:
 		_violation("squint named '%s' but the wrong stitch was '%s'" % [
-			hint.get("hint", ""), wrong])
-	if state.paws != paws_before - 1:
+			hint.get("wrong", ""), wrong])
+	if state.sewn.has(String(hint.get("sew", ""))):
+		_violation("squint suggested sewing '%s', which is already sewn"
+			% hint.get("sew", ""))
+	if state.paws != paws_now - 1:
 		_violation("squint did not charge its paw for a real hint")
+	# A correctly sewn seam has nothing to say and must not bill for saying it.
+	var solved := StitchState.create(chart)
+	for edge_id in solution:
+		solved.do_command({"type": "sew", "edge": String(edge_id)})
+	solved.outcome = Minigame.Outcome.ONGOING   # ask it anyway
+	var paws_solved: int = solved.paws
+	var clean := solved.do_command({"type": "squint"})
+	if not clean.get("clean", false):
+		_violation("squint found fault with a correctly sewn seam")
+	if solved.paws != paws_solved:
+		_violation("squint charged a paw for finding nothing wrong")
 
 
 func chaos_stitch(chart_id: String, seed_value: int) -> void:
@@ -316,29 +341,21 @@ func solve_ward(ward_id: String, hand: Array) -> Dictionary:
 	_label = "ward/%s/solver" % ward_id
 	var state := WardState.create(catalog, catalog.wards[ward_id], hand)
 	var commands := 0
-	while state.has_legal_move() and commands < COMMAND_CAP:
-		var placed_one := false
-		for patch in state.rack:
-			var patch_id := String(patch["id"])
-			if state.placed.has(patch_id) or not state.can_afford(patch_id):
-				continue
-			for rotation in 4:
-				for row in state.height:
-					for col in state.width:
-						if not state.fits(patch_id, row, col, rotation):
-							continue
-						var before := _ward_snapshot(state)
-						var command := {"type": "place", "patch": patch_id,
-							"row": row, "col": col, "rotation": rotation}
-						var result := state.do_command(command)
-						_guard(state, command, before, result, _ward_snapshot)
-						commands += 1
-						placed_one = true
-						break
-					if placed_one: break
-				if placed_one: break
-			if placed_one: break
-		if not placed_one:
+	# Greedy on COVERAGE, not on the first legal square. Patches may now be
+	# laid anywhere on the cloth, so "the first placement that fits" is the
+	# top-left corner every time and proves nothing about mendability.
+	while commands < COMMAND_CAP:
+		var move := state.best_placement()
+		if move.is_empty():
+			break
+		var before := _ward_snapshot(state)
+		var command := {"type": "place", "patch": String(move["patch"]),
+			"row": int(move["row"]), "col": int(move["col"]),
+			"rotation": int(move["rotation"])}
+		var result := state.do_command(command)
+		_guard(state, command, before, result, _ward_snapshot)
+		commands += 1
+		if Minigame.is_over(state.outcome):
 			break
 	if not Minigame.is_over(state.outcome):
 		state.do_command({"type": "finish"})
@@ -363,32 +380,32 @@ func solve_ward(ward_id: String, hand: Array) -> Dictionary:
 func probe_ward_lift(ward_id: String, hand: Array) -> void:
 	_label = "ward/%s/lift" % ward_id
 	var state := WardState.create(catalog, catalog.wards[ward_id], hand)
-	var patch_id := String(state.rack[0]["id"])
-	var placed := false
-	for rotation in 4:
-		for row in state.height:
-			for col in state.width:
-				if state.fits(patch_id, row, col, rotation) and state.can_afford(patch_id):
-					state.do_command({"type": "place", "patch": patch_id,
-						"row": row, "col": col, "rotation": rotation})
-					placed = true
-					break
-			if placed: break
-		if placed: break
-	if not placed:
+	# The best first move, so the patch is over the tear and lifting it has
+	# something to give back.
+	var move := state.best_placement()
+	if move.is_empty():
 		return
+	var patch_id := String(move["patch"])
+	state.do_command({"type": "place", "patch": patch_id,
+		"row": int(move["row"]), "col": int(move["col"]),
+		"rotation": int(move["rotation"])})
 	if Minigame.is_over(state.outcome):
 		return  # that patch finished the mend; there is nothing left to lift
 	var spent_after_place: int = state.spent.size()
 	var hand_after_place: int = state.hand.size()
 	var open_after_place: int = state.uncovered_cells().size()
-	var covered_cells: int = state.placed[patch_id]["cells"].size()
+	# Only the TORN squares under it reopen: a patch may hang over sound
+	# cloth now, and sound cloth was never counted as mended.
+	var torn_under := 0
+	for key in state.placed[patch_id]["cells"]:
+		if state.hole.has(String(key)):
+			torn_under += 1
 	state.do_command({"type": "lift", "patch": patch_id})
 	if state.spent.size() != spent_after_place or state.hand.size() != hand_after_place:
 		_violation("lifting a patch refunded its energy — spent must be spent")
-	if state.uncovered_cells().size() != open_after_place + covered_cells:
-		_violation("lifting freed %d cells, expected %d" % [
-			state.uncovered_cells().size() - open_after_place, covered_cells])
+	if state.uncovered_cells().size() != open_after_place + torn_under:
+		_violation("lifting freed %d torn cells, expected %d" % [
+			state.uncovered_cells().size() - open_after_place, torn_under])
 	if state.placed.has(patch_id):
 		_violation("a lifted patch is still recorded as placed")
 
@@ -426,8 +443,23 @@ func chaos_ward(ward_id: String, hand: Array, seed_value: int) -> void:
 		if state.hand.size() + state.spent.size() != hand.size():
 			_violation("energy was created or destroyed: %d + %d != %d" % [
 				state.hand.size(), state.spent.size(), hand.size()])
-		if state.covered.size() > state.hole.size():
-			_violation("more cells covered than the tear has")
+		# Patches may spill onto sound cloth and stack on each other now
+		# (owner 2026-08-09), so `covered` legitimately exceeds the tear. What
+		# must still hold: nothing is covered off the ward, and the mend can
+		# never close more torn squares than the tear has.
+		for key in state.covered:
+			var parts := String(key).split(",")
+			var r := int(parts[0])
+			var c := int(parts[1])
+			if r < 0 or r >= state.height or c < 0 or c >= state.width:
+				_violation("cell '%s' is covered but is not on the ward" % key)
+		var still_open := state.uncovered_cells()
+		if still_open.size() > state.hole.size():
+			_violation("%d cells open in a %d-cell tear" % [
+				still_open.size(), state.hole.size()])
+		for key in still_open:
+			if not state.hole.has(String(key)):
+				_violation("sound cloth '%s' was counted as an open tear" % key)
 		commands += 1
 	if not Minigame.is_over(state.outcome):
 		_violation("the mend never resolved")

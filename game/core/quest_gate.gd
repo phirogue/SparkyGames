@@ -63,11 +63,6 @@ static func board(catalog: Catalog, profile: Dictionary) -> Array:
 ##
 ## Returns door ids -> whether they are open yet.
 static func doors(profile: Dictionary) -> Dictionary:
-	var owned: Array = profile.get("skills", [])
-	var spare := 0
-	for skill_id in owned:
-		if skill_id != "scratch":
-			spare += 1
 	return {
 		# The Casebook is his own memory: he has always had it.
 		"casebook": true,
@@ -76,8 +71,11 @@ static func doors(profile: Dictionary) -> Dictionary:
 		"case_board": not profile.get("case", {}).get("evidence", []).is_empty(),
 		# Brindle has to be FOUND before she will sell you anything.
 		"exchange": profile.get("quests_done", []).has(MAGPIE_QUEST),
-		# Nothing to choose between until the kit outgrows the tray.
-		"loadout": spare > Catalog.LOADOUT_SIZE - 1,
+		# Always open (owner 2026-08-09: "the Mantel should immediately have
+		# an option for Ash to swap out his energy and action cards"). Even
+		# with Scratch alone the page shows the spool, and the spool is
+		# editable from the first night.
+		"loadout": true,
 	}
 
 

@@ -247,6 +247,13 @@
       "about": "The Perch votes. Testimony decides what it votes for."
     },
     {
+      "name": "case-fish-giver",
+      "title": "Case: The Fish-Giver Is Late",
+      "group": "Chapter 1",
+      "spec": "quest:the_fish_giver",
+      "about": "Two missed dawns. A cat who is not worried, investigating."
+    },
+    {
       "name": "dev-menu",
       "title": "Developer Mode (jump anywhere)",
       "group": "Developer",

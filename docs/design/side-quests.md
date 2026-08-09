@@ -179,7 +179,10 @@ escort (walk the rat-envoy through cat territory — the indignity, again).
 *Feeds:* Mirri; faction system proof; who profits from fear → Chandlers
 thread.
 
-## 10. The Fish-Giver Is Late *(Ch. 1 — day-side)*
+## 10. The Fish-Giver Is Late *(Ch. 1 — day-side)* — **BUILT 2026-08-09**
+*(Shipped as `the_fish_giver` in quests.json: a day-side crossing, the
+drainpipe brooch, the pigeon-net, the slow blink — no combat anywhere, and
+he never learns Ash's name. The closing line pays the Ninth Stray forward.)*
 
 **Board card:** "The Fish-Giver missed two dawns. Cats don't worry. Ash is
 not worried. He is investigating."

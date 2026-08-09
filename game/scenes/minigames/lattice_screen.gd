@@ -9,6 +9,11 @@ extends Control
 ## Tap a thread to pull it. A blocked pull twangs — the blockers flash and
 ## the Alarm climbs — but it is never rejected, because learning which
 ## thread is trapped is how the puzzle is played.
+##
+## None of which the player could possibly have known: the owner reported
+## this module as making no sense (2026-08-09). It now teaches itself over
+## its own board from data/minigame_tutorials.json, and the "?" in the
+## header replays that lesson forever.
 
 signal closed
 
@@ -20,11 +25,18 @@ const GAP := 14.0
 
 var state: LatticeState
 var lattice: Dictionary = {}
+var coach_steps: Array = []
+var coach_auto := false
+var coach: Coach = null
 
 var _status: Label
 var _board: Control
+var _help: Button
 var _alarm_row: MinigameShell.PipRow
 var _flash: Array[String] = []
+var _markers: Dictionary = {}
+var _note := ""
+var _finished := false
 
 
 func setup(lattice_data: Dictionary) -> void:
@@ -33,27 +45,65 @@ func setup(lattice_data: Dictionary) -> void:
 
 
 func _ready() -> void:
-	var shell := MinigameShell.build(self, String(lattice.get("name", "A Working")),
+	var shell := MinigameShell.build(self, String(lattice.get("name", "")),
 		func() -> void: closed.emit())
 	_status = shell["status"]
 	_board = shell["board"]
+	_help = shell["help"]
 
 	var canvas := LatticeBoard.new()
 	canvas.screen = self
-	canvas.set_anchors_preset(Control.PRESET_FULL_RECT)
+	canvas.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_board.add_child(canvas)
+	for key in ["free", "blocked"]:
+		var marker := MinigameShell.Marker.new()
+		_board.add_child(marker)
+		_markers[key] = marker
 
+	var row := MinigameShell.action_row(shell["actions"])
 	_alarm_row = MinigameShell.PipRow.new()
-	_alarm_row.custom_minimum_size = Vector2(200, 96)
+	_alarm_row.custom_minimum_size = Vector2(220, MinigameShell.ACTION_HEIGHT)
 	_alarm_row.fill_color = MinigameShell.THREAD
-	shell["actions"].add_child(_alarm_row)
-	var give_up := UITheme.dark_button("Step back", 24, Vector2(200, 96))
+	row.add_child(_alarm_row)
+	var give_up := MinigameShell.leave_button(Strings.line("minigames.lattice.leave"))
+	give_up.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	give_up.pressed.connect(func() -> void:
 		state.do_command({"type": "give_up"})
 		_finish())
-	shell["actions"].add_child(give_up)
+	row.add_child(give_up)
 
+	_help.pressed.connect(_start_tutorial)
+	_help.visible = not coach_steps.is_empty()
 	_refresh()
+	if coach_auto:
+		_start_tutorial()
+
+
+func _start_tutorial() -> void:
+	coach = MinigameShell.start_tutorial(self, coach_steps, _coach_target, coach)
+
+
+func _coach_target(key: String) -> Control:
+	match key:
+		"board": return _board
+		"board:alarm": return _alarm_row
+		"board:free": return _thread_marker("free", true)
+		"board:blocked": return _thread_marker("blocked", false)
+	return null
+
+
+## Points at a thread that is currently free (or currently trapped), so the
+## lesson always spotlights a real example rather than a fixed thread id
+## that may already be out of the lattice.
+func _thread_marker(key: String, want_free: bool) -> Control:
+	var marker: MinigameShell.Marker = _markers[key]
+	for thread_id in state.remaining():
+		if state.can_pull(thread_id) != want_free:
+			continue
+		var points := thread_points(thread_id)
+		marker.cover(Rect2(points[0], Vector2.ZERO).expand(points[1]).grow(18.0))
+		return marker
+	return null
 
 
 ## Thread endpoints come from the data as grid coordinates in a 0..3 box;
@@ -96,15 +146,29 @@ static func _distance_to_segment(point: Vector2, a: Vector2, b: Vector2) -> floa
 
 
 func on_board_tap(point: Vector2) -> void:
-	if Minigame.is_over(state.outcome):
-		return
 	var thread_id := nearest_thread(point)
-	if thread_id == "":
+	if thread_id != "":
+		pull_thread(thread_id)
+
+
+## The one way a thread comes out, whoever asked — a tap, or the tour driving
+## a named thread so it can photograph a twang without hoping a coordinate
+## lands on the right line.
+func pull_thread(thread_id: String) -> void:
+	if Minigame.is_over(state.outcome) or not state.threads.has(thread_id):
 		return
 	var result := state.do_command({"type": "pull", "thread": thread_id})
 	# A refused pull flashes what is holding it down — the puzzle teaches
 	# itself rather than making the player guess at an invisible rule.
-	_flash = result.get("blocked_by", []) if not result.get("pulled", true) else []
+	var pulled: bool = result.get("pulled", true)
+	_flash.clear()
+	if not pulled:
+		for blocker in result.get("blocked_by", []):
+			_flash.append(String(blocker))
+	_note = Strings.line("minigames.lattice.free") if pulled \
+		else Strings.line("minigames.lattice.twang")
+	if pulled and coach != null:
+		coach.notify("board")
 	_refresh()
 
 
@@ -115,9 +179,13 @@ func flashing() -> Array[String]:
 func _refresh() -> void:
 	var threshold := int(lattice.get("alarm_threshold", 0))
 	_alarm_row.set_pips(state.alarm, maxi(threshold, 1))
-	_status.text = "%d of %d threads out   ·   alarm %d/%d%s" % [
-		state.pulled.size(), state.order.size(), state.alarm, threshold,
-		"   ·   something shifted" if not state.trembling.is_empty() else ""]
+	var parts: Array[String] = [Strings.line("minigames.lattice.status", [
+		state.pulled.size(), state.order.size(), state.alarm, threshold])]
+	if _note != "":
+		parts.append(_note)
+	if not state.trembling.is_empty():
+		parts.append(Strings.line("minigames.lattice.status_shifted"))
+	_status.text = "   ·   ".join(parts)
 	for child in _board.get_children():
 		child.queue_redraw()
 	if Minigame.is_over(state.outcome):
@@ -125,6 +193,11 @@ func _refresh() -> void:
 
 
 func _finish() -> void:
+	if _finished:
+		return
+	_finished = true
+	if coach != null and is_instance_valid(coach):
+		coach.queue_free()
 	MinigameShell.show_outcome(self, state.outcome, lattice,
 		func() -> void: closed.emit())
 

@@ -82,6 +82,14 @@ where nothing will stop you** — those are the ones to slow down for.
    non-interactive targets were only skippable (stuck players); an unwinnable
    charge loop ran the tour to 2,000 screenshots. Dim-taps advance; keep both
    when adding modal flows.
+29. **The type floor: no player-facing text below 22px; body text is 30.**
+   `[enforced: tests/unit/test_typography.gd]` The owner flagged small text on
+   EVERY screen reviewed (2026-08-09 standing order: "actively corrected so I
+   don't need to comment each time"). Use `UITheme.TYPE_*` (TITLE 44 /
+   HEADING 34 / BODY 30 / SUPPORT 26 / FLOOR 22); the battle screen is the
+   calibration reference. Raising a size means re-measuring its zone (law 4).
+   Genuinely non-player-facing text carries `# type-floor-exempt: <why>`.
+   The screenshot-critic hunts what the scanner cannot see.
 
 ### Content and code
 

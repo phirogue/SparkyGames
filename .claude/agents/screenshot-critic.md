@@ -19,9 +19,16 @@ For each screenshot you review, check ruthlessly:
 2. **Text fit**: every string sits fully inside its box with visible
    padding. Watch the known offenders: coach bubbles, rule card, detail
    popup, button labels. Text touching or escaping a border is a defect.
-3. **Size floor**: body text ≥24px-equivalent, icons ≥40px, tap targets
-   ≥96px on the canvas (the window screenshot is ~0.7x canvas scale —
-   compensate when estimating).
+3. **THE TYPE FLOOR (owner standing order 2026-08-09 — hunt this first)**:
+   no player-facing text under 22px on the canvas; anything the player must
+   READ to play is 30px; headings 34; screen titles 44 (UITheme.TYPE_*, the
+   battle screen is the calibration reference). The window screenshot is
+   ~0.7x canvas scale — a canvas 22px renders ~15px in the shot, so squint:
+   if YOU have to lean in, the owner will comment, and the owner has said
+   they should never have to comment on this again. tests/unit/
+   test_typography.gd scans source literals, but it cannot see computed
+   sizes, wraps that shrink, or text that merely LOOKS small next to an
+   oversized neighbour — those are yours. Icons ≥40px, tap targets ≥96px.
 4. **Hierarchy**: the opponent is the biggest visual; energy cards smaller
    than action cards; HP thread visible as a red rope (dash-only at full
    HP means the rope failed to draw — a known regression to flag).

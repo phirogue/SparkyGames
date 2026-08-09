@@ -18,15 +18,16 @@ signal open_exchange
 signal open_loadout
 
 ## FIXED zone template (law 12): heights + separations == CONTENT_HEIGHT.
-## 96 + 518 + 268 + 86 + 88 = 1056, plus 4 x 12 separation = 1104.
+## 96 + 576 + 300 + 96 = 1068, plus 3 x 12 separation = 1104.
+## The footer (latest deed, 20px type) is GONE — owner 2026-08-09: "way too
+## small and serves no purpose"; its height went to the board and the status.
 const SEPARATION := 12
 const ZONE_HEADER := 96
-const ZONE_BOARD := 518
-const ZONE_DOORS := 268
-const ZONE_STATUS := 86
-const ZONE_FOOTER := 88
+const ZONE_BOARD := 576
+const ZONE_DOORS := 300
+const ZONE_STATUS := 96
 
-const NOTE_INSET := 10.0   # keeps a rotated note's corners off the stitching
+const NOTE_INSET := 10.0   # keeps a rotated note's corners off the page edge
 const NOTE_WIDTH := UITheme.CONTENT_WIDTH - NOTE_INSET * 2
 const NOTE_HEIGHT := 152.0
 const NOTE_SEPARATION := 6
@@ -47,8 +48,9 @@ const NOTE_PAD_LEFT := 124.0
 ## right-hand leaves (owner tour, 2026-08-04). Matching the pads costs wrap
 ## width, which the measured note height now absorbs.
 const NOTE_PAD_RIGHT := 118.0
-const NOTE_TITLE_SIZE := 24
-const NOTE_BODY_SIZE := 18
+## The note carries the quest's NAME only, large (owner 2026-08-09: the
+## board-card text was unreadably small pinned up; the popup owns it now).
+const NOTE_TITLE_SIZE := 34
 
 const DOOR_COLUMNS := 2
 const DOOR_WIDTH := (UITheme.CONTENT_WIDTH - SEPARATION) / DOOR_COLUMNS  # 285
@@ -74,8 +76,6 @@ var _board: VBoxContainer
 var _doors: GridContainer
 var _status: HBoxContainer
 var _purse: HBoxContainer
-var _deed_label: Label
-var _footer: HBoxContainer
 var _note_modal: Dictionary = {}
 var _note_box: VBoxContainer
 
@@ -95,9 +95,19 @@ func setup(p_catalog: Catalog, p_profile: Dictionary, p_tracker: AchievementTrac
 
 
 func _ready() -> void:
-	# The room goes BETWEEN the stitched page and the content, so the page's
-	# border still frames it and every plate still lands inside the margins.
-	var margin := UITheme.page_scaffold(self, {"between": _room()})
+	# FULL-BLEED room (owner 2026-08-09): no stitched page, no parchment
+	# border — the parlor is the whole screen. Content still lays out inside
+	# the same calibrated margins, so every plate keeps its size and the zone
+	# template stays honest.
+	add_child(_room())
+	var margin := MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin.name = "PageContent"
+	margin.add_theme_constant_override("margin_left", UITheme.PAGE_MARGIN_LEFT)
+	margin.add_theme_constant_override("margin_right", UITheme.PAGE_MARGIN_RIGHT)
+	margin.add_theme_constant_override("margin_top", UITheme.PAGE_MARGIN_TOP)
+	margin.add_theme_constant_override("margin_bottom", UITheme.PAGE_MARGIN_BOTTOM)
+	add_child(margin)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", SEPARATION)
 	margin.add_child(column)
@@ -105,7 +115,6 @@ func _ready() -> void:
 	_build_board(column)
 	_build_doors(column)
 	_build_status(column)
-	_build_footer(column)
 	_build_note_modal()
 	refresh()
 	if not coach_steps.is_empty():
@@ -123,35 +132,25 @@ func _coach_target(key: String) -> Control:
 		"doors": return _doors
 		"status": return _status
 		"purse": return _purse
-		"footer": return _footer
 	return null
 
 
-## The parlor itself: the empty-mantel illustration, dimmed and warmed so it
-## reads as a room at night rather than competing with the notes pinned on it.
+## The parlor itself: the empty-mantel illustration stretched to the WHOLE
+## screen (owner 2026-08-09), dimmed and warmed so it reads as a room at
+## night rather than competing with the notes pinned on it. The clipping
+## window is the full viewport now — COVER's overflow still needs a clipping
+## parent (law 3: a TextureRect only clips when its parent clips).
 func _room() -> Control:
-	var holder := Control.new()
-	holder.set_anchors_preset(Control.PRESET_FULL_RECT)
-	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	# The picture is 3:4 and the hole is 582x1104, so COVER overflows it. A
-	# TextureRect only clips when its PARENT clips, and the parent has to be
-	# the margin box itself — clipping at the page would spill the overflow
-	# across the stitching (law 3: read the geometry, don't hope).
 	var window := Control.new()
 	window.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	window.offset_left = UITheme.PAGE_MARGIN_LEFT
-	window.offset_top = UITheme.PAGE_MARGIN_TOP
-	window.offset_right = -UITheme.PAGE_MARGIN_RIGHT
-	window.offset_bottom = -UITheme.PAGE_MARGIN_BOTTOM
 	window.clip_contents = true
 	window.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	holder.add_child(window)
 	var art := UITheme.art_or_placeholder("bg_mantel_scene",
 		"the parlor: bare mantel, cold hearth, two lamps")
 	art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	art.modulate = Color(0.72, 0.68, 0.62)
 	window.add_child(art)
-	return holder
+	return window
 
 
 # ------------------------------------------------------------------- zones
@@ -252,21 +251,9 @@ func _build_status(column: VBoxContainer) -> void:
 	plate.add_child(_status)
 
 
-func _build_footer(column: VBoxContainer) -> void:
-	var footer := HBoxContainer.new()
-	footer.custom_minimum_size = Vector2(0, ZONE_FOOTER)
-	footer.add_theme_constant_override("separation", SEPARATION)
-	column.add_child(footer)
-	_footer = footer
-	_deed_label = UITheme.measured_label("", 20, 300.0,
-		UITheme.italic_font(), ROOM_TEXT_SOFT)
-	_deed_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_deed_label.size_flags_vertical = Control.SIZE_FILL
-	_deed_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	footer.add_child(_deed_label)
-	# No "relive the worst night" button (owner 2026-08-05). Replaying the
-	# prologue is not something the room should be offering him. The signal
-	# stays for the dev menu, which is where that belongs.
+# The footer (the latest deed at 20px) is gone — owner 2026-08-09. The
+# chronicle already owns that history in the Casebook; the replay_prologue
+# signal stays for the dev menu, which is where that belongs.
 
 
 # ----------------------------------------------------------------- contents
@@ -283,36 +270,33 @@ func refresh() -> void:
 		_board.add_child(_note(quest))
 	_refresh_doors()
 	_clear(_status)
-	_status.add_child(_chip("ui/ui_heart_full", "%d" % int(profile["max_hp"]), "lives in him"))
-	_status.add_child(_chip("ui/ui_spool", "%d" % profile["deck"].size(), "cards on the spool"))
+	# One word per chip (owner 2026-08-09 type pass): a caption that has to
+	# wrap at readable size is a caption saying too much.
+	_status.add_child(_chip("ui/ui_heart_full", "%d" % int(profile["max_hp"]),
+		Strings.line("mantel.lives")))
+	_status.add_child(_chip("ui/ui_spool", "%d" % profile["deck"].size(),
+		Strings.line("mantel.spool")))
 	var visible_total := 0
 	for id in catalog.achievements:
 		if not catalog.achievements[id].get("hidden", false) or tracker.is_unlocked(id):
 			visible_total += 1
 	_status.add_child(_chip("ui/ui_medallions",
-		"%d/%d" % [tracker.unlocked.size(), visible_total], "deeds recorded"))
-	var journal: Array = profile.get("journal", [])
-	_deed_label.text = String(journal.back()) if not journal.is_empty() \
-		else "The thread runs out under the window."
-	_deed_label.custom_minimum_size = Vector2(300.0, UITheme.measure_text(
-		_deed_label.text, UITheme.italic_font(), 20, 300.0).y)
+		"%d/%d" % [tracker.unlocked.size(), visible_total],
+		Strings.line("mantel.deeds")))
 
 
 ## A quest note: torn parchment, a brass needle through the top, a wax seal
-## for its kind, and the board card in Elspeth's hand.
+## for its kind, and the quest's NAME — nothing else. The board card waits in
+## the popup, where it can be read at size (owner 2026-08-09).
 func _note(quest: Dictionary) -> Control:
 	var quest_id := String(quest["id"])
 	var note := Panel.new()
 	# Law 2: the note is sized from the MEASURED text, not from a guess.
-	# NOTE_HEIGHT is a floor, not a ceiling — pinned at exactly 152 the first
-	# quest on the board lost the last line of its own board card, which is
-	# the line that says what the job is. The board scrolls, so a tall note
-	# costs nothing (law 12: this zone was built to take whatever is pinned).
+	# NOTE_HEIGHT is a floor, not a ceiling — the board scrolls, so a tall
+	# note costs nothing (law 12: this zone takes whatever is pinned).
 	var wrap := NOTE_WIDTH - NOTE_PAD_LEFT - NOTE_PAD_RIGHT
 	var text_height := UITheme.measure_text(String(quest["name"]),
-			UITheme.display_font(), NOTE_TITLE_SIZE, wrap).y \
-		+ UITheme.measure_text(String(quest.get("board_card", "")),
-			UITheme.italic_font(), NOTE_BODY_SIZE, wrap).y + 2
+		UITheme.display_font(), NOTE_TITLE_SIZE, wrap).y
 	var height := maxf(NOTE_HEIGHT, text_height + NOTE_PAD_TOP + NOTE_PAD_BOTTOM)
 	note.custom_minimum_size = Vector2(NOTE_WIDTH, height)
 	note.add_theme_stylebox_override("panel", UITheme.row_stylebox())
@@ -322,6 +306,7 @@ func _note(quest: Dictionary) -> Control:
 	note.rotation_degrees = NOTE_TILT * (1.0 if quest_id.hash() % 2 == 0 else -1.0)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 2)
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	box.offset_left = NOTE_PAD_LEFT
 	box.offset_right = -NOTE_PAD_RIGHT
@@ -331,8 +316,6 @@ func _note(quest: Dictionary) -> Control:
 	note.add_child(box)
 	box.add_child(UITheme.measured_label(String(quest["name"]), NOTE_TITLE_SIZE,
 		wrap, UITheme.display_font()))
-	box.add_child(UITheme.measured_label(String(quest.get("board_card", "")),
-		NOTE_BODY_SIZE, wrap, UITheme.italic_font(), UITheme.INK_SOFT))
 	# The pin straddles the note's top edge in the clear band above the title
 	# (NOTE_PAD_TOP). Hung lower, it landed across the first line of the name.
 	var pin := UITheme.icon("ui/ui_needle_pin", 44.0)
@@ -450,7 +433,7 @@ func _door(name_text: String, blurb: String, icon_id: String,
 	var wrap := DOOR_WIDTH - 54 - 8 - 20
 	text.add_child(UITheme.measured_label(name_text, 26, wrap,
 		UITheme.display_font()))
-	text.add_child(UITheme.measured_label(blurb, 19, wrap,
+	text.add_child(UITheme.measured_label(blurb, 22, wrap,
 		UITheme.body_font(), UITheme.INK_SOFT))
 	UITheme.tap_layer(plate).pressed.connect(on_pressed)
 	return plate
@@ -470,9 +453,9 @@ func _chip(icon_id: String, value: String, caption: String) -> Control:
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	chip.add_child(text)
 	# INK, not the room's cream: this chip is on a parchment plate now.
-	text.add_child(UITheme.measured_label(value, 30, 120.0,
+	text.add_child(UITheme.measured_label(value, 34, 120.0,
 		UITheme.display_font(), UITheme.INK))
-	text.add_child(UITheme.measured_label(caption, 17, 120.0,
+	text.add_child(UITheme.measured_label(caption, 22, 120.0,
 		UITheme.body_font(), UITheme.INK_SOFT))
 	return chip
 

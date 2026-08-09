@@ -21,6 +21,13 @@
 >   energy card... it gives no benefit"). A free action that only ever hurt
 >   you was a trap, not a choice. Energy leaves the hand by powering an
 >   action or by theft; the hand-card popup is a close-up, nothing more.
+> - **Masked intents** (2026-08-09): an enemy intent may carry
+>   `masked_until: N` — its telegraph reads as unreadable until Ash has
+>   finished N fights against that creature (won or lost; familiarity is the
+>   lifetime per-enemy stats). The move still happens as written; what
+>   experience buys is the read. The trick moves of the quest elites and the
+>   Chapter 1 back half are masked once or twice; tutorial fights never are
+>   (a lesson must be legible the first time, law 17).
 >
 > - **Charge-to-power skills.** Skills no longer fire in one tap: energy is
 >   fed onto the card one placement at a time (`charge_skill` command; the

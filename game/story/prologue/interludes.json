@@ -110,6 +110,8 @@
       ]
     },
     {
+      "portrait": "sc_hollow_court_chair",
+      "art_desc": "The Hollow Court desk exactly as always, with one addition nobody mentions: a second chair, exactly cat-sized, beside the full-size one",
       "lines": [
         "There is a chair at the desk that was not there before. It is exactly cat-sized. Neither of us mentions it.",
         "'The Toll,' he says, and takes it, and then sits with his hands folded for a moment longer than the work requires.",
@@ -125,6 +127,8 @@
       ]
     },
     {
+      "portrait": "sc_hollow_court_lamp",
+      "art_desc": "The Hollow Court desk with the lamp turned up bright and warm, shadows pushed back, one file lying open on the desk",
       "lines": [
         "The lamp is turned up. He has turned the lamp up, for me, which is the most alarming thing that has happened tonight.",
         "'One,' says the Clerk. 'I will not lecture you. You know precisely what you are spending and precisely what you are spending it on.'",
@@ -155,7 +159,7 @@
     },
     {
       "target": "doors",
-      "text": "The Casebook: everything I know, and how I came to know it. There will be more along this wall when I have reason."
+      "text": "The Casebook: everything I know. On the Prowl: what I carry out the door — claws and spool both. More along this wall when I have reason."
     }
   ],
   "unpicked_won": [

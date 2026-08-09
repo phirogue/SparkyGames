@@ -13,6 +13,13 @@ extends RefCounted
 ## You will usually not cover everything. Each uncovered cell carries a gap
 ## effect into the next encounter (Minigame.GAP_EFFECTS); a perfect patch
 ## grants the ward's boon. Partial is the expected result, not a failure.
+##
+## PATCHES MAY OVERLAP, and may hang over sound cloth (owner 2026-08-09).
+## The old rules refused any placement that was not part of an exact tiling,
+## which made a quilting minigame into a jigsaw with one answer and made a
+## dropped patch feel broken rather than wasteful. The only thing scored is
+## how much of the TEAR is still open — a patch laid on top of another one
+## bought nothing, and that is punishment enough.
 
 const WILD_HUMOUR := "mysticism"
 
@@ -20,8 +27,9 @@ var ward: Dictionary = {}
 var width: int = 0
 var height: int = 0
 var hole: Dictionary = {}          # "r,c" -> true, the damaged cells
-var covered: Dictionary = {}       # "r,c" -> patch id
+var covered: Dictionary = {}       # "r,c" -> the TOPMOST patch id over it
 var placed: Dictionary = {}        # patch id -> {row, col, rotation, cells}
+var placed_order: Array[String] = []   # laying order; later patches sit on top
 var rack: Array = []               # [{id, shape, humour}]
 var hand: Array = []               # energy card ids, shared with combat
 var spent: Array = []              # paid cards; they do not come back
@@ -92,17 +100,31 @@ func footprint(patch_id: String, row: int, col: int, rotation: int) -> Array[Str
 	return cells
 
 
-## A patch fits when every cell it covers is a torn cell that nothing else
-## has covered yet. Patches may not overlap and may not spill onto sound
-## cloth — mending the undamaged parts is what an amateur does.
+## A patch fits anywhere it lands wholly ON THE WARD. It may overlap patches
+## already down and it may cover sound cloth; neither buys anything, and the
+## card is spent either way. The grid edge is the only hard rule, because a
+## patch half off the cloth is not a placement, it is a dropped patch.
 func fits(patch_id: String, row: int, col: int, rotation: int) -> bool:
 	var cells := footprint(patch_id, row, col, rotation)
 	if cells.is_empty():
 		return false
 	for key in cells:
-		if not hole.has(key) or covered.has(key):
+		var parts := String(key).split(",")
+		var r := int(parts[0])
+		var c := int(parts[1])
+		if r < 0 or r >= height or c < 0 or c >= width:
 			return false
 	return true
+
+
+## How much of the TEAR this placement would newly close — the only number
+## worth anything, and the one the UI shows while a patch is in the paw.
+func gain_at(patch_id: String, row: int, col: int, rotation: int) -> int:
+	var gain := 0
+	for key in footprint(patch_id, row, col, rotation):
+		if hole.has(key) and not covered.has(key):
+			gain += 1
+	return gain
 
 
 ## The card this patch would take out of the hand: its own humour first,
@@ -153,7 +175,7 @@ func _cmd_place(patch_id: String, row: int, col: int, rotation: int) -> Dictiona
 	if placed.has(patch_id):
 		return _fail("that patch is already down")
 	if not fits(patch_id, row, col, rotation):
-		return _fail("that patch does not sit in the tear there")
+		return _fail("that patch would hang off the edge of the ward")
 	var index := payment_index(patch_id)
 	if index < 0:
 		return _fail("no %s energy in hand to sew it with" %
@@ -163,9 +185,9 @@ func _cmd_place(patch_id: String, row: int, col: int, rotation: int) -> Dictiona
 	spent.append(hand[index])
 	hand.remove_at(index)
 	var cells := footprint(patch_id, row, col, rotation)
-	for key in cells:
-		covered[key] = patch_id
 	placed[patch_id] = {"row": row, "col": col, "rotation": rotation, "cells": cells}
+	placed_order.append(patch_id)
+	_recompute_cover()
 	_events.append("patch_placed")
 	if uncovered_cells().is_empty():
 		# A perfect mend finishes itself — there is nothing left to decide.
@@ -179,11 +201,22 @@ func _cmd_place(patch_id: String, row: int, col: int, rotation: int) -> Dictiona
 func _cmd_lift(patch_id: String) -> Dictionary:
 	if not placed.has(patch_id):
 		return _fail("that patch is not down")
-	for key in placed[patch_id]["cells"]:
-		covered.erase(key)
 	placed.erase(patch_id)
+	placed_order.erase(patch_id)
+	# Rebuilt rather than erased cell by cell: with patches allowed to stack,
+	# lifting the top one has to UNCOVER back to whatever was underneath it.
+	_recompute_cover()
 	_events.append("patch_lifted")
 	return _ok()
+
+
+## Topmost-wins, in laying order. Cheap on a board this size, and the only
+## way a stack stays honest through a lift.
+func _recompute_cover() -> void:
+	covered.clear()
+	for patch_id in placed_order:
+		for key in placed[patch_id]["cells"]:
+			covered[String(key)] = patch_id
 
 
 func _cmd_finish() -> Dictionary:
@@ -235,9 +268,20 @@ func carried_effects() -> Array[String]:
 	return effects
 
 
-## For the UI and the bots: is there any legal, affordable move left? When
-## there is not, the mend is as good as it is going to get.
+## For the UI and the bots: is there a move left that would actually MEND
+## anything? Since patches may now be laid anywhere on the cloth, "is there a
+## legal placement" is always yes and answers nothing. The question worth
+## asking is whether the mend can still get better.
 func has_legal_move() -> bool:
+	return not best_placement().is_empty()
+
+
+## The placement that closes the most still-open torn squares, or {} when
+## nothing left in the rack can close any. Used by the solver bot, and it is
+## the honest definition of "the mend is as good as it is going to get".
+func best_placement() -> Dictionary:
+	var best := {}
+	var best_gain := 0
 	for patch in rack:
 		var patch_id := String(patch["id"])
 		if placed.has(patch_id) or not can_afford(patch_id):
@@ -245,9 +289,14 @@ func has_legal_move() -> bool:
 		for rotation in 4:
 			for row in height:
 				for col in width:
-					if fits(patch_id, row, col, rotation):
-						return true
-	return false
+					if not fits(patch_id, row, col, rotation):
+						continue
+					var gain := gain_at(patch_id, row, col, rotation)
+					if gain > best_gain:
+						best_gain = gain
+						best = {"patch": patch_id, "row": row, "col": col,
+							"rotation": rotation, "gain": gain}
+	return best
 
 
 func rewards() -> Dictionary:

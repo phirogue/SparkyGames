@@ -171,7 +171,7 @@ func _entry(label: String, spec: String) -> void:
 	button.text = label
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	button.add_theme_font_size_override("font_size", 20)
+	button.add_theme_font_size_override("font_size", 20)  # type-floor-exempt: developer menu, never player-facing
 	button.custom_minimum_size = Vector2(0, 60)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.tooltip_text = spec

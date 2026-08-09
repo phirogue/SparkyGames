@@ -32,6 +32,19 @@ func test_all_shipped_puzzles_are_solvable() -> void:
 	assert_eq(problems.size(), 0, "minigame content problems: %s" % str(problems))
 
 
+## Owner 2026-08-09: three of the five modules "make no sense, need a
+## tutorial". A module the player can be dropped into owes them an
+## explanation, and the explanation is content, so it is checked like content.
+func test_every_module_teaches_itself() -> void:
+	for module in Catalog.MINIGAME_MODULES:
+		var steps := catalog.tutorial_steps(module)
+		assert_true(steps.size() >= 2,
+			"minigame '%s' has no tutorial" % module)
+		for step in steps:
+			assert_true(String(step.get("text", "")).strip_edges() != "",
+				"a '%s' tutorial step says nothing" % module)
+
+
 func test_every_module_carries_all_three_outcomes() -> void:
 	# Failure is a story outcome, never a game-over, so every puzzle owes
 	# prose for success, partial AND walk-away.
@@ -86,6 +99,45 @@ func test_stitch_requires_exactly_one_closed_loop() -> void:
 		state.do_command({"type": "sew", "edge": edge_id})
 	assert_true(not state.is_single_loop(), "an open run of stitches is not a loop")
 	assert_eq(state.outcome, Minigame.Outcome.ONGOING, "and does not finish the chart")
+
+
+## Owner 2026-08-09: "When a legal solution is presented, nothing happens."
+## Half of that was here — completion was only ever checked after SEWING, so
+## a player who over-sewed and then unpicked their way onto the answer had
+## already made the last move the game was listening for.
+func test_stitch_closes_when_the_last_move_is_an_unpick() -> void:
+	var chart: Dictionary = catalog.stitch_charts["chart_hoop"]
+	var state := StitchState.create(chart)
+	# One stitch too many, then the whole solution.
+	var spare := ""
+	for edge_id in state.all_edges():
+		if not chart["solution"].has(edge_id):
+			spare = edge_id
+			break
+	assert_true(spare != "", "the hoop has an edge outside its solution")
+	state.do_command({"type": "sew", "edge": spare})
+	for edge_id in chart["solution"]:
+		state.do_command({"type": "sew", "edge": String(edge_id)})
+	assert_eq(state.outcome, Minigame.Outcome.ONGOING,
+		"an extra stitch is not a closed seam")
+	assert_ok(state.do_command({"type": "unpick", "edge": spare}))
+	assert_eq(state.outcome, Minigame.Outcome.SUCCESS,
+		"taking out the last wrong stitch closes it")
+
+
+## Owner 2026-08-09: "Squint doesn't do anything, but should highlight a
+## possible edge that is part of the solution."
+func test_squint_points_at_a_stitch_that_is_in_the_seam() -> void:
+	var chart: Dictionary = catalog.stitch_charts["chart_sampler"]
+	var state := StitchState.create(chart)
+	var result := state.do_command({"type": "squint"})
+	assert_true(chart["solution"].has(String(result.get("sew", ""))),
+		"squint must name a stitch the finished seam uses")
+	assert_eq(state.squint_sew, String(result.get("sew", "")),
+		"and the board must be told which one, so it can draw it")
+	# Sewing it clears the callout: a hint you have acted on is stale.
+	state.do_command({"type": "sew", "edge": state.squint_sew})
+	assert_eq(state.squint_sew, "", "acting on a hint clears it")
 
 
 func test_stitch_unpicking_is_free_and_reversible() -> void:
@@ -161,11 +213,56 @@ func test_ward_patches_are_paid_for_from_the_hand() -> void:
 	assert_eq(state.spent.size(), 1, "and went to the spent pile")
 
 
-func test_ward_patches_cannot_spill_onto_sound_cloth() -> void:
+## Owner 2026-08-09: patches may sit on top of each other and may hang over
+## sound cloth. The rules stopped policing tidiness because the score already
+## does it — a patch that covers nothing new bought nothing and cost a card.
+func test_ward_patches_may_spill_onto_sound_cloth() -> void:
 	var state := WardState.create(catalog, catalog.wards["ward_practice"], TEST_DECK)
-	# The practice tear is 2x2 at (1,1); a 3-long bar cannot fit inside it.
-	assert_rejected(state.do_command({"type": "place", "patch": "p_domino",
-		"row": 0, "col": 0, "rotation": 0}), "a patch on undamaged cloth")
+	# The practice tear is 2x2 at (1,1). Laying a domino on plain cloth is now
+	# legal, pays a card, and mends nothing.
+	var open_before: int = state.uncovered_cells().size()
+	assert_ok(state.do_command({"type": "place", "patch": "p_domino",
+		"row": 0, "col": 0, "rotation": 0}), "a patch may land on sound cloth")
+	assert_eq(state.spent.size(), 1, "and it still costs a card")
+	assert_eq(state.uncovered_cells().size(), open_before,
+		"but it closes nothing, which is the whole penalty")
+
+
+func test_ward_patches_may_stack_and_only_coverage_counts() -> void:
+	var state := WardState.create(catalog, catalog.wards["ward_practice"],
+		["mysticism_1", "shadow_1", "guile_1"])
+	# The square covers the whole 2x2 tear...
+	assert_ok(state.do_command({"type": "place", "patch": "p_square",
+		"row": 1, "col": 1, "rotation": 0}), "the square fills the tear")
+	assert_eq(state.uncovered_cells().size(), 0, "nothing left open")
+	assert_eq(state.outcome, Minigame.Outcome.SUCCESS, "a whole ward finishes itself")
+	# ...and a second patch laid over it would have been legal and worthless.
+	var stacked := WardState.create(catalog, catalog.wards["ward_practice"],
+		["shadow_1", "guile_1"])
+	assert_ok(stacked.do_command({"type": "place", "patch": "p_domino",
+		"row": 1, "col": 1, "rotation": 0}), "the domino takes two squares")
+	assert_eq(stacked.uncovered_cells().size(), 2, "two still open")
+	assert_ok(stacked.do_command({"type": "place", "patch": "p_dot",
+		"row": 1, "col": 1, "rotation": 0}), "a dot may sit on top of it")
+	assert_eq(stacked.uncovered_cells().size(), 2, "and mends nothing new")
+	assert_eq(stacked.spent.size(), 2, "while still costing its card")
+
+
+## Lifting the top of a stack must uncover back to the patch underneath, not
+## punch a hole through both — the reason cover is recomputed from the laying
+## order rather than erased cell by cell.
+func test_ward_lifting_the_top_of_a_stack_leaves_what_was_under_it() -> void:
+	var state := WardState.create(catalog, catalog.wards["ward_practice"],
+		["shadow_1", "guile_1"])
+	state.do_command({"type": "place", "patch": "p_domino",
+		"row": 1, "col": 1, "rotation": 0})
+	state.do_command({"type": "place", "patch": "p_dot",
+		"row": 1, "col": 1, "rotation": 0})
+	assert_eq(String(state.covered["1,1"]), "p_dot", "the dot is on top")
+	assert_ok(state.do_command({"type": "lift", "patch": "p_dot"}))
+	assert_eq(String(state.covered["1,1"]), "p_domino",
+		"lifting the dot uncovers the domino, not the cloth")
+	assert_eq(state.uncovered_cells().size(), 2, "and opens nothing new")
 
 
 func test_ward_gap_effects_match_the_cells_left_open() -> void:

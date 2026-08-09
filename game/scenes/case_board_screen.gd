@@ -86,6 +86,27 @@ class ThreadOverlay extends Control:
 			i += 2
 
 
+## Two strokes of the same waxed-red string, corner to corner, over a suspect
+## the case has RULED OUT. The board's promise is that clues eliminate people
+## (story-structure.md); when the finale says "cross him off", this is the
+## crossing. Drawn inside the chip's picture frame, so the zone template and
+## the caption's text budget never move.
+class ClearedStrike extends Control:
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var inset := 12.0
+		draw_line(Vector2(inset, inset), size - Vector2(inset, inset),
+			THREAD_COLOR, 4.0, true)
+		draw_line(Vector2(size.x - inset, inset), Vector2(inset, size.y - inset),
+			THREAD_COLOR, 4.0, true)
+		draw_circle(Vector2(inset, inset), 5.0, PIN_COLOR)
+		draw_circle(size - Vector2(inset, inset), 5.0, PIN_COLOR)
+		draw_circle(Vector2(size.x - inset, inset), 5.0, PIN_COLOR)
+		draw_circle(Vector2(inset, size.y - inset), 5.0, PIN_COLOR)
+
+
 func setup(p_catalog: Catalog, p_profile: Dictionary) -> void:
 	catalog = p_catalog
 	profile = p_profile
@@ -155,7 +176,7 @@ func _build_question(column: VBoxContainer, case_def: Dictionary) -> void:
 		String(case_def.get("question", "")), 26, UITheme.CONTENT_WIDTH,
 		UITheme.body_font()))
 	holder.add_child(UITheme.measured_label(
-		String(case_def.get("aphorism", "")), 21, UITheme.CONTENT_WIDTH,
+		String(case_def.get("aphorism", "")), 22, UITheme.CONTENT_WIDTH,
 		UITheme.italic_font(), UITheme.INK_SOFT))
 
 
@@ -175,6 +196,10 @@ func _build_suspects(column: VBoxContainer) -> void:
 			var suspect: Dictionary = known[i]
 			var chip := _card(String(suspect["name"]), String(suspect.get("art", "")),
 				String(suspect.get("line", "")), SUSPECT_ART_HEIGHT, 22, true)
+			if bool(suspect.get("cleared", false)):
+				var strike := ClearedStrike.new()
+				strike.set_anchors_preset(Control.PRESET_FULL_RECT)
+				(chip.get_meta("frame") as Control).add_child(strike)
 			_chips["suspect:" + String(suspect["id"])] = chip
 			row.add_child(chip)
 		else:

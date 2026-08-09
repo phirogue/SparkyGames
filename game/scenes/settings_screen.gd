@@ -149,9 +149,9 @@ func _build_footer(column: VBoxContainer) -> void:
 	# the disclosure lives here until it does (docs/design/ai-transparency.md).
 	holder.add_child(UITheme.measured_label(
 		Strings.line("settings.ai_disclosure"),
-		20, UITheme.CONTENT_WIDTH, UITheme.italic_font(), UITheme.INK_SOFT))
+		22, UITheme.CONTENT_WIDTH, UITheme.italic_font(), UITheme.INK_SOFT))
 	var version := UITheme.measured_label(
-		"The Nine Lives of Ashcat — Chapter One", 20, UITheme.CONTENT_WIDTH,
+		"The Nine Lives of Ashcat — Chapter One", 22, UITheme.CONTENT_WIDTH,
 		UITheme.body_font(), UITheme.INK_FADED)
 	holder.add_child(version)
 	var back := UITheme.amber_button("Back to the night", 30)

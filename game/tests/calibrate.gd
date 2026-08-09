@@ -46,10 +46,9 @@ const ZONE_MAPS := {
 	# Keep in sync with hub_screen.gd's ZONE_* constants.
 	"hub": [
 		["header (title + gleam)", 96, Color("c2884a")],
-		["board (3 pinned quest notes)", 518, Color("7a6a4a")],
-		["doors (2 x 2)", 268, Color("4a5a8a")],
-		["status (hp, deck, deeds)", 86, Color("4a7a5a")],
-		["footer (latest deed + replay)", 88, Color("a24a3a")],
+		["board (pinned quest notes, names only)", 576, Color("7a6a4a")],
+		["doors (2 x 2)", 300, Color("4a5a8a")],
+		["status (lives, spool, deeds)", 96, Color("4a7a5a")],
 	],
 	# Keep in sync with settings_screen.gd's ZONE_* constants.
 	"settings": [
@@ -68,10 +67,10 @@ const ZONE_MAPS := {
 	# Keep in sync with loadout_screen.gd's ZONE_* constants.
 	"loadout": [
 		["header (back + title)", 96, Color("c2884a")],
-		["slots (3 x 2 cards)", 460, Color("a24a3a")],
-		["bench (owned, not carried)", 300, Color("4a5a8a")],
-		["deck readout + re-spool button", 104, Color("4a7a5a")],
-		["confirm", 96, Color("8a7a2a")],
+		["slots (5 fanned battle-look cards)", 236, Color("a24a3a")],
+		["bench (owned, not carried; scrolls)", 400, Color("4a5a8a")],
+		["deck (big spool + 2x2 humours + re-spool)", 228, Color("4a7a5a")],
+		["confirm (84 button, clear of dashes)", 96, Color("8a7a2a")],
 	],
 	# Keep in sync with case_board_screen.gd's ZONE_* constants.
 	"case": [

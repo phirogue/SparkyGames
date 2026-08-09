@@ -1481,5 +1481,82 @@
     ],
     "reward_bonus": 14,
     "repeatable": false
+  },
+  "the_fish_giver": {
+    "id": "the_fish_giver",
+    "name": "The Fish-Giver Is Late",
+    "kind": "side",
+    "district": "thimblefield",
+    "guild": "",
+    "once": true,
+    "requires": {
+      "quests": [
+        "the_carrying"
+      ]
+    },
+    "board_card": "The Fish-Giver has missed two dawns. Cats don't worry. I am not worried. I am investigating.",
+    "steps": [
+      {
+        "type": "story",
+        "environment": "rooftop_dusk",
+        "lines": [
+          "Every dawn for eleven years, the Fish-Giver has set out scraps behind his stall for half the strays in Thimblefield. He has now missed two dawns, and the half is assembling on his roof like a jury.",
+          "Cats do not worry. I am not worried. I am investigating, which is different, and has better posture.",
+          "The stall is shuttered. The man is inside, in the dark, doing day-side arithmetic with his head in his hands."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "lines": [
+          "The trouble is on his door, in paper: rent behind, lease called, seven days. The lease runs through a bank, and the bank — I read the seal twice to be sure — banks for the Chandlers.",
+          "Paper again. This city bleeds by paper. Nobody is going to knife the Fish-Giver in his parlor; they are going to FILE him out of it.",
+          "He cannot fight paper. Neither can I. But the day-side can be moved by other things, if you know what a street is actually worth."
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "crossings"
+      },
+      {
+        "type": "minigame",
+        "module": "crossing",
+        "id": "crossing_day_round",
+        "environment": "rooftop_dusk",
+        "on_loss_lines": [
+          "A cat on the roofline at breakfast is conspicuous, and half the street's laundry knows me now.",
+          "I get where I am going all the same. Slower. Politer. Watched by sheets."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "lines": [
+          "First asset: the drainpipe behind his stall, and the thing he lost down it nine years ago — his grandmother's brooch, the one he still tells customers about when the fish is slow.",
+          "No hand fits that pipe. A paw does. It costs me a wet shoulder, a spider's whole opinion of me, and one bent whisker.",
+          "I leave it on his counting-slab where he cannot miss it. Day-side arithmetic changes fast when a dead woman's silver joins in."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "rooftop_dusk",
+        "lines": [
+          "Second asset: the pigeons, who owe this street and know where everyone drinks. The landlord's man takes his evenings at the Bent Anchor, and takes them loudly, and has a magistrate for a sister.",
+          "Third asset: the magistrate keeps a cat. The cat owes me — a matter of a terrier, never discussed. I sit on her windowsill at dusk and pay the slow blink, and the debt moves.",
+          "By morning the magistrate has remembered, for reasons she will never quite place, that eviction schedules have rules, and that her brother's employer has been careless with them."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "rooftop_dusk",
+        "lines": [
+          "Dawn, three days later. The shutter goes up. The scraps go down. The jury disperses into a congregation, and the Fish-Giver stands in the middle of it grinning at nothing, wearing his grandmother on his coat.",
+          "He never learns my name. He never learns any of it. That is the point of it — the day-side must stay the kind of place where luck still happens.",
+          "Somebody once put a saucer down for a stray with eight failed interviews behind him. The account stays open. It always will."
+        ]
+      }
+    ],
+    "reward_bonus": 10,
+    "repeatable": false
   }
 }

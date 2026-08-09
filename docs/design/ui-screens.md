@@ -72,18 +72,23 @@ apology, no boast.
 ## The Mantel — a place, not a menu
 
 The hub was a scroll of eleven identical buttons. It becomes the room:
-`bg_mantel_scene` behind the page, dimmed and warmed, with everything pinned
-on top of it. **The shop and the loadout picker move out to their own
-screens** — the Mantel's job is to be the two taps between a prowl and the
-next prowl, not to hold every control in the game.
+`bg_mantel_scene` **stretched to the whole screen** (owner 2026-08-09 — no
+parchment page, no stitched border; the parlor IS the page), dimmed and
+warmed, with everything pinned on top of it. Content still lays out inside
+the calibrated margins. **The shop and the loadout picker live on their own
+screens**, and On the Prowl's door is open from the first night (owner
+2026-08-09: swapping energy and action cards must be immediately reachable).
 
 | Zone | Height | Contents |
 |---|---|---|
 | header | 96 | "The Mantel", gleam pile + count |
-| board | 518 | "Pinned to the chimney breast" — three notes, seal-coded |
-| doors | 268 | 2x2: the Case Board, the Magpie Exchange, On the Prowl, the Casebook |
-| status | 86 | HP heart, deck spool, achievement medallions — each with its number |
-| footer | 88 | the latest deed, and the replay-the-prologue thread |
+| board | 576 | "Pinned to the chimney breast" — notes: seal + NAME at 34px, nothing else |
+| doors | 300 | 2x2: the Case Board, the Magpie Exchange, On the Prowl, the Casebook |
+| status | 96 | lives / spool / deeds — big number, one-word caption |
+
+The footer (latest deed at 20px) is gone — too small to read and the
+chronicle owns that history. A note carries only its name; the board card
+waits in the take-or-back popup where it reads at 26px.
 
 Quest notes are `QuestNote`-style plates: parchment, a brass needle pin
 through the top, a wax seal whose colour reads the quest's kind (red = the
@@ -139,29 +144,32 @@ is the receipt.
 
 ## The Loadout — "On the prowl"
 
-Built to `mock_loadout.png`. Scratch is permanent and shown as such (a fixed
-first slot with no swap), the other slots are the picked skills, and the
-bench below holds everything owned but not carried.
+**The cards look like the fight** (owner 2026-08-09): the same 132x162
+battle card — whole image (never cropped), cost drawn as coloured glyph
+bubbles, ×N uses badge, name in smallcaps — fanned in one row exactly like
+the battle tray. The bench below wears the same dress and scrolls.
 
-**Tapping any card opens it close up first** (owner 2026-08-08): art large,
-its cost, its uses, what it does (`ui/skill_text.gd`, the same renderer the
-battle popup uses) and its flavor — then "Take it along" / "Set it down" /
-"Keep it". A tap never moves a card sight-unseen. Scratch opens too, and
-says why it cannot be put down.
+**Tapping any card opens it LARGE** (640-wide popup): the whole picture,
+cost as big bubbles beside its words, uses, what it does
+(`ui/skill_text.gd`, the same renderer the battle popup uses), flavor —
+then "Take it along" / "Set it down" / "Keep it". **A full tray asks the
+player what steps aside** — the popup turns into the choice; nothing is
+silently evicted. Scratch opens too, and says why it cannot be put down.
 
-**The deck is edited here now, for free.** The strip's "Re-spool" button
-opens THE SPOOL popup: every energy card owned (`profile["card_pool"]`, new
-in schema v6) with wind-on/wind-off steppers, floored at
-`exchange.deck_floor`. Winding is selection, not spending — a card wound off
-keeps forever. This replaced the Magpie's paid "Cut a card" good entirely.
+**The deck is edited here, for free.** The strip is the Exchange's big
+gauge — large spool + count, humours 2x2 with big ×counts — and the whole
+plate (or the Re-spool button beside its heading, INSIDE the page dashes
+now) opens THE SPOOL: every energy card owned (`profile["card_pool"]`,
+schema v6) with per-value rows (how many 1s, 2s, 3s of each humour) and
+wind-on/wind-off steppers, floored at `exchange.deck_floor`.
 
 | Zone | Height | Contents |
 |---|---|---|
 | header | 96 | back arrow, "On the prowl" |
-| slots | 460 | 2x2 framed skill cards — the four Ash actually carries |
-| bench | 300 | owned-but-not-carried skills, as smaller cards |
-| deck | 104 | deck size + humour glyph counts, and the "Re-spool" button |
-| confirm | 96 | "Confirm Loadout" (amber) |
+| slots | 236 | 5 fanned battle-look cards — what Ash actually carries |
+| bench | 400 | owned-but-not-carried, same card look, scrolls |
+| deck | 228 | heading + Re-spool button, then the big spool gauge (tappable) |
+| confirm | 96 | "Confirm Loadout" — 84px button, clear of the bottom dashes |
 
 It is all on this screen because "what am I taking" is one question, and the
 answer is skills *and* deck.

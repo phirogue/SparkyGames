@@ -1,6 +1,7 @@
 {
   "gutter_wisp": {
     "id": "gutter_wisp",
+    "codex_line": "Marsh-light with an appetite for small valuables.",
     "name": "Gutter-wisp",
     "hp": 6,
     "gleam": 4,
@@ -23,6 +24,7 @@
   },
   "wisp_pair": {
     "id": "wisp_pair",
+    "codex_line": "Two wisps, one bad idea between them.",
     "name": "A Conspiracy of Wisps",
     "hp": 12,
     "gleam": 6,
@@ -50,6 +52,7 @@
   },
   "chained_dog": {
     "id": "chained_dog",
+    "codex_line": "Fourteen stone, on eleven measured feet of chain.",
     "name": "The Dog (On a Chain)",
     "display_name": "The Dog\n(On a Chain)",
     "hp": 12,
@@ -78,6 +81,7 @@
   },
   "garden_watch": {
     "id": "garden_watch",
+    "codex_line": "A goose, kept for the purpose.",
     "name": "The Garden Watch",
     "hp": 8,
     "gleam": 5,
@@ -105,6 +109,7 @@
   },
   "garden_watch_captain": {
     "id": "garden_watch_captain",
+    "codex_line": "The senior goose. The chain of office is load-bearing.",
     "name": "Captain of the Watch",
     "hp": 16,
     "gleam": 8,
@@ -125,7 +130,8 @@
         "name": "Regulation Peck (past the guard)",
         "target": "health",
         "amount": 3,
-        "mode": "pierce"
+        "mode": "pierce",
+        "masked_until": 1
       }
     ],
     "flavor": "The goose has a chain of office. It is load-bearing.",
@@ -134,6 +140,7 @@
   },
   "rag_wraith": {
     "id": "rag_wraith",
+    "codex_line": "Clothes still holding the shape of somebody.",
     "name": "Rag-wraith",
     "hp": 18,
     "gleam": 12,
@@ -162,6 +169,7 @@
   },
   "the_unpicked": {
     "id": "the_unpicked",
+    "codex_line": "Her own work, pulled from the walls and worn wrong.",
     "name": "The Unpicked",
     "hp": 60,
     "gleam": 0,
@@ -195,6 +203,7 @@
   },
   "the_vole": {
     "id": "the_vole",
+    "codex_line": "Not a monster. Barely even a meal.",
     "name": "The Vole",
     "hp": 5,
     "gleam": 1,
@@ -217,6 +226,7 @@
   },
   "tallow_hound": {
     "id": "tallow_hound",
+    "codex_line": "A yard dog gone glossy on render-scraps.",
     "name": "The Tallow Hound",
     "hp": 14,
     "gleam": 8,
@@ -244,6 +254,7 @@
   },
   "candle_golem": {
     "id": "candle_golem",
+    "codex_line": "Poured wax on the night shift, wick lit.",
     "name": "A Candle-Golem",
     "hp": 16,
     "gleam": 10,
@@ -263,7 +274,8 @@
         "name": "Wax Over",
         "target": "skills",
         "amount": 1,
-        "mode": "jam"
+        "mode": "jam",
+        "masked_until": 1
       },
       {
         "name": "Drip",
@@ -277,6 +289,7 @@
   },
   "the_drowned": {
     "id": "the_drowned",
+    "codex_line": "Nearer every time you look. Never chasing.",
     "name": "One of the Drowned",
     "hp": 16,
     "gleam": 11,
@@ -295,7 +308,8 @@
       {
         "name": "Cold Hands",
         "target": "health",
-        "amount": 4
+        "amount": 4,
+        "masked_until": 2
       }
     ],
     "flavor": "Dry-footed on a wet street. Never fast. Always arriving.",
@@ -304,6 +318,7 @@
   },
   "the_tallowman": {
     "id": "the_tallowman",
+    "codex_line": "A century of votives in one patient, apologetic shape.",
     "name": "The Tallowman",
     "hp": 24,
     "gleam": 30,
@@ -322,7 +337,8 @@
       {
         "name": "Reform",
         "target": "heal",
-        "amount": 2
+        "amount": 2,
+        "masked_until": 1
       },
       {
         "name": "Candle Discipline",
@@ -334,7 +350,8 @@
         "name": "Hot Wax (past the guard)",
         "target": "health",
         "amount": 3,
-        "mode": "pierce"
+        "mode": "pierce",
+        "masked_until": 2
       }
     ],
     "flavor": "Wick's bodyguard: a gentle-voiced tower of votive wax. It would rather you left.",
@@ -343,6 +360,7 @@
   },
   "the_empty_coat": {
     "id": "the_empty_coat",
+    "codex_line": "Somebody's whole evening, worn empty.",
     "name": "The Empty Coat",
     "hp": 14,
     "gleam": 9,
@@ -356,7 +374,8 @@
       {
         "name": "Deep Pockets",
         "target": "hand",
-        "amount": 1
+        "amount": 1,
+        "masked_until": 1
       },
       {
         "name": "Wrap Tight",

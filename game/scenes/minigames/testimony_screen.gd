@@ -13,7 +13,15 @@ signal closed
 
 var state: TestimonyState
 var testimony: Dictionary = {}
+var coach_steps: Array = []
+var coach_auto := false
+var coach: Coach = null
 
+var _board: Control
+var _help: Button
+var _markers: Dictionary = {}
+var _scroll: ScrollContainer
+var _finished := false
 var _status: Label
 var _ribbon_box: VBoxContainer
 var _evidence_row: HFlowContainer
@@ -34,6 +42,8 @@ func _ready() -> void:
 	var shell := MinigameShell.build(self, witness_name,
 		func() -> void: closed.emit())
 	_status = shell["status"]
+	_board = shell["board"]
+	_help = shell["help"]
 
 	var column := VBoxContainer.new()
 	column.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -42,8 +52,9 @@ func _ready() -> void:
 
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.custom_minimum_size = Vector2(UITheme.CONTENT_WIDTH, 430)
+	scroll.custom_minimum_size = Vector2(UITheme.CONTENT_WIDTH, 400)
 	column.add_child(scroll)
+	_scroll = scroll
 	_ribbon_box = VBoxContainer.new()
 	_ribbon_box.add_theme_constant_override("separation", 10)
 	_ribbon_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -53,28 +64,64 @@ func _ready() -> void:
 		UITheme.italic_font(), UITheme.INK_SOFT)
 	column.add_child(_said)
 
-	var strip_title := UITheme.measured_label("The Casebook — tap a thing, then the words it breaks",
-		20, UITheme.CONTENT_WIDTH, UITheme.smallcaps_font(), UITheme.INK_SOFT)
+	var strip_title := UITheme.measured_label(
+		Strings.line("minigames.testimony.casebook"),
+		UITheme.TYPE_FLOOR, UITheme.CONTENT_WIDTH, UITheme.smallcaps_font(),
+		UITheme.INK_SOFT)
 	column.add_child(strip_title)
 	_evidence_row = HFlowContainer.new()
 	_evidence_row.add_theme_constant_override("h_separation", 6)
 	_evidence_row.add_theme_constant_override("v_separation", 6)
 	column.add_child(_evidence_row)
 
+	var row := MinigameShell.action_row(shell["actions"])
 	_patience_row = MinigameShell.PipRow.new()
-	_patience_row.custom_minimum_size = Vector2(160, 96)
-	shell["actions"].add_child(_patience_row)
-	var leave := UITheme.dark_button("Let it lie", 24, Vector2(220, 96))
+	_patience_row.custom_minimum_size = Vector2(200, MinigameShell.ACTION_HEIGHT)
+	row.add_child(_patience_row)
+	var leave := MinigameShell.leave_button(Strings.line("minigames.testimony.leave"))
+	leave.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	leave.pressed.connect(func() -> void:
 		state.do_command({"type": "leave"})
 		_finish())
-	shell["actions"].add_child(leave)
+	row.add_child(leave)
 
+	for key in ["ribbons", "casebook", "patience"]:
+		var marker := MinigameShell.Marker.new()
+		_board.add_child(marker)
+		_markers[key] = marker
+
+	_help.pressed.connect(_start_tutorial)
+	_help.visible = not coach_steps.is_empty()
 	_refresh()
+	if coach_auto:
+		_start_tutorial()
+
+
+func _start_tutorial() -> void:
+	coach = MinigameShell.start_tutorial(self, coach_steps, _coach_target, coach)
+
+
+func _coach_target(key: String) -> Control:
+	match key:
+		"board": return _board
+		"board:patience": return _patience_row
+		"board:ribbons": return _cover("ribbons", _scroll)
+		"board:casebook": return _cover("casebook", _evidence_row)
+	return null
+
+
+## Points at a live container by copying its rect — the marker is a child of
+## the board, so a container that scrolls or reflows stays covered.
+func _cover(key: String, over: Control) -> Control:
+	var marker: MinigameShell.Marker = _markers[key]
+	marker.cover(Rect2(over.global_position - _board.global_position,
+		over.size).grow(6.0))
+	return marker
 
 
 func _refresh() -> void:
-	_status.text = "%d said   ·   patience %d" % [state.visible.size(), state.patience]
+	_status.text = Strings.line("minigames.testimony.status",
+		[state.visible.size(), state.patience])
 	_patience_row.set_pips(state.patience, int(testimony.get("patience", 3)))
 
 	for child in _ribbon_box.get_children():
@@ -106,7 +153,7 @@ func _refresh() -> void:
 		chip.toggle_mode = true
 		chip.button_pressed = _selected_evidence == evidence_id
 		chip.custom_minimum_size = Vector2(0, 52)
-		chip.add_theme_font_size_override("font_size", 18)
+		chip.add_theme_font_size_override("font_size", 22)
 		chip.text = _evidence_name(String(evidence_id))
 		chip.pressed.connect(func() -> void:
 			_selected_evidence = "" if _selected_evidence == evidence_id else String(evidence_id)
@@ -143,5 +190,10 @@ func _on_ribbon(ribbon_id: String) -> void:
 
 
 func _finish() -> void:
+	if _finished:
+		return
+	_finished = true
+	if coach != null and is_instance_valid(coach):
+		coach.queue_free()
 	MinigameShell.show_outcome(self, state.outcome, testimony,
 		func() -> void: closed.emit())

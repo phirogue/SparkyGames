@@ -101,6 +101,26 @@ func test_suspects_reveal_with_the_evidence_that_names_them() -> void:
 	assert_eq(later.size(), 2, "the sealed stub puts Wick on the board")
 
 
+## Story-structure's rule: every chapter ends with at least one suspect
+## eliminated. The counterfoil is what proves Wick guilty of everything
+## except the murder, and the board must cross him off the moment it is held.
+func test_a_suspect_is_cleared_by_the_evidence_that_rules_him_out() -> void:
+	var catalog := _catalog()
+	var by_id := {}
+	for suspect in CaseState.suspects_known(catalog, _profile(["candle_stub"])):
+		by_id[String(suspect["id"])] = suspect
+	assert_true(not bool(by_id["wick"]["cleared"]),
+		"Wick stands accused while the counterfoil is unfound")
+	by_id = {}
+	for suspect in CaseState.suspects_known(catalog,
+			_profile(["candle_stub", "wick_counterfoil"])):
+		by_id[String(suspect["id"])] = suspect
+	assert_true(bool(by_id["wick"]["cleared"]),
+		"the strongbox counterfoil crosses Wick off the board")
+	assert_true(not bool(by_id["unpicked"]["cleared"]),
+		"the Unpicked has no clearing evidence and never clears")
+
+
 func test_threads_never_point_at_an_unmet_suspect() -> void:
 	var catalog := _catalog()
 	# cart_docket implicates the Gentleman AND reveals him, so both ends
@@ -302,7 +322,9 @@ func test_the_mantel_starts_with_one_door_and_earns_the_rest() -> void:
 	assert_true(doors["casebook"], "his own memory is always open")
 	assert_true(not doors["exchange"], "Brindle has to be found before she sells")
 	assert_true(not doors["case_board"], "an empty case board is the worst screen we have")
-	assert_true(not doors["loadout"], "nothing to choose between yet")
+	# Owner 2026-08-09: the spool is his from the first night — energy and
+	# action swapping must be reachable immediately, not earned.
+	assert_true(doors["loadout"], "On the Prowl is open from the start")
 
 	QuestGate.mark_done(fresh, QuestGate.MAGPIE_QUEST)
 	assert_true(QuestGate.doors(fresh)["exchange"],
@@ -310,10 +332,6 @@ func test_the_mantel_starts_with_one_door_and_earns_the_rest() -> void:
 
 	CaseState.add_evidence(fresh, "ev_cut_threads")
 	assert_true(QuestGate.doors(fresh)["case_board"], "something to pin opens the board")
-
-	fresh["skills"] = ["scratch", "pounce", "slink", "purr", "loaf", "swat"]
-	assert_true(QuestGate.doors(fresh)["loadout"],
-		"a kit wider than the tray makes choosing real")
 
 
 func test_the_first_board_holds_exactly_the_magpie() -> void:

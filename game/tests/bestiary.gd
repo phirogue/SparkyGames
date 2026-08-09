@@ -137,6 +137,13 @@ func _enemy_section(enemy_id: String) -> Array[String]:
 
 
 func _intent_effect(intent: Dictionary) -> String:
+	var masked := int(intent.get("masked_until", 0))
+	var suffix := " *(unreadable until Ash has fought it %s)*" % (
+		"once" if masked == 1 else "%d times" % masked) if masked > 0 else ""
+	return _intent_effect_body(intent) + suffix
+
+
+func _intent_effect_body(intent: Dictionary) -> String:
 	var amount := int(intent.get("amount", 0))
 	match String(intent.get("target", "")):
 		"health":

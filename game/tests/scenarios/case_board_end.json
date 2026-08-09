@@ -1,0 +1,19 @@
+{
+  "comment": "The Case Board at CHAPTER'S END: all six things found, every lead pulled, Wick crossed off by the strongbox counterfoil (suspects gain a cleared strike, 2026-08-09). Exists so the finished board -- full grid, three face-up suspects, the ClearedStrike over Wick -- can be reviewed and photographed without playing the whole chapter: `godot --path game -- --tour --tour-out <dir> --scene scenario:case_board_end`.",
+  "profile": {
+    "prologue_done": true,
+    "gleam": 160,
+    "skills": ["scratch", "pounce", "slink", "purr", "loaf", "swat", "shelf_justice"],
+    "case": {
+      "active": "wax_and_wick",
+      "evidence": ["candle_stub", "cart_docket", "wick_ledger", "shift_tally", "backward_seam", "wick_counterfoil"],
+      "leads_done": ["l1", "l2", "l3", "l4", "l5"]
+    },
+    "standing": {
+      "chandlers": -6,
+      "lamplighters": 4
+    },
+    "favors": ["lamplighters_knot", "cardew_grey_debt"]
+  },
+  "launch": "case"
+}

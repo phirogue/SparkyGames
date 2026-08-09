@@ -29,7 +29,14 @@ var mirrored: bool = false        # Ch3: clues are shown reflected (view-only)
 
 var sewn: Dictionary = {}         # edge id -> true
 var paws: int = 3                 # Squint budget
-var squint_hint: String = ""      # the edge Squint last called out
+## What Squint last said. TWO answers, because a stuck player has two
+## different problems and the old aid only ever spoke to one of them:
+##   squint_wrong -- a stitch that is sewn and should not be (unpick it)
+##   squint_sew   -- a stitch the finished seam uses and you have not sewn
+## The second is the one the owner asked for: an aid that only ever says
+## "something is wrong, somewhere" is an aid that does nothing.
+var squint_wrong: String = ""
+var squint_sew: String = ""
 var outcome: int = Minigame.Outcome.ONGOING
 var log: CommandLog
 
@@ -151,26 +158,36 @@ func _cmd_sew(edge_id: String) -> Dictionary:
 	if sewn.has(edge_id):
 		return _fail("that stitch is already sewn")
 	sewn[edge_id] = true
-	squint_hint = ""
+	_clear_hint()
 	_check_complete()
 	return _ok()
 
 
 ## Free, always. A calm puzzle punishes nothing about thinking again.
+##
+## Completion is checked HERE as well as after sewing. It was not, and that
+## is the whole of "when a legal solution is presented, nothing happens":
+## a player who over-sewed and then unpicked their way onto the answer had
+## already made the last move the game was listening for.
 func _cmd_unpick(edge_id: String) -> Dictionary:
 	if not has_edge(edge_id):
 		return _fail("no edge '%s' on this chart" % edge_id)
 	if not sewn.has(edge_id):
 		return _fail("there is no stitch there to unpick")
 	sewn.erase(edge_id)
-	squint_hint = ""
+	_clear_hint()
+	_check_complete()
 	return _ok()
 
 
-## Squint: name ONE stitch that is certainly wrong. "Certainly" means it is
-## sewn but absent from the chart's solution — never a guess, so the aid can
-## never mislead. Costs a paw; when nothing sewn is wrong it says so and
-## charges nothing (an aid that bills you for being right would be a cheat).
+## Squint: the chart says one true thing out loud, for a paw.
+##
+## It answers both of a stuck player's questions at once — what have I sewn
+## that the seam does not use, and where does the seam actually go — because
+## the previous version answered neither usefully ("nothing sewn is wrong,
+## yet" is not a hint, and the owner reported Squint as doing nothing).
+## Both answers are read off the chart's stored solution, so the aid can
+## never mislead. It charges only when it has something to say.
 func _cmd_squint() -> Dictionary:
 	if paws < 1:
 		return _fail("no paws left to squint with")
@@ -178,15 +195,47 @@ func _cmd_squint() -> Dictionary:
 	for edge_id in sewn:
 		if not _solution.has(edge_id):
 			wrong.append(String(edge_id))
-	if wrong.is_empty():
-		squint_hint = ""
+	wrong.sort()   # deterministic: the same board always names the same stitch
+	var missing := _next_solution_edge()
+	if wrong.is_empty() and missing == "":
+		# Nothing wrong and nothing left to add: the seam is already right.
+		# Billing for that would be a cheat.
+		_clear_hint()
 		_events.append("squint_clean")
-		return {"ok": true, "error": "", "hint": "", "clean": true}
-	wrong.sort()  # deterministic: the same board always names the same stitch
+		return {"ok": true, "error": "", "wrong": "", "sew": "", "clean": true}
 	paws -= 1
-	squint_hint = wrong[0]
+	squint_wrong = wrong[0] if not wrong.is_empty() else ""
+	squint_sew = missing
 	_events.append("squint")
-	return {"ok": true, "error": "", "hint": squint_hint, "clean": false}
+	return {"ok": true, "error": "", "wrong": squint_wrong, "sew": squint_sew,
+		"clean": false}
+
+
+## One stitch the finished seam uses that is not sewn yet, preferring one
+## that continues work already on the cloth — a hint next to your own paw
+## reads as "keep going", a hint across the board reads as a new puzzle.
+func _next_solution_edge() -> String:
+	var missing: Array[String] = []
+	for edge_id in _solution:
+		if not sewn.has(String(edge_id)):
+			missing.append(String(edge_id))
+	if missing.is_empty():
+		return ""
+	missing.sort()
+	var touched := {}
+	for edge_id in sewn:
+		for dot in edge_dots(String(edge_id)):
+			touched[dot] = true
+	for edge_id in missing:
+		for dot in edge_dots(edge_id):
+			if touched.has(dot):
+				return edge_id
+	return missing[0]
+
+
+func _clear_hint() -> void:
+	squint_wrong = ""
+	squint_sew = ""
 
 
 func _cmd_give_up() -> Dictionary:

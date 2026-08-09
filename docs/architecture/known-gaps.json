@@ -24,29 +24,10 @@
     "being fixed, not merely what is missing), `tracked_in` (the doc holding",
     "the real work), and whatever the matching check reads. Only the",
     "`missing_art` key has a reader today; adding a new kind of gap means",
-    "teaching the relevant check to look for it."
-  ],
-  "missing_art": {
-    "_why": [
-      "Chapter 1's back half (creditors, the_lamplighters_talk,",
-      "the_ward_that_failed, an_audience_of_wax) shipped 2026-08-08 with its",
-      "STORY complete and its art wave not yet generated. Art is generated in",
-      "owner-reviewed waves (chapter1-build-plan.md, art waves section), and",
-      "generation spends real money -- the content should not wait on the",
-      "batch, and the batch should not be fired without the owner's style",
-      "pass. Three backdrops and three enemies is the whole wave; everything",
-      "else in the new quests reuses wired art (ev_docket doubles as the",
-      "counterfoil, en_chained_dog as the tallow hound, bg_hollow_court as",
-      "the counting-house interior, which no battle ever renders)."
-    ],
-    "tracked_in": "docs/design/art-needed.md",
-    "ids": [
-      "bg_wickrow",
-      "bg_mereside",
-      "bg_guildhall",
-      "en_candle_golem",
-      "en_the_drowned",
-      "en_the_tallowman"
-    ]
-  }
+    "teaching the relevant check to look for it.",
+    "",
+    "The wave-2 acceptance (six Chapter 1 back-half ids, accepted 2026-08-08)",
+    "was deleted 2026-08-09 when the batch was generated, read and wired --",
+    "the guard that fails on healed gaps is why this file is empty again."
+  ]
 }

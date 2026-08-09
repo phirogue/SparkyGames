@@ -67,6 +67,9 @@ func _run() -> void:
 			# the hub route drives it through _tour_case_board instead.
 			await _shot("case_board")
 			break
+		elif script_path.contains("/minigames/"):
+			await _tour_minigame(screen, script_path)
+			break
 		elif script_path.ends_with("hub_screen.gd"):
 			# The first-visit walkthrough of the room, one shot a step. It has
 			# to be photographed BEFORE the doors are forced open below, since
@@ -115,6 +118,117 @@ func _run() -> void:
 	get_tree().quit(2)
 
 
+
+## Every mission minigame, photographed: its tutorial, its board, one real
+## move, and the card it ends on. Nothing here was in the tour before, which
+## is how a stitch grid with no right-hand edge and three modules that taught
+## nothing all reached an owner review (law 2, owner 2026-08-09).
+func _tour_minigame(screen: Control, script_path: String) -> void:
+	var module := script_path.get_file().replace("_screen.gd", "")
+	await _wait(0.5)
+	# The lesson plays itself on a fresh profile. Shoot every step of it.
+	var guard := 0
+	while screen.coach != null and screen.coach.active() and guard < 20:
+		await _shot("%s_lesson" % module)
+		screen.coach.force_advance()
+		await _wait(0.2)
+		guard += 1
+	await _wait(0.3)
+	await _shot("%s_board" % module)
+	match module:
+		"stitch": await _tour_stitch(screen)
+		"ward": await _tour_ward(screen)
+		"lattice": await _tour_lattice(screen)
+		"crossing": await _tour_crossing(screen)
+		"testimony": await _tour_testimony(screen)
+	await _shot("%s_end" % module)
+
+
+## Squint's callout, a half-sewn seam, and the seam closing — the three
+## states of the board that are not "an empty grid".
+func _tour_stitch(screen: Control) -> void:
+	screen._on_squint()
+	await _wait(0.3)
+	await _shot("stitch_squint")
+	var solution: Array = screen.chart.get("solution", [])
+	for i in solution.size():
+		screen.state.do_command({"type": "sew", "edge": String(solution[i])})
+		if i == solution.size() - 2:
+			screen._refresh()
+			await _wait(0.25)
+			await _shot("stitch_nearly")
+	screen._refresh()
+	await _wait(1.1)   # the seam cinches before the outcome card arrives
+
+
+## A patch carried out of the rack and dropped on the tear: the drag the
+## owner asked for, photographed mid-air and after it lands.
+func _tour_ward(screen: Control) -> void:
+	var move: Dictionary = screen.state.best_placement()
+	if move.is_empty():
+		return
+	var canvas = screen._canvas
+	var rack_index := 0
+	for i in screen.state.rack.size():
+		if String(screen.state.rack[i]["id"]) == String(move["patch"]):
+			rack_index = i
+	screen.on_press(canvas._rack_rects[rack_index].get_center())
+	await _wait(0.2)
+	await _shot("ward_picked_up")
+	var target: Vector2 = canvas._origin + Vector2(
+		(int(move["col"]) + 0.5) * canvas._step,
+		(int(move["row"]) + 0.5) * canvas._step)
+	screen.on_motion(target)
+	await _wait(0.2)
+	await _shot("ward_dragging")
+	screen.on_release(target)
+	await _wait(0.3)
+	await _shot("ward_placed")
+	screen.state.do_command({"type": "finish"})
+	screen._refresh()
+	await _wait(0.4)
+
+
+## One clean pull and one twang, so the alarm and the flash both get shot.
+func _tour_lattice(screen: Control) -> void:
+	var free := ""
+	var trapped := ""
+	for thread_id in screen.state.remaining():
+		if screen.state.can_pull(thread_id):
+			free = thread_id if free == "" else free
+		else:
+			trapped = thread_id if trapped == "" else trapped
+	# Named, not aimed: thread midpoints sit close enough together that a
+	# coordinate tap photographed a clean pull and called it a twang.
+	if trapped != "":
+		screen.pull_thread(trapped)
+		await _wait(0.3)
+		await _shot("lattice_twang")
+	if free != "":
+		screen.pull_thread(free)
+		await _wait(0.3)
+		await _shot("lattice_pulled")
+
+
+func _tour_crossing(screen: Control) -> void:
+	screen._command({"type": "press_on"}, "press")
+	await _wait(0.3)
+	await _shot("crossing_pressed")
+	screen._command({"type": "pick_line"}, "peek")
+	await _wait(0.3)
+	await _shot("crossing_peeked")
+	screen._command({"type": "shelter"}, "shelter")
+	await _wait(0.3)
+	await _shot("crossing_sheltered")
+
+
+func _tour_testimony(screen: Control) -> void:
+	var ribbons: Array = screen.state.visible.duplicate()
+	if not ribbons.is_empty():
+		screen._on_ribbon(String(ribbons[0]))
+		await _wait(0.3)
+		await _shot("testimony_pressed")
+
 ## The Case Board, its evidence note, and the "previously on" recap the same
 ## state composes. The prologue never finds evidence, so a tour of the real
 ## flow would only ever photograph an empty board — seed a mid-chapter state
@@ -159,9 +273,33 @@ func _tour_lessons() -> void:
 	for lesson_id in ["the_exchange", "the_case_board"]:
 		if not game.profile["taught"].has(lesson_id):
 			game.profile["taught"].append(lesson_id)
+	# Knowledge needs things OBSERVED or both explorer lists photograph
+	# empty; seed the prologue's own encounters.
+	game.profile["codex"]["enemies"] = ["the_vole", "gutter_wisp", "rag_wraith"]
+	game.profile["codex"]["places"] = ["rooftop_dusk", "needle_lane", "parlor_cold"]
 	game._show_journal()
 	await _wait(0.4)
 	var casebook: Control = game.current_screen
+	await _shot("casebook_deeds")
+	# The Knowledge explorer, both kinds, and one card of each opened FULL
+	# (owner 2026-08-09: the popup shows the whole image).
+	casebook._show_knowledge()
+	await _wait(0.3)
+	await _shot("casebook_creatures")
+	casebook._show_creature_card("gutter_wisp")
+	await _wait(0.45)
+	await _shot("casebook_creature_card")
+	casebook._close_card()
+	await _wait(0.3)
+	casebook._knowledge_kind = "places"
+	casebook._show_knowledge()
+	await _wait(0.3)
+	await _shot("casebook_places")
+	casebook._show_place_card("needle_lane")
+	await _wait(0.45)
+	await _shot("casebook_place_card")
+	casebook._close_card()
+	await _wait(0.3)
 	casebook._show_lessons()
 	await _wait(0.3)
 	await _shot("casebook_lessons")
@@ -216,6 +354,20 @@ func _tour_market_and_kit() -> void:
 	await _shot("loadout_spool_wound")
 	game.current_screen._close_spool()
 	await _wait(0.3)
+	# The swap choice (owner 2026-08-09): fill the tray back up, then ask for
+	# one more — the popup must turn into "choose what steps aside".
+	game.current_screen._open_skill("swat")
+	await _wait(0.3)
+	game.current_screen._equip("swat")
+	await _wait(0.3)
+	game.current_screen._open_skill("shelf_justice")
+	await _wait(0.3)
+	game.current_screen._equip("shelf_justice")
+	await _wait(0.45)
+	await _shot("loadout_swap_choice")
+	game.current_screen._apply_swap(0, "shelf_justice")
+	await _wait(0.45)
+	await _shot("loadout_swapped_chosen")
 	game._show_hub()
 	await _wait(0.5)
 

@@ -743,7 +743,7 @@ func _build_ui() -> void:
 	# of the book. The type size is now picked from the box.
 	var banner_box := Vector2(
 		UITheme.CONTENT_WIDTH - 12.0 - RULE_CARD_WIDTH - 32.0, ZONE_HEADER - 20.0)
-	var loc := UITheme.fitted_label(environment_def["name"], [30, 27, 24, 21],
+	var loc := UITheme.fitted_label(environment_def["name"], [30, 27, 24, 22],
 		banner_box, UITheme.display_font())
 	loc.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	loc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -851,9 +851,11 @@ func _build_ui() -> void:
 	deck_label = _status_chip(status_row, "ui/ui_spool", "deck")
 	_divider(status_row)
 	# Paw action points: one paw icon + how many placements remain.
+	# No tooltips anywhere in the battle (owner 2026-08-09: this is a mobile
+	# game, only clicks are registered) — what a thing does is taught by the
+	# coach and said by its own close-up.
 	paws_row = HBoxContainer.new()
 	paws_row.add_theme_constant_override("separation", 6)
-	paws_row.tooltip_text = "Actions left this turn — each energy placed costs a paw"
 	status_row.add_child(paws_row)
 	paws_row.add_child(PawIcon.new(true))
 	paws_label = Label.new()
@@ -976,8 +978,6 @@ func _build_ui() -> void:
 	action_row.add_child(concentrate_button)
 	slip_button = UITheme.dark_button("Slip Away", 24, Vector2(148, ZONE_ACTIONS))
 	slip_button.add_theme_font_override("font", UITheme.smallcaps_font())
-	slip_button.tooltip_text = \
-		"Leave now — but it gets its telegraphed move in as you go"
 	slip_button.pressed.connect(_on_slip_away)
 	action_row.add_child(slip_button)
 	# The button STAYS in a no_retreat fight (owner 2026-08-04): reaching for
@@ -1260,7 +1260,11 @@ func _refresh() -> void:
 		else "%d / %d" % [maxi(state.enemy_hp, 0), state.enemy_max_hp]
 	thread_bar.set_health(maxi(state.enemy_hp, 0), state.enemy_max_hp)
 	var intent := state.current_intent()
-	if state.hidden:
+	# A masked intent stays masked in EVERY branch — leaking the name through
+	# the stalk or spotted lines would undo the whole mechanic.
+	if state.intent_masked(intent):
+		intent_label.text = Strings.line("battle.intent_masked")
+	elif state.hidden:
 		intent_label.text = "Unaware. Its plan: %s" % intent["name"]
 	elif state.spotted:
 		intent_label.text = "%s! — it sees you" % intent["name"]
@@ -1284,7 +1288,6 @@ func _refresh() -> void:
 		[state.concentrate_left])
 	concentrate_button.disabled = state.concentrate_left <= 0 \
 		or not state.channel.is_empty() or state.statuses.get("loafed", 0) > 0
-	concentrate_button.tooltip_text = Strings.line("battle.concentrate_desc")
 	hp_label.text = "%d/%d" % [maxi(state.player_hp, 0), state.player_max_hp]
 	block_label.text = str(state.player_block)
 	deck_label.text = str(state.deck.size())
@@ -1315,7 +1318,6 @@ func _refresh_hand_fan() -> void:
 	var center := (n - 1) / 2.0
 	for i in n:
 		var b := _card_button(state.hand[i], CARD_SCALE)
-		b.tooltip_text = "Tap for a closer look"
 		b.pressed.connect(_on_card_pressed.bind(i))
 		hand_cards.add_child(b)
 		var offset := i - center
@@ -1426,7 +1428,7 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	b.add_child(value)
 	var name_label := Label.new()
 	name_label.text = Catalog.humour_name(String(humour))
-	name_label.add_theme_font_size_override("font_size", int(17 * scale))
+	name_label.add_theme_font_size_override("font_size", int(22 * scale))
 	name_label.add_theme_color_override("font_color", UITheme.INK)
 	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	# Raised band: the hand fan tucks card bottoms under the skill tray
@@ -1571,7 +1573,10 @@ func _skill_button(skill_id: String) -> Button:
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(name_label)
 
-	b.modulate = Color(1, 1, 1, 1.0 if _skill_playable(skill_id) else 0.45)
+	# Unplayable cards go DIM, never transparent (owner 2026-08-09: "the
+	# edges should not be transparent, let them feel like actual cards" —
+	# in a fan, a see-through card shows the neighbour through itself).
+	b.modulate = Color.WHITE if _skill_playable(skill_id) else Color(0.62, 0.6, 0.57)
 	b.pressed.connect(_on_skill_selected.bind(skill_id))
 	return b
 
@@ -1620,7 +1625,8 @@ func _effect_summary(def: Dictionary) -> String:
 func _intent_text(intent: Dictionary) -> String:
 	match intent["target"]:
 		"health": return "%d damage" % int(intent["amount"])
-		"skills": return "burns a charge" if intent.get("mode", "jam") == "burn" else "jams a skill"
+		"skills": return "burns away 1 use of an action, for good" \
+			if intent.get("mode", "jam") == "burn" else "jams an action for a turn"
 		"hand": return "steals %d card(s)" % int(intent["amount"])
 		"block": return "guards itself +%d" % int(intent["amount"])
 		"heal": return "mends itself %d" % int(intent["amount"])
@@ -1682,12 +1688,14 @@ func _close_modal(modal_overlay: Control, panel: Control) -> void:
 		panel.scale = Vector2.ONE)
 
 
-## A number that drifts up and fades — the classic hit read.
-func _float_text(text: String, color: Color, at_global: Vector2) -> void:
+## A number that drifts up and fades — the classic hit read. Damage numbers
+## run WAY larger than the word floats (owner 2026-08-09).
+func _float_text(text: String, color: Color, at_global: Vector2,
+		font_size := 48) -> void:
 	var label := Label.new()
 	label.text = text
 	label.add_theme_font_override("font", UITheme.display_font())
-	label.add_theme_font_size_override("font_size", 44)
+	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
 	label.z_index = 60
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1715,7 +1723,7 @@ func _anim_player_hurt(amount: int) -> void:
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	var hp_chip: Control = status_chips.get("hp", status_plate)
 	_float_text("-%d" % amount, Color("8a2f22"),
-		_control_center(hp_chip) - Vector2(16, 56))
+		_control_center(hp_chip) - Vector2(28, 92), 84)
 
 
 ## The defense worked: the guard chip swells and says how much it soaked.
@@ -1752,7 +1760,7 @@ func _anim_enemy_hurt(amount: int) -> void:
 	fade.tween_property(flash, "color:a", 0.0, 0.56)
 	fade.tween_callback(flash.queue_free)
 	_float_text("-%d" % amount, Color("8a2f22"),
-		_control_center(enemy_art) - Vector2(24, 40))
+		_control_center(enemy_art) - Vector2(40, 60), 84)
 
 
 ## A drawn card slides in from the deck chip on the status strip.

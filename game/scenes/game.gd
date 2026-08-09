@@ -386,7 +386,6 @@ func _build_settings_layer() -> void:
 	gear.custom_minimum_size = Vector2(52, 52)
 	gear.position = Vector2(8, 8)
 	gear.size = Vector2(52, 52)
-	gear.tooltip_text = "Settings"
 	gear.pressed.connect(_open_settings)
 	var glyph := MenuGlyph.new()
 	glyph.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -650,6 +649,10 @@ func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {
 		# ones. First three owned + the free Scratch until a picker exists.
 		"skills": _battle_loadout(),
 		"lingering": carryover.get("lingering", []),
+		# How well Ash knows this creature: finished fights against it, won
+		# or lost. Intents with masked_until stay unreadable until then.
+		"familiarity": _enemy_familiarity(
+			String(catalog.encounters[encounter_id]["enemies"][0])),
 	}
 	if carryover.has("skill_charges"):
 		config["skill_charges"] = carryover["skill_charges"]
@@ -667,6 +670,14 @@ func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {
 ## rule is testable without a scene tree.
 func _battle_loadout() -> Array:
 	return SaveService.battle_loadout(profile)
+
+
+## Fights finished against this enemy, won or lost — reading an opponent is
+## a matter of having stood in front of it, not of having beaten it.
+func _enemy_familiarity(enemy_id: String) -> int:
+	var stats: Dictionary = tracker.stats
+	return int(stats.get("defeated_" + enemy_id, 0)) \
+		+ int(stats.get("felled_by_" + enemy_id, 0))
 
 
 ## A scene's chapter-spine effects: evidence found, knots tied, guilds
@@ -1140,14 +1151,16 @@ func _show_hub() -> void:
 	_swap(screen)
 
 
-func _show_journal() -> void:
+func _show_journal(tab := "deeds") -> void:
 	var screen: Control = JournalScreen.new()
 	screen.setup(catalog, profile)
+	screen.initial_tab = tab
 	screen.closed.connect(_show_hub)
-	# Replaying a lesson comes back HERE, not to the hub, so a player brushing
-	# up on three rules in a row is not walked through the parlor each time.
+	# Replaying a lesson comes back HERE, onto the LESSONS tab (owner
+	# 2026-08-09) — a player brushing up on three rules in a row is neither
+	# walked through the parlor nor dropped back on Deeds each time.
 	screen.replay_lesson.connect(func(lesson_id: String) -> void:
-		_play_lesson(lesson_id, _show_journal))
+		_play_lesson(lesson_id, func() -> void: _show_journal("lessons")))
 	_swap(screen)
 
 
@@ -1183,12 +1196,32 @@ func _minigame_done() -> Callable:
 			_show_hub()
 
 
+## A minigame teaches itself over its own board the first time the player
+## meets it, and its "?" replays that lesson forever after (owner 2026-08-09:
+## three of the five modules "make no sense, need a tutorial"). The flag is a
+## profile flag rather than a `taught` entry because the lesson belongs to the
+## SCREEN, not to the Casebook's list of concepts — and an old save that has
+## already played a module implies nothing about having understood it, so the
+## migration is simply "you get the lesson once more".
+func _teach_module(screen: Control, module: String) -> void:
+	screen.coach_steps = catalog.tutorial_steps(module)
+	var flag := "taught_%s" % module
+	screen.coach_auto = not bool(profile["flags"].get(flag, false))
+	if screen.coach_auto:
+		profile["flags"][flag] = true
+
+
 func _show_stitch(chart_id: String, on_done := Callable()) -> void:
 	if not catalog.stitch_charts.has(chart_id):
 		push_error("unknown stitch chart '%s'" % chart_id)
 		return
+	var chart: Dictionary = catalog.stitch_charts[chart_id]
 	var screen: Control = StitchScreen.new()
-	screen.setup(catalog.stitch_charts[chart_id])
+	screen.setup(chart)
+	# A mirror chart is a different lesson, not the same one again: the rule
+	# that changed is the only rule the player has to be told twice.
+	_teach_module(screen, "stitch_mirror" if bool(chart.get("mirrored", false))
+		else "stitch")
 	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
 	_swap(screen)
 
@@ -1205,6 +1238,7 @@ func _show_testimony(testimony_id: String, on_done := Callable()) -> void:
 		held = catalog.evidence_ids().keys()
 	var screen: Control = TestimonyScreen.new()
 	screen.setup(catalog, catalog.testimonies[testimony_id], held)
+	_teach_module(screen, "testimony")
 	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
 	_swap(screen)
 
@@ -1216,6 +1250,7 @@ func _show_ward(ward_id: String, on_done := Callable()) -> void:
 	var screen: Control = WardScreen.new()
 	screen.setup(catalog, catalog.wards[ward_id],
 		carryover.get("deck", profile["deck"]))
+	_teach_module(screen, "ward")
 	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
 	_swap(screen)
 
@@ -1226,6 +1261,7 @@ func _show_lattice(lattice_id: String, on_done := Callable()) -> void:
 		return
 	var screen: Control = LatticeScreen.new()
 	screen.setup(catalog.lattices[lattice_id])
+	_teach_module(screen, "lattice")
 	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
 	_swap(screen)
 
@@ -1241,6 +1277,7 @@ func _show_crossing(crossing_id: String, on_done := Callable()) -> void:
 			"player_max_hp": int(profile["max_hp"]),
 			"deck": carryover.get("deck", profile["deck"]),
 		})
+	_teach_module(screen, "crossing")
 	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
 	_swap(screen)
 

@@ -22,6 +22,18 @@ const INK_FADED := Color("2b232080")
 const ACCENT_WARM := Color("9c5a28")
 const PARCHMENT := Color("f2e4c8")
 
+## ---- THE TYPE SCALE (owner standing order, 2026-08-09) -------------------
+## Small text was re-flagged at every review until it became a law. The
+## battle screen is the calibration reference; the floor is ENFORCED by
+## tests/unit/test_typography.gd, which reads font sizes out of the scene
+## sources — a size below TYPE_FLOOR is a red test, not a review comment.
+## (720-wide canvas ≈ 2x density: 30px here ≈ 15sp on a phone.)
+const TYPE_TITLE := 44     # screen titles
+const TYPE_HEADING := 34   # section headings, popup names
+const TYPE_BODY := 30      # anything the player must read to play
+const TYPE_SUPPORT := 26   # secondary lines: blurbs, flavor, captions
+const TYPE_FLOOR := 22     # the smallest legal player-facing size
+
 static var _cache: Dictionary = {}
 
 
@@ -85,7 +97,10 @@ static func art_or_placeholder(id: String, description: String) -> Control:
 	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var label := Label.new()
 	label.text = "[ %s ]\n%s" % [id, description]
-	label.add_theme_font_size_override("font_size", 18)
+	# The missing-art placeholder is diagnostic signage that must fit an id +
+	# description into ANY frame (evidence chips are 110px tall) — kb_check
+	# keeps it from ever shipping, and at the floor it overflows small boxes.
+	label.add_theme_font_size_override("font_size", 18)  # type-floor-exempt: diagnostic placeholder, never ships past kb_check
 	label.add_theme_color_override("font_color", Color.WHITE)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -462,7 +477,9 @@ static func amber_button(text: String, font_size := 30,
 	b.add_theme_font_override("font", display_font())
 	b.add_theme_font_size_override("font_size", font_size)
 	b.add_theme_stylebox_override("normal", amber_stylebox())
-	b.add_theme_stylebox_override("hover", amber_stylebox(Color(1.08, 1.05, 1.0)))
+	# Hover is a no-op everywhere (owner 2026-08-09: mobile game, only
+	# clicks are registered) — the pressed state is the tap feedback.
+	b.add_theme_stylebox_override("hover", amber_stylebox())
 	b.add_theme_stylebox_override("pressed", amber_stylebox(Color(0.85, 0.8, 0.75)))
 	b.add_theme_color_override("font_color", INK)
 	# Disabled reads unmistakably inactive (grey plate, faded label).
@@ -485,7 +502,7 @@ static func dark_button(text: String, font_size := 26,
 	b.custom_minimum_size = min_size
 	b.add_theme_font_size_override("font_size", font_size)
 	b.add_theme_stylebox_override("normal", dark_stylebox())
-	b.add_theme_stylebox_override("hover", dark_stylebox(Color(1.2, 1.2, 1.2)))
+	b.add_theme_stylebox_override("hover", dark_stylebox())
 	b.add_theme_stylebox_override("pressed", dark_stylebox(Color(0.8, 0.8, 0.8)))
 	b.add_theme_color_override("font_color", Color("e8e4d8"))
 	b.add_theme_color_override("font_hover_color", Color("e8e4d8"))
@@ -546,9 +563,10 @@ static func build() -> Theme:
 	# standard (see docs/research/2026-07-30-mobile-ui-research.md).
 	theme.default_font_size = 30
 
-	# Buttons: drawn parchment (see parchment_button_stylebox note).
+	# Buttons: drawn parchment (see parchment_button_stylebox note). Hover
+	# looks exactly like normal — this is a mobile game, only clicks exist.
 	theme.set_stylebox("normal", "Button", parchment_button_stylebox())
-	theme.set_stylebox("hover", "Button", parchment_button_stylebox(Color(1.05, 1.02, 0.95)))
+	theme.set_stylebox("hover", "Button", parchment_button_stylebox())
 	theme.set_stylebox("pressed", "Button", parchment_button_stylebox(Color(0.88, 0.84, 0.76)))
 	var disabled_box := parchment_button_stylebox()
 	disabled_box.bg_color.a = 0.5

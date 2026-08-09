@@ -15,6 +15,30 @@ the Tier-3 flavor bites — none may be built until promoted here.
 > tuning it still needs, are in
 > [2026-08-03-minigame-prototypes.md](../research/2026-08-03-minigame-prototypes.md).
 
+> **Owner pass, 2026-08-09.** The prototypes were played and came back with
+> a defect list. What it changed, in one place, because these override the
+> per-module text below where they disagree:
+>
+> - **Every module teaches itself.** Three of the five "make no sense, need
+>   a tutorial". Teaching is now coach marks over the live board, authored in
+>   `game/data/minigame_tutorials.json` and validated like any other content;
+>   a module plays its lesson on first sight and its **?** button replays it
+>   forever. The one-page blurbs in `lessons.json` stay as flavour, but they
+>   are not the teaching and never were.
+> - **Patch the Ward is drag-and-drop, and patches may stack.** Placement no
+>   longer refuses overlap or spill onto sound cloth; the only thing scored
+>   is how much of the tear is still open. See #3.
+> - **Squint says something.** It names a stitch to take out AND a gap the
+>   seam runs through. See #1.
+> - **The mirror chart's clues must be horizontally asymmetric**, or the
+>   reflection changes nothing. `chart_mirror` was symmetric and therefore
+>   indistinguishable from an ordinary chart; it was rewritten.
+> - **A closed seam is checked after an unpick too.** Solving by taking out
+>   the last wrong stitch used to do nothing at all.
+> - Boards are drawn through `MinigameShell.guide_line`: 1px un-antialiased
+>   lines were silently dropped by the mobile renderer, which is why the
+>   stitch grid shipped with no right-hand column or bottom row.
+
 Approved and in scope:
 
 | # | Minigame | Mandate |
@@ -48,12 +72,27 @@ tap a stitch to unpick it (free — calm puzzle, no punishment for
 thinking). Win: one single closed loop satisfying every number. The
 thread renders as real stitching and cinches taut on completion.
 
-- **Player aid, not timer:** optional `Squint` (cost: 1 paw) highlights
-  one certainly-wrong stitch. No hints beyond that; charts stay small.
+- **Player aid, not timer:** optional `Squint` (cost: 1 paw) says **two**
+  things, both read off the chart's stored solution so neither can be a
+  guess: one sewn stitch the seam does not use (drawn crossed, in blue),
+  and one stitch the seam DOES use that is not sewn yet (drawn as a blue
+  gap along the edge). It charges only when it has something to say.
+  *Revised 2026-08-09*: the original only ever answered "is anything
+  wrong?", and on a board with nothing wrong it answered "no" — which the
+  owner correctly reported as the aid doing nothing. No hints beyond
+  Squint; charts stay small.
+- **Feedback is a colour, not a fade.** A satisfied clue goes green with a
+  ring; an over-sewn one goes red with a ring. The original faded satisfied
+  clues to light grey, which was "barely noticeable".
 - **Mirror mode** (`mirrored: true`): the chart's clue numbers are shown
   as the reflection of the grid the player sews on — the Ch3 payoff where
   the player's own paw discovers what mirror-handed means
   (the-unraveler.md). Never used before Ch3.
+  **A mirrored chart's clue grid MUST be horizontally asymmetric**, and a
+  clue's colour follows the square it truly belongs to rather than the
+  square it is drawn over — otherwise the reflection is invisible and the
+  chart is an ordinary one wearing a warning label. The board carries a
+  standing banner saying the rule, plus a drawn mirror axis.
 - **Systems hooks:** completing a ritual grants its data-declared reward
   (evidence id / lingering `warmed` / story flag). Abandoning mid-chart =
   the walk-away outcome (the working "doesn't hold"; retry allowed, story
@@ -69,6 +108,31 @@ thread renders as real stitching and cinches taut on completion.
 - **Scope:** [M]. Rendering (dots, drag-edges, taut-cinch) is the bulk;
   rules are ~100 lines of pure core (RefCounted `StitchState`, same
   do_command pattern as combat, replayable and unit-testable).
+
+### Seam & Stitch — variants the owner floated (2026-08-09, NOT yet promoted)
+
+Written down so they are not re-invented, and so nobody builds them before
+they are asked for. Neither is in scope.
+
+- **Threads of more than one colour.** A chart where the seam is sewn in
+  two or three threads, each with its own rule (a colour that may not
+  cross itself, a colour that must touch every clue of its own hue). Turns
+  one loop into interleaved loops. Wants a real design pass — the clue
+  vocabulary has to say which colour it is counting, and the drawn board
+  is already at its legibility limit at 6x6.
+- **The Unpicking of a seam — one shot.** The inverse verb on the same
+  board: start with the seam finished and take stitches OUT, where a
+  removed stitch can never be put back. One wrong pull is permanent, so
+  the whole puzzle is read-before-you-touch rather than try-and-undo. It
+  is a different game from Seam & Stitch (which is deliberately calm and
+  free to undo) and it is thematically the Unraveler's, not Elspeth's —
+  which is either the reason to build it or the reason not to.
+
+Squint's honesty currently rests on the chart's stored solution being *the*
+solution. Nothing yet proves a chart has only one; if a second solution
+existed, Squint could call a correct stitch wrong. Shipped charts are small
+and hand-authored, but a uniqueness check in `validate_minigames_deep()` is
+owed before charts are ever generated rather than written.
 
 ## 2. Testimony — press the witness
 
@@ -116,11 +180,29 @@ offers thread-patch polyominoes; each patch is **paid with an energy card
 of its humour** from the player's actual hand/deck (the battle hand UI
 docks at the bottom, unchanged) — Moonlight pays any patch, spent is
 spent (the ward literally consumes tonight's energy; the mend is part of
-the prowl's economy, not free). Drag patches into the hole; rotation on
-double-tap. You will usually NOT cover everything: each uncovered cell
-carries a data-declared *lingering* effect into the next encounter
-(drafts: enemy first hit +1; cold: start 1 card down), and a perfect
-patch grants one (`warmed`, or the ward's own boon).
+the prowl's economy, not free). You will usually NOT cover everything:
+each uncovered cell carries a data-declared *lingering* effect into the
+next encounter (drafts: enemy first hit +1; cold: start 1 card down), and
+a perfect patch grants one (`warmed`, or the ward's own boon).
+
+- **Placement is a DRAG** (owner 2026-08-09): press a patch on the rack,
+  carry it onto the cloth, let go, and it lands where it was dropped.
+  Rotation is the **Turn it** button while the patch is in the paw. A tap
+  on a rack patch still picks it up and a second tap lays it, because a
+  single way into an interaction is how players get stuck (law 7). Tapping
+  a laid patch lifts it — the cloth comes free, the card does not.
+- **Patches may stack, and may hang over sound cloth** (owner 2026-08-09).
+  The only placement the rules refuse is one that falls off the grid. This
+  replaced an exact-cover rule that rejected any placement outside a
+  perfect tiling, which made a quilting game into a jigsaw with one answer
+  and made a mis-drop read as a bug rather than as waste. **The penalty
+  for a bad placement is already the right one: it closed nothing, and it
+  cost a card.** Only torn squares still OPEN are scored. Lifting the top
+  of a stack uncovers back to the patch underneath, which is why coverage
+  is recomputed from the laying order rather than erased cell by cell.
+- Shipped wards must still be *perfectly* coverable — the exact-cover
+  search in `validate_minigames_deep()` stays, as the proof that a perfect
+  mend exists for a player good enough to find it.
 
 - **Skill hook:** patching is where Ash's inheritance shows. Early
   charts' patches render crooked; after the Ch2 stitching lesson they
@@ -241,3 +323,33 @@ or brute-force validity check where applicable, tour stops with
 tap-budget, and `when_outcome` prose for all three outcomes. Charts/
 lattices/testimonies are content: they follow the same id discipline,
 validation, and "never hardcode in scripts" law as every other JSON.
+
+---
+
+## Teaching (added 2026-08-09)
+
+Every module owes the player an explanation, and the explanation is
+content. `game/data/minigame_tutorials.json` holds one entry per module —
+`stitch`, `stitch_mirror`, `ward`, `lattice`, `crossing`, `testimony` —
+each a list of coach-mark steps played over the module's real board by
+`ui/coach.gd`, the same overlay the prologue's battle uses.
+
+- A step with no `wait` is a **note**: a tap anywhere advances it.
+- A step with `"wait": true` is an **action**: it advances only when the
+  player performs it, so its target must be something they can always do
+  (law 17). That is why the action steps spotlight the whole board rather
+  than one particular edge or thread.
+- Targets are resolved per screen: `""` (a note in the middle of the
+  page), `board`, `board:<key>` (an invisible `MinigameShell.Marker` laid
+  over a drawn feature), or the name of a real button.
+- A module plays its lesson once — profile flag `taught_<module>` — and
+  the **?** in every board's header replays it on demand forever.
+- `Catalog._validate_tutorials()` fails the build if a module has fewer
+  than two steps, a step with no text, or an action step with no target.
+- `tests/tour.gd` photographs every step of every module's lesson, then
+  the board, then one real move, then the outcome card. Minigames were
+  absent from the tour entirely until this pass, which is how a grid
+  missing its right-hand column reached an owner review (law 2).
+
+The one-page blurbs in `data/lessons.json` remain as flavour and as the
+Casebook's replayable concept list. They are not the teaching.

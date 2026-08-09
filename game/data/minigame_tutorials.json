@@ -1,0 +1,219 @@
+{
+  "_notes": [
+    "HOW EACH MISSION MODULE IS TAUGHT (docs/design/minigames.md).",
+    "",
+    "Owner pass 2026-08-09: 'The Unpicking puzzle makes no sense, needs a",
+    "tutorial. The Long way around minigame makes no sense, needs a",
+    "tutorial. This minigame needs a tutorial' (Seam & Stitch). The one-page",
+    "blurbs in lessons.json are flavour; they never said what a clue counts,",
+    "what a break in a thread means, or what a gust does.",
+    "",
+    "These play as coach marks over the REAL board (ui/coach.gd), the same",
+    "overlay the prologue's battle uses. A step with no `wait` is a note:",
+    "tapping anywhere advances it. A step with `wait: true` only advances",
+    "when the player performs the action, and its target must therefore be",
+    "something they can always do (law 17) -- which is why the action steps",
+    "spotlight the whole board rather than one edge or one thread.",
+    "",
+    "Targets are resolved by each screen:",
+    "  ''             -- no spotlight; a note in the middle of the page",
+    "  'board'        -- the whole drawn board",
+    "  'board:<key>'  -- an invisible marker the screen lays over a feature",
+    "  anything else  -- a real button on the page (squint, turn, press...)",
+    "",
+    "A module plays its tutorial once, on first sight, and its '?' button",
+    "replays it forever after. `stitch_mirror` REPLACES `stitch` on a",
+    "mirrored chart -- the Ch3 payoff needs its own rule said out loud."
+  ],
+  "stitch": {
+    "id": "stitch",
+    "name": "Seam & Stitch",
+    "steps": [
+      {
+        "target": "",
+        "text": "A seam is ONE closed loop of thread. One. No loose ends, and never two circles."
+      },
+      {
+        "target": "board:clue",
+        "text": "Every number counts the stitches that touch its square. A 2 wants exactly two of that square's four sides sewn — no more."
+      },
+      {
+        "target": "board",
+        "text": "Tap between two dots to sew. Tap a stitch again to take it out. Unpicking is free: nothing here punishes thinking twice.",
+        "wait": true
+      },
+      {
+        "target": "board:clue",
+        "text": "A number turns GREEN and takes a ring when it has exactly what it asked for. It turns RED when you have given it too much."
+      },
+      {
+        "target": "squint",
+        "text": "Stuck? SQUINT costs a paw and tells the truth: a stitch to take out, a gap the seam runs through, or both."
+      },
+      {
+        "target": "",
+        "text": "Answer every number, close the loop, and the seam cinches taut on its own. Nothing else to press."
+      }
+    ]
+  },
+  "stitch_mirror": {
+    "id": "stitch_mirror",
+    "name": "Seam & Stitch, Backward",
+    "steps": [
+      {
+        "target": "",
+        "text": "You have sewn this before. The rules have not changed: one closed loop, every number answered."
+      },
+      {
+        "target": "board:mirror",
+        "text": "The CLUES have. They are pinned on backward, as if read in a glass — the number at the far left belongs to the square at the far RIGHT."
+      },
+      {
+        "target": "board:clue",
+        "text": "So a number lights green when the square it truly belongs to is satisfied, not the one it is sitting over. Follow the colour, not the position."
+      },
+      {
+        "target": "",
+        "text": "Ash's paw finds this easier than it should. That is the part he thinks about afterward."
+      }
+    ]
+  },
+  "ward": {
+    "id": "ward",
+    "name": "Patch the Ward",
+    "steps": [
+      {
+        "target": "",
+        "text": "A ward is a promise stitched into a doorway. This one tore, and the night is already leaning on it."
+      },
+      {
+        "target": "board:hole",
+        "text": "The dark squares are the tear. Every square you cover is a draft that does not get in."
+      },
+      {
+        "target": "board:rack",
+        "text": "Each patch is paid for with an energy card of its own humour, out of the same paw you fight with. Moonlight pays for any of them."
+      },
+      {
+        "target": "board:rack",
+        "text": "DRAG a patch off the rack and drop it on the cloth. Tap a patch already down to lift it — the cloth comes free, the card does not."
+      },
+      {
+        "target": "turn",
+        "text": "TURN IT rotates the patch you are holding, a quarter at a time."
+      },
+      {
+        "target": "board:hole",
+        "text": "Patches may sit on top of each other, and may hang over sound cloth. Nobody is grading the neatness — only the squares still OPEN count against you."
+      },
+      {
+        "target": "finish",
+        "text": "Stop when you have spent what you are willing to spend. Every square still open follows you into the next fight."
+      }
+    ]
+  },
+  "lattice": {
+    "id": "lattice",
+    "name": "The Unpicking",
+    "steps": [
+      {
+        "target": "",
+        "text": "Somebody wove this shut, and did it well. You are taking it apart one thread at a time without letting the whole thing seize."
+      },
+      {
+        "target": "board:free",
+        "text": "A thread you can follow ALL THE WAY along has nothing lying on top of it. Those slide out. They wear a brass tag at the head."
+      },
+      {
+        "target": "board:blocked",
+        "text": "A thread drawn with a BREAK in it runs underneath something else. The break is where the other thread crosses over it."
+      },
+      {
+        "target": "board",
+        "text": "Pull a free thread. Tap it once and it hisses out.",
+        "wait": true
+      },
+      {
+        "target": "board:alarm",
+        "text": "Pull a trapped one and the lattice twangs: the threads holding it flash, and the ALARM climbs. Fill the pips and you are heard."
+      },
+      {
+        "target": "",
+        "text": "Some workings argue back. Take one thread and another snaps across its neighbour — it trembles BLUE when it does. Read it again before you pull."
+      },
+      {
+        "target": "",
+        "text": "Every thread out, and the working is undone. Half of them out, and it is half undone, which is its own kind of answer."
+      }
+    ]
+  },
+  "crossing": {
+    "id": "crossing",
+    "name": "The Long Way Round",
+    "steps": [
+      {
+        "target": "",
+        "text": "Nothing to fight here. Same paw, same spool, same spent pile — a different question: what does it cost to get across?"
+      },
+      {
+        "target": "board:track",
+        "text": "The pips are the road home. RED is ground you have made. BRASS is ground the storm can no longer take back from you."
+      },
+      {
+        "target": "board:gust",
+        "text": "The gust owns one humour tonight. That plate says which."
+      },
+      {
+        "target": "board:paw",
+        "text": "Cards in your paw of that humour are RINGED. They are what the storm is reaching for."
+      },
+      {
+        "target": "press",
+        "text": "PRESS ON draws a card and moves you one step for every card in your paw — so a fat paw moves fast.",
+        "wait": true
+      },
+      {
+        "target": "board:track",
+        "text": "But press with a ringed card in paw and you SLIP: that much ground back, and it costs you health. Greed is the whole game."
+      },
+      {
+        "target": "shelter",
+        "text": "SHELTER ends the turn and banks what you have made — brass pips are yours for good. A new gust posts, and the night presses harder as it goes."
+      },
+      {
+        "target": "peek",
+        "text": "PICK THE LINE spends a paw to read the next gust before you commit to it."
+      },
+      {
+        "target": "away",
+        "text": "Or SLIP AWAY, and the long way round becomes the very long way round. The story will mention it."
+      }
+    ]
+  },
+  "testimony": {
+    "id": "testimony",
+    "name": "Testimony",
+    "steps": [
+      {
+        "target": "",
+        "text": "Ash cannot press a person. He can press anything else in the city, about people, and they answer him."
+      },
+      {
+        "target": "board:ribbons",
+        "text": "Each ribbon is something the witness said. Tap one to PRESS it — they elaborate, and now and then say more than they meant to."
+      },
+      {
+        "target": "board:casebook",
+        "text": "To catch a lie: pick the thing from the Casebook that disproves it, THEN tap the ribbon it breaks."
+      },
+      {
+        "target": "board:patience",
+        "text": "A wrong accusation spends patience. Run it out and they stop talking — the lead goes on, just poorer."
+      },
+      {
+        "target": "",
+        "text": "A ribbon you can already disprove wears a loose thread. You will never have to guess at one you cannot break yet."
+      }
+    ]
+  }
+}
