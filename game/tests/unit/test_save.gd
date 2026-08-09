@@ -2,8 +2,6 @@ extends TestCase
 ## SaveService: migration, deep-merge of new defaults into old saves, and a
 ## full write/read round-trip against scratch paths (never the real profile).
 
-const BattleScreen := preload("res://scenes/battle.gd")
-
 const TEST_PROFILE := "user://test_profile.json"
 const TEST_TEMP := "user://test_profile.tmp"
 const TEST_BACKUP := "user://test_profile.bak"
@@ -69,6 +67,42 @@ func test_migrate_v1_recalibration() -> void:
 	assert_eq(int(merged["schema_version"]),
 		int(SaveService.DEFAULT_PROFILE["schema_version"]),
 		"an old save migrates all the way to the current schema")
+
+
+func test_migrate_builds_the_collection_from_the_deck() -> void:
+	# v6, law 7: under the old economy a cut card was sold and gone, so an old
+	# save's collection is exactly the deck it carried — NOT the fresh-install
+	# starter pool the deep merge would otherwise hand it.
+	var merged := SaveService._migrate({
+		"schema_version": 5, "deck": ["ferocity_2", "guile_1"],
+	})
+	assert_eq(merged["card_pool"], ["ferocity_2", "guile_1"] as Array,
+		"an old save's card_pool is its deck, copy for copy")
+
+
+func test_migrate_repairs_a_deck_the_collection_misses() -> void:
+	# A current-schema profile whose deck outruns its pool (a hand-written
+	# scenario spec) is repaired by count, never by trimming the deck.
+	var merged := SaveService._migrate({
+		"schema_version": 6,
+		"deck": ["ferocity_1", "ferocity_1", "guile_2"],
+		"card_pool": ["ferocity_1"],
+	})
+	assert_eq(merged["card_pool"].count("ferocity_1"), 2,
+		"the pool grows to cover every copy the deck holds")
+	assert_eq(merged["card_pool"].count("guile_2"), 1,
+		"cards the pool never saw are added")
+	assert_eq(merged["deck"], ["ferocity_1", "ferocity_1", "guile_2"] as Array,
+		"the deck is never trimmed by the repair")
+
+
+func test_grant_card_feeds_deck_and_collection_together() -> void:
+	var profile := {"deck": ["guile_1"], "card_pool": ["guile_1"]}
+	SaveService.grant_card(profile, "shadow_3")
+	assert_eq(profile["deck"], ["guile_1", "shadow_3"] as Array,
+		"a granted card is on the spool immediately")
+	assert_eq(profile["card_pool"], ["guile_1", "shadow_3"] as Array,
+		"and in the collection forever")
 
 
 func test_save_load_round_trip() -> void:
@@ -140,7 +174,6 @@ func test_battle_loadout_never_exceeds_the_law() -> void:
 	})
 	assert_eq(loadout.size(), SaveService.LOADOUT_SIZE,
 		"loadout law: LOADOUT_SIZE out at a time, Scratch included")
-	# The battle tray is built with exactly this many columns; if the law
-	# moves, battle.gd's width budget has to move with it.
-	assert_eq(SaveService.LOADOUT_SIZE, BattleScreen.SKILL_COLUMNS,
-		"the skill tray must have one column per loadout slot")
+	# The battle tray FANS its cards (step compresses to fit), so there is no
+	# column count to pin against the law any more — the fan's own width
+	# arithmetic is asserted in test_rules.gd against SKILL_CARD_SIZE.

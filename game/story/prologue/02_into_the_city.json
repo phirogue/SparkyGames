@@ -12,8 +12,8 @@
       "portrait": "sc_shambles_day",
       "art_desc": "The Shambles at night: market stalls sleeping under canvas, crooked timber shopfronts, one lit lantern",
       "lines": [
-        "Below: the Shambles. Eight bells from the tower. There is no ninth bell — there used to be.",
         "Between the chimneys: a thread of silver light, thin as a hair, humming. Not mine. Not hers.",
+        "Below: the Shambles. Eight bells from the tower. There is no ninth bell — there used to be.",
         "I did not chase it. I am a professional."
       ]
     },
@@ -67,7 +67,7 @@
         },
         {
           "target": "intent",
-          "text": "Read the chip up top: it tells you the next move BEFORE it happens. Some moves take HEALTH. Some take a card out of your HAND. Guard stops damage only — it does not stop a theft."
+          "text": "Read the chip up top: it tells you the next move BEFORE it happens. Some moves take HEALTH. Some take a card out of your HAND."
         },
         {
           "target": "skill:slink",

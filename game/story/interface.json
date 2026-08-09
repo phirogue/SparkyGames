@@ -41,7 +41,6 @@
     "walked_in": "Walked in. Sometimes the front door is the trick.",
     "fed": "Fed %s to %s.",
     "used": "Ash: %s.",
-    "banked": "Banked %s.",
     "discarded": "Discarded %s. Gone till home.",
     "concentrate": "Ash stares at nothing. A %s comes back — next turn.",
     "enemy_move": "%s: %s%s",
@@ -76,7 +75,7 @@
       ],
       "exchange": [
         "The Magpie Exchange",
-        "Brindle. Cards bought and cut."
+        "Brindle. Cards and tonics, sold sharp."
       ],
       "loadout": [
         "On the Prowl",
@@ -86,6 +85,10 @@
         "The Casebook",
         "Deeds and knowledge."
       ]
+    },
+    "quest_note": {
+      "take": "Take the job",
+      "back": "Not tonight"
     }
   },
   "title": {
@@ -145,10 +148,14 @@
     },
     "withdraw_default": "This is not a fight. It is weather. Go around it.",
     "concentrate_desc": "Give up the whole turn to will one spent energy back onto the TOP OF THE DECK — you draw it next turn, not now. The enemy still moves. Twice a fight.",
-    "concentrate_label": "Concentrate ×%d"
+    "concentrate_label": "Concentrate ×%d",
+    "card_title": "%s — worth %d",
+    "card_desc": "Energy powers your actions — tap an action card below to feed it. Discard this and it is gone until you rest at home."
   },
   "exchange": {
     "greeting": "'Everything shines to somebody, pet. Have a look at what fell off the world this week.'",
+    "hint": "She waits. Tap a thing on the shelf and she will tell you about it.",
+    "spool_heading": "On your spool",
     "goods": {
       "add": [
         "A card for the deck",
@@ -156,11 +163,7 @@
       ],
       "rare": [
         "The good shelf",
-        "Thirds. He keeps them under the counter, wrapped."
-      ],
-      "remove": [
-        "Cut a card",
-        "Letting go. The rarest purchase in the district."
+        "Thirds. She keeps them under the counter, wrapped."
       ],
       "tonic": [
         "A tonic",
@@ -170,15 +173,67 @@
     "patter": {
       "add": "'An appetite for what, exactly?'",
       "rare": "'Ah. The good shelf. For a discerning paw.'",
-      "too_thin": "'Any thinner and you'll be running on spite alone. No.'",
-      "remove": "'Letting go. The rarest purchase. Which one?'",
       "no_more_tonic": "'You are one cat. There are limits. That was the last one.'",
       "tonic": "'Drink it all. Yes, it tastes like pond. Medicinal pond.'",
       "bought_card": "'A fine choice. It fell off a windowsill, if anyone asks.'",
       "bought_rare": "'Wrapped in yesterday's obituaries. For dignity.'",
-      "cut": "'Gone. You'll feel lighter on the stairs.'",
       "broke": "'Sentiment is lovely. Gleam is lovelier. Come back shinier.'"
+    },
+    "popup": {
+      "on_offer": "On offer",
+      "you_hold": "You hold %d",
+      "you_hold_none": "None on your spool yet",
+      "price": "%d gleam",
+      "buy": "Buy — %d gleam",
+      "back": "Put it back",
+      "worth": "Worth %d %s when spent.",
+      "tonic_rule": "%d more lives, up to a ceiling of %d. He carries %d now.",
+      "spend_title": "Spend it?",
+      "spend_body": "%s, for %d gleam. She is already reaching for it.",
+      "spend_yes": "Spend it",
+      "spend_no": "Not tonight"
     }
+  },
+  "loadout": {
+    "slots_heading": "What goes out with you — %d, and Scratch is always one",
+    "bench_heading": "Left on the mantel",
+    "bench_empty": "Nothing left on the mantel — everything Ash knows is going with him.",
+    "empty_slot": "nothing chosen",
+    "always_tag": " (always)",
+    "confirm": "Confirm Loadout",
+    "respool": "Re-spool",
+    "spool": {
+      "title": "The Spool",
+      "blurb": "Every card you own keeps at home. Wind on what should go out with him — changing your mind is free, and nothing is ever lost.",
+      "count": "%d on the spool · %d kept at home",
+      "floor": "The spool runs no thinner than %d.",
+      "done": "Wind it up"
+    },
+    "skill": {
+      "take": "Take it along",
+      "leave": "Leave it behind",
+      "put_down": "Set it down",
+      "keep": "Keep it",
+      "always": "Scratch goes where Ash goes. It is not a choice, which is the kindest thing about it."
+    }
+  },
+  "skill_rules": {
+    "_notes": [
+      "Rule text rendered from data/skills.json effects by ui/skill_text.gd,",
+      "shared by the battle close-up and the loadout close-up. Keys damage /",
+      "block / heal / draw take one number; channel_heal takes amount, turns."
+    ],
+    "damage": "Deal %d damage",
+    "block": "Block %d",
+    "heal": "Heal %d",
+    "draw": "Draw %d",
+    "channel_heal": "Heal %d per turn for %d turns. Ash lies still until it ends — taking damage breaks it",
+    "self_stun": "You cannot act next turn — and nothing can be stolen from your paws",
+    "needs": "needs %s",
+    "free": "free",
+    "instinct": "free, once per turn",
+    "charges": "%d uses a fight",
+    "instinct_uses": "Always there. Once a turn."
   },
   "dev": {
     "blurb": "Throwaway world — the real save is never touched. Everything below is read from the game's own data."

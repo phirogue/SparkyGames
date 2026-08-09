@@ -8,7 +8,7 @@ const TEMP_PATH := "user://profile.tmp"
 const BACKUP_PATH := "user://profile.bak"
 
 const DEFAULT_PROFILE := {
-	"schema_version": 5,
+	"schema_version": 6,
 	"prologue_done": false,
 	"gleam": 0,
 	# Level-1 Ash (owner calibration 2026-08-01): 10 HP; growth comes as
@@ -17,6 +17,15 @@ const DEFAULT_PROFILE := {
 	# Starter deck: 15 cards, ALL value 1 — potent 2s/3s are rewards, not
 	# starting kit (owner rarity rule).
 	"deck": [
+		"ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1",
+		"guile_1", "guile_1", "guile_1",
+		"shadow_1", "shadow_1", "shadow_1", "shadow_1",
+		"mysticism_1", "mysticism_1", "mysticism_1",
+	],
+	# Every energy card the player OWNS (v6). The deck is the subset that goes
+	# out; re-spooling at the loadout is free and non-destructive (owner
+	# 2026-08-08), so a card cut from the deck stays here forever.
+	"card_pool": [
 		"ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1",
 		"guile_1", "guile_1", "guile_1",
 		"shadow_1", "shadow_1", "shadow_1", "shadow_1",
@@ -116,10 +125,11 @@ static func _migrate(profile: Dictionary) -> Dictionary:
 	if merged["prologue_done"] and merged["skills"].size() <= 1:
 		merged["skills"] = PROLOGUE_SKILLS.duplicate()
 	# 2026-08-01 energy rename: moonlight became mysticism (the wild).
-	var migrated_deck: Array = []
-	for card_id in merged["deck"]:
-		migrated_deck.append(String(card_id).replace("moonlight", "mysticism"))
-	merged["deck"] = migrated_deck
+	for key in ["deck", "card_pool"]:
+		var renamed: Array = []
+		for card_id in merged[key]:
+			renamed.append(String(card_id).replace("moonlight", "mysticism"))
+		merged[key] = renamed
 	# v2 (2026-08-02): the level-1 recalibration. Old saves carried 20 HP
 	# and potent starter cards into a 10-HP, all-1s world.
 	if int(profile.get("schema_version", 1)) < 2:
@@ -162,7 +172,48 @@ static func _migrate(profile: Dictionary) -> Dictionary:
 			chronicle.record("prologue_done")
 			merged["chronicle"] = chronicle.to_list()
 		merged["schema_version"] = 5
+	# v6 (2026-08-08): the card collection. Cutting stopped being a purchase
+	# and became free selection at the loadout, which needs what the player
+	# OWNS stored apart from what they carry. Law 7 — what does an old save
+	# IMPLY? Under the old economy a cut card was sold and gone, so the
+	# collection is exactly the deck the save carried (the deep merge above
+	# would otherwise hand every old save the fresh-install starter pool).
+	if int(profile.get("schema_version", 1)) < 6:
+		merged["card_pool"] = merged["deck"].duplicate()
+		merged["schema_version"] = 6
+	# Repair, every load: the deck must never hold a card the collection does
+	# not (a hand-written scenario spec, or a reward that missed grant_card).
+	# Counts, not membership — decks repeat cards.
+	merged["card_pool"] = _pool_covering(merged["card_pool"], merged["deck"])
 	return merged
+
+
+## The pool, extended until it covers every copy the deck holds.
+static func _pool_covering(pool: Array, deck: Array) -> Array:
+	var have := {}
+	for card_id in pool:
+		have[card_id] = int(have.get(card_id, 0)) + 1
+	var need := {}
+	for card_id in deck:
+		need[card_id] = int(need.get(card_id, 0)) + 1
+	var out := pool.duplicate()
+	for card_id in need:
+		for _i in maxi(0, int(need[card_id]) - int(have.get(card_id, 0))):
+			out.append(card_id)
+	return out
+
+
+## A card enters the player's life: into the collection AND onto the spool,
+## so a bought or rewarded card is felt on the very next prowl without a
+## detour through the loadout. The ONE door for granting cards — appending
+## to profile["deck"] alone would desync the collection.
+static func grant_card(profile: Dictionary, card_id: String) -> void:
+	if not (profile.get("deck") is Array):
+		profile["deck"] = []
+	if not (profile.get("card_pool") is Array):
+		profile["card_pool"] = []
+	profile["deck"].append(card_id)
+	profile["card_pool"].append(card_id)
 
 
 ## Lessons a finished prologue has effectively already delivered -- the ones

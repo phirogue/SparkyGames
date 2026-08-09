@@ -252,6 +252,11 @@ func rewards() -> Dictionary:
 	return crossing.get("rewards", {})
 
 
+## What this session actually PAYS — the reward table only on a dry arrival.
+func earned_rewards() -> Dictionary:
+	return rewards() if outcome == Minigame.Outcome.SUCCESS else {}
+
+
 func take_events() -> Array[String]:
 	var events := _events.duplicate()
 	_events.clear()

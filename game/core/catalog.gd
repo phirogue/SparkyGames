@@ -692,6 +692,12 @@ func _validate_prowl_script(id: String, quest: Dictionary) -> Array[String]:
 				if environment != "" and not environments.has(environment):
 					problems.append("quest '%s' has a beat in unknown environment '%s'"
 						% [id, environment])
+				# A mistyped gate value would make the step play never (or
+				# always), which reads as a missing page, not as an error.
+				if step.has("when_minigame") \
+						and not ["success", "loss"].has(String(step["when_minigame"])):
+					problems.append("quest '%s' gates a beat on unknown minigame outcome '%s'"
+						% [id, step["when_minigame"]])
 			ProwlScript.NOTICE:
 				if Array(step.get("notes", [])).is_empty():
 					problems.append("quest '%s' has an empty notice step" % id)

@@ -81,24 +81,12 @@
           "text": "It telegraphs its next move here. Honesty is its one virtue."
         },
         {
-          "target": "hp",
-          "text": "The heart: your lives-worth of tonight. Guard it."
-        },
-        {
-          "target": "guard",
-          "text": "The shield: GUARD soaks a hit, then fades at turn's end."
-        },
-        {
-          "target": "deck",
-          "text": "The spool: energy still wound in your deck. It only ever unwinds — spent stays spent."
+          "target": "hand",
+          "text": "Your hand is ENERGY — tonight, all Ferocity."
         },
         {
           "target": "paws",
           "text": "Paws are actions. Placing an energy anywhere spends one. Three a turn."
-        },
-        {
-          "target": "hand",
-          "text": "Your hand is ENERGY — tonight, all Ferocity."
         },
         {
           "target": "skill:pounce",
@@ -125,12 +113,9 @@
           "text": "Four off its thread — that is what a powered card buys."
         },
         {
-          "target": "hand",
-          "text": "And two energies lighter. The spool does not rewind."
-        },
-        {
-          "target": "paws",
-          "text": "Two paws gone with them. Placing energy is the cost of doing anything."
+          "target": "deck",
+          "text": "And the spool — energy still wound in your deck — is two lighter. It only unwinds. Spent stays spent.",
+          "wait": false
         },
         {
           "target": "skill:scratch",

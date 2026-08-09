@@ -182,7 +182,8 @@ func _playable_skills(state: CombatState) -> Array[String]:
 
 func _playable(state: CombatState, skill_id: String) -> bool:
 	var def: Dictionary = catalog.skills.get(skill_id, {})
-	if def.is_empty() or state.statuses.get("loafed", 0) > 0:
+	if def.is_empty() or state.statuses.get("loafed", 0) > 0 \
+			or not state.channel.is_empty():
 		return false
 	if def.get("instinct", false):
 		return not state.instinct_used

@@ -91,47 +91,74 @@ case's own leads, blue = standing work, gold = a favour owed). Each note takes
 ±1.5° of rotation from a hash of its id, so the board looks pinned by a paw
 and not by a layout engine — and so it looks the *same* every launch.
 
+**Tapping a note opens it as a popup, it does not start the night** (owner
+2026-08-08). The popup shows the seal, the name and the board card large,
+with "Take the job" / "Not tonight" — a board of choices, not a row of
+triggers. Dim-tap backs out (law 13); the tour photographs it
+(`hub_quest_note`).
+
 The board zone scrolls internally when there are more notes than fit. Zone
 heights never move (law 12).
 
 ## The Magpie Exchange — the market
 
-Brindle is a **character**, and the shop screen is a conversation with him,
-not a table of SKUs. His portrait sits at the top with whatever he is saying
-right now; the goods are four plates on the shelf below; a price is a wax seal
-with a number on it. Buying opens the choice strip underneath (which humour,
-which card to cut) instead of a new screen — the whole transaction stays on
-one page.
+Brindle is a **character**, and the shop screen is a conversation with her,
+not a table of SKUs. Her portrait sits at the top with whatever she is saying
+right now; the goods are plates on the shelf below; a price is a wax seal
+with a number on it.
+
+**Nothing is bought blind** (owner 2026-08-08): tapping a good opens the
+counter POPUP — the cards on offer under their real names (the same names the
+battle and the spool use), each with what you already hold of it; a second
+tap opens one card close up, with what it is worth, what its humour means
+(pulled from `story/world/weft.json`, never re-written), and the buy button
+stating the price. The tonic opens straight on its close-up. Dim-tap backs
+out at every level (law 13).
+
+**Cutting is not sold here any more.** Re-spooling is free selection on the
+loadout screen; Brindle only ever sells. The old detail strip is now a
+possessions readout — the spool count and each humour's share, in glyphs —
+so "do I need another of these?" is answered before the popup even opens.
 
 | Zone | Height | Contents |
 |---|---|---|
 | header | 96 | back arrow, "The Magpie Exchange", gleam count |
-| brindle | 300 | portrait + his current line (his voice reacts to what you can afford) |
-| shelf | 480 | 2x2 goods: Add a card 12, The good shelf 30, Cut a card 15, Tonic 25 |
-| detail | 192 | the chosen good's options, or his refusal |
+| brindle | 300 | portrait + her current line (her voice reacts to what you can afford) |
+| shelf | 480 | goods: Add a card 12, The good shelf 30, Tonic 25 |
+| spool | 192 | "On your spool" — deck size + per-humour counts, and the tap hint |
 
-Prices come from the same constants the hub used, unchanged — this is a
-re-presentation of the existing economy, not a rebalance. Goods the player
-cannot afford are visibly *out of reach* (faded plate, seal greyed) rather
-than silently failing on tap, which is what the old four-button row did.
+Prices for what remains are unchanged. Goods the player cannot afford are
+visibly *out of reach* (faded plate, seal greyed) rather than silently
+failing on tap. Purchases land with a purse pulse and a spool pulse — motion
+is the receipt.
 
 ## The Loadout — "On the prowl"
 
 Built to `mock_loadout.png`. Scratch is permanent and shown as such (a fixed
-first slot with no swap), the other three slots are the picked skills, and the
-bench below holds everything owned but not carried. Tapping a bench card puts
-it in the first empty slot; tapping a slot returns it to the bench.
+first slot with no swap), the other slots are the picked skills, and the
+bench below holds everything owned but not carried.
+
+**Tapping any card opens it close up first** (owner 2026-08-08): art large,
+its cost, its uses, what it does (`ui/skill_text.gd`, the same renderer the
+battle popup uses) and its flavor — then "Take it along" / "Set it down" /
+"Keep it". A tap never moves a card sight-unseen. Scratch opens too, and
+says why it cannot be put down.
+
+**The deck is edited here now, for free.** The strip's "Re-spool" button
+opens THE SPOOL popup: every energy card owned (`profile["card_pool"]`, new
+in schema v6) with wind-on/wind-off steppers, floored at
+`exchange.deck_floor`. Winding is selection, not spending — a card wound off
+keeps forever. This replaced the Magpie's paid "Cut a card" good entirely.
 
 | Zone | Height | Contents |
 |---|---|---|
 | header | 96 | back arrow, "On the prowl" |
 | slots | 460 | 2x2 framed skill cards — the four Ash actually carries |
 | bench | 300 | owned-but-not-carried skills, as smaller cards |
-| deck | 104 | deck size and the four humour glyphs with counts |
+| deck | 104 | deck size + humour glyph counts, and the "Re-spool" button |
 | confirm | 96 | "Confirm Loadout" (amber) |
 
-The deck strip is read-only here — cards are bought and cut at the Exchange.
-It is on this screen because "what am I taking" is one question, and the
+It is all on this screen because "what am I taking" is one question, and the
 answer is skills *and* deck.
 
 ## What the build turned up (kept, because it will happen again)

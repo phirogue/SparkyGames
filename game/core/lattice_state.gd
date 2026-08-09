@@ -183,6 +183,11 @@ func rewards() -> Dictionary:
 	return lattice.get("rewards", {})
 
 
+## What this session actually PAYS — the reward table only on a full unpick.
+func earned_rewards() -> Dictionary:
+	return rewards() if outcome == Minigame.Outcome.SUCCESS else {}
+
+
 func take_events() -> Array[String]:
 	var events := _events.duplicate()
 	_events.clear()

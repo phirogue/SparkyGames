@@ -90,7 +90,7 @@ func test_energy_never_reshuffles() -> void:
 			break
 		if not state.do_command({"type": "play_skill", "skill_id": "pounce"})["ok"]:
 			state.do_command({"type": "end_turn"})
-	var total := state.deck.size() + state.hand.size() + state.banked.size() + state.spent.size()
+	var total := state.deck.size() + state.hand.size() + state.spent.size()
 	assert_eq(total, 10, "cards are conserved, never recycled")
 
 func test_slip_away_always_available() -> void:
@@ -247,6 +247,40 @@ func test_the_night_presses() -> void:
 	assert_true(int(state.flags["damage_taken"]) > 10,
 		"late turns hit harder — fights cannot stall forever")
 
+## Purr is a commitment (owner 2026-08-08: "The actions that take multiple
+## turns don't make sense as I seem to still be able to do things right
+## after"). While the channel holds, Ash plays nothing, feeds nothing and
+## concentrates on nothing — damage breaking the purr is what frees him.
+func test_purr_holds_ash_still_until_broken() -> void:
+	var state := CombatState.create(catalog, 3, {
+		"player_hp": 20,
+		"deck": ["mysticism_1", "mysticism_1", "shadow_1", "shadow_1", "guile_1", "guile_1"],
+		"skills": ["purr", "slink"],
+		"enemy": "chained_dog",  # intent order: hand, health, health
+	})
+	state.player_hp = 10
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "purr"}), "purr")
+	assert_rejected(state.do_command({"type": "play_skill", "skill_id": "scratch"}),
+		"even the instinct waits while the purr holds")
+	assert_rejected(state.do_command({"type": "charge_skill", "skill_id": "slink",
+		"source": "hand", "index": 0}), "no feeding energy while the purr holds")
+	state.spent.append("guile_1")
+	assert_rejected(state.do_command({"type": "concentrate", "humour": "guile"}),
+		"no concentrating while the purr holds")
+	state.spent.pop_back()
+	assert_ok(state.do_command({"type": "discard", "hand_index": 0}),
+		"letting go of a card asks nothing of him")
+	# Turn 1 enemy intent is Bark (hand) — no damage, the purr survives.
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_rejected(state.do_command({"type": "play_skill", "skill_id": "scratch"}),
+		"still purring on the second turn")
+	# Turn 2 intent is Lunge (health) — the hit breaks the purr and frees him.
+	assert_ok(state.do_command({"type": "end_turn"}))
+	assert_eq(state.channel.is_empty(), true, "the purr broke")
+	assert_ok(state.do_command({"type": "play_skill", "skill_id": "scratch"}),
+		"a broken purr frees him to act")
+
+
 func test_purr_heals_and_is_interrupted_by_damage() -> void:
 	var state := CombatState.create(catalog, 3, {
 		"player_hp": 20,
@@ -294,18 +328,18 @@ func test_skill_jam_blocks_use_and_recovers() -> void:
 	# so from the player's seat the skill was locked for exactly the enemy round.
 	assert_ok(state.do_command({"type": "play_skill", "skill_id": "pounce"}), "pounce after recovery")
 
-func test_bank_protects_combo_and_pays_costs() -> void:
+## Banking was REMOVED (owner 2026-08-08: "whats the point of banking a card
+## if it can be stolen"). The command must be refused as unknown and touch
+## nothing — a removed feature that half-works is worse than one that never
+## existed.
+func test_banking_is_gone() -> void:
 	var state := _wisp_fight()
-	# Find a ferocity card in hand and bank it.
-	var banked_index := -1
-	for i in state.hand.size():
-		if catalog.energy_cards[state.hand[i]]["humour"] == "ferocity":
-			banked_index = i
-			break
-	assert_true(banked_index >= 0, "seed 7 opening hand should contain ferocity")
-	assert_ok(state.do_command({"type": "bank", "hand_index": banked_index}), "bank")
-	assert_eq(state.banked.size(), 1, "banked pile")
-	assert_true(state.can_pay({"ferocity": 2}), "banked energy still counts toward costs")
+	var hand_before := state.hand.size()
+	assert_rejected(state.do_command({"type": "bank", "hand_index": 0}),
+		"the bank command no longer exists")
+	assert_eq(state.hand.size(), hand_before, "and the hand is untouched")
+	assert_rejected(state.do_command({"type": "charge_skill", "skill_id": "pounce",
+		"source": "bank", "index": 0}), "the bank energy source no longer exists")
 
 func test_loaf_stuns_self() -> void:
 	var state := _wisp_fight()
@@ -362,26 +396,30 @@ func test_charge_rejects_wrong_humour() -> void:
 		"source": "hand", "index": 1}), "pounce has no use for guile")
 
 func test_paws_limit_energy_placements() -> void:
+	# Draws pop from the BACK: opening hand is [guile, guile, fer, fer, fer];
+	# the deck keeps [ferocity, guile] and the turn-2 draw is that guile.
 	var state := CombatState.create(catalog, 7, {
 		"player_hp": 20,
-		"deck": ["ferocity_1", "ferocity_1", "ferocity_1", "ferocity_1",
-				"ferocity_1", "ferocity_1"],
-		"skills": ["pounce"],
+		"deck": ["ferocity_1", "guile_1", "ferocity_1", "ferocity_1",
+				"ferocity_1", "guile_1", "guile_1"],
+		"skills": ["pounce", "shelf_justice"],
 		"enemy": "gutter_wisp",
 		"shuffle": false,
 		"opening_hand": 5,
 	})
-	assert_ok(state.do_command({"type": "bank", "hand_index": 0}), "paw 1: bank")
-	assert_ok(state.do_command({"type": "bank", "hand_index": 0}), "paw 2: bank")
 	assert_ok(state.do_command({"type": "charge_skill", "skill_id": "pounce",
-		"source": "hand", "index": 0}), "paw 3: charge")
-	assert_rejected(state.do_command({"type": "charge_skill", "skill_id": "pounce",
+		"source": "hand", "index": 2}), "paw 1: feed pounce a ferocity")
+	assert_ok(state.do_command({"type": "charge_skill", "skill_id": "pounce",
+		"source": "hand", "index": 2}), "paw 2: feed pounce again")
+	assert_ok(state.do_command({"type": "charge_skill", "skill_id": "shelf_justice",
+		"source": "hand", "index": 0}), "paw 3: feed shelf justice a guile")
+	assert_rejected(state.do_command({"type": "charge_skill", "skill_id": "shelf_justice",
 		"source": "hand", "index": 0}), "fourth placement: out of paws")
-	assert_ok(state.do_command({"type": "discard", "hand_index": 0}),
+	assert_ok(state.do_command({"type": "discard", "hand_index": 1}),
 		"discarding is free — it only hurts you")
 	assert_ok(state.do_command({"type": "end_turn"}))
 	assert_eq(state.paws_left, state.paw_limit, "paws refill each turn")
-	assert_ok(state.do_command({"type": "charge_skill", "skill_id": "pounce",
+	assert_ok(state.do_command({"type": "charge_skill", "skill_id": "shelf_justice",
 		"source": "hand", "index": 0}), "fresh paws, fresh charge")
 
 func test_discard_is_gone_until_home() -> void:
@@ -400,7 +438,7 @@ func test_concentrate_wills_energy_back_and_costs_the_turn() -> void:
 	assert_ok(state.do_command({"type": "concentrate", "humour": "ferocity"}))
 	assert_eq(state.turn, turn_before + 1, "concentrating IS the turn")
 	assert_eq(state.spent.size(), 0, "the ferocity came back")
-	var total := state.deck.size() + state.hand.size() + state.banked.size() + state.spent.size()
+	var total := state.deck.size() + state.hand.size() + state.spent.size()
 	assert_eq(total, 10, "cards conserved through the recall")
 
 func test_command_log_records_only_successes() -> void:
@@ -488,7 +526,7 @@ func test_a_rejected_command_does_not_burn_the_approach() -> void:
 	assert_rejected(state.do_command({"type": "play_skill", "skill_id": "no_such_skill"}),
 		"an unknown skill")
 	assert_true(state.can_approach(), "a rejected skill tap must not close the window")
-	assert_rejected(state.do_command({"type": "bank", "hand_index": 99}), "a bad index")
+	assert_rejected(state.do_command({"type": "discard", "hand_index": 99}), "a bad index")
 	assert_true(state.can_approach(), "a mis-swiped card must not close the window")
 	assert_rejected(state.do_command({"type": "concentrate", "humour": "cheese"}),
 		"a humour that does not exist")

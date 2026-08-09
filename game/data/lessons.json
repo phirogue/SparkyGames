@@ -29,8 +29,8 @@
         {
           "title": "The Magpie Exchange",
           "lines": [
-            "Brindle buys and sells ENERGY CARDS. A card bought is a card in the spool the next time you go out.",
-            "She also CUTS: hand her a card you are sick of and it leaves the deck for good. A thin deck that is all teeth beats a fat one full of apologies."
+            "Brindle sells ENERGY CARDS. A card bought is a card in the spool the next time you go out.",
+            "Cutting costs nothing and happens at home: every card you own keeps, and you wind the spool you want from On the Prowl. A thin deck that is all teeth beats a fat one full of apologies."
           ]
         }
       ]
@@ -80,13 +80,29 @@
       "blurb": "Testimony: pull the ribbon that cannot hold.",
       "kind": "practice",
       "order": 40,
-      "scene": "testimony:shift_boss",
+      "scene": "testimony:goose_doorman",
       "pages": [
         {
           "title": "Testimony",
           "lines": [
             "Nobody in this city lies outright. They tell you a shape of a story, and one strand of it is doing more work than it can carry.",
             "Put a piece of EVIDENCE against a strand. If the two cannot both be true, the strand goes. What is left standing is what actually happened."
+          ]
+        }
+      ]
+    },
+    "favor_knots": {
+      "id": "favor_knots",
+      "name": "Favor-Knots",
+      "blurb": "Debts worn where everyone can see them.",
+      "kind": "pages",
+      "order": 45,
+      "pages": [
+        {
+          "title": "Favor-Knots",
+          "lines": [
+            "A favor owed to you is a KNOT tied in your thread, where anyone who reads the Weft can see it. Nobody welches on a visible debt.",
+            "A knot is spent, not saved: untying one opens a door that gleam cannot. The Case Board keeps count of who owes you."
           ]
         }
       ]
@@ -103,7 +119,7 @@
           "title": "Seam & Stitch",
           "lines": [
             "Each clue counts the threads that must touch it. Sew until every number is answered and no more.",
-            "SQUINT when you are stuck: it tells you whether anything already sewn is wrong. It does not tell you which. She never told me which either."
+            "SQUINT when you are stuck: it says whether anything already sewn is wrong. It does not say which."
           ]
         }
       ]
@@ -120,7 +136,7 @@
           "title": "Wards",
           "lines": [
             "A ward is a promise stitched into a doorway, and promises tear. Patch each gap with energy of the humour it is crying for.",
-            "MOONLIGHT patches anything, which is why she never had enough of it."
+            "MOONLIGHT patches anything, which is why there is never enough of it."
           ]
         }
       ]

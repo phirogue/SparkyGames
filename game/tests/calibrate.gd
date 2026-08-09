@@ -15,11 +15,11 @@ const ZONE_MAPS := {
 	# 1086; the six 3px separations make up CONTENT_HEIGHT's remaining 18.
 	"battle": [
 		["A header", 98, Color("c2884a")],
-		["B opponent", 396, Color("a24a3a")],
-		["C chronicle", 150, Color("7a6a4a")],
-		["D status", 56, Color("4a7a5a")],
+		["B opponent", 410, Color("a24a3a")],
+		["C chronicle (3 lines)", 134, Color("7a6a4a")],
+		["D status", 58, Color("4a7a5a")],
 		["E hand", 140, Color("4a5a8a")],
-		["F skills (5 x 107)", 150, Color("6a4a7a")],
+		["F skills (5 fanned)", 150, Color("6a4a7a")],
 		["G buttons", 96, Color("8a7a2a")],
 	],
 	"story": [
@@ -62,15 +62,15 @@ const ZONE_MAPS := {
 	"exchange": [
 		["header (back + title + purse)", 96, Color("c2884a")],
 		["brindle (portrait + patter)", 300, Color("a24a3a")],
-		["shelf (2 x 2 goods)", 480, Color("4a5a8a")],
-		["detail (the chosen good's options)", 192, Color("4a7a5a")],
+		["shelf (goods; popups hang off it)", 480, Color("4a5a8a")],
+		["spool (possessions readout + hint)", 192, Color("4a7a5a")],
 	],
 	# Keep in sync with loadout_screen.gd's ZONE_* constants.
 	"loadout": [
 		["header (back + title)", 96, Color("c2884a")],
 		["slots (3 x 2 cards)", 460, Color("a24a3a")],
 		["bench (owned, not carried)", 300, Color("4a5a8a")],
-		["deck readout", 104, Color("4a7a5a")],
+		["deck readout + re-spool button", 104, Color("4a7a5a")],
 		["confirm", 96, Color("8a7a2a")],
 	],
 	# Keep in sync with case_board_screen.gd's ZONE_* constants.

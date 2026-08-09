@@ -67,7 +67,7 @@
     },
     {
       "type": "story",
-      "environment": "parlor_cold",
+      "environment": "needle_lane_wrong",
       "when_flag": {
         "flag": "prologue_route",
         "value": 1
@@ -76,6 +76,7 @@
       "art_desc": "Ash in full sprint leaping between fence tops at night, fog blurred with speed, a dark window ahead",
       "lines": [
         "Over the fences, under the gate, up the drainpipe I have used nine hundred times.",
+        "The Lamplighters' hall goes by dark on my left. Later. If there is a later.",
         "Fast enough that something inside is still... busy."
       ]
     },

@@ -77,6 +77,17 @@ static func has_battle_after(quest: Dictionary, index: int) -> bool:
 	return false
 
 
+## A story step may be keyed to how the previous MINIGAME ended
+## (`"when_minigame": "success"` or `"loss"`), the way post-battle prologue
+## scenes key on `when_outcome`. A quest that narrates the same confession
+## after a won and a lost testimony is a canon bug — law 17's class, and the
+## reason this gate exists. Steps without the key always play.
+static func minigame_gate_blocks(step: Dictionary, last_won: bool) -> bool:
+	if not step.has("when_minigame"):
+		return false
+	return (String(step["when_minigame"]) == "success") != last_won
+
+
 ## The next fight's encounter id after `index`, or "" — what the Press On
 ## card previews.
 static func next_battle_after(quest: Dictionary, index: int) -> String:

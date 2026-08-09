@@ -162,6 +162,24 @@ func test_the_board_opens_up_as_the_arc_is_walked() -> void:
 		"then three real choices at once — this is where the night stops being a corridor")
 
 
+## Law 17's minigame cousin: a story step keyed to a minigame outcome plays
+## only on that outcome, so a lost testimony can never be followed by the
+## page that narrates the confession the player did not win.
+func test_story_steps_can_gate_on_the_minigame_outcome() -> void:
+	var won_page := {"type": "story", "when_minigame": "success", "lines": ["won"]}
+	assert_true(not ProwlScript.minigame_gate_blocks(won_page, true),
+		"the success page plays on a win")
+	assert_true(ProwlScript.minigame_gate_blocks(won_page, false),
+		"and is skipped on a loss")
+	var loss_page := {"type": "story", "when_minigame": "loss", "lines": ["lost"]}
+	assert_true(not ProwlScript.minigame_gate_blocks(loss_page, false),
+		"the loss page plays on a loss")
+	assert_true(ProwlScript.minigame_gate_blocks(loss_page, true),
+		"and is skipped on a win")
+	assert_true(not ProwlScript.minigame_gate_blocks(
+		{"type": "story", "lines": ["any"]}, false), "ungated steps always play")
+
+
 ## Growth is permanent and must never be farmable: the quest that hands it
 ## out has to be a `once` quest, or the tannery wall is an HP printer.
 func test_growth_is_only_granted_by_quests_that_cannot_repeat() -> void:

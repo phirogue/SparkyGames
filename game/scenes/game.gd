@@ -49,6 +49,10 @@ var encounter_index := 0
 var satchel := 0
 var carryover: Dictionary = {}
 var last_outcome := CombatState.Outcome.ONGOING
+## How the most recent minigame step ended, for `when_minigame` story gates —
+## the post-testimony page that narrates a confession the player never won
+## was this chapter's canon bug, same class as victory text after a retreat.
+var last_minigame_won := false
 
 
 var tour_mode := false
@@ -718,7 +722,7 @@ func _grant_growth(growth: Dictionary) -> void:
 	if not gained_cards.is_empty():
 		var names: Array[String] = []
 		for card_id in gained_cards:
-			profile["deck"].append(String(card_id))
+			SaveService.grant_card(profile, String(card_id))
 			names.append(String(catalog.energy_cards[card_id]["name"]))
 			# A card won mid-prowl joins THIS prowl too, or the reward is
 			# invisible until the player next comes home.
@@ -828,9 +832,12 @@ func _collect_minigame_rewards(state: Object) -> void:
 	var effects: Dictionary = {}
 	if state.has_method("break_effects"):
 		effects = state.break_effects()
-	for key in ["rewards", "effects"]:
-		if key in state and state.get(key) is Dictionary:
-			effects.merge(state.get(key))
+	# rewards() is a METHOD on every module state, never a property — the old
+	# property probe here matched nothing, so reward tables were silently
+	# skipped. earned_rewards() also gates on SUCCESS: a walked-away ward must
+	# not tie the guild's knot.
+	if state.has_method("earned_rewards"):
+		effects.merge(state.earned_rewards())
 	for evidence_id in effects.get("evidence", []):
 		_find_evidence(String(evidence_id))
 	for lead_id in effects.get("leads_done", []):
@@ -888,7 +895,7 @@ func _digest(state: CombatState) -> void:
 			charges[s["id"]] = s["charges_left"]
 		# The pool persists between encounters (owner rule: no reset until
 		# a rest); spent stays spent — EXCEPT one breath back with a win.
-		var pool: Array = state.deck + state.hand + state.banked
+		var pool: Array = state.deck + state.hand
 		var spent_pool: Array = state.spent.duplicate()
 		if state.outcome == CombatState.Outcome.VICTORY and not spent_pool.is_empty():
 			var best_i := 0
@@ -1013,7 +1020,7 @@ func _run_prologue_scene(index: int) -> void:
 				var deck: Array = carryover.get("deck", profile["deck"].duplicate())
 				deck.append(scene["add_card"])
 				carryover["deck"] = deck
-				profile["deck"].append(scene["add_card"])
+				SaveService.grant_card(profile, String(scene["add_card"]))
 				_save()
 			var config := _story_config(scene["environment"], scene["lines"])
 			if scene.has("portrait"):
@@ -1335,6 +1342,9 @@ func _run_prowl_story(step: Dictionary, on_done: Callable) -> void:
 		if int(profile["flags"].get(gate["flag"], -1)) != int(gate["value"]):
 			on_done.call()
 			return
+	if ProwlScript.minigame_gate_blocks(step, last_minigame_won):
+		on_done.call()
+		return
 	_apply_scene_spine(step)
 	if step.has("grant_growth"):
 		_grant_growth(step["grant_growth"])
@@ -1366,6 +1376,7 @@ func _run_prowl_minigame(step: Dictionary, on_done: Callable) -> void:
 	var module := String(step.get("module", ""))
 	var content_id := String(step.get("id", ""))
 	var after := func(won: bool) -> void:
+		last_minigame_won = won
 		var lines: Array = step.get("on_win_lines" if won else "on_loss_lines", [])
 		if lines.is_empty():
 			on_done.call()

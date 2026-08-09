@@ -13,13 +13,14 @@ extends RefCounted
 ##
 ##   1. A REJECTED command changes nothing. This is the big one: half-applied
 ##      actions are how "I got a free card" bugs happen.
-##   2. Energy is conserved. deck + hand + banked + spent never changes count.
+##   2. Energy is conserved. deck + hand + spent never changes count.
 ##      Nothing in the rules creates or destroys an energy card mid-fight.
 ##   3. Spent is spent. The deck only grows on the two commands allowed to
 ##      return energy (concentrate, and end_turn's sunbeam) — CLAUDE.md's
 ##      "energy never reshuffles" law, enforced instead of remembered.
 ##   4. Bounds hold: hp <= max, block/alarm/paws never negative, paws never
-##      exceed the limit, the bank never exceeds BANK_LIMIT.
+##      exceed the limit. A held purr means no skill/charge/concentrate is
+##      ever accepted (the purr holds him still).
 ##   5. A finished encounter is finished. No command is accepted afterwards.
 ##   6. The run terminates. No sequence of commands may spin forever.
 ##   7. The log replays. Same seed + same commands = the same final state,
@@ -39,7 +40,7 @@ const STALL_LIMIT := 12
 const PERSONAS: Array[String] = [
 	"random_legal",      # taps anything legal, forever
 	"chaos_illegal",     # sends malformed and illegal commands too
-	"hoarder",           # banks and charges everything, never fires
+	"hoarder",           # charges everything onto skills, never fires
 	"discarder",         # throws the whole hand away every turn
 	"overcharger",       # keeps feeding a skill that is already powered
 	"concentrator",      # gives up every single turn to will energy back
@@ -47,6 +48,7 @@ const PERSONAS: Array[String] = [
 	"instinct_only",     # scratch and nothing else, forever
 	"approach_spammer",  # tries every entrance, repeatedly, then dawdles
 	"pacifist",          # ends turn and never acts: dies to the night pressing
+	"purrer",            # starts a purr then keeps trying to act through it
 ]
 
 ## Every humour plus junk, so concentrate is asked for things that cannot
@@ -96,11 +98,12 @@ func play(encounter_id: String, persona: String, seed_value: int,
 		var command := _next_command(state, persona, stall)
 		var before := _snapshot(state)
 		var deck_before: int = state.deck.size()
+		var channel_before: bool = not state.channel.is_empty()
 		var result := state.do_command(command)
 		commands += 1
 		if result["ok"]:
 			stall = 0
-			_check_accepted(state, command, deck_before)
+			_check_accepted(state, command, deck_before, channel_before)
 		else:
 			rejected += 1
 			stall += 1
@@ -145,7 +148,7 @@ func build_config(encounter_id: String, skills: Array = []) -> Dictionary:
 func _snapshot(state: CombatState) -> String:
 	return JSON.stringify({
 		"hp": state.player_hp, "block": state.player_block,
-		"deck": state.deck, "hand": state.hand, "banked": state.banked,
+		"deck": state.deck, "hand": state.hand,
 		"spent": state.spent, "skills": state.skills,
 		"statuses": state.statuses, "channel": state.channel,
 		"instinct": state.instinct_used, "sharpened": state.sharpened,
@@ -158,12 +161,11 @@ func _snapshot(state: CombatState) -> String:
 
 
 func _count_cards(state: CombatState) -> int:
-	return state.deck.size() + state.hand.size() + state.banked.size() \
-		+ state.spent.size()
+	return state.deck.size() + state.hand.size() + state.spent.size()
 
 
 func _check_accepted(state: CombatState, command: Dictionary,
-		deck_before: int) -> void:
+		deck_before: int, channel_before: bool) -> void:
 	var kind := String(command.get("type", ""))
 	if _count_cards(state) != _card_total:
 		_violation("'%s' changed the energy count: %d, was %d" % [
@@ -179,9 +181,8 @@ func _check_accepted(state: CombatState, command: Dictionary,
 	if state.paws_left < 0 or state.paws_left > state.paw_limit:
 		_violation("paws %d outside 0..%d after '%s'" % [
 			state.paws_left, state.paw_limit, kind])
-	if state.banked.size() > state.bank_limit:
-		_violation("bank holds %d, limit is %d" % [
-			state.banked.size(), state.bank_limit])
+	if channel_before and ["play_skill", "charge_skill", "concentrate"].has(kind):
+		_violation("'%s' was accepted while the purr held" % kind)
 	if state.alarm < 0:
 		_violation("negative alarm (%d) after '%s'" % [state.alarm, kind])
 	if state.enemy_hp > state.enemy_max_hp:
@@ -257,10 +258,8 @@ func _next_command(state: CombatState, persona: String, stall: int) -> Dictionar
 			var options := _legal_commands(state)
 			return options[_rng.pick_index(options.size())]
 		"hoarder":
-			# Never fires anything: banks, charges, and hoards until the
-			# night presses kill him. Exercises full banks and over-charge.
-			if state.banked.size() < state.bank_limit and not state.hand.is_empty():
-				return {"type": "bank", "hand_index": 0}
+			# Never fires anything: charges and hoards until the night
+			# presses kill him. Exercises over-charge and paw exhaustion.
 			if not state.hand.is_empty() and not state.skills.is_empty():
 				return {"type": "charge_skill",
 					"skill_id": state.skills[0]["id"], "source": "hand", "index": 0}
@@ -270,15 +269,11 @@ func _next_command(state: CombatState, persona: String, stall: int) -> Dictionar
 				return {"type": "discard", "hand_index": 0}
 			return {"type": "end_turn"}
 		"overcharger":
-			# Keeps feeding one skill past full power, from either pool.
-			if state.skills.is_empty():
-				return {"type": "end_turn"}
-			var source := "hand" if not state.hand.is_empty() else "bank"
-			var pool: Array = state.hand if source == "hand" else state.banked
-			if pool.is_empty():
+			# Keeps feeding one skill past full power.
+			if state.skills.is_empty() or state.hand.is_empty():
 				return {"type": "end_turn"}
 			return {"type": "charge_skill", "skill_id": state.skills[0]["id"],
-				"source": source, "index": 0}
+				"source": "hand", "index": 0}
 		"concentrator":
 			var humours := Catalog.HUMOURS
 			return {"type": "concentrate",
@@ -302,6 +297,15 @@ func _next_command(state: CombatState, persona: String, stall: int) -> Dictionar
 			return {"type": "end_turn"}
 		"pacifist":
 			return {"type": "end_turn"}
+		"purrer":
+			# Starts the purr, then hammers at everything the purr is meant
+			# to forbid — every one of those must be rejected cleanly.
+			if state.channel.is_empty():
+				return {"type": "play_skill", "skill_id": "purr"}
+			match _rng.pick_index(3):
+				0: return {"type": "play_skill", "skill_id": "scratch"}
+				1: return {"type": "concentrate", "humour": "ferocity"}
+				_: return {"type": "end_turn"}
 	return {"type": "end_turn"}
 
 
@@ -317,11 +321,7 @@ func _legal_commands(state: CombatState) -> Array[Dictionary]:
 		for i in state.hand.size():
 			options.append({"type": "charge_skill", "skill_id": entry["id"],
 				"source": "hand", "index": i})
-		for i in state.banked.size():
-			options.append({"type": "charge_skill", "skill_id": entry["id"],
-				"source": "bank", "index": i})
 	for i in state.hand.size():
-		options.append({"type": "bank", "hand_index": i})
 		options.append({"type": "discard", "hand_index": i})
 	for humour in Catalog.HUMOURS:
 		options.append({"type": "concentrate", "humour": humour})
@@ -344,8 +344,10 @@ func _illegal_command(state: CombatState) -> Dictionary:
 		{"type": "charge_skill", "skill_id": "pounce", "source": "pocket", "index": 0},
 		{"type": "charge_skill", "skill_id": "pounce", "source": "hand", "index": -1},
 		{"type": "charge_skill", "skill_id": "pounce", "source": "hand", "index": 999},
-		{"type": "bank", "hand_index": -1},
-		{"type": "bank", "hand_index": state.hand.size() + 5},
+		# Banking was REMOVED 2026-08-08; the command and its old energy
+		# source must stay refused forever, not quietly half-work.
+		{"type": "bank", "hand_index": 0},
+		{"type": "charge_skill", "skill_id": "pounce", "source": "bank", "index": 0},
 		{"type": "discard", "hand_index": -3},
 		{"type": "discard", "hand_index": 9999},
 		{"type": "approach", "mode": "backflip"},

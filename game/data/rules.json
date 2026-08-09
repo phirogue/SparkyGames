@@ -21,12 +21,12 @@
 
   "combat": {
     "_notes": [
-      "Hand and bank are the shape of a turn; paws are how much you may DO in",
-      "one. Spent energy never reshuffles (owner rule, load-bearing) -- that",
-      "is structure, not a dial, and has no key here on purpose."
+      "The hand is the shape of a turn; paws are how much you may DO in one.",
+      "Spent energy never reshuffles (owner rule, load-bearing) -- that is",
+      "structure, not a dial, and has no key here on purpose. Banking was",
+      "removed 2026-08-08 (owner: a saved card was just a stolen card waiting)."
     ],
     "hand_limit": 5,
-    "bank_limit": 2,
     "paws": 3,
     "opening_hand": 3,
     "concentrate_uses": 2,
@@ -86,15 +86,17 @@
     "_notes": [
       "The Magpie Exchange. What each good COSTS is a rule; what it is CALLED",
       "is writing and lives in story/interface.json keyed by mode (law 20).",
-      "deck_floor is the thinnest deck Brindle will sell you down to -- an",
-      "unbounded thinner turns the spool from a fuel gauge into a combo."
+      "deck_floor is the thinnest spool the loadout's re-spool editor allows",
+      "(owner 2026-08-08: cutting is free selection at home, not a purchase)",
+      "-- an unbounded thinner turns the spool from a fuel gauge into a combo.",
+      "tonic_hp is what one tonic adds to Ash's lives."
     ],
     "max_hp_cap": 30,
     "deck_floor": 10,
+    "tonic_hp": 2,
     "goods": [
       { "mode": "add", "cost": 12, "seal": "ui/ui_seal_red" },
       { "mode": "rare", "cost": 30, "seal": "ui/ui_seal_gold" },
-      { "mode": "remove", "cost": 15, "seal": "ui/ui_seal_blue" },
       { "mode": "tonic", "cost": 25, "seal": "ui/ui_seal_red" }
     ]
   },

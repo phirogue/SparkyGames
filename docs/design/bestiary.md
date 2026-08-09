@@ -22,7 +22,7 @@ the strategy, which is why it is printed in order.
 | `health` + `pierce` | Damage that **ignores block** | Out-damage it; turtling loses |
 | `skills` + `jam` | Locks a skill for N turns | Spread the loadout; hold a second answer |
 | `skills` + `burn` | Destroys a skill charge **permanently** | Spend charges before they are taken |
-| `hand` | Steals energy from hand (or bank) | Play cards out; bank what matters |
+| `hand` | Steals energy from your hand | Play cards out; Loaf guards them |
 
 From **turn 8** every enemy strike gains +2 per turn (the night
 presses). No fight is meant to last past ~turn 10.
@@ -51,11 +51,11 @@ different problem in a different place.
 
 **12 hp**  ·  **7 gleam**  ·  cycle of 3, repeating
 
-Fought in: A Meeting Declined (Needle Lane, Night), The Usual Objection (Needle Lane, Night)
+Fought in: A Meeting Declined (Needle Lane, Night), Something That Fights Back, Harder (The Back Gardens), The Usual Objection (Needle Lane, Night)
 
 | Turn | Move | Target | Effect |
 |---|---|---|---|
-| 1 | **Bark** | `hand` | steals 1 energy from hand (bank if hand is empty) |
+| 1 | **Bark** | `hand` | steals 1 energy from your hand |
 | 2 | **Lunge** | `health` | 4 damage, blockable |
 | 3 | **Slaver** | `health` | 2 damage, blockable |
 
@@ -69,12 +69,12 @@ Fought in: A Meeting Declined (Needle Lane, Night), The Usual Objection (Needle 
 
 **8 hp**  ·  **5 gleam**  ·  cycle of 3, repeating
 
-Fought in: The First Garden (The Back Gardens)
+Fought in: Something That Fights Back (The Back Gardens), The First Garden (The Back Gardens), The Doorman Objects (The Shambles, After Hours)
 
 | Turn | Move | Target | Effect |
 |---|---|---|---|
 | 1 | **Patrol** | `health` | 1 damage, blockable |
-| 2 | **Sniff About** | `hand` | steals 1 energy from hand (bank if hand is empty) |
+| 2 | **Sniff About** | `hand` | steals 1 energy from your hand |
 | 3 | **Peer Into Shadows** | `health` | 2 damage, blockable |
 
 **Strategy:** Averages **1.0 damage a turn** over its cycle (biggest single hit 2). Takes roughly **3 turns to bring down** at 3 damage a turn. **Steals energy** — play cards out rather than holding a fat hand.
@@ -91,7 +91,7 @@ Fought in: The Captain's Lawn (The Back Gardens)
 
 | Turn | Move | Target | Effect |
 |---|---|---|---|
-| 1 | **Sniff About** | `hand` | steals 1 energy from hand (bank if hand is empty) |
+| 1 | **Sniff About** | `hand` | steals 1 energy from your hand |
 | 2 | **Honk of Authority** | `skills / jam` | jams a random ready skill for 1 turn(s) |
 | 3 | **Regulation Peck (past the guard)** | `health / pierce` | 3 damage, **ignores block** |
 
@@ -105,12 +105,12 @@ Fought in: The Captain's Lawn (The Back Gardens)
 
 **6 hp**  ·  **4 gleam**  ·  cycle of 2, repeating
 
-Fought in: A Small Lie, Overheard (Needle Lane, Night), Something in the Gutter (The Rooftops, Dusk)
+Fought in: A Small Lie, Overheard (Needle Lane, Night), Asking Around (The Shambles, After Hours), Something in the Gutter (The Rooftops, Dusk), Still Here, Then (Needle Lane, Night)
 
 | Turn | Move | Target | Effect |
 |---|---|---|---|
 | 1 | **Flicker Bite** | `health` | 2 damage, blockable |
-| 2 | **Covet** | `hand` | steals 1 energy from hand (bank if hand is empty) |
+| 2 | **Covet** | `hand` | steals 1 energy from your hand |
 
 **Strategy:** Averages **1.0 damage a turn** over its cycle (biggest single hit 2). Takes roughly **2 turns to bring down** at 3 damage a turn. **Steals energy** — play cards out rather than holding a fat hand.
 
@@ -145,7 +145,7 @@ Fought in: The Coat Itself (Needle Lane, Night)
 | Turn | Move | Target | Effect |
 |---|---|---|---|
 | 1 | **Cold Cuff** | `health` | 3 damage, blockable |
-| 2 | **Deep Pockets** | `hand` | steals 1 energy from hand (bank if hand is empty) |
+| 2 | **Deep Pockets** | `hand` | steals 1 energy from your hand |
 | 3 | **Wrap Tight** | `health` | 4 damage, blockable |
 
 **Strategy:** Averages **2.3 damage a turn** over its cycle (biggest single hit 4). Takes roughly **5 turns to bring down** at 3 damage a turn. **Steals energy** — play cards out rather than holding a fat hand.
@@ -162,7 +162,7 @@ Fought in: The Parlor Window (The Parlor)
 
 | Turn | Move | Target | Effect |
 |---|---|---|---|
-| 1 | **Pull a Thread** | `hand` | steals 1 energy from hand (bank if hand is empty) |
+| 1 | **Pull a Thread** | `hand` | steals 1 energy from your hand |
 | 2 | **Snip** | `skills / burn` | burns 1 charge off a random ready skill, **permanently** |
 | 3 | **The Hem Comes Loose** | `health` | 5 damage, blockable |
 | 4 | **Wear the Room** | `health` | 6 damage, blockable |
@@ -182,7 +182,7 @@ Fought in: The Hunt (The Rooftops, Dusk)
 | Turn | Move | Target | Effect |
 |---|---|---|---|
 | 1 | **Hold Very Still** | `health` | 0 damage, blockable |
-| 2 | **Dart for Cover** | `hand` | steals 1 energy from hand (bank if hand is empty) |
+| 2 | **Dart for Cover** | `hand` | steals 1 energy from your hand |
 
 **Strategy:** Averages **0.0 damage a turn** over its cycle (biggest single hit 0). Takes roughly **2 turns to bring down** at 3 damage a turn. **Steals energy** — play cards out rather than holding a fat hand.
 
@@ -194,11 +194,11 @@ Fought in: The Hunt (The Rooftops, Dusk)
 
 **12 hp**  ·  **6 gleam**  ·  cycle of 3, repeating
 
-Fought in: Witnesses (The Shambles, After Hours), Their Little Friends (Needle Lane, Night)
+Fought in: Witnesses (The Shambles, After Hours), Her Doorstep, Guarded (The Shambles, After Hours), Their Little Friends (Needle Lane, Night)
 
 | Turn | Move | Target | Effect |
 |---|---|---|---|
-| 1 | **Covet** | `hand` | steals 1 energy from hand (bank if hand is empty) |
+| 1 | **Covet** | `hand` | steals 1 energy from your hand |
 | 2 | **Flicker Bites** | `health` | 3 damage, blockable |
 | 3 | **Gang Up** | `health` | 2 damage, blockable |
 

@@ -1,6 +1,22 @@
-# Core Gameplay Design — v0.3
+# Core Gameplay Design — v0.4
 
-> **v0.3 — IMPLEMENTED (owner-directed, 2026-08-01):**
+> **v0.4 — IMPLEMENTED (owner battle review, 2026-08-08):**
+>
+> - **Banking is REMOVED.** "What's the point of banking a card if it can be
+>   stolen" — the bank was a paw spent to move a card somewhere a thief could
+>   still reach, a decision with no upside. The `bank` command, the banked
+>   pool, and the `combat.bank_limit` dial are gone; hand-attacks steal from
+>   the hand only, and Loaf remains the one guard against theft. The command
+>   stays permanently refused (chaos probe + unit test), not quietly
+>   half-working.
+> - **Purr is a commitment.** Multi-turn channels held Ash still in fiction
+>   only — you could purr and then keep fighting. Now, while the channel
+>   holds, `play_skill` (Scratch included), `charge_skill` and `concentrate`
+>   are refused ("the purr holds him still"); discarding and Slip Away stay
+>   open. Damage still breaks it. The rule is stated on the card, in the
+>   coach line, and as a "purring" band in the tray.
+> - **One action, one chronicle line.** "Ash: Scratch." + "  1 damage."
+>   collapsed into "Ash: Scratch — 1 damage." (owner: single line per action).
 >
 > - **Charge-to-power skills.** Skills no longer fire in one tap: energy is
 >   fed onto the card one placement at a time (`charge_skill` command; the
@@ -154,9 +170,9 @@ humours of a witch's cat. (Names provisional, tuned for icon-readability.)
 ## The turn
 
 1. **Draw** up to hand limit (default 5). 
-2. **Spend** energy to activate skills (tap skill → costs drain from hand),
-   and/or **bank** a card face-down for later combos (saving is allowed but
-   risky — see "attacks on your hand").
+2. **Spend** energy to activate skills (tap skill → costs drain from hand).
+   Holding cards for later combos is allowed but risky — see "attacks on
+   your hand". (Banking removed 2026-08-08.)
 3. Enemy acts on a **telegraphed intent** shown at turn start.
 
 Target: ≤3 taps per player turn (research: input friction, not depth, is what
@@ -171,7 +187,7 @@ a real decision:
 |---|---|---|
 | **Health** | Classic damage; 0 HP = a life spent | Block/dodge skills, Moonlight wards |
 | **Skills** | Jams a skill (locks it 1 turn) or burns one of its remaining charges | Guile counters; jam-resistant equipment |
-| **Hand** | Forces a discard — can shatter a combo you were saving up | Spend it or shield it; "slippery" banked cards |
+| **Hand** | Forces a discard — can shatter a combo you were saving up | Spend it, or Loaf (nothing loose to take) |
 
 This makes *saving for a combo* a push-your-luck act in itself, and gives
 enemies personality without new rules: brutes hit Health, hexers hit Skills,
@@ -259,7 +275,7 @@ straight-faced (which is what makes them funny):
 
 | Behavior | Mechanic |
 |---|---|
-| **Purring** | Channel skill: heal over 2 turns; interrupted if you take damage (a purr you can't finish is a tiny tragedy) |
+| **Purring** | Channel skill: heal over 2 turns; Ash lies still until it ends (acting is refused), and it is interrupted if you take damage (a purr you can't finish is a tiny tragedy) |
 | **Basking in sunlight** | Sunbeam tiles appear in some encounters/districts: end your turn in one to recover 1 energy card (weather-dependent — none on moonless nights, plentiful at noon quests) |
 | **Scratching things** | Rugs, posts, and furniture are interactable props: scratch to sharpen (+1 Ferocity next attack), shred certain wards, and occasionally infuriate a shopkeeper (reputation consequences, worth it) |
 | **Knocking things off shelves** | Guile skill: push an object off a ledge onto an enemy. The single most requested cat fantasy; must feel *premeditated* |
@@ -286,5 +302,6 @@ keeps the shop interesting without stat creep.
    riders on energy cards, hybrid cards, a "convert 2 energy → 1 any" instinct.
    Prototype will tell.
 2. Hand limit 5 vs 4; deck size 18–24; skill slots 4 vs 6.
-3. Should banked (face-down) cards be capped at 2? Probably yes.
+3. ~~Should banked (face-down) cards be capped at 2?~~ Resolved harder:
+   banking itself was removed (owner 2026-08-08).
 4. Mid-fight retreat pricing (lose this encounter's loot only?).

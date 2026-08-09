@@ -63,14 +63,6 @@
     "threshold": 1,
     "hidden": false
   },
-  "for_a_rainy_day": {
-    "id": "for_a_rainy_day",
-    "name": "For a Rainy Day",
-    "description": "Win a fight with a full bank of saved cards you never needed. The savings account of champions.",
-    "stat": "full_bank_wins",
-    "threshold": 1,
-    "hidden": false
-  },
   "it_was_already_broken": {
     "id": "it_was_already_broken",
     "name": "It Was Already Broken",

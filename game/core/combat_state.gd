@@ -13,15 +13,14 @@ extends RefCounted
 enum Outcome { ONGOING, VICTORY, DEFEAT, RETREATED }
 
 ## THE DIALS BELOW ARE DEFAULTS, NOT THE TRUTH. Every one of them is a key in
-## data/rules.json, read into the per-state `hand_limit` / `bank_limit` /
-## `paw_limit` / `opening_hand` / `approaches` fields by create(). A designer
-## retunes the JSON; these consts are what a Catalog-less caller falls back to
-## and what Rules.DEFAULTS is checked against. Read the FIELDS, not the consts.
+## data/rules.json, read into the per-state `hand_limit` / `paw_limit` /
+## `opening_hand` / `approaches` fields by create(). A designer retunes the
+## JSON; these consts are what a Catalog-less caller falls back to and what
+## Rules.DEFAULTS is checked against. Read the FIELDS, not the consts.
 const HAND_LIMIT := 5
-const BANK_LIMIT := 2
 ## Paw action points (owner mechanic 2026-08-01): every energy card PLACED
-## — fed onto a skill, or banked — costs one paw. Free skills, discards and
-## slipping away cost none. Paws refill at the start of each turn.
+## onto a skill costs one paw. Free skills, discards and slipping away cost
+## none. Paws refill at the start of each turn.
 const DEFAULT_PAWS := 3
 ## Battles open with a small hand (owner rule 2026-08-01): 3 cards, then
 ## the end-of-turn draw refills toward hand_limit as before.
@@ -37,7 +36,6 @@ var player_max_hp: int
 var player_block: int = 0
 var deck: Array = []      # energy card ids; draw from the back
 var hand: Array = []
-var banked: Array = []    # face-down saved cards (combo fuel, capped, raidable)
 var spent: Array = []     # gone for the adventure — no reshuffle
 var skills: Array = []    # {id, charges_left, jammed_turns}
 var statuses: Dictionary = {}          # e.g. {"loafed": 1}
@@ -51,7 +49,6 @@ var paws_left: int = DEFAULT_PAWS
 ## cannot change underneath it mid-encounter — and so a test can build a
 ## deliberately odd fight by setting these directly.
 var hand_limit: int = HAND_LIMIT
-var bank_limit: int = BANK_LIMIT
 var opening_hand: int = OPENING_HAND
 var wild_humour: String = WILD_HUMOUR
 
@@ -159,7 +156,6 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 	# safe for every caller.
 	var dials := p_catalog.rules
 	state.hand_limit = dials.count("combat.hand_limit")
-	state.bank_limit = dials.count("combat.bank_limit")
 	state.opening_hand = dials.count("combat.opening_hand")
 	state.wild_humour = dials.text("combat.wild_humour")
 	state.approaches = dials.approaches()
@@ -290,7 +286,7 @@ func skill_powered(skill_id: String) -> bool:
 const WILD_HUMOUR := "mysticism"
 
 
-## Can the cost be paid from hand + banked right now? Specific energy pays
+## Can the cost be paid from the hand right now? Specific energy pays
 ## first; mysticism covers any shortfall. Cards are atomic — a single wild
 ## can only ever cover ONE humour's shortfall — so this asks the same
 ## card-level planner that _pay() executes, and the two can never disagree.
@@ -309,7 +305,7 @@ func do_command(command: Dictionary) -> Dictionary:
 	# ambush, and left rejected commands mutating state, which nothing else
 	# in here does. Found by the chaos harness; see tests/chaos_play.gd.
 	var kind := String(command.get("type", ""))
-	var locks_approach := ["play_skill", "charge_skill", "bank", "discard",
+	var locks_approach := ["play_skill", "charge_skill", "discard",
 		"concentrate", "end_turn"].has(kind)
 	match kind:
 		"approach":
@@ -319,8 +315,6 @@ func do_command(command: Dictionary) -> Dictionary:
 		"charge_skill":
 			result = _cmd_charge_skill(String(command.get("skill_id", "")),
 				String(command.get("source", "hand")), int(command.get("index", -1)))
-		"bank":
-			result = _cmd_bank(int(command.get("hand_index", -1)))
 		"discard":
 			result = _cmd_discard(int(command.get("hand_index", -1)))
 		"concentrate":
@@ -387,6 +381,8 @@ func _cmd_approach(mode: String) -> Dictionary:
 func _cmd_charge_skill(skill_id: String, source: String, index: int) -> Dictionary:
 	if statuses.get("loafed", 0) > 0:
 		return _fail("loafed: all paws are committed")
+	if not channel.is_empty():
+		return _fail("the purr holds him still")
 	if not catalog.skills.has(skill_id):
 		return _fail("unknown skill '%s'" % skill_id)
 	var def: Dictionary = catalog.skills[skill_id]
@@ -399,12 +395,11 @@ func _cmd_charge_skill(skill_id: String, source: String, index: int) -> Dictiona
 		return _fail("skill '%s' is jammed" % skill_id)
 	if s["charges_left"] <= 0:
 		return _fail("skill '%s' has no charges left" % skill_id)
-	if source != "hand" and source != "bank":
+	if source != "hand":
 		return _fail("unknown energy source '%s'" % source)
-	var pool: Array = hand if source == "hand" else banked
-	if index < 0 or index >= pool.size():
-		return _fail("no card at %s index %d" % [source, index])
-	var card: Dictionary = catalog.energy_cards[pool[index]]
+	if index < 0 or index >= hand.size():
+		return _fail("no card at hand index %d" % index)
+	var card: Dictionary = catalog.energy_cards[hand[index]]
 	var humour := String(card["humour"])
 	var remaining := remaining_cost(skill_id)
 	# A wild (mysticism) card powers whatever the skill still needs.
@@ -419,8 +414,8 @@ func _cmd_charge_skill(skill_id: String, source: String, index: int) -> Dictiona
 	paws_left -= 1
 	var powered: Dictionary = s["powered"]
 	powered[target_humour] = int(powered.get(target_humour, 0)) + int(card["value"])
-	spent.append(pool[index])
-	pool.remove_at(index)
+	spent.append(hand[index])
+	hand.remove_at(index)
 	flags["energy_paid"] = int(flags["energy_paid"]) + 1
 	if stealth_threshold > 0 and not spotted and humour == "ferocity":
 		alarm += int(card["value"])  # loud energy is loud however it's spent
@@ -433,6 +428,12 @@ func _cmd_charge_skill(skill_id: String, source: String, index: int) -> Dictiona
 func _cmd_play_skill(skill_id: String) -> Dictionary:
 	if statuses.get("loafed", 0) > 0:
 		return _fail("loafed: all paws are committed")
+	# A purring cat is a cat doing exactly one thing (owner defect 2026-08-08:
+	# "I seem to still be able to do things right after, even though purr is
+	# active"). While the channel holds, Ash acts on nothing — the purr is the
+	# turn. Damage still breaks it; discarding and slipping away stay open.
+	if not channel.is_empty():
+		return _fail("the purr holds him still")
 	if not catalog.skills.has(skill_id):
 		return _fail("unknown skill '%s'" % skill_id)
 	var def: Dictionary = catalog.skills[skill_id]
@@ -479,8 +480,13 @@ func _cmd_play_skill(skill_id: String) -> Dictionary:
 		state["charges_left"] -= 1
 	var used: Dictionary = flags["skills_used"]
 	used[skill_id] = int(used.get(skill_id, 0)) + 1
-	_journal.append("Ash: %s." % def["name"])
-	_apply_effects(def.get("effects", []))
+	# One action, one line (owner 2026-08-08: "Ash Scratch: 1 damage should be
+	# a single line") — the effects join the action instead of trailing it.
+	var done := _apply_effects(def.get("effects", []))
+	if done.is_empty():
+		_journal.append("Ash: %s." % def["name"])
+	else:
+		_journal.append("Ash: %s — %s." % [def["name"], ", ".join(done)])
 	_check_end()
 	if outcome == Outcome.VICTORY and flags["killing_skill"] == "":
 		flags["killing_skill"] = skill_id
@@ -501,19 +507,6 @@ func _cmd_slip_away() -> Dictionary:
 	if outcome != Outcome.ONGOING:
 		return {"ok": true, "error": ""}
 	outcome = Outcome.DEFEAT if player_hp <= 0 else Outcome.RETREATED
-	return {"ok": true, "error": ""}
-
-
-func _cmd_bank(hand_index: int) -> Dictionary:
-	if hand_index < 0 or hand_index >= hand.size():
-		return _fail("no card at hand index %d" % hand_index)
-	if banked.size() >= bank_limit:
-		return _fail("bank is full")
-	if paws_left < 1:
-		return _fail("no paws left this turn")
-	paws_left -= 1
-	banked.append(hand[hand_index])
-	hand.remove_at(hand_index)
 	return {"ok": true, "error": ""}
 
 
@@ -542,6 +535,8 @@ const CONCENTRATE_USES := 2
 func _cmd_concentrate(humour: String) -> Dictionary:
 	if statuses.get("loafed", 0) > 0:
 		return _fail("loafed: all paws are committed")
+	if not channel.is_empty():
+		return _fail("the purr holds him still")
 	if concentrate_left <= 0:
 		return _fail("nothing left to concentrate with tonight")
 	var best_index := -1
@@ -587,11 +582,15 @@ func _cmd_end_turn() -> Dictionary:
 	if statuses.get("loafed", 0) > 0:
 		statuses["loafed"] -= 1
 	if not channel.is_empty():
-		player_hp = mini(player_hp + int(channel["heal_per_turn"]), player_max_hp)
+		var healed := mini(player_hp + int(channel["heal_per_turn"]), player_max_hp) - player_hp
+		player_hp += healed
 		channel["turns_left"] -= 1
 		if channel["turns_left"] <= 0:
 			channel = {}
 			flags["purr_completed"] = true
+			_journal.append("The purr finishes, warm: +%d." % healed)
+		else:
+			_journal.append("The purr holds him still: +%d." % healed)
 	# ONE energy recovers per turn (owner rule 2026-08-01) — the hand grows
 	# slowly; the opening three plus one a turn is the whole allowance.
 	_draw_one()
@@ -615,28 +614,25 @@ func _pay_card_count(cost: Dictionary) -> int:
 
 func _pay(cost: Dictionary) -> void:
 	var plan := _payment_plan(cost)
-	var by_pool := {"hand": [], "banked": []}
+	var indices: Array = []
 	for pick: Dictionary in plan["picks"]:
-		by_pool[pick["pool"]].append(pick["index"])
-	for pool_name in by_pool:
-		var pool: Array = hand if pool_name == "hand" else banked
-		var indices: Array = by_pool[pool_name]
-		indices.sort()
-		indices.reverse()
-		for i in indices:
-			spent.append(pool[i])
-			pool.remove_at(i)
-			flags["energy_paid"] = int(flags["energy_paid"]) + 1
+		indices.append(pick["index"])
+	indices.sort()
+	indices.reverse()
+	for i in indices:
+		spent.append(hand[i])
+		hand.remove_at(i)
+		flags["energy_paid"] = int(flags["energy_paid"]) + 1
 
 
-## Plan which cards would pay a cost, without mutating anything. Specific
-## humours pay with their own cards first (largest first, hand before bank,
-## so the fewest cards are spent and saved combos survive); wilds then cover
-## the remaining shortfalls, biggest shortfall first so discrete wild cards
-## are not wasted on small gaps. A cost keyed WILD_HUMOUR only accepts true
-## wilds. Returns {covered: bool, count: int, picks: [{pool, index}]}.
+## Plan which hand cards would pay a cost, without mutating anything.
+## Specific humours pay with their own cards first (largest first, so the
+## fewest cards are spent); wilds then cover the remaining shortfalls,
+## biggest shortfall first so discrete wild cards are not wasted on small
+## gaps. A cost keyed WILD_HUMOUR only accepts true wilds.
+## Returns {covered: bool, count: int, picks: [{index}]}.
 func _payment_plan(cost: Dictionary) -> Dictionary:
-	var used := {"hand": {}, "banked": {}}
+	var used := {}
 	var picks: Array = []
 	var shortfalls: Array = []
 	for humour in cost:
@@ -654,32 +650,32 @@ func _payment_plan(cost: Dictionary) -> Dictionary:
 	return {"covered": covered, "count": picks.size(), "picks": picks}
 
 
-## Greedily mark unused cards of one humour against `remaining`, recording
-## picks; returns what is still owed after every matching card is considered.
+## Greedily mark unused hand cards of one humour against `remaining`,
+## recording picks; returns what is still owed after every matching card is
+## considered.
 func _plan_spend(humour: String, remaining: int, used: Dictionary,
 		picks: Array) -> int:
-	for pool_name in ["hand", "banked"]:
+	var candidates: Array = []
+	for i in hand.size():
+		if used.has(i):
+			continue
+		var card: Dictionary = catalog.energy_cards[hand[i]]
+		if card["humour"] == humour:
+			candidates.append({"index": i, "value": int(card["value"])})
+	candidates.sort_custom(func(a, b): return a["value"] > b["value"])
+	for c: Dictionary in candidates:
 		if remaining <= 0:
 			break
-		var pool: Array = hand if pool_name == "hand" else banked
-		var candidates: Array = []
-		for i in pool.size():
-			if used[pool_name].has(i):
-				continue
-			var card: Dictionary = catalog.energy_cards[pool[i]]
-			if card["humour"] == humour:
-				candidates.append({"index": i, "value": int(card["value"])})
-		candidates.sort_custom(func(a, b): return a["value"] > b["value"])
-		for c: Dictionary in candidates:
-			if remaining <= 0:
-				break
-			remaining -= c["value"]
-			used[pool_name][c["index"]] = true
-			picks.append({"pool": pool_name, "index": c["index"]})
+		remaining -= c["value"]
+		used[c["index"]] = true
+		picks.append({"index": c["index"]})
 	return maxi(remaining, 0)
 
 
-func _apply_effects(effects: Array) -> void:
+## Applies each effect and returns the journal fragments describing what
+## actually happened, for the caller to join into ONE chronicle line.
+func _apply_effects(effects: Array) -> Array[String]:
+	var done: Array[String] = []
 	for effect in effects:
 		match effect.get("type", ""):
 			"damage":
@@ -690,29 +686,34 @@ func _apply_effects(effects: Array) -> void:
 					_events.append("sharpened_strike")
 				amount = mini(amount, maxi(enemy_hp, 0))
 				enemy_hp -= amount
-				_journal.append("  %d damage." % amount)
+				_events.append("enemy_hurt:%d" % amount)
+				done.append("%d damage" % amount)
 			"block":
 				player_block += int(effect["amount"])
-				_journal.append("  Guard +%d (now %d)." % [
+				done.append("Guard +%d (now %d)" % [
 					int(effect["amount"]), player_block])
 			"heal":
 				var before := player_hp
 				player_hp = mini(player_hp + int(effect["amount"]), player_max_hp)
-				_journal.append("  Heal %d (now %d)." % [player_hp - before, player_hp])
-			"channel_heal":  # Purr: heals over time, broken by taking damage
+				done.append("Heal %d (now %d)" % [player_hp - before, player_hp])
+			"channel_heal":  # Purr: heals over time; holds Ash still; broken by damage
 				channel = {
 					"heal_per_turn": int(effect["amount"]),
 					"turns_left": int(effect.get("turns", 2)),
 				}
+				done.append("he settles where he is")
 			"draw":
 				for i in int(effect["amount"]):
 					_draw_one()
+				done.append("draw %d" % int(effect["amount"]))
 			"self_stun":  # Loaf: committed, cannot act next turn
 				statuses["loafed"] = int(effect.get("turns", 1))
+				done.append("paws folded till next turn")
 			_:
 				# Not an assert: asserts vanish in release builds and would
 				# turn a typo'd content effect into a silent no-op on-device.
 				push_error("unknown effect type '%s'" % effect.get("type", ""))
+	return done
 
 
 func _enemy_act() -> void:
@@ -749,6 +750,12 @@ func _enemy_act() -> void:
 			var swing := int(intent["amount"]) + rage_bonus
 			var blocked := 0 if intent.get("mode", "") == "pierce" else mini(player_block, swing)
 			var lost := _hurt(swing - blocked)
+			# Informational events for the scene's hit/guard animations —
+			# block resets at the turn-over, so the UI cannot diff it.
+			if blocked > 0:
+				_events.append("blocked:%d" % blocked)
+			if lost > 0:
+				_events.append("hurt:%d" % lost)
 			_journal.append("%s: %s — %d damage%s" % [
 				catalog.enemies[enemy_id]["name"], name, lost,
 				" (%d blocked)" % blocked if blocked > 0 else ""])
@@ -785,14 +792,14 @@ func _enemy_act() -> void:
 			else:
 				var taken: Array[String] = []
 				for i in int(intent["amount"]):
-					var pool: Array = hand if not hand.is_empty() else banked
-					if pool.is_empty():
+					if hand.is_empty():
 						break
-					var index := rng.pick_index(pool.size())
-					taken.append(String(catalog.energy_cards[pool[index]]["name"]))
-					spent.append(pool[index])
-					pool.remove_at(index)
+					var index := rng.pick_index(hand.size())
+					taken.append(String(catalog.energy_cards[hand[index]]["name"]))
+					spent.append(hand[index])
+					hand.remove_at(index)
 					flags["hand_lost"] = int(flags["hand_lost"]) + 1
+					_events.append("stolen")
 				_journal.append("%s: %s — takes %s." % [
 					catalog.enemies[enemy_id]["name"], name,
 					", ".join(taken) if not taken.is_empty() else "nothing (empty paws)"])

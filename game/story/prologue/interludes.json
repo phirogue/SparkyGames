@@ -41,8 +41,8 @@
         ],
         [
           "'Needle Lane.' Something moves behind the spectacles that is almost interest. 'Yes. We have had a busy evening from Needle Lane.'",
-          "Then he reaches the column that matters and stops. 'Nine allotted.' He says it to the paper, not to me. 'I have not filed a nine since before the bell came down.'",
-          "'Vane's familiar. One spent.' He does not say whose the busy evening was, and I do not ask, because I already know."
+          "Then he reaches the column that matters and stops. 'Nine allotted.' He says it to the paper, not to me. 'I have not filed a nine since I was at a much smaller desk.'",
+          "'Vane's familiar. One spent.' He does not say whose the busy evening was. I do not ask. Not here."
         ],
         [
           "The silence goes on long enough to become a position. He allows it, and writes anyway.",
@@ -56,7 +56,7 @@
       "lines": [
         "'The arrangement, since it is your first: you are difficult to kill and not impossible. When you are killed you come here, we take the Toll, and you go back up.'",
         {
-          "text": "Dying costs a life and a quarter of your banked gleam. Whatever was in your satchel stays where you dropped it. Nothing else is lost — not your kit, not your case, not what you have already worked out.",
+          "text": "Dying costs a life and a quarter of the shine you have banked at home. Whatever you were carrying stays where you dropped it. Nothing else is lost — not your kit, not your case, not what you have already worked out.",
           "rule": true
         },
         "'The first visit is complimentary. Do consider it a courtesy rather than a habit.'",
@@ -110,7 +110,6 @@
       ]
     },
     {
-      "portrait": "sc_hollow_court_desk",
       "lines": [
         "There is a chair at the desk that was not there before. It is exactly cat-sized. Neither of us mentions it.",
         "'The Toll,' he says, and takes it, and then sits with his hands folded for a moment longer than the work requires.",
@@ -126,7 +125,6 @@
       ]
     },
     {
-      "portrait": "sc_hollow_court_desk",
       "lines": [
         "The lamp is turned up. He has turned the lamp up, for me, which is the most alarming thing that has happened tonight.",
         "'One,' says the Clerk. 'I will not lecture you. You know precisely what you are spending and precisely what you are spending it on.'",
@@ -157,7 +155,7 @@
     },
     {
       "target": "doors",
-      "text": "The Casebook is here, because the Casebook is only my own memory and I have always had that. There will be more along this wall when I have reason to put it there."
+      "text": "The Casebook: everything I know, and how I came to know it. There will be more along this wall when I have reason."
     }
   ],
   "unpicked_won": [

@@ -160,7 +160,9 @@ func test_v4_saves_keep_their_prose_and_gain_a_chronicle() -> void:
 		"schema_version": 4, "prologue_done": true,
 		"journal": ["Found: a thing", "Chose: the left door"],
 	})
-	assert_eq(int(merged["schema_version"]), 5, "migrated to v5")
+	assert_eq(int(merged["schema_version"]),
+		int(SaveService.DEFAULT_PROFILE["schema_version"]),
+		"migrated all the way to the current schema")
 	assert_eq(Array(merged["journal"]).size(), 2,
 		"the old lines are kept — a player's history is theirs")
 	assert_eq(Chronicle.from_list(merged["chronicle"]).count("prologue_done"), 1,

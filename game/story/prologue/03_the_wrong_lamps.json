@@ -59,15 +59,15 @@
         },
         {
           "target": "hand",
-          "text": "Guile in hand, which is what the LOAF wants. New energy, new action, first fight for both."
+          "text": "Guile in hand, which is what the LOAF wants: block 5, but it costs your whole turn. A loaf is not a lunge."
         },
         {
           "target": "skill:purr",
-          "text": "PURR heals 2 a turn for two turns — but it breaks the moment you are hit. Purr behind a guard, never in the open."
+          "text": "PURR heals 2 a turn for two turns — but Ash lies still while it lasts, and it breaks the moment you are hit. Purr behind a guard, never in the open."
         },
         {
           "target": "concentrate",
-          "text": "CONCENTRATE, for when the hand is empty and the spool is not: give up the whole turn to will one spent energy back onto the top of the deck. You draw it NEXT turn. The wraith still moves. Twice a fight, and no more."
+          "text": "CONCENTRATE, for an empty hand: give up the turn to will one spent energy back. It arrives NEXT turn. Twice a fight."
         },
         {
           "target": "slip",

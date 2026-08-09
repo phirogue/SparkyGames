@@ -29,7 +29,8 @@
       "Bash(git count-objects *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(timeout 180 git commit -q -F -)"
+      "Bash(timeout 180 git commit -q -F -)",
+      "Bash(git log *)"
     ],
     "ask": [
       "Bash(git push:*)",

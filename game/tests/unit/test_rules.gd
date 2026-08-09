@@ -124,7 +124,6 @@ func test_the_starting_kit_matches_the_dials() -> void:
 func test_combat_consts_match_the_dials() -> void:
 	var dials := _rules()
 	assert_eq(CombatState.HAND_LIMIT, dials.count("combat.hand_limit"), "combat.hand_limit")
-	assert_eq(CombatState.BANK_LIMIT, dials.count("combat.bank_limit"), "combat.bank_limit")
 	assert_eq(CombatState.DEFAULT_PAWS, dials.count("combat.paws"), "combat.paws")
 	assert_eq(CombatState.OPENING_HAND, dials.count("combat.opening_hand"),
 		"combat.opening_hand")
@@ -141,12 +140,29 @@ func test_combat_consts_match_the_dials() -> void:
 		"minigames.crossing.night_presses_turn")
 
 
-## The tray is built with one column per loadout slot. Raising the loadout law
-## in rules.json without widening the tray would silently hide a skill the
-## player owns and equipped.
-func test_the_tray_has_a_column_per_loadout_slot() -> void:
-	assert_eq(BattleScreen.SKILL_COLUMNS, _rules().count("combat.loadout_size"),
-		"the skill tray must have one column per loadout slot")
+## The skill tray used to be a fixed grid, and this test asserted it had one
+## column per loadout slot. It is a FAN now (battle.gd `_refresh_skill_fan`),
+## which fits whatever it is given by shrinking the step between cards — so
+## overflow is structurally impossible and the old assertion has nothing left
+## to guard.
+##
+## The risk did not disappear, it moved: raise the loadout law far enough and
+## the cards overlap until there is no tappable strip of each one left. That is
+## what is checked now, against the same arithmetic the fan uses.
+func test_every_loadout_slot_stays_tappable_in_the_fan() -> void:
+	const MIN_TAPPABLE := 44.0  # the usual floor for a finger-sized target
+	var slots := _rules().count("combat.loadout_size")
+	var card := BattleScreen.SKILL_CARD_SIZE.x
+	var fan_width := float(UITheme.CONTENT_WIDTH)
+	var step := card + 8.0
+	if slots > 1:
+		step = minf(step, (fan_width - card) / float(slots - 1))
+	assert_true(step >= MIN_TAPPABLE,
+		"at %d loadout slots the fan leaves %.0fpx of each card exposed; %.0f is the floor"
+			% [slots, step, MIN_TAPPABLE])
+	# And the whole fan still has to sit inside the page (law 12).
+	assert_true(step * (slots - 1) + card <= fan_width + 0.5,
+		"the fan of %d cards is wider than the page" % slots)
 
 
 # ---------------------------------------------------------- the dials in force
@@ -162,8 +178,6 @@ func test_a_battle_takes_its_limits_from_the_dials() -> void:
 	})
 	assert_eq(state.hand_limit, catalog.rules.count("combat.hand_limit"),
 		"the fight carries the hand limit dial")
-	assert_eq(state.bank_limit, catalog.rules.count("combat.bank_limit"),
-		"the fight carries the bank limit dial")
 	assert_eq(state.concentrate_left, catalog.rules.count("combat.concentrate_uses"),
 		"the fight carries the concentrate dial")
 	assert_eq(state.approaches.size(), catalog.rules.approaches().size(),

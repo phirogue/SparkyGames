@@ -1,13 +1,13 @@
 extends Control
 ## The Magpie Exchange — the market, and a conversation with Brindle rather
-## than a table of prices. His portrait says what he thinks of your purse;
-## the shelf holds four goods with a wax seal for a price tag; choosing one
-## opens its options in the strip underneath, so a whole transaction happens
-## without leaving the page.
+## than a table of prices. Her portrait says what she thinks of your purse;
+## the shelf holds the goods with a wax seal for a price tag; choosing one
+## opens a POPUP of what is on offer next to what you already hold, and a
+## second tap shows any one thing close up before a coin moves (owner
+## 2026-08-08: nothing is bought blind).
 ##
-## The economy is unchanged from the version that lived inside the hub — the
-## same four goods at the same four prices. What changed is that a good you
-## cannot afford now LOOKS out of reach instead of failing silently on tap.
+## Cutting cards is not sold here any more — re-spooling is free and lives on
+## the loadout screen ("On the Prowl"). Brindle only ever sells.
 
 signal closed
 signal profile_changed
@@ -18,25 +18,31 @@ const SEPARATION := 12
 const ZONE_HEADER := 96
 const ZONE_BRINDLE := 300
 const ZONE_SHELF := 480
-const ZONE_DETAIL := 192
+const ZONE_SPOOL := 192
 
 const PORTRAIT_WIDTH := 208.0
 const SHELF_COLUMNS := 2
 const GOOD_WIDTH := (UITheme.CONTENT_WIDTH - SEPARATION) / SHELF_COLUMNS  # 285
 const GOOD_HEIGHT := 216
 
+## Same colour vocabulary the battle and loadout screens use.
+const HUMOUR_GLYPHS := {
+	"ferocity": "energy_claw",
+	"guile": "energy_eye",
+	"shadow": "energy_shade",
+	"mysticism": "energy_moon",
+}
+
 ## THE SHELF IS DATA. What each good COSTS is a rule (data/rules.json
 ## `exchange`), what it is CALLED is writing (story/interface.json, keyed by
-## mode — law 20), and this screen owns neither. Until 2026-08-05 the whole
-## price list was a const block here, which put the game's economy inside a
-## file about laying out panels.
+## mode — law 20), and this screen owns neither.
 ##
 ##   exchange.goods       [{mode, cost, seal}] — the shelf, in shelf order
 ##   exchange.max_hp_cap  the ceiling a tonic will not lift Ash past
-##   exchange.deck_floor  the thinnest deck Brindle will sell you down to
+##   exchange.tonic_hp    what one tonic adds
 func _goods() -> Array: return catalog.rules.list("exchange.goods")
 func _max_hp_cap() -> int: return catalog.rules.count("exchange.max_hp_cap")
-func _deck_floor() -> int: return catalog.rules.count("exchange.deck_floor")
+func _tonic_hp() -> int: return catalog.rules.count("exchange.tonic_hp")
 
 
 ## What one good costs, by mode. A mode with no shelf entry returns a price
@@ -55,8 +61,11 @@ var profile: Dictionary
 var _gleam_label: Label
 var _patter: Label
 var _shelf: GridContainer
-var _detail_flow: HFlowContainer
-var _hint: Label
+var _spool_strip: HBoxContainer
+var _shop: Dictionary = {}
+var _shop_box: VBoxContainer
+var _shop_mode := ""
+var _shop_card := ""
 var _confirm: Dictionary = {}
 var _confirm_body: Label
 var _pending := Callable()
@@ -75,13 +84,13 @@ func _ready() -> void:
 	_build_header(column)
 	_build_brindle(column)
 	_build_shelf(column)
-	_build_detail(column)
+	_build_spool(column)
+	_build_shop_modal()
 	_build_confirm_modal()
 	_refresh()
-	# He speaks first. An empty speech panel next to a portrait reads as a
+	# She speaks first. An empty speech panel next to a portrait reads as a
 	# screen that failed to load, not as a shopkeeper waiting.
 	_say(Strings.line("exchange.greeting"))
-	_rest()
 
 
 # ------------------------------------------------------------------- zones
@@ -134,7 +143,7 @@ func _build_brindle(column: VBoxContainer) -> void:
 	frame.add_theme_stylebox_override("panel", style)
 	band.add_child(frame)
 	var art := UITheme.art_or_placeholder("npc_brindle_magpie",
-		"Brindle on his hoard")
+		"Brindle on her hoard")
 	art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in [SIDE_LEFT, SIDE_TOP]:
 		art.set_offset(side, 4)
@@ -164,25 +173,55 @@ func _build_shelf(column: VBoxContainer) -> void:
 	_shelf.add_theme_constant_override("h_separation", SEPARATION)
 	_shelf.add_theme_constant_override("v_separation", SEPARATION)
 	holder.add_child(_shelf)
-	for good: Dictionary in _goods():
-		_shelf.add_child(_good_card(good))
 
 
-func _build_detail(column: VBoxContainer) -> void:
+## What the player already holds, always in view while shopping (owner
+## 2026-08-08): the spool count and each humour's share, in glyphs. The strip
+## answers "do I need another of these?" before the popup even opens.
+func _build_spool(column: VBoxContainer) -> void:
 	var holder := VBoxContainer.new()
-	holder.custom_minimum_size = Vector2(0, ZONE_DETAIL)
+	holder.custom_minimum_size = Vector2(0, ZONE_SPOOL)
+	holder.add_theme_constant_override("separation", 6)
 	column.add_child(holder)
-	# A deck can hold many distinct cards to cut, so the options scroll inside
-	# the zone instead of growing it (law 12).
-	var scroll := ScrollContainer.new()
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	holder.add_child(scroll)
-	_detail_flow = HFlowContainer.new()
-	_detail_flow.add_theme_constant_override("h_separation", 8)
-	_detail_flow.add_theme_constant_override("v_separation", 8)
-	_detail_flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(_detail_flow)
+	holder.add_child(UITheme.measured_label(Strings.line("exchange.spool_heading"),
+		24, UITheme.CONTENT_WIDTH, UITheme.smallcaps_font(), UITheme.INK_SOFT))
+	_spool_strip = HBoxContainer.new()
+	_spool_strip.add_theme_constant_override("separation", 10)
+	holder.add_child(_spool_strip)
+	var hint := UITheme.measured_label(Strings.line("exchange.hint"), 20,
+		UITheme.CONTENT_WIDTH, UITheme.italic_font(), UITheme.INK_SOFT)
+	holder.add_child(hint)
+
+
+func _refresh_spool() -> void:
+	for child in _spool_strip.get_children():
+		_spool_strip.remove_child(child)
+		child.queue_free()
+	var counts := {}
+	for card_id in profile.get("deck", []):
+		var humour := String(catalog.energy_cards[card_id]["humour"])
+		counts[humour] = int(counts.get(humour, 0)) + 1
+	var spool := VBoxContainer.new()
+	spool.add_theme_constant_override("separation", 0)
+	_spool_strip.add_child(spool)
+	spool.add_child(UITheme.icon("ui/ui_spool", 52.0))
+	var size_label := UITheme.measured_label(
+		"%d" % profile.get("deck", []).size(), 24, 70.0, UITheme.display_font())
+	size_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	spool.add_child(size_label)
+	for humour in Catalog.HUMOURS:
+		var chip := VBoxContainer.new()
+		chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		chip.add_theme_constant_override("separation", 0)
+		_spool_strip.add_child(chip)
+		var glyph := UITheme.icon(String(HUMOUR_GLYPHS[humour]), 44.0)
+		glyph.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		chip.add_child(glyph)
+		var label := UITheme.measured_label(
+			"%s %d" % [Catalog.humour_name(humour), int(counts.get(humour, 0))],
+			18, 112.0, UITheme.body_font(), UITheme.INK_SOFT)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		chip.add_child(label)
 
 
 func _speech_wrap() -> float:
@@ -217,7 +256,8 @@ func _good_card(good: Dictionary) -> Control:
 	var seal := UITheme.icon(String(good["seal"]), 46.0)
 	seal.modulate = Color.WHITE if affordable else Color(1, 1, 1, 0.45)
 	price.add_child(seal)
-	var price_label := UITheme.measured_label("%d gleam" % cost, 24, 140.0,
+	var price_label := UITheme.measured_label(
+		Strings.line("exchange.popup.price", [cost]), 24, 140.0,
 		UITheme.body_font(), ink)
 	price_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	price_label.size_flags_vertical = Control.SIZE_FILL
@@ -239,6 +279,7 @@ func _refresh() -> void:
 		child.queue_free()
 	for good: Dictionary in _goods():
 		_shelf.add_child(_good_card(good))
+	_refresh_spool()
 
 
 func _say(line: String) -> void:
@@ -247,91 +288,234 @@ func _say(line: String) -> void:
 		UITheme.measure_text(line, UITheme.italic_font(), 24, _speech_wrap()).y)
 
 
-## Clearing the strip drops it back to its resting line. The zone is a fixed
-## height, so it is either this or a hole in the page — and every path out of
-## a purchase (bought, refused, cannot afford) lands here.
-func _clear_detail() -> void:
-	for child in _detail_flow.get_children():
-		_detail_flow.remove_child(child)
-		child.queue_free()
-	_rest()
-
-
-func _rest() -> void:
-	_hint = UITheme.measured_label(
-		"He waits. Tap a thing on the shelf and he will tell you about it.",
-		22, UITheme.CONTENT_WIDTH, UITheme.italic_font(), UITheme.INK_SOFT)
-	_detail_flow.add_child(_hint)
-
-
 func _on_good_pressed(mode: String) -> void:
-	_clear_detail()
+	_shop_mode = mode
 	match mode:
 		"add":
 			_say(Strings.line("exchange.patter.add"))
-			for humour in Catalog.HUMOURS:
-				_option("%s 2" % Catalog.humour_name(humour),
-					_on_add_card.bind(humour))
+			_shop_card = ""
 		"rare":
-			# The only route to the value-3 cards (owner rarity rule): they are
-			# rewards and purchases, never starting kit.
 			_say(Strings.line("exchange.patter.rare"))
-			for humour in Catalog.HUMOURS:
-				var card_id := humour + "_3"
-				_option("%s (%s)" % [String(catalog.energy_cards[card_id]["name"]),
-					Catalog.humour_name(humour)], _on_add_rare.bind(card_id))
-		"remove":
-			if profile["deck"].size() <= _deck_floor():
-				_say(Strings.line("exchange.patter.too_thin"))
-				return
-			_say(Strings.line("exchange.patter.remove"))
-			var seen := {}
-			for card_id in profile["deck"]:
-				if seen.has(card_id):
-					continue
-				seen[card_id] = true
-				_option(String(catalog.energy_cards[card_id]["name"]),
-					_on_remove.bind(String(card_id)))
+			_shop_card = ""
 		"tonic":
+			# One item only, so the popup opens straight on the close-up.
 			if int(profile["max_hp"]) >= _max_hp_cap():
 				_say(Strings.line("exchange.patter.no_more_tonic"))
+				_shop_mode = ""
 				return
-			_spend(_cost("tonic"), "a tonic", func() -> void:
-				profile["max_hp"] = int(profile["max_hp"]) + 2
+			_shop_card = "tonic"
+	_refresh_shop()
+	UITheme.open_modal(_shop["overlay"], _shop["panel"])
+
+
+# ----------------------------------------------------------------- the shop
+
+## The counter popup. One modal, two views: the LIST of what is on offer
+## (each with what you already hold of it), and the CLOSE-UP of one thing
+## with its full explanation and the buy button. Which cards a mode offers is
+## content: value-2s for the shelf, value-3s for the good shelf.
+func _build_shop_modal() -> void:
+	_shop = UITheme.modal(self, 520.0)
+	UITheme.modal_escape(_shop, _close_shop)
+	_shop_box = _shop["box"]
+
+
+func _offered_cards() -> Array[String]:
+	var value := 3 if _shop_mode == "rare" else 2
+	var out: Array[String] = []
+	for humour in Catalog.HUMOURS:
+		var card_id := "%s_%d" % [humour, value]
+		if catalog.energy_cards.has(card_id):
+			out.append(card_id)
+	return out
+
+
+func _owned_count(card_id: String) -> int:
+	var pool: Array = profile.get("card_pool", profile.get("deck", []))
+	return pool.count(card_id)
+
+
+func _refresh_shop() -> void:
+	for child in _shop_box.get_children():
+		_shop_box.remove_child(child)
+		child.queue_free()
+	if _shop_card == "tonic":
+		_build_tonic_detail()
+	elif _shop_card != "":
+		_build_card_detail(_shop_card)
+	else:
+		_build_offer_list()
+
+
+func _build_offer_list() -> void:
+	var wrap := 488.0
+	var title := UITheme.measured_label(
+		Strings.lines("exchange.goods." + _shop_mode)[0], 32, wrap,
+		UITheme.display_font())
+	_shop_box.add_child(title)
+	_shop_box.add_child(UITheme.measured_label(
+		Strings.line("exchange.popup.on_offer"), 22, wrap,
+		UITheme.smallcaps_font(), UITheme.INK_SOFT))
+	var row_index := 0
+	for card_id in _offered_cards():
+		var row := _offer_row(card_id)
+		_shop_box.add_child(row)
+		UITheme.settle(row, row_index * 0.05)
+		row_index += 1
+
+
+## One card on the counter: glyph, its NAME (the same name the battle and the
+## spool use — owner 2026-08-08), what you hold of it, and the price.
+func _offer_row(card_id: String) -> Control:
+	var def: Dictionary = catalog.energy_cards[card_id]
+	var humour := String(def["humour"])
+	var plate := PanelContainer.new()
+	plate.add_theme_stylebox_override("panel", UITheme.panel_stylebox(10))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	plate.add_child(row)
+	var glyph := UITheme.icon(String(HUMOUR_GLYPHS[humour]), 48.0)
+	glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(glyph)
+	var text := VBoxContainer.new()
+	text.add_theme_constant_override("separation", 2)
+	text.alignment = BoxContainer.ALIGNMENT_CENTER
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(text)
+	text.add_child(UITheme.measured_label(String(def["name"]), 26, 250.0,
+		UITheme.display_font()))
+	text.add_child(UITheme.measured_label(
+		"%s %d" % [Catalog.humour_name(humour), int(def["value"])], 19, 250.0,
+		UITheme.body_font(), UITheme.INK_SOFT))
+	var side := VBoxContainer.new()
+	side.add_theme_constant_override("separation", 2)
+	side.alignment = BoxContainer.ALIGNMENT_CENTER
+	side.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(side)
+	var price := UITheme.measured_label(
+		Strings.line("exchange.popup.price", [_cost(_shop_mode)]), 22, 130.0,
+		UITheme.body_font(), UITheme.ACCENT_WARM)
+	price.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	side.add_child(price)
+	var owned := _owned_count(card_id)
+	var held := UITheme.measured_label(
+		Strings.line("exchange.popup.you_hold", [owned]) if owned > 0
+		else Strings.line("exchange.popup.you_hold_none"), 18, 130.0,
+		UITheme.italic_font(), UITheme.INK_SOFT)
+	held.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	side.add_child(held)
+	UITheme.tap_layer(plate).pressed.connect(_show_card_detail.bind(card_id))
+	return plate
+
+
+func _show_card_detail(card_id: String) -> void:
+	_shop_card = card_id
+	_refresh_shop()
+	UITheme.pulse(_shop["panel"], 1.03)
+
+
+## The close-up: everything a coin-holder is owed before deciding. What the
+## humour MEANS comes from the weft (story/world/weft.json) — the same words
+## the Casebook teaches with, so the shop never invents lore.
+func _build_card_detail(card_id: String) -> void:
+	var def: Dictionary = catalog.energy_cards[card_id]
+	var humour := String(def["humour"])
+	var wrap := 488.0
+	var glyph := UITheme.icon(String(HUMOUR_GLYPHS[humour]), 84.0)
+	glyph.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_shop_box.add_child(glyph)
+	var name_label := UITheme.measured_label(String(def["name"]), 34, wrap,
+		UITheme.display_font())
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_shop_box.add_child(name_label)
+	var worth := UITheme.measured_label(Strings.line("exchange.popup.worth",
+		[int(def["value"]), Catalog.humour_name(humour)]), 24, wrap,
+		UITheme.body_font())
+	worth.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_shop_box.add_child(worth)
+	var nature := String(catalog.world.get("weft", {}).get("humours", {}) \
+		.get(humour, {}).get("nature", ""))
+	if nature != "":
+		_shop_box.add_child(UITheme.measured_label(nature, 22, wrap,
+			UITheme.italic_font(), UITheme.INK_SOFT))
+	var owned := _owned_count(card_id)
+	var held := UITheme.measured_label(
+		Strings.line("exchange.popup.you_hold", [owned]) if owned > 0
+		else Strings.line("exchange.popup.you_hold_none"), 20, wrap,
+		UITheme.italic_font(), UITheme.INK_SOFT)
+	held.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_shop_box.add_child(held)
+	_shop_box.add_child(_shop_buttons(_cost(_shop_mode)))
+
+
+func _build_tonic_detail() -> void:
+	var wrap := 488.0
+	var title := UITheme.measured_label(
+		Strings.lines("exchange.goods.tonic")[0], 34, wrap,
+		UITheme.display_font())
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_shop_box.add_child(title)
+	_shop_box.add_child(UITheme.measured_label(
+		Strings.lines("exchange.goods.tonic")[1], 22, wrap,
+		UITheme.italic_font(), UITheme.INK_SOFT))
+	_shop_box.add_child(UITheme.measured_label(
+		Strings.line("exchange.popup.tonic_rule",
+			[_tonic_hp(), _max_hp_cap(), int(profile["max_hp"])]), 24, wrap,
+		UITheme.body_font()))
+	_shop_box.add_child(_shop_buttons(_cost("tonic")))
+
+
+## Back on the left, buy on the right — every close-up ends in the same two
+## choices, and the buy button STATES the price so the decision and the cost
+## are read in the same glance.
+func _shop_buttons(cost: int) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var back := UITheme.dark_button(Strings.line("exchange.popup.back"), 24,
+		Vector2(0, UITheme.BUTTON_HEIGHT))
+	back.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	back.pressed.connect(_shop_back)
+	row.add_child(back)
+	var buy := UITheme.amber_button(Strings.line("exchange.popup.buy", [cost]), 26)
+	buy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	buy.disabled = int(profile.get("gleam", 0)) < cost
+	buy.pressed.connect(_buy_current)
+	row.add_child(buy)
+	return row
+
+
+## Back means back one LEVEL: a card close-up returns to the list it came
+## from; the tonic (which has no list) puts the whole popup down.
+func _shop_back() -> void:
+	if _shop_card == "tonic" or _shop_mode == "tonic":
+		_close_shop()
+		return
+	_shop_card = ""
+	_refresh_shop()
+
+
+func _close_shop() -> void:
+	_shop_card = ""
+	_shop_mode = ""
+	UITheme.close_modal(_shop["overlay"], _shop["panel"])
+
+
+func _buy_current() -> void:
+	if _shop_card == "tonic":
+		_spend(_cost("tonic"), Strings.lines("exchange.goods.tonic")[0],
+			func() -> void:
+				profile["max_hp"] = int(profile["max_hp"]) + _tonic_hp()
 				_say(Strings.line("exchange.patter.tonic")))
-
-
-func _option(text: String, on_pressed: Callable) -> void:
-	if _hint != null and is_instance_valid(_hint):
-		_detail_flow.remove_child(_hint)
-		_hint.queue_free()
-		_hint = null
-	var button := Button.new()
-	button.text = text
-	button.custom_minimum_size = Vector2(0, 62)
-	button.add_theme_font_size_override("font_size", 22)
-	button.pressed.connect(on_pressed)
-	_detail_flow.add_child(button)
-
-
-func _on_add_card(humour: String) -> void:
-	_spend(_cost("add"), Catalog.humour_name(humour) + " 2", func() -> void:
-		profile["deck"].append(humour + "_2")
-		_say(Strings.line("exchange.patter.bought_card")))
-
-
-func _on_add_rare(card_id: String) -> void:
-	_spend(_cost("rare"), String(catalog.energy_cards[card_id]["name"]),
+		return
+	var card_id := _shop_card
+	var mode := _shop_mode
+	_spend(_cost(mode), String(catalog.energy_cards[card_id]["name"]),
 		func() -> void:
-			profile["deck"].append(card_id)
-			_say(Strings.line("exchange.patter.bought_rare")))
-
-
-func _on_remove(card_id: String) -> void:
-	_spend(_cost("remove"), "cutting " + String(catalog.energy_cards[card_id]["name"]),
-		func() -> void:
-			profile["deck"].erase(card_id)
-			_say(Strings.line("exchange.patter.cut")))
+			SaveService.grant_card(profile, card_id)
+			_say(Strings.line("exchange.patter.bought_rare" if mode == "rare"
+				else "exchange.patter.bought_card")))
 
 
 ## Every purchase goes through here: one place that checks the purse, one
@@ -340,15 +524,15 @@ func _on_remove(card_id: String) -> void:
 func _spend(cost: int, what: String, apply: Callable) -> void:
 	if int(profile["gleam"]) < cost:
 		_say(Strings.line("exchange.patter.broke"))
-		_clear_detail()
+		_close_shop()
 		return
 	if bool(profile.get("settings", {}).get("ask_to_spend", false)):
 		_pending = func() -> void: _commit(cost, apply)
-		_confirm_body.text = "%s, for %d gleam. He is already reaching for it." % [
-			what.capitalize(), cost]
+		_confirm_body.text = Strings.line("exchange.popup.spend_body",
+			[what, cost])
 		_confirm_body.custom_minimum_size = Vector2(452.0, UITheme.measure_text(
 			_confirm_body.text, UITheme.body_font(), 24, 452.0).y)
-		_confirm["overlay"].visible = true
+		UITheme.open_modal(_confirm["overlay"], _confirm["panel"])
 		return
 	_commit(cost, apply)
 
@@ -356,37 +540,35 @@ func _spend(cost: int, what: String, apply: Callable) -> void:
 func _commit(cost: int, apply: Callable) -> void:
 	profile["gleam"] = int(profile["gleam"]) - cost
 	apply.call()
-	_clear_detail()
+	_close_shop()
 	profile_changed.emit()
 	_refresh()
+	# The receipt, felt: the purse thins and the spool takes the winding.
+	UITheme.pulse(_gleam_label)
+	UITheme.pulse(_spool_strip, 1.08)
 
 
 # ----------------------------------------------------------------- confirm
 
 func _build_confirm_modal() -> void:
 	_confirm = UITheme.modal(self, 484.0)
-	var dim: Control = _confirm["overlay"]
-	# Law 13: an escape path that is not a button. Dim-tap backs out, and the
-	# catcher sits UNDER the panel so it never swallows the panel's own taps.
-	var catcher := Button.new()
-	catcher.flat = true
-	catcher.set_anchors_preset(Control.PRESET_FULL_RECT)
-	catcher.pressed.connect(_close_confirm)
-	dim.add_child(catcher)
-	dim.move_child(catcher, 0)
+	# Law 13: an escape path that is not a button — a dim-tap backs out.
+	UITheme.modal_escape(_confirm, _close_confirm)
 	var box: VBoxContainer = _confirm["box"]
-	box.add_child(UITheme.measured_label("Spend it?", 32, 452.0,
+	box.add_child(UITheme.measured_label(
+		Strings.line("exchange.popup.spend_title"), 32, 452.0,
 		UITheme.display_font()))
 	_confirm_body = UITheme.measured_label("", 24, 452.0, UITheme.body_font())
 	box.add_child(_confirm_body)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	box.add_child(row)
-	var no := UITheme.dark_button("Not tonight", 24, Vector2(0, UITheme.BUTTON_HEIGHT))
+	var no := UITheme.dark_button(Strings.line("exchange.popup.spend_no"), 24,
+		Vector2(0, UITheme.BUTTON_HEIGHT))
 	no.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	no.pressed.connect(_close_confirm)
 	row.add_child(no)
-	var yes := UITheme.amber_button("Spend it", 26)
+	var yes := UITheme.amber_button(Strings.line("exchange.popup.spend_yes"), 26)
 	yes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	yes.pressed.connect(func() -> void:
 		var pending := _pending
@@ -398,4 +580,4 @@ func _build_confirm_modal() -> void:
 
 func _close_confirm() -> void:
 	_pending = Callable()
-	_confirm["overlay"].visible = false
+	UITheme.close_modal(_confirm["overlay"], _confirm["panel"])

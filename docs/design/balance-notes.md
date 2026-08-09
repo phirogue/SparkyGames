@@ -1,5 +1,42 @@
 # Balance Notes — Simulated Playtests
 
+## Pass 5 — the purr commitment + banking removed (2026-08-08)
+
+Changes this pass (owner battle review):
+- **Purr holds Ash still**: while the channel runs, `play_skill` (Scratch
+  included), `charge_skill` and `concentrate` are refused. Damage still
+  breaks it; discard and Slip Away stay open.
+- **Banking removed** ("what's the point of banking a card if it can be
+  stolen") — hand-attacks steal from the hand only; Loaf remains the answer.
+
+| Scenario | brawler | defender | stalker | random |
+|---|---|---|---|---|
+| Vole | 100% | 100% | 100% | 100% |
+| Wisp | 100% | 100% | 100% | 95% |
+| Dog | 39% | 97% | 54% (33% flee) | 11% |
+| Wraith | 0% (100% flee) | 0% (100% flee) | 0% (98% flee) | 0% (100% flee) |
+| Unpicked | 0% | 0% | 0% | 0% |
+| Watch Captain | 84% | 52% | 81% | 7% |
+| Wisp Pair | 97% | 89% | 99% | 15% |
+| Empty Coat | 28% | **57%** | 85% | 2% |
+
+Read:
+- **The purr now has a price and the table shows exactly where**: the two
+  fights where the defender liked to purr mid-fight moved — Empty Coat
+  99 → 57, Wisp Pair 100 → 89 — while every fight where purring was already
+  suicidal (dog 97, captain 52) is untouched. That is the intended shape: a
+  heal that costs your turns is a commitment, not a free stat.
+- **Coat's best line is now the stalker (85)**, with the defender a real but
+  no longer dominant 57. Two viable paths remain; brawler face-first stays
+  a bad plan (28). No retune needed.
+- **Banking's removal moved nothing measurable** — the bots barely banked
+  (it was a paw for no upside, which is why the owner cut it). It shows up
+  as a rules simplification, not a balance change.
+- Tutorial floors (vole/wisp 100%) and the wraith's flee-lesson
+  (`withdraw_after` — every bot walks) are intact.
+
+---
+
 ## Pass 4 — anti-turtle + the coat quest made real (2026-08-03)
 
 Changes this pass (from the 2026-08-02 critical review):
@@ -190,3 +227,26 @@ Worth writing down: with only `hp_floor` and no forced exit, the wraith
 became a **100% win at ~12 turns** for the brawler — an unkillable enemy is a
 free win given enough turns. The damage floor and the scripted withdrawal are
 one mechanic in two halves; neither ships without the other.
+
+
+## Pass 7 — the cut stops being a gleam sink (owner, 2026-08-08)
+
+The Magpie's "Cut a card" good (15 gleam) is gone. Cutting is now free
+selection at the loadout's Spool popup: the profile keeps everything owned in
+`card_pool` (schema v6), the deck is the wound-on subset, and the only rule
+is `exchange.deck_floor` (10) — unchanged, and now enforced where the editing
+happens instead of at the counter.
+
+What this does to the economy:
+
+- **Gleam loses one sink.** The remaining sinks are Add a card (12), the
+  good shelf (30) and tonics (25). The cut sink priced *undoing a purchase*,
+  which punished experimentation twice — the owner judged the deck a loadout
+  decision, not a transaction. No combat number moved, so no sim delta is
+  expected; the fuzzer and sim were run to confirm no rules regression.
+- **Deck thinning is free at the floor.** A player can now run the 10-card
+  spool from the moment they own 10 cards. Watch this: if thin-deck cycling
+  proves dominant in later chapters, the lever is `exchange.deck_floor`
+  (raise it), not re-pricing the cut.
+- **New dial `exchange.tonic_hp` (2)** — was a hardcoded `+2` in the shop
+  screen; the close-up popup now states it from the dial.

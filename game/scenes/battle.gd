@@ -1,9 +1,9 @@
 extends Control
 ## Battle screen, matched to assets/library/mockups/ui_objective.png:
-## banner header + rule card · framed portrait beside a name-plate holding the
-## thread-of-life · framed intent chip · chronicle strip · icon status strip ·
-## fanned energy hand · skill cards in a parchment tray · amber End Turn with
-## a dark Slip Away card. All rules live in CombatState.
+## banner header + rule card · framed portrait (dominant) beside a name-plate
+## holding the thread-of-life · framed intent chip · chronicle strip · icon
+## status strip · fanned energy hand · fanned skill cards · amber End Turn
+## with a dark Slip Away card. All rules live in CombatState.
 ##
 ## ZONE TEMPLATE (owner rule: fixed template, nothing moves again).
 ## Content is 576x1104 inside the calibrated stitch margins
@@ -12,34 +12,37 @@ extends Control
 ## CONTENT_HEIGHT exactly. Verified with tests/calibrate.gd -- zones battle.
 const ZONE_SEP := 3        # root VBox separation (6 gaps)
 const ZONE_HEADER := 98    # banner 30px | rule card 300 wide, 20px text
-const ZONE_OPPONENT := 394 # portrait 364x394 | name(thread)+intent col 200
-const ZONE_CHRONICLE := 150 # last 5 log lines at 22px, plate margin 5
+const ZONE_OPPONENT := 410 # portrait 396x410 | name(thread)+intent col 162
+const ZONE_CHRONICLE := 134 # ~3 log lines at 30px visible; whole fight scrolls
 const ZONE_STATUS := 58    # icons 40, labels 28, margin 8 (measured: 58)
 const ZONE_HAND := 140     # fanned cards 113x154 tuck up over the gap
-const ZONE_SKILLS := 150   # tray margin 8, 5-per-row cards 107x134
+const ZONE_SKILLS := 150   # fanned action cards 132x162 tuck up over the gap
 const ZONE_ACTIONS := 96   # tap-target floor
-# 98+394+150+58+140+150+96 = 1086; + 6*3 = 1104 = CONTENT_HEIGHT
+# 98+410+134+58+140+150+96 = 1086; + 6*3 = 1104 = CONTENT_HEIGHT
 # The status strip MEASURES 58, not the 56 it was declared at, so the
 # template overran the page by 2px on every battle screen ever shot (owner
 # tour, 2026-08-05). Two came off the opponent zone. Law 12: the numbers are
 # the contract -- when reality disagrees, change the template, not the sum.
 
-const PORTRAIT_SIZE := Vector2(364, 396)
+## Grown 2026-08-08 (owner: "the image of the opponent should be larger, that
+## frame should take up most of the area") — the chronicle gave up its extra
+## lines (3 visible now, bigger type) and the freed rows went to the portrait.
+const PORTRAIT_SIZE := Vector2(396, 410)
 const RULE_CARD_WIDTH := 300.0
 ## The chronicle keeps the whole fight and scrolls (owner 2026-08-04). The
 ## cap is a runaway guard, not an editorial choice.
 const LOG_HISTORY := 200
+## "The text showing what just happened should be way larger (maybe only 3
+## lines visible at a time)" — owner 2026-08-08.
+const LOG_FONT_SIZE := 30
 const CARD_SCALE := 1.2    # energy cards (base 94x128, owner +20%)
-## Five abilities out at once (owner 2026-08-03, up from four). The tray
-## SCROLLS sideways rather than shrinking to fit them (owner 2026-08-05: "now
-## that we can scroll it doesn't have to have 5 visible, the text should be
-## legible") — five cards squeezed into the width made every name and count
-## too small to read at arm's length.
-## WIDTH BUDGET: 4 cards VISIBLE at 130 + 3x8 separation + 2x8 tray margin
-## = 560 <= 576. The fifth is one flick away.
-const SKILL_COLUMNS := 5
-const SKILL_TRAY_SEP := 8
-const SKILL_CARD_SIZE := Vector2(130, 134)
+## Five abilities out at once, ALL visible, NO sideways scroll (owner
+## 2026-08-08: "not where you need to scroll left and right, maybe have it as
+## a fanned hand where clicking a specific card opens it up"). The cards fan
+## with a slight overlap like the energy hand; the closed card carries the
+## art whole (KEEP_ASPECT, never cropped) and the full text lives in the
+## popup the tap opens.
+const SKILL_CARD_SIZE := Vector2(132, 162)
 
 signal encounter_finished(state: CombatState)
 
@@ -177,10 +180,10 @@ var concentrate_button: Button
 var concentrate_overlay: Control
 var concentrate_box: VBoxContainer
 var card_overlay: Control
+var card_panel: Control
 var card_title: Label
 var card_body: Label
 var card_slot: Control
-var card_bank: Button
 var card_discard: Button
 var selected_card := -1
 var alarm_label: Label
@@ -190,14 +193,23 @@ var hp_label: Label
 var block_label: Label
 var deck_label: Label
 var turn_label: Label
-var banked_row: HBoxContainer
 var hand_fan: Control
-## The fanned cards live in their own layer so refreshing the hand cannot free
-## banked_row along with them (see _refresh_hand_fan).
+## The fanned cards live in their own layer so a refresh only ever frees what
+## a refresh rebuilds (engineering law: rebuildable content gets its own child
+## layer — one shared clear once produced six defects from one line).
 var hand_cards: Control
 ## Status-strip chips the coach spotlights by name ("hp", "guard", "deck").
 var status_chips: Dictionary = {}
-var skills_grid: GridContainer
+var skill_fan: Control
+## Hit-feedback overlay (full page red wash) — built once, animated on "hurt".
+var hit_flash: ColorRect
+## Hand snapshot from the previous refresh: the diff drives the draw/steal
+## animations without the rules layer having to know the UI exists.
+var _prev_hand: Array = []
+var _pending_steals := 0
+## Animations only fire after the first laid-out frame — before that, chip
+## positions are (0,0) and a "draw" tween would fly in from the page corner.
+var _booted := false
 var detail_overlay: Control
 var detail_panel: PanelContainer
 var detail_title: Label
@@ -265,6 +277,8 @@ func _ready() -> void:
 		else:
 			_start_coach()
 	_start_ambient_animation()
+	await get_tree().process_frame
+	_booted = true
 
 
 func _start_coach() -> void:
@@ -351,7 +365,7 @@ func _on_skill_selected(skill_id: String) -> void:
 		coach.notify("skill:" + skill_id)
 	selected_skill = skill_id
 	_refresh_detail()
-	detail_overlay.visible = true
+	_open_modal(detail_overlay, detail_panel)
 
 
 ## Fills the close-up popup from current state; called on open and after
@@ -384,7 +398,7 @@ func _refresh_detail() -> void:
 	# Panel is 620 wide with 16px flat-stylebox margins: wrap EQUALS width.
 	var title_wrap := 620.0 - 32.0
 	detail_title.custom_minimum_size = Vector2(title_wrap, UITheme.measure_text(
-		title_text, UITheme.display_font(), 34, title_wrap).y)
+		title_text, UITheme.display_font(), 38, title_wrap).y)
 	# Energy requirement as pips: one circle per point of cost, colored by
 	# humour, filled as the card is powered.
 	_clear(detail_pips)
@@ -395,16 +409,18 @@ func _refresh_detail() -> void:
 			powered, HUMOUR_COLORS.get(humour, UITheme.INK_SOFT), 15.0,
 			UITheme.cropped_tex(HUMOUR_GLYPH.get(humour, ""))))
 	detail_pips.visible = not cost.is_empty()
-	var wrap := 620.0 - 32.0 - 200.0 - 16.0
+	# Rule text at DOUBLE its old size (owner 2026-08-08) — the art moved up
+	# beside the pips so the words get the panel's full width to be big in.
+	var wrap := 620.0 - 32.0
 	var effect_text := _effect_summary(def)
 	detail_label.text = effect_text
 	detail_label.custom_minimum_size = Vector2(wrap, UITheme.measure_text(
-		effect_text, UITheme.body_font(), 26, wrap).y + 4)
+		effect_text, UITheme.body_font(), 40, wrap).y + 4)
 	var flavor_text := String(def.get("flavor", ""))
 	detail_flavor.text = flavor_text
 	detail_flavor.visible = flavor_text != ""
 	detail_flavor.custom_minimum_size = Vector2(wrap, UITheme.measure_text(
-		flavor_text, UITheme.italic_font(), 24, wrap).y + 4)
+		flavor_text, UITheme.italic_font(), 30, wrap).y + 4)
 	detail_art.texture = UITheme.tex("sk_" + skill_id)
 	var next_humour := ""
 	for humour in state.remaining_cost(skill_id):
@@ -419,23 +435,21 @@ func _refresh_detail() -> void:
 	detail_use.disabled = not _skill_ready(skill_id)
 
 
-## The best card to feed: smallest matching value wastes the least on
-## overshoot; hand is preferred over bank on ties. Exact humour beats a
-## mysticism wild — wilds are too precious to spend when a match exists.
+## The best hand card to feed: smallest matching value wastes the least on
+## overshoot. Exact humour beats a mysticism wild — wilds are too precious to
+## spend when a match exists.
 func _charge_pick(humour: String) -> Dictionary:
 	var best := {}
 	var best_wild := {}
-	for source in ["hand", "bank"]:
-		var pool: Array = state.hand if source == "hand" else state.banked
-		for i in pool.size():
-			var card: Dictionary = catalog.energy_cards[pool[i]]
-			var pick := {"source": source, "index": i, "value": int(card["value"])}
-			if card["humour"] == humour and \
-					(best.is_empty() or int(card["value"]) < int(best["value"])):
-				best = pick
-			elif card["humour"] == state.wild_humour and \
-					(best_wild.is_empty() or int(card["value"]) < int(best_wild["value"])):
-				best_wild = pick
+	for i in state.hand.size():
+		var card: Dictionary = catalog.energy_cards[state.hand[i]]
+		var pick := {"source": "hand", "index": i, "value": int(card["value"])}
+		if card["humour"] == humour and \
+				(best.is_empty() or int(card["value"]) < int(best["value"])):
+			best = pick
+		elif card["humour"] == state.wild_humour and \
+				(best_wild.is_empty() or int(card["value"]) < int(best_wild["value"])):
+			best_wild = pick
 	return best if not best.is_empty() else best_wild
 
 
@@ -465,6 +479,8 @@ func _on_detail_charge() -> void:
 
 
 func _on_detail_use() -> void:
+	if selected_skill == "":
+		return  # a tap that raced the closing animation
 	if coach != null:
 		coach.notify("use")
 	var skill_id := selected_skill
@@ -477,7 +493,7 @@ func _on_detail_use() -> void:
 
 func _close_detail() -> void:
 	selected_skill = ""
-	detail_overlay.visible = false
+	_close_modal(detail_overlay, detail_panel)
 
 
 func _on_card_pressed(hand_index: int) -> void:
@@ -487,37 +503,22 @@ func _on_card_pressed(hand_index: int) -> void:
 	var card_id: String = state.hand[hand_index]
 	var card: Dictionary = catalog.energy_cards[card_id]
 	var humour := Catalog.humour_name(String(card["humour"]))
-	card_title.text = "%s — worth %d" % [humour, int(card["value"])]
+	card_title.text = Strings.line("battle.card_title", [humour, int(card["value"])])
 	_clear(card_slot)
 	var big := _card_button(card_id, 1.8)
 	big.disabled = true
 	card_slot.add_child(big)
-	var body_text := "Bank it for later (a paw now, safe from theft... mostly).\nDiscard and it is gone until you rest at home."
+	var body_text := Strings.line("battle.card_desc")
 	card_body.text = body_text
 	var wrap := 560.0 - 32.0
 	card_body.custom_minimum_size = Vector2(wrap, UITheme.measure_text(
 		body_text, UITheme.body_font(), 26, wrap).y)
-	card_bank.disabled = state.banked.size() >= state.bank_limit or state.paws_left < 1
-	card_overlay.visible = true
+	_open_modal(card_overlay, card_panel)
 
 
 func _close_card() -> void:
 	selected_card = -1
-	card_overlay.visible = false
-
-
-func _on_card_bank() -> void:
-	var hand_index := selected_card
-	_close_card()
-	if hand_index < 0 or hand_index >= state.hand.size():
-		return
-	var card_id: String = state.hand[hand_index]
-	var result := state.do_command({"type": "bank", "hand_index": hand_index})
-	if result["ok"]:
-		_log(Strings.line("chronicle.banked", [catalog.energy_cards[card_id]["name"]]))
-	else:
-		_log(result["error"])
-	_after_command()
+	_close_modal(card_overlay, card_panel)
 
 
 func _on_card_discard() -> void:
@@ -636,6 +637,20 @@ func _drain_events() -> void:
 	for line in state.take_journal():
 		_log(line)
 	for event in state.take_events():
+		# Structured feedback events ("hurt:3") drive the hit animations; the
+		# bare words below stay the chronicle's flavour lines.
+		if event.begins_with("hurt:"):
+			_anim_player_hurt(int(event.get_slice(":", 1)))
+			continue
+		if event.begins_with("blocked:"):
+			_anim_player_blocked(int(event.get_slice(":", 1)))
+			continue
+		if event.begins_with("enemy_hurt:"):
+			_anim_enemy_hurt(int(event.get_slice(":", 1)))
+			continue
+		if event == "stolen":
+			_pending_steals += 1
+			continue
 		match event:
 			"sunbeam": _log(Strings.line("chronicle.sunbeam"))
 			"spotted": _log(Strings.line("chronicle.spotted"))
@@ -768,6 +783,8 @@ func _build_ui() -> void:
 
 	# --- Zone B: opponent -------------------------------------------------
 	# (Hints render as chronicle lines — a floating label broke the budget.)
+	# The portrait is 396 wide of the 582 (owner 2026-08-08: "the image of the
+	# opponent should be larger") — the name/intent column keeps a slim 174.
 	var enemy_row := HBoxContainer.new()
 	enemy_row.add_theme_constant_override("separation", 12)
 	enemy_row.custom_minimum_size = Vector2(0, ZONE_OPPONENT)
@@ -777,7 +794,7 @@ func _build_ui() -> void:
 	enemy_row.add_child(enemy_art)
 	var enemy_col := VBoxContainer.new()
 	enemy_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	enemy_col.add_theme_constant_override("separation", 14)
+	enemy_col.add_theme_constant_override("separation", 12)
 	enemy_col.alignment = BoxContainer.ALIGNMENT_CENTER
 	enemy_row.add_child(enemy_col)
 
@@ -789,7 +806,7 @@ func _build_ui() -> void:
 	name_plate.add_child(name_box)
 	enemy_label = Label.new()
 	enemy_label.add_theme_font_override("font", UITheme.display_font())
-	enemy_label.add_theme_font_size_override("font_size", 30)
+	enemy_label.add_theme_font_size_override("font_size", 26)
 	enemy_label.add_theme_color_override("font_color", UITheme.INK)
 	enemy_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	enemy_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -808,7 +825,7 @@ func _build_ui() -> void:
 	intent_plate = _plate(96)
 	enemy_col.add_child(intent_plate)
 	intent_label = Label.new()
-	intent_label.add_theme_font_size_override("font_size", 28)
+	intent_label.add_theme_font_size_override("font_size", 24)
 	intent_label.add_theme_color_override("font_color", UITheme.INK)
 	intent_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	intent_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -832,7 +849,7 @@ func _build_ui() -> void:
 	log_plate.add_child(log_scroll)
 	log_label = Label.new()
 	log_label.add_theme_font_override("font", UITheme.italic_font())
-	log_label.add_theme_font_size_override("font_size", 22)
+	log_label.add_theme_font_size_override("font_size", LOG_FONT_SIZE)
 	log_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
 	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	log_scroll.add_child(log_label)
@@ -870,40 +887,24 @@ func _build_ui() -> void:
 	turn_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
 	status_row.add_child(turn_label)
 
-	# --- Zone E: fanned hand (banked cards overlay its top-left corner) ---
+	# --- Zone E: fanned energy hand ---------------------------------------
 	hand_fan = Control.new()
 	hand_fan.custom_minimum_size = Vector2(0, ZONE_HAND)
 	root.add_child(hand_fan)
-	banked_row = HBoxContainer.new()
-	banked_row.add_theme_constant_override("separation", 4)
-	banked_row.position = Vector2(2, -6)
-	hand_fan.add_child(banked_row)
-	# Cards get their OWN layer. Rebuilding the fan used to clear hand_fan
-	# wholesale, which freed banked_row with it — and every _refresh() after
-	# the first then died on the freed node, half-done: the counters updated
-	# but the hand never shrank, spent skills never faded and fed pips never
-	# filled. One line of blast radius, six entries on the defect list.
+	# Cards get their OWN layer (engineering law: rebuildable content gets its
+	# own child layer — a shared clear once produced six defects from one line).
 	hand_cards = Control.new()
 	hand_cards.set_anchors_preset(Control.PRESET_FULL_RECT)
 	hand_cards.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hand_fan.add_child(hand_cards)
 
-	# --- Zone F: skills tray ----------------------------------------------
-	# Four cards visible, the rest a flick away. The ScrollContainer is what
-	# lets the cards stay big enough to read (see SKILL_CARD_SIZE).
-	var tray := PanelContainer.new()
-	var tray_style := UITheme.panel_stylebox(8)
-	tray.add_theme_stylebox_override("panel", tray_style)
-	root.add_child(tray)
-	var tray_scroll := ScrollContainer.new()
-	tray_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	tray_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	tray.add_child(tray_scroll)
-	skills_grid = GridContainer.new()
-	skills_grid.columns = SKILL_COLUMNS
-	skills_grid.add_theme_constant_override("h_separation", SKILL_TRAY_SEP)
-	skills_grid.add_theme_constant_override("v_separation", SKILL_TRAY_SEP)
-	tray_scroll.add_child(skills_grid)
+	# --- Zone F: fanned action cards --------------------------------------
+	# All five out at once, slightly overlapped like the energy hand, no
+	# sideways scroll (owner 2026-08-08). Tapping a card opens the close-up,
+	# which is where the full text lives.
+	skill_fan = Control.new()
+	skill_fan.custom_minimum_size = Vector2(0, ZONE_SKILLS)
+	root.add_child(skill_fan)
 
 	# Detail popup: a centered modal over a DIMMED battle — the card close-up
 	# is the only bright thing on screen (owner rule). Magnified art left,
@@ -915,23 +916,22 @@ func _build_ui() -> void:
 	var detail_box: VBoxContainer = detail_modal["box"]
 	detail_title = Label.new()
 	detail_title.add_theme_font_override("font", UITheme.display_font())
-	detail_title.add_theme_font_size_override("font_size", 34)
+	detail_title.add_theme_font_size_override("font_size", 38)
 	detail_title.add_theme_color_override("font_color", UITheme.INK)
 	detail_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	detail_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail_box.add_child(detail_title)
 	detail_uses = Label.new()
 	detail_uses.add_theme_font_override("font", UITheme.smallcaps_font())
-	detail_uses.add_theme_font_size_override("font_size", 26)
+	detail_uses.add_theme_font_size_override("font_size", 30)
 	detail_uses.add_theme_color_override("font_color", UITheme.INK_SOFT)
 	detail_uses.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	detail_box.add_child(detail_uses)
-	detail_pips = HBoxContainer.new()
-	detail_pips.add_theme_constant_override("separation", 10)
-	detail_pips.alignment = BoxContainer.ALIGNMENT_CENTER
-	detail_box.add_child(detail_pips)
+	# Art centered beside the pips; the rule text below gets the panel's full
+	# width, which is what lets it run at double size (owner 2026-08-08).
 	var detail_body := HBoxContainer.new()
 	detail_body.add_theme_constant_override("separation", 16)
+	detail_body.alignment = BoxContainer.ALIGNMENT_CENTER
 	detail_box.add_child(detail_body)
 	var art_holder := PanelContainer.new()
 	var art_style := StyleBoxFlat.new()
@@ -941,30 +941,28 @@ func _build_ui() -> void:
 	art_style.set_corner_radius_all(12)
 	art_style.set_content_margin_all(6)
 	art_holder.add_theme_stylebox_override("panel", art_style)
-	art_holder.custom_minimum_size = Vector2(200, 200)
+	art_holder.custom_minimum_size = Vector2(220, 220)
 	art_holder.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	detail_body.add_child(art_holder)
 	detail_art = TextureRect.new()
 	detail_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	detail_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	detail_art.clip_contents = true
+	detail_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	art_holder.add_child(detail_art)
-	var detail_text_col := VBoxContainer.new()
-	detail_text_col.add_theme_constant_override("separation", 10)
-	detail_text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_text_col.alignment = BoxContainer.ALIGNMENT_CENTER
-	detail_body.add_child(detail_text_col)
+	detail_pips = HBoxContainer.new()
+	detail_pips.add_theme_constant_override("separation", 10)
+	detail_pips.alignment = BoxContainer.ALIGNMENT_CENTER
+	detail_body.add_child(detail_pips)
 	detail_label = Label.new()
-	detail_label.add_theme_font_size_override("font_size", 26)
+	detail_label.add_theme_font_size_override("font_size", 40)
 	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	detail_text_col.add_child(detail_label)
+	detail_box.add_child(detail_label)
 	# Flavor is ITALIC and softer — clearly voice, not rules (owner rule).
 	detail_flavor = Label.new()
 	detail_flavor.add_theme_font_override("font", UITheme.italic_font())
-	detail_flavor.add_theme_font_size_override("font_size", 24)
+	detail_flavor.add_theme_font_size_override("font_size", 30)
 	detail_flavor.add_theme_color_override("font_color", UITheme.INK_SOFT)
 	detail_flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	detail_text_col.add_child(detail_flavor)
+	detail_box.add_child(detail_flavor)
 	var detail_buttons := HBoxContainer.new()
 	detail_buttons.add_theme_constant_override("separation", 12)
 	detail_box.add_child(detail_buttons)
@@ -1013,6 +1011,13 @@ func _build_ui() -> void:
 	concentrate_overlay = _build_concentrate_overlay()
 	no_escape_overlay = _build_no_escape_overlay()
 	withdraw_overlay = _build_withdraw_overlay()
+
+	# Red wash for "you have been attacked" — invisible until a hurt event.
+	hit_flash = ColorRect.new()
+	hit_flash.color = Color(0.55, 0.08, 0.05, 0.0)
+	hit_flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	hit_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(hit_flash)
 
 
 func _divider(parent: Container) -> void:
@@ -1089,9 +1094,12 @@ func _build_outcome_overlay() -> Control:
 	return modal["overlay"]
 
 
-## Close-up for a tapped hand card: Bank it, Discard it, or back out.
+## Close-up for a tapped hand card: Discard it, or back out. (Feeding energy
+## to a skill happens from the skill's own close-up; banking is gone — owner
+## 2026-08-08: "whats the point of banking a card if it can be stolen".)
 func _build_card_overlay() -> Control:
 	var modal := UITheme.modal(self, 560.0)
+	card_panel = modal["panel"]
 	var box: VBoxContainer = modal["box"]
 	card_title = Label.new()
 	card_title.add_theme_font_override("font", UITheme.display_font())
@@ -1111,10 +1119,6 @@ func _build_card_overlay() -> Control:
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 12)
 	box.add_child(buttons)
-	card_bank = UITheme.amber_button("Bank", 30)
-	card_bank.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card_bank.pressed.connect(_on_card_bank)
-	buttons.add_child(card_bank)
 	card_discard = UITheme.dark_button("Discard")
 	card_discard.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card_discard.pressed.connect(_on_card_discard)
@@ -1213,12 +1217,14 @@ func _framed_portrait(image_id: String, description: String) -> Control:
 	holder.custom_minimum_size = PORTRAIT_SIZE
 	var art := UITheme.art_or_placeholder(image_id, description)
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	# Frame-art insets scale with the frame (base 38/36/38/52 at 300x366).
-	var inset_scale := PORTRAIT_SIZE.x / 300.0
-	art.set_offset(SIDE_LEFT, 38 * inset_scale)
-	art.set_offset(SIDE_TOP, 36 * inset_scale)
-	art.set_offset(SIDE_RIGHT, -38 * inset_scale)
-	art.set_offset(SIDE_BOTTOM, -52 * inset_scale)
+	# Frame-art insets scale with the frame (base 38/36/38/52 at 300x366) —
+	# per AXIS, since the frame is stretched wider than it is tall now.
+	var sx := PORTRAIT_SIZE.x / 300.0
+	var sy := PORTRAIT_SIZE.y / 366.0
+	art.set_offset(SIDE_LEFT, 38 * sx)
+	art.set_offset(SIDE_TOP, 36 * sy)
+	art.set_offset(SIDE_RIGHT, -38 * sx)
+	art.set_offset(SIDE_BOTTOM, -52 * sy)
 	if art is TextureRect:
 		art.clip_contents = true
 	holder.add_child(art)
@@ -1286,7 +1292,8 @@ func _refresh() -> void:
 	# button, and it greys out when the last one is gone.
 	concentrate_button.text = Strings.line("battle.concentrate_label",
 		[state.concentrate_left])
-	concentrate_button.disabled = state.concentrate_left <= 0
+	concentrate_button.disabled = state.concentrate_left <= 0 \
+		or not state.channel.is_empty() or state.statuses.get("loafed", 0) > 0
 	concentrate_button.tooltip_text = Strings.line("battle.concentrate_desc")
 	hp_label.text = "%d/%d" % [maxi(state.player_hp, 0), state.player_max_hp]
 	block_label.text = str(state.player_block)
@@ -1295,18 +1302,70 @@ func _refresh() -> void:
 	turn_label.text = "turn %d" % state.turn
 	log_label.text = "\n".join(log_lines)
 
-	_clear(banked_row)
-	for card_id in state.banked:
-		var b := _card_button(card_id, 0.75)
-		b.disabled = true
-		banked_row.add_child(b)
 	_refresh_hand_fan()
-	_clear(skills_grid)
+	_refresh_skill_fan()
+
+
+## The hand as a fan (objective mock): overlapped, slightly rotated cards.
+## Newly drawn cards slide in from the deck chip; stolen cards fly to the
+## opponent as fading ghosts (owner 2026-08-08: draws and thefts animate).
+func _refresh_hand_fan() -> void:
+	var stolen := _removed_cards(_prev_hand, state.hand) if _pending_steals > 0 else []
+	var drawn_from := _prev_hand.size()
+	var is_plain_draw: bool = state.hand.size() > _prev_hand.size() \
+		and state.hand.slice(0, _prev_hand.size()) == _prev_hand
+	_clear(hand_cards)
+	var n := state.hand.size()
+	var card_size := Vector2(94, 128) * CARD_SCALE
+	var overlap_step := 98.0
+	var total_width := overlap_step * (n - 1) + card_size.x
+	var start_x: float = (hand_fan.size.x - total_width) / 2.0
+	if hand_fan.size.x <= 1:  # first layout pass: estimate from zone width
+		start_x = (float(UITheme.CONTENT_WIDTH) - total_width) / 2.0
+	var center := (n - 1) / 2.0
+	for i in n:
+		var b := _card_button(state.hand[i], CARD_SCALE)
+		b.tooltip_text = "Tap to feed an action, or discard"
+		b.pressed.connect(_on_card_pressed.bind(i))
+		hand_cards.add_child(b)
+		var offset := i - center
+		# Tucked up slightly: the cards may overhang the zone gap above,
+		# never the tray below.
+		var rest := Vector2(start_x + overlap_step * i,
+			-10.0 + 3.0 * absf(offset) * absf(offset))
+		b.position = rest
+		b.rotation_degrees = offset * 3.0
+		b.pivot_offset = card_size / 2.0
+		if _booted and is_plain_draw and i >= drawn_from:
+			_anim_draw(b, rest)
+	if _booted:
+		for card_id in stolen:
+			_anim_steal(String(card_id))
+	_pending_steals = 0
+	_prev_hand = state.hand.duplicate()
+
+
+## Multiset difference: which card ids left the hand since the last refresh.
+func _removed_cards(before: Array, after: Array) -> Array:
+	var remaining := after.duplicate()
+	var removed: Array = []
+	for card_id in before:
+		var at := remaining.find(card_id)
+		if at >= 0:
+			remaining.remove_at(at)
+		else:
+			removed.append(card_id)
+	return removed
+
+
+## The five action cards as a fan: all visible, slight overlap, no scroll
+## (owner 2026-08-08). Scratch ALWAYS occupies the first slot, then the
+## loadout in its own order (owner defect: a battle that pinned its skills
+## without naming Scratch pushed it to the far right, so the tray reshuffled
+## between fights). The fan is muscle memory — it does not move.
+func _refresh_skill_fan() -> void:
+	_clear(skill_fan)
 	skill_buttons.clear()
-	# Scratch ALWAYS occupies the first slot, then the loadout in its own
-	# order (owner defect: a battle that pinned its skills without naming
-	# Scratch pushed it to the far right, so the tray reshuffled between
-	# fights). The tray is muscle memory — it does not move.
 	var shown: Array[String] = ["scratch"]
 	for skill_id in skill_ids:
 		if not shown.has(skill_id):
@@ -1318,37 +1377,28 @@ func _refresh() -> void:
 		push_warning("battle: %d abilities configured, loadout max is %d" % [
 			shown.size(), SaveService.LOADOUT_SIZE])
 		shown = shown.slice(0, SaveService.LOADOUT_SIZE)
-	for skill_id in shown:
-		var button := _skill_button(skill_id)
-		skill_buttons[skill_id] = button
-		skills_grid.add_child(button)
-
-
-## The hand as a fan (objective mock): overlapped, slightly rotated cards.
-func _refresh_hand_fan() -> void:
-	_clear(hand_cards)
-	var n := state.hand.size()
+	var n := shown.size()
 	if n == 0:
 		return
-	var card_size := Vector2(94, 128) * CARD_SCALE
-	var overlap_step := 98.0
-	var total_width := overlap_step * (n - 1) + card_size.x
-	var start_x: float = (hand_fan.size.x - total_width) / 2.0
-	if hand_fan.size.x <= 1:  # first layout pass: estimate from zone width
-		start_x = (float(UITheme.CONTENT_WIDTH) - total_width) / 2.0
+	var fan_width := skill_fan.size.x
+	if fan_width <= 1:  # first layout pass: estimate from zone width
+		fan_width = float(UITheme.CONTENT_WIDTH)
+	var step: float = SKILL_CARD_SIZE.x + 8.0
+	if n > 1:
+		step = minf(step, (fan_width - SKILL_CARD_SIZE.x) / float(n - 1))
+	var total_width: float = step * (n - 1) + SKILL_CARD_SIZE.x
+	var start_x := (fan_width - total_width) / 2.0
 	var center := (n - 1) / 2.0
 	for i in n:
-		var b := _card_button(state.hand[i], CARD_SCALE)
-		b.tooltip_text = "Tap to bank or discard"
-		b.pressed.connect(_on_card_pressed.bind(i))
-		hand_cards.add_child(b)
+		var button := _skill_button(shown[i])
+		skill_buttons[shown[i]] = button
+		skill_fan.add_child(button)
 		var offset := i - center
-		# Tucked up slightly: the cards may overhang the zone gap above,
-		# never the tray below.
-		b.position = Vector2(start_x + overlap_step * i,
-			-10.0 + 3.0 * absf(offset) * absf(offset))
-		b.rotation_degrees = offset * 3.0
-		b.pivot_offset = card_size / 2.0
+		# Tucked up over the gap above, never past the buttons below.
+		button.position = Vector2(start_x + step * i,
+			-14.0 + 2.5 * absf(offset) * absf(offset))
+		button.rotation_degrees = offset * 2.5
+		button.pivot_offset = SKILL_CARD_SIZE / 2.0
 
 
 func _card_button(card_id: String, scale := 1.0) -> Button:
@@ -1422,15 +1472,18 @@ func _skill_button(skill_id: String) -> Button:
 	var art := TextureRect.new()
 	art.texture = UITheme.tex("sk_" + skill_id)
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	art.clip_contents = true
+	# KEEP_ASPECT, not COVERED: the whole picture shows in the closed state
+	# (owner 2026-08-08: "the card pictures ... are a bit cut off"). The card
+	# art is a subject on plain parchment, so fitting it leaves parchment
+	# margins, not letterbox bars.
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
 	art.set_offset(SIDE_LEFT, 6)
 	art.set_offset(SIDE_RIGHT, -6)
 	art.set_offset(SIDE_TOP, 6)
 	# Art must STOP above the pips band — art bleeding behind the hollow
 	# circles read as phantom X marks.
-	art.set_offset(SIDE_BOTTOM, -56)
+	art.set_offset(SIDE_BOTTOM, -58)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(art)
 
@@ -1451,7 +1504,11 @@ func _skill_button(skill_id: String) -> Button:
 	# discounted to free by the fog read as playable while refusing every tap
 	# (owner defect: "even though slink is free, I can't play it").
 	var band := ""
-	if jammed:
+	var channeling: bool = not state.channel.is_empty() and def.get("effects", []).any(
+		func(e): return e.get("type", "") == "channel_heal")
+	if channeling:
+		band = "purring"
+	elif jammed:
 		band = "jammed"
 	elif out_of_charges:
 		band = "used up"
@@ -1465,8 +1522,8 @@ func _skill_button(skill_id: String) -> Button:
 		pips_label.add_theme_font_size_override("font_size", 24)
 		pips_label.add_theme_color_override("font_color", pip_color)
 		pips_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-		pips_label.set_offset(SIDE_TOP, -50)
-		pips_label.set_offset(SIDE_BOTTOM, -28)
+		pips_label.set_offset(SIDE_TOP, -58)
+		pips_label.set_offset(SIDE_BOTTOM, -32)
 		pips_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		pips_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(pips_label)
@@ -1481,8 +1538,8 @@ func _skill_button(skill_id: String) -> Button:
 		var pips := CostPips.new(cost_total, allocated, pip_color, 9.0,
 			UITheme.cropped_tex(HUMOUR_GLYPH.get(humour, "")))
 		pips.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-		pips.set_offset(SIDE_TOP, -50)
-		pips.set_offset(SIDE_BOTTOM, -28)
+		pips.set_offset(SIDE_TOP, -58)
+		pips.set_offset(SIDE_BOTTOM, -32)
 		pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(pips)
 	# Remaining uses, ALWAYS shown for a charged skill — including one the
@@ -1514,7 +1571,7 @@ func _skill_button(skill_id: String) -> Button:
 	name_label.add_theme_font_size_override("font_size", 24)
 	name_label.add_theme_color_override("font_color", UITheme.INK)
 	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	name_label.set_offset(SIDE_TOP, -28)
+	name_label.set_offset(SIDE_TOP, -32)
 	name_label.set_offset(SIDE_BOTTOM, -6)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.clip_text = true
@@ -1531,7 +1588,7 @@ func _skill_button(skill_id: String) -> Button:
 func _skill_playable(skill_id: String) -> bool:
 	var def: Dictionary = catalog.skills[skill_id]
 	var runtime := state.skill_state(skill_id)
-	if state.statuses.get("loafed", 0) > 0:
+	if state.statuses.get("loafed", 0) > 0 or not state.channel.is_empty():
 		return false
 	var cost := state.effective_cost(def.get("cost", {}))
 	if def.get("instinct", false):
@@ -1561,19 +1618,10 @@ func _skill_ready(skill_id: String) -> bool:
 	return _skill_playable(skill_id) and state.skill_powered(skill_id)
 
 
+## One code path with the loadout close-up (ui/skill_text.gd); the templates
+## themselves live in story/interface.json under skill_rules (law 20).
 func _effect_summary(def: Dictionary) -> String:
-	var parts: Array[String] = []
-	for effect in def.get("effects", []):
-		match effect.get("type", ""):
-			"damage": parts.append("Deal %d damage" % int(effect["amount"]))
-			"block": parts.append("Block %d" % int(effect["amount"]))
-			"heal": parts.append("Heal %d" % int(effect["amount"]))
-			"channel_heal": parts.append("Heal %d per turn for %d turns — breaks if you take damage" % [
-				int(effect["amount"]), int(effect.get("turns", 2))])
-			"draw": parts.append("Draw %d" % int(effect["amount"]))
-			"self_stun": parts.append(
-				"You cannot act next turn — and nothing can be stolen from your paws")
-	return " · ".join(parts)
+	return SkillText.effect_summary(def)
 
 
 func _intent_text(intent: Dictionary) -> String:
@@ -1592,6 +1640,161 @@ func _start_ambient_animation() -> void:
 		Color(0.9, 0.9, 0.9), 0.9).set_trans(Tween.TRANS_SINE)
 
 
+# ------------------------------------------------------------------ feedback
+# Purely visual: nothing below reads or writes rules state. The scene layer
+# reacts to core's informational events ("hurt:3") and to hand diffs.
+
+## Guards against a stale close callback hiding a modal that was re-opened
+## while its closing tween was still running.
+var _modal_seq: Dictionary = {}
+
+
+## Card-up: the popup grows out of the tap instead of appearing (owner
+## 2026-08-08: "add some visualization element so it looks smooth when you
+## bring up an action card and when it removed").
+func _open_modal(modal_overlay: Control, panel: Control) -> void:
+	_modal_seq[modal_overlay] = int(_modal_seq.get(modal_overlay, 0)) + 1
+	modal_overlay.visible = true
+	modal_overlay.modulate.a = 0.0
+	panel.scale = Vector2(0.72, 0.72)
+	await get_tree().process_frame
+	if not modal_overlay.visible:
+		return  # closed before it finished appearing
+	panel.pivot_offset = panel.size / 2.0
+	var tween := create_tween().set_parallel()
+	tween.tween_property(modal_overlay, "modulate:a", 1.0, 0.16)
+	tween.tween_property(panel, "scale", Vector2.ONE, 0.24) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func _close_modal(modal_overlay: Control, panel: Control) -> void:
+	if not modal_overlay.visible:
+		return
+	_modal_seq[modal_overlay] = int(_modal_seq.get(modal_overlay, 0)) + 1
+	var seq: int = _modal_seq[modal_overlay]
+	panel.pivot_offset = panel.size / 2.0
+	var tween := create_tween().set_parallel()
+	tween.tween_property(modal_overlay, "modulate:a", 0.0, 0.12)
+	tween.tween_property(panel, "scale", Vector2(0.8, 0.8), 0.12) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(func() -> void:
+		if int(_modal_seq.get(modal_overlay, 0)) != seq:
+			return  # re-opened mid-close; leave it alone
+		modal_overlay.visible = false
+		modal_overlay.modulate.a = 1.0
+		panel.scale = Vector2.ONE)
+
+
+## A number that drifts up and fades — the classic hit read.
+func _float_text(text: String, color: Color, at_global: Vector2) -> void:
+	var label := Label.new()
+	label.text = text
+	label.add_theme_font_override("font", UITheme.display_font())
+	label.add_theme_font_size_override("font_size", 44)
+	label.add_theme_color_override("font_color", color)
+	label.z_index = 60
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(label)
+	label.global_position = at_global
+	var tween := create_tween().set_parallel()
+	tween.tween_property(label, "position:y", label.position.y - 64.0, 0.8) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "modulate:a", 0.0, 0.8) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(label.queue_free)
+
+
+func _control_center(control: Control) -> Vector2:
+	return control.global_position + control.size / 2.0
+
+
+## You have been attacked: red wash, the number lost, over the heart chip.
+func _anim_player_hurt(amount: int) -> void:
+	if not _booted:
+		return
+	var tween := create_tween()
+	tween.tween_property(hit_flash, "color:a", 0.3, 0.06)
+	tween.tween_property(hit_flash, "color:a", 0.0, 0.4) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	var hp_chip: Control = status_chips.get("hp", status_plate)
+	_float_text("-%d" % amount, Color("8a2f22"),
+		_control_center(hp_chip) - Vector2(16, 56))
+
+
+## The defense worked: the guard chip swells and says how much it soaked.
+func _anim_player_blocked(amount: int) -> void:
+	if not _booted:
+		return
+	var guard_chip: Control = status_chips.get("guard", status_plate)
+	guard_chip.pivot_offset = guard_chip.size / 2.0
+	var tween := create_tween()
+	tween.tween_property(guard_chip, "scale", Vector2(1.25, 1.25), 0.12) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(guard_chip, "scale", Vector2.ONE, 0.2) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	_float_text("Blocked %d" % amount, Color("3a5a7a"),
+		_control_center(guard_chip) - Vector2(48, 56))
+
+
+## Your hit landed: the portrait flinches, flashes, and shows the number.
+func _anim_enemy_hurt(amount: int) -> void:
+	if not _booted or enemy_art == null:
+		return
+	var base := enemy_art.position
+	var shake := create_tween()
+	shake.tween_property(enemy_art, "position", base + Vector2(9, -4), 0.05)
+	shake.tween_property(enemy_art, "position", base + Vector2(-8, 3), 0.05)
+	shake.tween_property(enemy_art, "position", base + Vector2(5, -2), 0.05)
+	shake.tween_property(enemy_art, "position", base, 0.06)
+	var flash := ColorRect.new()
+	flash.color = Color(1.0, 0.96, 0.85, 0.4)
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	enemy_art.add_child(flash)
+	var fade := create_tween()
+	fade.tween_property(flash, "color:a", 0.0, 0.28)
+	fade.tween_callback(flash.queue_free)
+	_float_text("-%d" % amount, Color("8a2f22"),
+		_control_center(enemy_art) - Vector2(24, 40))
+
+
+## A drawn card slides in from the deck chip on the status strip.
+func _anim_draw(card: Control, rest: Vector2) -> void:
+	var deck_chip: Control = status_chips.get("deck", null)
+	if deck_chip == null:
+		return
+	var from := hand_cards.get_global_transform().affine_inverse() \
+		* _control_center(deck_chip)
+	card.position = from
+	card.scale = Vector2(0.5, 0.5)
+	card.modulate.a = 0.35
+	var tween := create_tween().set_parallel()
+	tween.tween_property(card, "position", rest, 0.35) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(card, "scale", Vector2.ONE, 0.35) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(card, "modulate:a", 1.0, 0.28)
+
+
+## A stolen card flies from the hand to the thief and fades out.
+func _anim_steal(card_id: String) -> void:
+	var ghost := _card_button(card_id, CARD_SCALE)
+	ghost.disabled = true
+	ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ghost.z_index = 55
+	add_child(ghost)
+	ghost.global_position = _control_center(hand_fan) - Vector2(56, 76)
+	var target := _control_center(enemy_art) - ghost.size / 2.0 \
+		- global_position
+	var tween := create_tween().set_parallel()
+	tween.tween_property(ghost, "position", target, 0.5) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tween.tween_property(ghost, "scale", Vector2(0.45, 0.45), 0.5) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tween.tween_property(ghost, "modulate:a", 0.0, 0.5)
+	tween.chain().tween_callback(ghost.queue_free)
+
+
 ## Chronicle wrap width: the plate's 6px content margins either side, less
 ## room for the scrollbar. The label's min size is pinned to the MEASURED
 ## height of that wrap (law 2) — a ScrollContainer scrolls its child's
@@ -1608,7 +1811,7 @@ func _log(line: String) -> void:
 	var text := "\n".join(log_lines)
 	log_label.text = text
 	var measured := UITheme.measure_text(
-		text, UITheme.italic_font(), 22, LOG_WRAP)
+		text, UITheme.italic_font(), LOG_FONT_SIZE, LOG_WRAP)
 	log_label.custom_minimum_size = Vector2(LOG_WRAP, measured.y)
 	# Pin to the newest line. The scroll range only updates after the
 	# container has re-laid out, so ask for more than exists and let the

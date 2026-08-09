@@ -44,6 +44,23 @@ func test_every_module_carries_all_three_outcomes() -> void:
 					"'%s' has no '%s' outcome text" % [id, key])
 
 
+## Rewards are earned, not attended: the module reward table pays on SUCCESS
+## and on nothing else. (It pays through earned_rewards() — the collector in
+## game.gd reads methods, not properties; the old property probe matched
+## nothing and every reward table was silently skipped.)
+func test_module_rewards_pay_only_on_success() -> void:
+	var ward := WardState.create(catalog, catalog.wards["ward_hall"], TEST_DECK)
+	assert_eq(ward.earned_rewards().size(), 0, "an unfinished ward has earned nothing")
+	ward.outcome = Minigame.Outcome.WALKED
+	assert_eq(ward.earned_rewards().size(), 0, "a walked-away ward earns nothing")
+	ward.outcome = Minigame.Outcome.PARTIAL
+	assert_eq(ward.earned_rewards().size(), 0, "a half-mend earns nothing either")
+	ward.outcome = Minigame.Outcome.SUCCESS
+	assert_eq(ward.earned_rewards(),
+		catalog.wards["ward_hall"].get("rewards", {}) as Dictionary,
+		"a closed ward pays exactly its table")
+
+
 # ---------------------------------------------------------- 1. Seam & Stitch
 
 func test_stitch_charts_can_be_sewn() -> void:

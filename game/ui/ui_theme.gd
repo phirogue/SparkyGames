@@ -341,6 +341,79 @@ static func modal(parent: Control, panel_min_width := 560.0,
 	return {"overlay": dim, "panel": panel, "box": box}
 
 
+## Every modal in the game opens and closes with the same pop (battle had it
+## first; owner asked for the rest of the book to feel as alive). The seq
+## metadata guards the close callback against a re-open mid-tween — the same
+## race battle.gd pays for with _modal_seq.
+static func open_modal(overlay: Control, panel: Control) -> void:
+	overlay.set_meta("modal_seq", int(overlay.get_meta("modal_seq", 0)) + 1)
+	overlay.visible = true
+	overlay.modulate.a = 0.0
+	panel.scale = Vector2(0.8, 0.8)
+	var tree := overlay.get_tree()
+	if tree != null:
+		await tree.process_frame
+	if not overlay.visible:
+		return  # closed before it finished appearing
+	panel.pivot_offset = panel.size / 2.0
+	var tween := overlay.create_tween().set_parallel()
+	tween.tween_property(overlay, "modulate:a", 1.0, 0.16)
+	tween.tween_property(panel, "scale", Vector2.ONE, 0.22) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+static func close_modal(overlay: Control, panel: Control) -> void:
+	if not overlay.visible:
+		return
+	overlay.set_meta("modal_seq", int(overlay.get_meta("modal_seq", 0)) + 1)
+	var seq := int(overlay.get_meta("modal_seq", 0))
+	panel.pivot_offset = panel.size / 2.0
+	var tween := overlay.create_tween().set_parallel()
+	tween.tween_property(overlay, "modulate:a", 0.0, 0.12)
+	tween.tween_property(panel, "scale", Vector2(0.85, 0.85), 0.12) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(func() -> void:
+		if int(overlay.get_meta("modal_seq", 0)) != seq:
+			return  # re-opened mid-close; leave it alone
+		overlay.visible = false
+		overlay.modulate.a = 1.0
+		panel.scale = Vector2.ONE)
+
+
+## Law 13: every modal needs an escape path that is not a button. A tap on
+## the dim (anywhere off the panel) closes. Wired through gui_input on the
+## overlay itself so it works whether the tap lands on the dim directly or
+## falls through the centering container above it.
+static func modal_escape(parts: Dictionary, on_close: Callable) -> void:
+	var dim: Control = parts["overlay"]
+	dim.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed:
+			dim.accept_event()
+			on_close.call())
+
+
+## A quick attention pulse — the purse when it pays out, a count the moment
+## it changes. Motion is the receipt for a tap that altered a number.
+static func pulse(control: Control, strength := 1.18) -> void:
+	control.pivot_offset = control.size / 2.0
+	var tween := control.create_tween()
+	tween.tween_property(control, "scale", Vector2.ONE * strength, 0.11) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(control, "scale", Vector2.ONE, 0.17) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+
+
+## Fade-in entrance for a control that was just (re)built, so a card landing
+## in a new row reads as having MOVED rather than the page blinking. Fades
+## modulate only — containers own positions and fight position tweens.
+static func settle(control: Control, delay := 0.0) -> void:
+	control.modulate.a = 0.0
+	var tween := control.create_tween()
+	if delay > 0.0:
+		tween.tween_interval(delay)
+	tween.tween_property(control, "modulate:a", 1.0, 0.22)
+
+
 ## Primary (amber) action button with standard tap height and ink text.
 static func amber_button(text: String, font_size := 30,
 		min_size := Vector2(0, BUTTON_HEIGHT)) -> Button:

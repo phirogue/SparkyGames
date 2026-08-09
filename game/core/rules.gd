@@ -22,7 +22,6 @@ extends RefCounted
 const DEFAULTS := {
 	"combat": {
 		"hand_limit": 5,
-		"bank_limit": 2,
 		"paws": 3,
 		"opening_hand": 3,
 		"concentrate_uses": 2,
@@ -55,10 +54,10 @@ const DEFAULTS := {
 	"exchange": {
 		"max_hp_cap": 30,
 		"deck_floor": 10,
+		"tonic_hp": 2,
 		"goods": [
 			{"mode": "add", "cost": 12, "seal": "ui/ui_seal_red"},
 			{"mode": "rare", "cost": 30, "seal": "ui/ui_seal_gold"},
-			{"mode": "remove", "cost": 15, "seal": "ui/ui_seal_blue"},
 			{"mode": "tonic", "cost": 25, "seal": "ui/ui_seal_red"},
 		],
 	},
@@ -146,8 +145,6 @@ func validate() -> Array[String]:
 			"combat.loadout_size"]:
 		if count(path) < 1:
 			problems.append("rules: %s must be at least 1 (is %d)" % [path, count(path)])
-	if count("combat.bank_limit") < 0:
-		problems.append("rules: combat.bank_limit cannot be negative")
 	if count("combat.opening_hand") > count("combat.hand_limit"):
 		problems.append("rules: combat.opening_hand (%d) exceeds combat.hand_limit (%d)"
 			% [count("combat.opening_hand"), count("combat.hand_limit")])
@@ -174,6 +171,8 @@ func validate() -> Array[String]:
 		if int((good as Dictionary).get("cost", 0)) < 1:
 			problems.append("rules: exchange good '%s' costs nothing"
 				% (good as Dictionary).get("mode", "?"))
+	if count("exchange.tonic_hp") < 1:
+		problems.append("rules: exchange.tonic_hp must add at least one life")
 	if count("presentation.recap_line_max") < 20:
 		problems.append("rules: presentation.recap_line_max is too small to hold a sentence")
 	return problems

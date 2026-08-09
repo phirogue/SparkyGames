@@ -76,6 +76,8 @@ var _status: HBoxContainer
 var _purse: HBoxContainer
 var _deed_label: Label
 var _footer: HBoxContainer
+var _note_modal: Dictionary = {}
+var _note_box: VBoxContainer
 
 ## First-visit walkthrough of the room, using the same Coach the tutorial
 ## fights use. Steps come from story/prologue/interludes.json (mantel_coach)
@@ -104,6 +106,7 @@ func _ready() -> void:
 	_build_doors(column)
 	_build_status(column)
 	_build_footer(column)
+	_build_note_modal()
 	refresh()
 	if not coach_steps.is_empty():
 		coach = Coach.new(coach_steps, _coach_target)
@@ -213,17 +216,24 @@ func _build_doors(column: VBoxContainer) -> void:
 func _refresh_doors() -> void:
 	_clear(_doors)
 	var open := QuestGate.doors(profile)
+	# What each door is CALLED lives in story/interface.json (law 20) — the
+	# same lines were duplicated here as literals until 2026-08-08, and the
+	# copies drifted the day the Exchange stopped cutting cards.
 	if open.get("case_board", false):
-		_doors.add_child(_door("The Case Board", "Suspects, things, threads.",
+		_doors.add_child(_door(Strings.lines("mantel.doors.case_board")[0],
+			Strings.lines("mantel.doors.case_board")[1],
 			"ui/ui_needle_pin", func() -> void: open_case_board.emit()))
 	if open.get("exchange", false):
-		_doors.add_child(_door("The Magpie Exchange", "Brindle. Cards bought and cut.",
+		_doors.add_child(_door(Strings.lines("mantel.doors.exchange")[0],
+			Strings.lines("mantel.doors.exchange")[1],
 			"ui/ui_button_pile", func() -> void: open_exchange.emit()))
 	if open.get("loadout", false):
-		_doors.add_child(_door("On the Prowl", "What goes out with you.",
+		_doors.add_child(_door(Strings.lines("mantel.doors.loadout")[0],
+			Strings.lines("mantel.doors.loadout")[1],
 			"ui/ui_paw_full", func() -> void: open_loadout.emit()))
 	if open.get("casebook", false):
-		_doors.add_child(_door("The Casebook", "Deeds and knowledge.",
+		_doors.add_child(_door(Strings.lines("mantel.doors.casebook")[0],
+			Strings.lines("mantel.doors.casebook")[1],
 			"ui/ui_medallions", func() -> void: open_journal.emit()))
 
 
@@ -339,9 +349,58 @@ func _note(quest: Dictionary) -> Control:
 	seal.offset_top = -34
 	seal.offset_bottom = 34
 	note.add_child(seal)
-	UITheme.tap_layer(note).pressed.connect(
-		func() -> void: quest_selected.emit(quest_id))
+	UITheme.tap_layer(note).pressed.connect(_open_note.bind(quest))
 	return note
+
+
+# ------------------------------------------------------------ the note, read
+
+## Taking a note off the chimney breast to READ it (owner 2026-08-08): the
+## quest's name, seal and board card open large, and the night only starts if
+## Elspeth's cat decides it does. Backing out costs nothing — the board is a
+## board of choices, not a row of triggers.
+func _build_note_modal() -> void:
+	_note_modal = UITheme.modal(self, 520.0)
+	UITheme.modal_escape(_note_modal, _close_note)
+	_note_box = _note_modal["box"]
+
+
+func _open_note(quest: Dictionary) -> void:
+	var quest_id := String(quest["id"])
+	_clear(_note_box)
+	var wrap := 488.0
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 12)
+	_note_box.add_child(head)
+	var seal := UITheme.icon(_seal_for(quest), 68.0)
+	seal.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	head.add_child(seal)
+	var name_label := UITheme.measured_label(String(quest["name"]), 32,
+		wrap - 80.0, UITheme.display_font())
+	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	name_label.size_flags_vertical = Control.SIZE_FILL
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(name_label)
+	_note_box.add_child(UITheme.measured_label(
+		String(quest.get("board_card", "")), 26, wrap, UITheme.italic_font(),
+		UITheme.INK_SOFT))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	_note_box.add_child(row)
+	var back := UITheme.dark_button(Strings.line("mantel.quest_note.back"), 24,
+		Vector2(0, UITheme.BUTTON_HEIGHT))
+	back.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	back.pressed.connect(_close_note)
+	row.add_child(back)
+	var take := UITheme.amber_button(Strings.line("mantel.quest_note.take"), 26)
+	take.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	take.pressed.connect(func() -> void: quest_selected.emit(quest_id))
+	row.add_child(take)
+	UITheme.open_modal(_note_modal["overlay"], _note_modal["panel"])
+
+
+func _close_note() -> void:
+	UITheme.close_modal(_note_modal["overlay"], _note_modal["panel"])
 
 
 ## An empty board still has to say something — a blank zone reads as a bug.

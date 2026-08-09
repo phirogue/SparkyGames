@@ -254,6 +254,12 @@ func rewards() -> Dictionary:
 	return ward.get("rewards", {})
 
 
+## What this session actually PAYS. Rewards are earned, not attended: a
+## partial patch or a walk-away must not tie the guild's knot.
+func earned_rewards() -> Dictionary:
+	return rewards() if outcome == Minigame.Outcome.SUCCESS else {}
+
+
 func take_events() -> Array[String]:
 	var events := _events.duplicate()
 	_events.clear()

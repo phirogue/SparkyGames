@@ -45,7 +45,7 @@ func _initialize() -> void:
 	lines.append("| `health` + `pierce` | Damage that **ignores block** | Out-damage it; turtling loses |")
 	lines.append("| `skills` + `jam` | Locks a skill for N turns | Spread the loadout; hold a second answer |")
 	lines.append("| `skills` + `burn` | Destroys a skill charge **permanently** | Spend charges before they are taken |")
-	lines.append("| `hand` | Steals energy from hand (or bank) | Play cards out; bank what matters |")
+	lines.append("| `hand` | Steals energy from your hand | Play cards out; Loaf guards them |")
 	lines.append("")
 	lines.append("From **turn 8** every enemy strike gains +2 per turn (the night")
 	lines.append("presses). No fight is meant to last past ~turn 10.")
@@ -146,7 +146,7 @@ func _intent_effect(intent: Dictionary) -> String:
 				return "burns 1 charge off a random ready skill, **permanently**"
 			return "jams a random ready skill for %d turn(s)" % maxi(amount, 1)
 		"hand":
-			return "steals %d energy from hand (bank if hand is empty)" % amount
+			return "steals %d energy from your hand" % amount
 	return "-"
 
 

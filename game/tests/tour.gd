@@ -76,6 +76,15 @@ func _run() -> void:
 				screen.coach.force_advance()
 				await _wait(0.2)
 			await _shot("hub")
+			# Reading a note off the board: the take-or-back popup that now
+			# stands between a tap and a night's work (owner 2026-08-08).
+			var board: Array = QuestGate.board(game.catalog, game.profile)
+			if not board.is_empty():
+				screen._open_note(board[0])
+				await _wait(0.45)
+				await _shot("hub_quest_note")
+				screen._close_note()
+				await _wait(0.3)
 			await _tour_lessons()
 			await _tour_case_board()
 			await _tour_market_and_kit()
@@ -166,22 +175,47 @@ func _tour_market_and_kit() -> void:
 	game._show_exchange()
 	await _wait(0.5)
 	await _shot("exchange")
+	# The counter popup: the list of what is on offer, one card close up,
+	# and the shelf again after the coin moves. Every modal state the screen
+	# has gets driven and photographed (laws 2 and 13).
 	game.current_screen._on_good_pressed("add")
-	await _wait(0.35)
+	await _wait(0.45)
 	await _shot("exchange_choosing")
-	game.current_screen._on_add_card("guile")
+	game.current_screen._show_card_detail("guile_2")
 	await _wait(0.35)
+	await _shot("exchange_card_detail")
+	game.current_screen._buy_current()
+	await _wait(0.45)
 	await _shot("exchange_bought")
+	game.current_screen._on_good_pressed("tonic")
+	await _wait(0.45)
+	await _shot("exchange_tonic")
+	game.current_screen._close_shop()
+	await _wait(0.3)
 	if game.profile["skills"].size() <= 1:
 		game.profile["skills"] = ["scratch", "pounce", "slink", "purr", "loaf",
 			"swat", "shelf_justice"]
 	game._show_loadout()
 	await _wait(0.5)
 	await _shot("loadout")
-	game.current_screen._on_slot_pressed(
-		String(SaveService.battle_loadout(game.profile)[1]))
-	await _wait(0.35)
+	# The skill close-up, then the card actually set down through it.
+	var first_pick := String(SaveService.battle_loadout(game.profile)[1])
+	game.current_screen._open_skill(first_pick)
+	await _wait(0.45)
+	await _shot("loadout_skill")
+	game.current_screen._unequip(first_pick)
+	game.current_screen._close_skill()
+	await _wait(0.45)
 	await _shot("loadout_swapped")
+	# The Spool: winding energy off (free since 2026-08-08) and the floor.
+	game.current_screen._open_spool()
+	await _wait(0.45)
+	await _shot("loadout_spool")
+	game.current_screen._wind_off("guile_1")
+	await _wait(0.35)
+	await _shot("loadout_spool_wound")
+	game.current_screen._close_spool()
+	await _wait(0.3)
 	game._show_hub()
 	await _wait(0.5)
 
@@ -275,10 +309,7 @@ func _tour_battle(screen: Control, fresh: bool) -> void:
 		return
 	if screen.card_overlay != null and screen.card_overlay.visible:
 		await _shot("battle_card_detail")
-		if not screen.card_bank.disabled:
-			screen._on_card_bank()
-		else:
-			screen._close_card()
+		screen._on_card_discard()
 		return
 	if screen.concentrate_overlay != null and screen.concentrate_overlay.visible:
 		await _shot("battle_concentrate")
