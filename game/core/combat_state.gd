@@ -174,8 +174,12 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 	state.player_hp = int(config.get("player_hp", state.player_max_hp))
 	state.deck = Array(config.get("deck", [])).duplicate()
 	# Mid-run continuation: a later encounter in the same prowl passes the
-	# surviving charge counts so skills stay spent across fights.
+	# surviving charge counts so skills stay spent across fights — and the
+	# energy still sitting on un-fired cards (owner rule 2026-08-10: power fed
+	# to an action you never took STAYS on it until the next fight of this
+	# venture; only the Mantel clears it).
 	var charge_overrides: Dictionary = config.get("skill_charges", {})
+	var powered_overrides: Dictionary = config.get("skill_powered", {})
 	for skill_id in config.get("skills", []):
 		var def: Dictionary = p_catalog.skills[skill_id]
 		state.skills.append({
@@ -183,7 +187,8 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 			"charges_left": int(charge_overrides.get(skill_id, def.get("charges", 0))),
 			"jammed_turns": 0,
 			"free_used": false,  # cost-free plays are once per turn
-			"powered": {},  # humour -> energy fed onto the card (owner rule:
+			"powered": Dictionary(powered_overrides.get(skill_id, {})).duplicate(),
+			                # humour -> energy fed onto the card (owner rule:
 			                # skills fire only once fully powered)
 		})
 	state.paw_limit = int(config.get("paws", dials.count("combat.paws")))
@@ -312,6 +317,16 @@ func can_pay(cost: Dictionary) -> bool:
 	return _payment_plan(cost)["covered"]
 
 
+## An approach is paid straight OFF THE SPOOL (owner rule 2026-08-10): the
+## entrance is decided before the fight begins, so its price comes from the
+## wound deck, never from the opening hand. The UI greys an approach out when
+## the spool cannot cover it.
+func can_pay_approach(mode: String) -> bool:
+	if not approaches.has(mode):
+		return false
+	return _payment_plan_for(approaches[mode]["cost"], deck, true)["covered"]
+
+
 ## Entry point for ALL player actions. Returns {ok: bool, error: String}.
 func do_command(command: Dictionary) -> Dictionary:
 	if outcome != Outcome.ONGOING:
@@ -358,9 +373,9 @@ func _cmd_approach(mode: String) -> Dictionary:
 	if not approaches.has(mode):
 		return _fail("unknown approach '%s'" % mode)
 	var cost: Dictionary = approaches[mode]["cost"]
-	if not can_pay(cost):
-		return _fail("not enough energy to %s" % mode)
-	_pay(cost)
+	if not can_pay_approach(mode):
+		return _fail("not enough energy on the spool to %s" % mode)
+	_pay_from_deck(cost)
 	approach = mode
 	approach_locked = true
 	match mode:
@@ -619,56 +634,83 @@ func _pay_card_count(cost: Dictionary) -> int:
 
 
 func _pay(cost: Dictionary) -> void:
-	var plan := _payment_plan(cost)
+	_pay_from(cost, hand, false)
+
+
+## An approach's price comes off the spool: smallest cards first, so the
+## plan preserves potent cards — the spool has no paw cost, so there is
+## nothing to gain by minimising the card count.
+func _pay_from_deck(cost: Dictionary) -> void:
+	_pay_from(cost, deck, true)
+
+
+## Execute a payment plan against `source`, moving the picked cards to
+## `spent`. The plan and the execution share one planner (_payment_plan_for),
+## so what can_pay promises and what payment does can never disagree.
+func _pay_from(cost: Dictionary, source: Array, smallest_first: bool) -> void:
+	var plan := _payment_plan_for(cost, source, smallest_first)
 	var indices: Array = []
 	for pick: Dictionary in plan["picks"]:
 		indices.append(pick["index"])
 	indices.sort()
 	indices.reverse()
 	for i in indices:
-		spent.append(hand[i])
-		hand.remove_at(i)
+		spent.append(source[i])
+		source.remove_at(i)
 		flags["energy_paid"] = int(flags["energy_paid"]) + 1
 
 
-## Plan which hand cards would pay a cost, without mutating anything.
-## Specific humours pay with their own cards first (largest first, so the
-## fewest cards are spent); wilds then cover the remaining shortfalls,
-## biggest shortfall first so discrete wild cards are not wasted on small
-## gaps. A cost keyed WILD_HUMOUR only accepts true wilds.
-## Returns {covered: bool, count: int, picks: [{index}]}.
+## Plan which HAND cards would pay a cost (the default pile for every skill).
 func _payment_plan(cost: Dictionary) -> Dictionary:
+	return _payment_plan_for(cost, hand, false)
+
+
+## Plan which cards of `source` would pay a cost, without mutating anything.
+## Specific humours pay with their own cards first; wilds then cover the
+## remaining shortfalls, biggest shortfall first so discrete wild cards are
+## not wasted on small gaps. A cost keyed WILD_HUMOUR only accepts true
+## wilds. `smallest_first` chooses the greed: hand payments spend the fewest
+## cards (each placement costs a paw); spool payments spend the smallest
+## cards (paws are not involved, potent cards are precious).
+## Returns {covered: bool, count: int, picks: [{index}]}.
+func _payment_plan_for(cost: Dictionary, source: Array,
+		smallest_first: bool) -> Dictionary:
 	var used := {}
 	var picks: Array = []
 	var shortfalls: Array = []
 	for humour in cost:
 		var remaining := int(cost[humour])
 		if humour != wild_humour:
-			remaining = _plan_spend(String(humour), remaining, used, picks)
+			remaining = _plan_spend(String(humour), remaining, used, picks,
+				source, smallest_first)
 		if remaining > 0:
 			shortfalls.append(remaining)
 	shortfalls.sort()
 	shortfalls.reverse()
 	var covered := true
 	for shortfall: int in shortfalls:
-		if _plan_spend(wild_humour, shortfall, used, picks) > 0:
+		if _plan_spend(wild_humour, shortfall, used, picks, source,
+				smallest_first) > 0:
 			covered = false
 	return {"covered": covered, "count": picks.size(), "picks": picks}
 
 
-## Greedily mark unused hand cards of one humour against `remaining`,
+## Greedily mark unused `source` cards of one humour against `remaining`,
 ## recording picks; returns what is still owed after every matching card is
 ## considered.
 func _plan_spend(humour: String, remaining: int, used: Dictionary,
-		picks: Array) -> int:
+		picks: Array, source: Array, smallest_first: bool) -> int:
 	var candidates: Array = []
-	for i in hand.size():
+	for i in source.size():
 		if used.has(i):
 			continue
-		var card: Dictionary = catalog.energy_cards[hand[i]]
+		var card: Dictionary = catalog.energy_cards[source[i]]
 		if card["humour"] == humour:
 			candidates.append({"index": i, "value": int(card["value"])})
-	candidates.sort_custom(func(a, b): return a["value"] > b["value"])
+	if smallest_first:
+		candidates.sort_custom(func(a, b): return a["value"] < b["value"])
+	else:
+		candidates.sort_custom(func(a, b): return a["value"] > b["value"])
 	for c: Dictionary in candidates:
 		if remaining <= 0:
 			break

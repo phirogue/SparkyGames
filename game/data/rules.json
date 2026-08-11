@@ -89,17 +89,23 @@
       "deck_floor is the thinnest spool the loadout's re-spool editor allows",
       "(owner 2026-08-08: cutting is free selection at home, not a purchase)",
       "-- an unbounded thinner turns the spool from a fuel gauge into a combo.",
-      "tonic_hp is what one tonic adds to Ash's lives."
+      "tonic_hp is what one tonic adds to Ash's lives.",
+      "Potency prices are SUPERLINEAR (owner 2026-08-10): a 2-value card is",
+      "better than two 1s -- one paw feeds both points -- so `add` costs more",
+      "than twice `plain`. humour_mult prices a humour above the board rate:",
+      "Moonlight is wild AND rare, and a flat price let a purse become an",
+      "all-Moonlight deck."
     ],
     "max_hp_cap": 30,
     "deck_floor": 10,
     "tonic_hp": 2,
     "goods": [
       { "mode": "plain", "cost": 6, "seal": "ui/ui_seal_blue" },
-      { "mode": "add", "cost": 12, "seal": "ui/ui_seal_red" },
-      { "mode": "rare", "cost": 30, "seal": "ui/ui_seal_gold" },
+      { "mode": "add", "cost": 16, "seal": "ui/ui_seal_red" },
+      { "mode": "rare", "cost": 36, "seal": "ui/ui_seal_gold" },
       { "mode": "tonic", "cost": 25, "seal": "ui/ui_seal_red" }
-    ]
+    ],
+    "humour_mult": { "mysticism": 2.0 }
   },
 
   "minigames": {

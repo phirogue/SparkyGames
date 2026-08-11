@@ -54,7 +54,7 @@
     {
       "portrait": "sc_hollow_court_desk",
       "lines": [
-        "'The arrangement, since it is your first: you are difficult to kill and not impossible. When you are killed you come here, we take the Toll, and you go back up.'",
+        "'The arrangement, since it is your first: you are difficult to kill but not impossible. When you are killed you come here, we take the Toll, and you go back up.'",
         {
           "text": "Dying costs a life and a quarter of the shine you have banked at home. Whatever you were carrying stays where you dropped it. Nothing else is lost — not your kit, not your case, not what you have already worked out.",
           "rule": true
@@ -147,15 +147,15 @@
     },
     {
       "target": "note",
-      "text": "Tap a note to take the work. Whatever you carry back is yours; whatever you are carrying when you fall is not."
+      "text": "Tap a note to take the work. Backing out costs nothing — the board is a board of choices."
     },
     {
       "target": "purse",
-      "text": "Gleam. Buttons, mostly, and the occasional tooth. It buys cards, and it is what the Court takes when you die."
+      "text": "Gleam. Buttons, mostly, and the occasional tooth. It buys cards, and it is what the Court takes when you die. Out on a job it rides in the SATCHEL."
     },
     {
       "target": "status",
-      "text": "Lives, the spool, and deeds recorded. Watch the spool: it does not refill while you are out."
+      "text": "Lives, the spool, and deeds recorded. Watch the spool: it does not refill while you are out. Tap the deeds to leaf through them."
     },
     {
       "target": "doors",

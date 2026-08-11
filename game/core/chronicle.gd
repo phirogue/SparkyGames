@@ -29,6 +29,7 @@ const KINDS := {
 	"life_spent": {"ids": ["enemy"], "nums": []},
 	"choice_made": {"ids": [], "nums": [], "texts": ["choice"]},
 	"quest_done": {"ids": ["quest"], "nums": ["gleam"]},
+	"quest_done_quiet": {"ids": ["quest"], "nums": []},
 	"quest_withdrawn": {"ids": ["quest"], "nums": []},
 	"skill_gained": {"ids": ["skill"], "nums": []},
 	"favor_tied": {"ids": ["favor"], "nums": []},

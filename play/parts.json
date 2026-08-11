@@ -163,6 +163,13 @@
       "about": "The cold-launch card alone. With no evidence it drops to the hub — as designed."
     },
     {
+      "name": "case-follow-the-thread",
+      "title": "Case: The Thread Itself",
+      "group": "Chapter 1",
+      "spec": "quest:follow_the_thread",
+      "about": "The obvious move, tried: follow her last thread to where it was cut. The other opening quest."
+    },
+    {
       "name": "case-find-the-magpie",
       "title": "Case: Find the Magpie",
       "group": "Chapter 1",

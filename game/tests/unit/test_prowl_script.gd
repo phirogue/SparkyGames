@@ -142,7 +142,11 @@ func test_the_board_opens_up_as_the_arc_is_walked() -> void:
 	var catalog := _catalog()
 	var profile := SaveService.DEFAULT_PROFILE.duplicate(true)
 	profile["prologue_done"] = true
-	assert_eq(QuestGate.board(catalog, profile).size(), 1, "one note to start")
+	assert_eq(QuestGate.board(catalog, profile).size(), 2,
+		"two notes to start — the thread and the Magpie (owner 2026-08-10)")
+	# This walker follows the thread first, so the rest of the pacing reads
+	# as it did when the board opened with the Magpie alone.
+	QuestGate.mark_done(profile, "follow_the_thread")
 	QuestGate.mark_done(profile, "find_the_magpie")
 	var after_magpie := QuestGate.board(catalog, profile)
 	assert_true(after_magpie.size() > 1, "the Magpie opens the city's odd jobs")
@@ -196,3 +200,37 @@ func test_growth_is_only_granted_by_quests_that_cannot_repeat() -> void:
 			"'%s' grants permanent growth but can be replayed" % quest_id)
 		assert_true(not bool(quest.get("repeatable", false)),
 			"'%s' grants permanent growth and is marked repeatable" % quest_id)
+
+
+## A retried quest must not replay its first-meeting beats (owner 2026-08-10:
+## "npcs met in the first pass should remember you"). `when_attempt` keys a
+## step to whether the quest has been tried before; ungated steps always play.
+func test_attempt_gate_swaps_first_meetings_for_remembering() -> void:
+	var first_page := {"type": "story", "when_attempt": "first", "lines": ["hello"]}
+	var retry_page := {"type": "story", "when_attempt": "retry", "lines": ["you again"]}
+	assert_true(not ProwlScript.attempt_gate_blocks(first_page, 0),
+		"the first-meeting page plays on attempt one")
+	assert_true(ProwlScript.attempt_gate_blocks(first_page, 1),
+		"and is skipped on a retry")
+	assert_true(ProwlScript.attempt_gate_blocks(retry_page, 0),
+		"the remembering page waits out the first attempt")
+	assert_true(not ProwlScript.attempt_gate_blocks(retry_page, 2),
+		"and plays on any retry")
+	assert_true(not ProwlScript.attempt_gate_blocks(
+		{"type": "story", "lines": ["any"]}, 5), "ungated steps always play")
+
+
+## Every first-gated beat needs a retry twin somewhere in the quest (and the
+## other way round) — a quest whose whole script is when_attempt "first"
+## would replay as a wordless fight-chain.
+func test_attempt_gates_come_in_pairs() -> void:
+	var catalog := _catalog()
+	for quest_id in catalog.quests:
+		var has_first := false
+		var has_retry := false
+		for step in ProwlScript.steps_of(catalog.quests[quest_id]):
+			match String(step.get("when_attempt", "")):
+				"first": has_first = true
+				"retry": has_retry = true
+		assert_true(has_first == has_retry,
+			"'%s' gates beats on attempt in one direction only" % quest_id)

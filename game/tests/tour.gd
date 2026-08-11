@@ -20,6 +20,7 @@ var _last_screen: Control = null
 var _story_taps := 0
 var _did_card_modal := false
 var _did_concentrate := false
+var _did_spool_modal := false
 var _did_partial_charge := false
 var _did_no_escape := false
 var _did_chronicle_shot := false
@@ -467,7 +468,11 @@ func _tour_battle(screen: Control, fresh: bool) -> void:
 		await _shot("battle_concentrate")
 		screen.concentrate_overlay.visible = false
 		return
-	# Show the two new modals once each, in the dog fight.
+	if screen.spool_overlay != null and screen.spool_overlay.visible:
+		await _shot("battle_spool")
+		UITheme.close_modal(screen.spool_overlay, screen.spool_panel)
+		return
+	# Show the modals once each, in the dog fight.
 	if screen.state.enemy_id == "chained_dog":
 		if not _did_card_modal and not screen.state.hand.is_empty():
 			_did_card_modal = true
@@ -476,6 +481,10 @@ func _tour_battle(screen: Control, fresh: bool) -> void:
 		if not _did_concentrate and not screen.state.spent.is_empty():
 			_did_concentrate = true
 			screen._on_concentrate_pressed()
+			return
+		if not _did_spool_modal:
+			_did_spool_modal = true
+			screen._open_spool_popup()
 			return
 	# Once per fight, photograph the bare board with a full chronicle. Every
 	# other battle shot has a modal over the strip, so a broken scroll or an

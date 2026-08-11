@@ -130,6 +130,18 @@ where nothing will stop you** — those are the ones to slow down for.
     reading as a place and starts reading as one photograph with different
     captions under it. The fix is usually a second VIEW of the same location.
 
+30. **Prose keeps the house style — checked, not remembered.** `[partly
+   enforced: story-critic house-style section]` Deduced from the owner's own
+   line edits (2026-08-10): referents resolve on the card they appear on
+   (lines display one per card); metaphors must cash out to a concrete
+   meaning; timeline claims are literal ("everyone this week said sorry" when
+   nobody had spoken); never narrate the feeling the action already carries;
+   **no mechanics exposition in narrative voice and no future-telling** —
+   narration reports what happened, never what the game will do later; a
+   motif is said once, ever; rewards need a diegetic payer; a retried quest
+   must not re-meet people (`when_attempt`). Run the story-critic after ANY
+   content change and fix matches without being asked.
+
 ### Testing
 
 17. **Tutorial promises must be deterministic.** `[judgement]` If a coach step

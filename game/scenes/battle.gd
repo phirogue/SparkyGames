@@ -111,6 +111,13 @@ const HUMOUR_CARD_FRAME := {
 	"shadow": "ui/ui_frame_card_black",
 	"mysticism": "ui/ui_frame_card_blue",
 }
+## Same glyph-per-humour vocabulary the loadout and the Exchange use.
+const HUMOUR_GLYPHS := {
+	"ferocity": "energy_claw",
+	"guile": "energy_eye",
+	"shadow": "energy_shade",
+	"mysticism": "energy_moon",
+}
 const HUMOUR_GLYPH := {
 	"ferocity": "energy_claw",
 	"guile": "energy_eye",
@@ -221,6 +228,9 @@ var detail_charge: Button
 var detail_use: Button
 var approach_overlay: Control
 var approach_panel: Control
+var spool_overlay: Control
+var spool_panel: Control
+var spool_box: VBoxContainer
 var no_escape_overlay: Control
 var no_escape_label: Label
 var withdraw_overlay: Control
@@ -657,10 +667,11 @@ func _drain_events() -> void:
 func _maybe_offer_approach() -> void:
 	if no_approach or not state.can_approach():
 		return
-	for mode in _offered_approaches():
-		if state.can_pay(state.approaches[mode]["cost"]):
-			approach_overlay.visible = true
-			return
+	# The chooser opens even when nothing is affordable (owner 2026-08-10): an
+	# entrance you cannot pay for is shown INACTIVE, so the price is a fact you
+	# learn rather than an option that silently vanished.
+	if not _offered_approaches().is_empty():
+		approach_overlay.visible = true
 
 
 ## Which entrances this fight allows. An encounter may name `approaches`, and
@@ -848,7 +859,15 @@ func _build_ui() -> void:
 	_divider(status_row)
 	block_label = _status_chip(status_row, "ui/ui_shield", "guard")
 	_divider(status_row)
-	deck_label = _status_chip(status_row, "ui/ui_spool", "deck")
+	# The spool chip answers taps (owner 2026-08-10: "I should be able to
+	# click on the spool to see how many of each energy I still have left").
+	# It sits in a PanelContainer so the tap layer stretches over the whole
+	# chip — a box container would lay the button out as another sibling.
+	var spool_wrap := PanelContainer.new()
+	spool_wrap.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	status_row.add_child(spool_wrap)
+	deck_label = _status_chip(spool_wrap, "ui/ui_spool", "deck")
+	UITheme.tap_layer(spool_wrap).pressed.connect(_open_spool_popup)
 	_divider(status_row)
 	# Paw action points: one paw icon + how many placements remain.
 	# No tooltips anywhere in the battle (owner 2026-08-09: this is a mobile
@@ -985,6 +1004,7 @@ func _build_ui() -> void:
 	# explains, then hands the player back to the fight.
 
 	approach_overlay = _build_approach_overlay()
+	_build_spool_popup()
 	overlay = _build_outcome_overlay()
 	card_overlay = _build_card_overlay()
 	concentrate_overlay = _build_concentrate_overlay()
@@ -1017,16 +1037,112 @@ func _build_approach_overlay() -> Control:
 	title.add_theme_font_size_override("font_size", 40)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
-	var affordable: Array[String] = []
-	for mode in state.approaches:
-		if affordable.size() < 2 and \
-				state.can_pay(state.approaches[mode]["cost"]):
-			affordable.append(mode)
-	for mode in affordable:
-		box.add_child(_approach_button(_approach_title(mode), approach_desc(mode), mode))
+	var note := Label.new()
+	note.text = Strings.line("battle.approach.spool_note")
+	note.add_theme_font_size_override("font_size", 24)
+	note.add_theme_color_override("font_color", UITheme.INK_SOFT)
+	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(note)
+	# Max 3 options ever shown (owner readability rule): 2 approaches + Walk
+	# In. Affordable entrances take the slots first; an unaffordable one may
+	# still fill a slot, DISABLED, with the shortfall said plainly (owner
+	# 2026-08-10) — and only entrances the fiction allows are considered.
+	var offered: Array = _offered_approaches()
+	var shown: Array[String] = []
+	for mode in offered:
+		if shown.size() < 2 and state.can_pay_approach(mode):
+			shown.append(mode)
+	for mode in offered:
+		if shown.size() < 2 and not shown.has(mode):
+			shown.append(mode)
+	for mode in shown:
+		var affordable := state.can_pay_approach(mode)
+		var desc := approach_desc(mode) if affordable \
+			else "%s %s" % [approach_desc(mode), Strings.line("battle.approach.spool_short")]
+		var button := _approach_button(_approach_title(mode), desc, mode)
+		button.disabled = not affordable
+		box.add_child(button)
 	box.add_child(_approach_button(Strings.line("battle.approach.walk_in_title"),
 		Strings.line("battle.approach.walk_in_desc"), ""))
 	return modal["overlay"]
+
+
+## The spool close-up (owner 2026-08-10): what is still wound on, by humour
+## and BY WORTH — a spool holding three 1s reads differently from one holding
+## a single 3, and mid-fight that difference is the plan.
+func _build_spool_popup() -> void:
+	var modal := UITheme.modal(self, 560.0)
+	spool_overlay = modal["overlay"]
+	spool_panel = modal["panel"]
+	spool_box = modal["box"]
+	# Law 13: dim-tap closes; the modal never traps.
+	UITheme.modal_escape(modal, func() -> void:
+		UITheme.close_modal(spool_overlay, spool_panel))
+
+
+func _open_spool_popup() -> void:
+	for child in spool_box.get_children():
+		spool_box.remove_child(child)
+		child.queue_free()
+	var wrap := 528.0
+	var title := UITheme.measured_label(Strings.line("battle.spool.title"), 36,
+		wrap, UITheme.display_font())
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	spool_box.add_child(title)
+	spool_box.add_child(UITheme.measured_label(Strings.line("battle.spool.blurb"),
+		24, wrap, UITheme.italic_font(), UITheme.INK_SOFT))
+	var counts := {}
+	for card_id in state.deck:
+		var card: Dictionary = catalog.energy_cards[card_id]
+		var humour := String(card["humour"])
+		var by_value: Dictionary = counts.get(humour, {})
+		by_value[int(card["value"])] = int(by_value.get(int(card["value"]), 0)) + 1
+		counts[humour] = by_value
+	# All four humours always: knowing a colour has RUN OUT is the reading
+	# that changes the plan.
+	for humour in Catalog.HUMOURS:
+		spool_box.add_child(_spool_row(String(humour), counts.get(humour, {})))
+	var total := UITheme.measured_label(
+		Strings.line("battle.spool.total", [state.deck.size()]), 26, wrap,
+		UITheme.body_font(), UITheme.INK_SOFT)
+	total.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	spool_box.add_child(total)
+	_open_modal(spool_overlay, spool_panel)
+
+
+func _spool_row(humour: String, by_value: Dictionary) -> Control:
+	var plate := PanelContainer.new()
+	plate.add_theme_stylebox_override("panel", UITheme.panel_stylebox(8))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	plate.add_child(row)
+	var glyph := UITheme.icon(String(HUMOUR_GLYPHS.get(humour, "")), 44.0)
+	glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(glyph)
+	var name_label := UITheme.measured_label(Catalog.humour_name(humour), 30,
+		200.0, UITheme.display_font(), HUMOUR_COLORS.get(humour, UITheme.INK))
+	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	name_label.size_flags_vertical = Control.SIZE_FILL
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(name_label)
+	var parts: Array[String] = []
+	var values: Array = by_value.keys()
+	values.sort()
+	for value in values:
+		parts.append(Strings.line("battle.spool.count",
+			[int(by_value[value]), int(value)]))
+	var counts_text := " · ".join(parts) if not parts.is_empty() \
+		else Strings.line("battle.spool.none")
+	var counts_label := UITheme.measured_label(counts_text, 28, 240.0,
+		UITheme.body_font(),
+		UITheme.INK if not parts.is_empty() else UITheme.INK_FADED)
+	counts_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	counts_label.size_flags_vertical = Control.SIZE_FILL
+	counts_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	row.add_child(counts_label)
+	return plate
 
 
 func _approach_button(title_text: String, desc_text: String, mode: String) -> Button:

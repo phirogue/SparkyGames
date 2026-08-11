@@ -3,6 +3,10 @@
     "CHAPTER 1, COMPLETE (opening arc: owner brief 2026-08-04; back half:",
     "2026-08-08, from chapters/01-case-file-wax-and-wick.md as amended).",
     "The opening arc, in the order the board offers it:",
+    "  follow_the_thread -- the obvious move, tried first: the thread is CUT",
+    "                       (owner 2026-08-10: 'why does he not just follow",
+    "                       that thread' -- now he does, and the player",
+    "                       chooses which of the two starting jobs to take)",
     "  find_the_magpie   -- the Exchange, and gleam being worth something",
     "  the_carrying      -- the witches come for her; the Case Board opens",
     "  what_i_saw        -- Ash goes back over last night alone (Crossing)",
@@ -28,6 +32,92 @@
     "yields. Every Bodkin line is LITERALLY TRUE (docs/design/the-unraveler.md",
     "-- read it before giving him a single new word)."
   ],
+  "follow_the_thread": {
+    "id": "follow_the_thread",
+    "name": "The Thread Itself",
+    "kind": "core",
+    "district": "thimblefield",
+    "guild": "",
+    "once": true,
+    "requires": {},
+    "board_card": "One strand of her thread still runs out under the window and into the city. The obvious thing is to follow it. I am going to do the obvious thing.",
+    "steps": [
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "when_attempt": "first",
+        "lines": [
+          "The strand under the window, still running, still hers. Every other thread in this house was cut clean — nobody cut THIS one.",
+          "Magic is needlework. Her words, said at the table like a recipe: witches stitch the world, and cats are among the few things that can see the seam. The WEFT, she called it — every thread of everything, crossing.",
+          "Follow it, then. Paw on the line, like tracking a fly across a window."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "when_attempt": "retry",
+        "lines": [
+          "The strand under the window again, patient the way only thread is. It did not go anywhere. I did.",
+          "Paw on the line. From the top."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "rooftop_dusk",
+        "lines": [
+          "It runs the rooftops the way I do — the clean route, chimney to chimney, never crossing an open street. Whoever it belongs to knows this city the way the city hopes nobody does.",
+          "And where it crosses the gutter-line, something has found it first: a wisp, drinking the hum off it the way moths drink a lamp.",
+          "It is on HER thread. That is not trespass. That is grave-robbing."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_rounds_wisp"
+      },
+      {
+        "type": "story",
+        "environment": "needle_lane_wrong",
+        "lines": [
+          "Past the lane the thread drops to street level and runs straight for the Mere — and the fog stands up to meet it, thick as a held breath.",
+          "There is no fighting through this. There is only getting across it without losing the line."
+        ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "crossings"
+      },
+      {
+        "type": "minigame",
+        "module": "crossing",
+        "id": "crossing_practice",
+        "environment": "needle_lane_wrong",
+        "on_loss_lines": [
+          "I come out three streets wrong, with the line lost twice and found twice.",
+          "The fog wanted the thread walked away from. Noted, and declined."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "mereside_edge",
+        "lines": [
+          "At the Mere-edge the thread runs out over the sea-wall and stops. Mid-air. Above the water.",
+          "Not frayed. Not worn through. CUT — one clean bite, the same as the threads on her walls, by something that could SEE it. Almost nothing can see them.",
+          "Whoever ended this trail knew exactly what a cat would try first, and closed that door in my face."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "mereside_edge",
+        "lines": [
+          "So the thread is not a road. It is an answer of its own: the one who did this reads the Weft, cuts clean, and did not want to be followed home across the water.",
+          "A trail closed on purpose has to be bought open, and the Shambles keeps a fence who knows everyone worth asking.",
+          "The long way round, then. Nobody said the obvious thing would be the quick one."
+        ]
+      }
+    ],
+    "reward_bonus": 0,
+    "repeatable": false
+  },
   "find_the_magpie": {
     "id": "find_the_magpie",
     "name": "Find the Magpie",
@@ -41,20 +131,42 @@
       {
         "type": "story",
         "environment": "shambles_market",
-        "portrait": "sc_shambles_day",
+        "portrait": "sc_shambles_after_hours",
+        "art_desc": "The Shambles after hours: stalls shuttered under canvas, one lit fence's stall at the lane's end with a magpie behind it, Ash in his red kerchief walking toward it with a thimble in his mouth",
+        "when_attempt": "first",
         "lines": [
           "I cannot stay in this room tonight, and the room knows it. The thread runs into the city, and the city sells answers.",
           "Brindle keeps a stall in the Shambles after the market has gone to bed, and nobody talks for nothing. That is the first true thing about Hollowmere.",
-          "So I bring payment: her second-best thimble, carried in my own mouth. Undignified, and the pocket nearest my pride."
+          "So I bring payment: her second-best thimble, carried in my own mouth, because a cat has no pockets. Dignity and I will discuss it later."
         ]
       },
       {
         "type": "story",
         "environment": "shambles_market",
+        "portrait": "sc_shambles_after_hours",
+        "when_attempt": "retry",
+        "lines": [
+          "Down the Shambles again, the thimble back in my teeth. It kept. Dignity did not.",
+          "Unfinished work waits. That is the whole of its nature."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "when_attempt": "first",
         "lines": [
           "Halfway down the Shambles, something comes up out of a drain for the shine in my mouth.",
-          "A gutter-wisp — and it is not after ME at all. It wants the thimble: small silver, small grief, easy to carry.",
+          "A gutter-wisp — and it is not after ME at all. It wants the thimble: witch's silver, small enough to steal.",
           "Small lies and small valuables. It cannot tell the difference and it has never once needed to."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "when_attempt": "retry",
+        "lines": [
+          "The drain is loud again — the shine in my mouth rings them up like a bell.",
+          "Rooms this cheap never stay empty."
         ]
       },
       {
@@ -66,19 +178,39 @@
         "environment": "shambles_market",
         "portrait": "npc_brindle_magpie",
         "art_desc": "Brindle the magpie fence behind a market stall of buttons, teeth and small keys, one bright eye, night market lanterns",
+        "when_attempt": "first",
         "lines": [
           "I arrive at the stall with the thimble still in my teeth and my dignity somewhere behind me on the cobbles.",
           "'You are the witch's cat,' says Brindle, before I have said anything at all.",
-          "'Was,' I say. She does not say sorry, and I like her enormously for it — everyone else this week has said sorry, and not one of them has said anything useful afterwards."
+          "'Was,' I say. She does not say sorry, and I like her enormously for it — sorry is what people say instead of anything useful."
         ]
       },
       {
         "type": "story",
         "environment": "shambles_market",
+        "portrait": "npc_brindle_magpie",
+        "when_attempt": "retry",
+        "lines": [
+          "'Back,' says Brindle, before I have said anything at all. Fences know their street; knowing it is the whole trade.",
+          "Being remembered in this city is halfway to a friendship — and all the way to a debt."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "when_attempt": "first",
         "lines": [
           "'Clear the wisps out of my back alley and we can have a conversation like professionals.'",
           "She has not touched the thimble. 'Three nights they have been in my stock, hunting anything with a seal or a shine on it, and I am one bird.'",
           "A fence with a wisp problem. Payment, it turns out, comes in kinds."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "when_attempt": "retry",
+        "lines": [
+          "'The alley, pet. Three nights of wisps in my stock, and I am one bird. Clear it, then the conversation.' She has not touched the thimble."
         ]
       },
       {
@@ -133,7 +265,7 @@
         "portrait": "sc_the_carrying",
         "art_desc": "Three witches in grey lifting a shrouded body from a chair in a cold parlor at dawn, a black cat watching from the mantel",
         "lines": [
-          "They lift her the way you lift someone who is asleep and might wake — which is not necessary, and is not for her.",
+          "They lift her the way you lift someone who is asleep and might wake.",
           "The eldest stops in the doorway. Looks at the walls. All those cut threads, hanging like torn hems.",
           "'Who did this to the room,' she says. Not a question. She already knows it was not a burglar, because burglars take things."
         ]
@@ -212,7 +344,7 @@
         "lesson": "the_case_board"
       }
     ],
-    "reward_bonus": 4,
+    "reward_bonus": 0,
     "repeatable": false
   },
   "what_i_saw": {
@@ -687,7 +819,8 @@
       {
         "type": "story",
         "environment": "wickrow_night",
-        "portrait": "sc_lamplighters_hall",
+        "portrait": "sc_lamplighters_hall_watch",
+        "art_desc": "The Lamplighters' hall by night: empty coats on pegs over boots nobody came back for, a chalk tally board, four lamplighters at one lamp, Ash in his red kerchief at the door",
         "lines": [
           "The hall keeps lamps burning at its own door now — a guild that cannot spare the oil, making a point to the dark.",
           "Inside, half the coats on the pegs hang over boots nobody has come back for. They have stopped saying 'missing'. They have not started saying anything else.",
@@ -698,6 +831,7 @@
         "type": "story",
         "environment": "wickrow_night",
         "flag": "lamp_approach",
+        "portrait": "npc_shift_boss",
         "lines": [
           "A cat, in a grieving hall, wanting something. There are ways to do this.",
           "The one they all glance at first — torn ear, chalk on her paws — is the one to convince. Shift-Boss Merrow."
@@ -747,6 +881,7 @@
       {
         "type": "story",
         "environment": "wickrow_night",
+        "portrait": "en_wisp_pair",
         "lines": [
           "Her round is forty-one lamps, and something has been ahead of us, snuffing what she lights.",
           "Wisps — a pair, working her lamps in ORDER, which wisps do not do. Appetite does not read route-maps. Somebody taught it to.",

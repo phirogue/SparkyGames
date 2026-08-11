@@ -45,15 +45,33 @@ func _max_hp_cap() -> int: return catalog.rules.count("exchange.max_hp_cap")
 func _tonic_hp() -> int: return catalog.rules.count("exchange.tonic_hp")
 
 
-## What one good costs, by mode. A mode with no shelf entry returns a price
-## nobody can pay rather than a free good — a missing dial must never hand the
-## player something for nothing.
-func _cost(mode: String) -> int:
+## What one good costs, by mode — and by humour. Moonlight is wild AND rare,
+## so `exchange.humour_mult` prices it above the board rate (owner 2026-08-10:
+## a flat price let a purse become an all-Moonlight deck). A mode with no
+## shelf entry returns a price nobody can pay rather than a free good — a
+## missing dial must never hand the player something for nothing.
+func _cost(mode: String, humour: String = "") -> int:
 	for good: Dictionary in _goods():
 		if String(good.get("mode", "")) == mode:
-			return int(good.get("cost", 0))
+			var base := int(good.get("cost", 0))
+			if humour == "":
+				return base
+			var mult := float(catalog.rules.table("exchange.humour_mult") \
+				.get(humour, 1.0))
+			return int(ceil(base * mult))
 	push_error("exchange: no good on the shelf for mode '%s'" % mode)
 	return 999999
+
+
+## Does this mode's price differ by humour? Decides whether the shelf says
+## "6 gleam" or "from 6 gleam".
+func _priced_by_humour(mode: String) -> bool:
+	if mode == "tonic":
+		return false
+	for humour in catalog.rules.table("exchange.humour_mult"):
+		if float(catalog.rules.table("exchange.humour_mult")[humour]) != 1.0:
+			return true
+	return false
 
 var catalog: Catalog
 var profile: Dictionary
@@ -219,22 +237,41 @@ func _refresh_spool() -> void:
 	grid.add_theme_constant_override("v_separation", 10)
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_spool_strip.add_child(grid)
+	# One LINE per humour, name and count both large and MEASURED (owner
+	# 2026-08-10, same pass as the loadout's deck strip: stacked chips ran
+	# their numbers through the surrounding box).
 	for humour in Catalog.HUMOURS:
 		var chip := HBoxContainer.new()
 		chip.add_theme_constant_override("separation", 8)
 		chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		grid.add_child(chip)
-		var glyph := UITheme.icon(String(HUMOUR_GLYPHS[humour]), 52.0)
+		var glyph := UITheme.icon(String(HUMOUR_GLYPHS[humour]), 40.0)
 		glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		chip.add_child(glyph)
-		var text := VBoxContainer.new()
-		text.add_theme_constant_override("separation", 0)
-		text.alignment = BoxContainer.ALIGNMENT_CENTER
-		chip.add_child(text)
-		text.add_child(UITheme.measured_label(Catalog.humour_name(humour), 22,
-			150.0, UITheme.body_font(), UITheme.INK_SOFT))
-		text.add_child(UITheme.measured_label("×%d" % int(counts.get(humour, 0)),
-			32, 150.0, UITheme.display_font()))
+		var count_text := "×%d" % int(counts.get(humour, 0))
+		var count_width := UITheme.measure_text(count_text,
+			UITheme.display_font(), 38, 140.0).x
+		var name_text := Catalog.humour_name(humour)
+		var chip_width := (UITheme.CONTENT_WIDTH - 110.0 - 16.0 - 14.0) / 2.0
+		var name_budget := chip_width - 40.0 - 16.0 - count_width
+		var name_size := 28
+		var name_width := UITheme.measure_text(name_text,
+			UITheme.smallcaps_font(), name_size, 300.0).x
+		while name_size > UITheme.TYPE_FLOOR and name_width > name_budget:
+			name_size -= 1
+			name_width = UITheme.measure_text(name_text,
+				UITheme.smallcaps_font(), name_size, 300.0).x
+		var name_label := UITheme.measured_label(name_text, name_size,
+			name_width, UITheme.smallcaps_font(), UITheme.INK_SOFT)
+		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		name_label.size_flags_vertical = Control.SIZE_FILL
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		chip.add_child(name_label)
+		var count_label := UITheme.measured_label(count_text, 38, count_width,
+			UITheme.display_font())
+		count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		count_label.size_flags_vertical = Control.SIZE_FILL
+		chip.add_child(count_label)
 
 
 func _speech_wrap() -> float:
@@ -271,8 +308,10 @@ func _good_card(good: Dictionary) -> Control:
 	var seal := UITheme.icon(String(good["seal"]), 54.0)
 	seal.modulate = Color.WHITE if affordable else Color(1, 1, 1, 0.45)
 	price.add_child(seal)
+	var price_key := "exchange.popup.price_from" \
+		if _priced_by_humour(String(good["mode"])) else "exchange.popup.price"
 	var price_label := UITheme.measured_label(
-		Strings.line("exchange.popup.price", [cost]), 30, 160.0,
+		Strings.line(price_key, [cost]), 30, 160.0,
 		UITheme.display_font(), UITheme.ACCENT_WARM if affordable else ink)
 	price_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	price_label.size_flags_vertical = Control.SIZE_FILL
@@ -435,7 +474,7 @@ func _offer_row(card_id: String) -> Control:
 	side.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(side)
 	var price := UITheme.measured_label(
-		Strings.line("exchange.popup.price", [_cost(_shop_mode)]), 32, 140.0,
+		Strings.line("exchange.popup.price", [_cost(_shop_mode, humour)]), 32, 140.0,
 		UITheme.display_font(), UITheme.ACCENT_WARM)
 	price.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	side.add_child(price)
@@ -489,8 +528,11 @@ func _build_card_detail(card_id: String) -> void:
 			UITheme.italic_font(), UITheme.INK_SOFT)
 		held.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_shop_box.add_child(held)
-	_shop_box.add_child(_price_line(_cost(_shop_mode)))
-	_shop_box.add_child(_shop_buttons(_cost(_shop_mode)))
+	if humour == catalog.rules.text("combat.wild_humour") \
+			and _cost(_shop_mode, humour) > _cost(_shop_mode):
+		_say(Strings.line("exchange.patter.moon_dear"))
+	_shop_box.add_child(_price_line(_cost(_shop_mode, humour)))
+	_shop_box.add_child(_shop_buttons(_cost(_shop_mode, humour)))
 
 
 func _build_tonic_detail() -> void:
@@ -565,7 +607,8 @@ func _buy_current() -> void:
 		return
 	var card_id := _shop_card
 	var mode := _shop_mode
-	_spend(_cost(mode), String(catalog.energy_cards[card_id]["name"]),
+	_spend(_cost(mode, String(catalog.energy_cards[card_id]["humour"])),
+		String(catalog.energy_cards[card_id]["name"]),
 		func() -> void:
 			SaveService.grant_card(profile, card_id)
 			_say(Strings.line("exchange.patter.bought_rare" if mode == "rare"

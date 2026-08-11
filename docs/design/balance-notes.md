@@ -1,5 +1,27 @@
 # Balance Notes — Simulated Playtests
 
+## Pass 9 — potency priced superlinear; Moonlight priced rare (owner, 2026-08-10)
+
+Two owner rules, one repricing (`data/rules.json` exchange):
+
+- **`add` 12 → 16, `rare` 30 → 36.** A 2-value card is strictly better than
+  two 1s — one paw feeds both points — so the seconds must cost MORE than
+  twice a plain (6), not exactly twice. Thirds keep their premium above 3×.
+- **New dial `exchange.humour_mult` = {mysticism: 2.0}.** Moonlight is wild
+  AND rare; at flat board prices a purse became an all-Moonlight deck.
+  Moonlight now: plain 12, second 32, third 72. The shelf shows "from N
+  gleam" whenever a mode's price differs by humour, and the per-card price
+  is stated on the offer row and the close-up before buying.
+
+What it does to the reference build (Pass 8 model: ~89 banked by the_wake,
+~160–240 by the boss): three seconds + one third of a NON-moon humour +
+tonic = 48 + 36 + 25 = **109 gleam** (was 91) — still affordable core-only
+by the Tallowman, comfortably with one side pass. The all-Moonlight
+equivalent = 96 + 72 + 25 = **193**, out of reach until the back half even
+with sides, which is the point: wild flexibility is late-game money, not an
+opening exploit. No combat number moved; sim rerun to confirm no rules
+regression, exchange prices do not enter the sim.
+
 ## Pass 8 — Chapter 1's back half, priced against the economy (2026-08-08)
 
 The four new fights (tallow hound, candle-golem, the Drowned, the

@@ -206,17 +206,18 @@ func test_doom_turn_finishes_an_unwinnable_fight() -> void:
 
 
 ## Case It draws 2 ON TOP of the opening hand, even past the usual limit —
-## the owner asked whether Case should mean five cards, and it must.
+## the owner asked whether Case should mean five cards, and it must. The
+## price comes off the spool (owner 2026-08-10), so the hand only ever grows.
 func test_case_it_opens_the_hand_to_five() -> void:
 	var state := CombatState.create(catalog, 9, {
 		"player_hp": 10, "shuffle": false,
-		"deck": ["shadow_1", "shadow_1", "ferocity_1", "guile_1", "guile_1", "guile_1"],
+		"deck": ["guile_1", "guile_1", "shadow_1", "ferocity_1", "guile_1", "guile_1", "guile_1"],
 		"opening_cards": ["guile_1", "guile_1"],
 		"skills": ["pounce"], "enemy": "rag_wraith",
 	})
 	assert_eq(state.hand.size(), 3, "three to start")
 	assert_ok(state.do_command({"type": "approach", "mode": "case"}), "case it")
-	assert_eq(state.hand.size(), 3 - 2 + 2, "two Guile paid, two cards studied out")
+	assert_eq(state.hand.size(), 5, "two Guile paid off the spool, two cards studied out")
 
 
 ## The chronicle has to be able to say what an action DID, not just that it
@@ -669,3 +670,23 @@ func test_concentrate_is_refused_with_nothing_spent_of_that_humour() -> void:
 	assert_true(not result["ok"], "there is no spent Shadow to will back")
 	assert_eq(state.concentrate_left, before,
 		"a REJECTED command changes nothing — not even the allowance (law 14)")
+
+
+## Energy fed onto a card that never fired STAYS on the card for the next
+## fight of the same venture (owner rule 2026-08-10). The prowl carries it as
+## config `skill_powered`; only the Mantel clears it (a fresh quest starts
+## with an empty carryover).
+func test_powered_energy_carries_into_the_next_fight() -> void:
+	var state := CombatState.create(catalog, 5, {
+		"player_hp": 12, "shuffle": false,
+		"deck": ["ferocity_1", "ferocity_1", "shadow_1"],
+		"skills": ["pounce", "slink"],
+		"enemy": "gutter_wisp",
+		"skill_powered": {"pounce": {"ferocity": 1}},
+	})
+	assert_eq(state.skill_state("pounce")["powered"], {"ferocity": 1} as Dictionary,
+		"the stored energy arrived with the fight")
+	assert_eq(state.remaining_cost("pounce"), {"ferocity": 1} as Dictionary,
+		"only the shortfall is still owed")
+	assert_eq(state.skill_state("slink")["powered"], {} as Dictionary,
+		"a card with nothing on it starts clean")

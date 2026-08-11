@@ -20,6 +20,26 @@ flashbacks.
 
 ---
 
+## Amendments (2026-08-10, owner review)
+
+- **The chapter opens with a CHOICE of two starting quests.** The prologue
+  ends on a thread running into the city, and the owner asked the obvious
+  question: *why does he not just follow it?* Now he can — and it must be
+  tried to be understood. `follow_the_thread` ("The Thread Itself") sits on
+  the board beside `find_the_magpie`: Ash follows the strand across the
+  roofs, through the Mere fog, to the sea-wall — where it is **cut clean,
+  mid-air, by something that could see it**. The failed follow is what makes
+  buying answers (the Magpie) the rational next move instead of a fetch
+  quest. It also carries the Weft explanation the prologue only alludes to.
+- **Retried quests change** (`when_attempt` step gating): a quest withdrawn
+  from or died on comes back with its first-meeting beats swapped for
+  remembering ones — Brindle greets a returning cat with "Back," not "You
+  are the witch's cat." Rule: every quest that CAN be retried mid-story
+  should have at least its meeting beats paired first/retry.
+- **Not every job pays.** `the_carrying` banks 0 gleam — the women who carry
+  a witch away do not tip the cat. The finish page and chronicle have quiet
+  variants for a night that banked nothing.
+
 ## Main leads
 
 ### L1 — "The Smell of Money" *(1 prowl · hack & slash · teaches Press On)*

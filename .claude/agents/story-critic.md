@@ -70,6 +70,40 @@ voice; Ash's voice is never used to explain a mechanic.
 in `sc_collar`). Moonlight is never called Mysticism. Named characters look
 and speak the way they were established.
 
+## The house style (owner line edits, 2026-08-10 — check EVERY line)
+
+These are corrections the owner has already made once. Finding one again is
+a defect at **high** severity, and you should propose the corrected line,
+not just flag it — the standing order is "actively corrected so I don't
+need to comment each time".
+
+- **Referents resolve on the card.** Lines display ONE PER CARD. A pronoun
+  ("it", "her", "that") whose antecedent is on an earlier card is broken —
+  the reader of THIS card cannot resolve it. ("I did not chase it", two
+  cards after the thread, was the defect.)
+- **Metaphors must cash out.** Every figurative phrase must have a readable
+  concrete meaning. "The pocket nearest my pride" and "small silver, small
+  grief, easy to carry" were cut for decorating without parsing.
+- **Timeline claims are literal.** "Everyone else this week has said sorry"
+  shipped when nobody had yet spoken to Ash. Check every "again", "still",
+  "everyone", "always" against what has actually happened in play order —
+  including that a REPLAYED quest does not re-meet people (`when_attempt`).
+- **Do not narrate the feeling the action already carries.** "— which is
+  not necessary, and is not for her" explained a tenderness the image
+  showed. Cut anything that tells the reader what to feel about the line
+  before it.
+- **No mechanics in narrative voice, no future-telling.** Narration reports
+  what happened or is happening — NEVER what the game will do later, and
+  never a system stated as a rule ("Every lead ends with a THING",
+  "Suspects appear when evidence names them" — both removed as "makes the
+  game too obvious"). Mechanics belong to rule-face text and lessons that
+  speak in Ash's experience, not in system language.
+- **A motif is said once.** The same image or phrase appearing on more than
+  one screen ("not yours until you carry it home" was in three places) is a
+  tic. Grep for distinctive phrases before approving them.
+- **Rewards have diegetic sources.** Gleam appearing without someone in the
+  fiction who paid it is a canon bug. Not every quest pays.
+
 ## How to report
 
 A table, most-severe first. No prose preamble.

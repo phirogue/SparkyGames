@@ -220,6 +220,14 @@ func _build_deck(column: VBoxContainer) -> void:
 	UITheme.tap_layer(_deck_plate).pressed.connect(_open_spool)
 
 
+## Geometry of the deck strip's humour grid, derived from the page contract:
+## plate inner width, minus the spool block and separations, split two ways.
+const DECK_CHIP_GLYPH := 36.0
+const DECK_SPOOL_BLOCK := 74.0
+const DECK_CHIP_WIDTH := (UITheme.CONTENT_WIDTH - 20.0 - DECK_SPOOL_BLOCK \
+	- 16.0 - 12.0) / 2.0
+
+
 func _refresh_deck() -> void:
 	_clear(_deck_strip)
 	var counts := {}
@@ -230,35 +238,60 @@ func _refresh_deck() -> void:
 	spool.add_theme_constant_override("separation", 0)
 	spool.alignment = BoxContainer.ALIGNMENT_CENTER
 	_deck_strip.add_child(spool)
-	var icon := UITheme.icon("ui/ui_spool", 92.0)
+	var icon := UITheme.icon("ui/ui_spool", 64.0)
 	icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	spool.add_child(icon)
 	var size_label := UITheme.measured_label(
-		"%d" % profile.get("deck", []).size(), 34, 100.0, UITheme.display_font())
+		"%d" % profile.get("deck", []).size(), 34, DECK_SPOOL_BLOCK,
+		UITheme.display_font())
 	size_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	spool.add_child(size_label)
 	var grid := GridContainer.new()
 	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 14)
+	grid.add_theme_constant_override("h_separation", 12)
 	grid.add_theme_constant_override("v_separation", 8)
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grid.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_deck_strip.add_child(grid)
+	# One LINE per humour (owner 2026-08-10: the stacked name-over-count chip
+	# ran its numbers through the plate border, and name and count were both
+	# too small). Everything is measured into DECK_CHIP_WIDTH — the name
+	# starts at 28 and only shrinks if the measurement says it must (law 4).
 	for humour in Catalog.HUMOURS:
-		var chip := HBoxContainer.new()
-		chip.add_theme_constant_override("separation", 8)
-		chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		grid.add_child(chip)
-		var glyph := UITheme.icon(String(HUMOUR_GLYPHS[humour]), 46.0)
-		glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		chip.add_child(glyph)
-		var text := VBoxContainer.new()
-		text.add_theme_constant_override("separation", 0)
-		text.alignment = BoxContainer.ALIGNMENT_CENTER
-		chip.add_child(text)
-		text.add_child(UITheme.measured_label(Catalog.humour_name(humour), 22,
-			140.0, UITheme.body_font(), UITheme.INK_SOFT))
-		text.add_child(UITheme.measured_label("×%d" % int(counts.get(humour, 0)),
-			30, 140.0, UITheme.display_font(), HUMOUR_COLORS[humour]))
+		grid.add_child(_deck_chip(String(humour),
+			"×%d" % int(counts.get(humour, 0))))
+
+
+func _deck_chip(humour: String, count_text: String) -> Control:
+	var chip := HBoxContainer.new()
+	chip.add_theme_constant_override("separation", 8)
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var glyph := UITheme.icon(String(HUMOUR_GLYPHS[humour]), DECK_CHIP_GLYPH)
+	glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	chip.add_child(glyph)
+	var count_width := UITheme.measure_text(count_text,
+		UITheme.display_font(), 38, 140.0).x
+	var name_text := Catalog.humour_name(humour)
+	var name_budget := DECK_CHIP_WIDTH - DECK_CHIP_GLYPH - 16.0 - count_width
+	var name_size := 28
+	var name_width := UITheme.measure_text(name_text,
+		UITheme.smallcaps_font(), name_size, 300.0).x
+	while name_size > UITheme.TYPE_FLOOR and name_width > name_budget:
+		name_size -= 1
+		name_width = UITheme.measure_text(name_text,
+			UITheme.smallcaps_font(), name_size, 300.0).x
+	var name_label := UITheme.measured_label(name_text, name_size, name_width,
+		UITheme.smallcaps_font(), UITheme.INK_SOFT)
+	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	name_label.size_flags_vertical = Control.SIZE_FILL
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	chip.add_child(name_label)
+	var count_label := UITheme.measured_label(count_text, 38, count_width,
+		UITheme.display_font(), HUMOUR_COLORS[humour])
+	count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	count_label.size_flags_vertical = Control.SIZE_FILL
+	chip.add_child(count_label)
+	return chip
 
 
 func _build_confirm(column: VBoxContainer) -> void:

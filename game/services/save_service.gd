@@ -73,6 +73,12 @@ const DEFAULT_PROFILE := {
 	"favors": [],
 	# Quest ids completed at least once; what makes `once` quests stay done.
 	"quests_done": [],
+	# Quest id -> times STARTED (not finished). Drives `when_attempt` story
+	# gating: a retried quest plays its remembering beats instead of its
+	# first-meeting ones. Migration thought (law 7): an old save merges to {}
+	# and every quest reads as a first visit — one remembering line lost,
+	# nothing owed.
+	"quest_attempts": {},
 }
 
 ## Everything the prologue teaches; granted retroactively to saves that

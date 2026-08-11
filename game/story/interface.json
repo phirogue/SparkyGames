@@ -17,7 +17,7 @@
   "prowl": {
     "opening_tail": "Out the window, then.",
     "press_on": {
-      "earned": "SATCHEL: %d gleam, up %d. Gleam is what the city pays for trouble taken off its hands — and the satchel is not yours until you carry it home.",
+      "earned": "SATCHEL: %d gleam, up %d.",
       "ahead": "Ahead: %s — danger %s\n%s",
       "wager": "Deeper pays better. Deeper also bites.",
       "press": "Press On",
@@ -25,6 +25,10 @@
     },
     "finish": [
       "Done. %d gleam banked — %d out of the satchel, %d for the trouble.",
+      "The Mantel waits. So does the thread."
+    ],
+    "finish_quiet": [
+      "Done. Nothing in the satchel tonight, and nothing owed.",
       "The Mantel waits. So does the thread."
     ],
     "retreat": [
@@ -115,6 +119,7 @@
     "life_spent": "I gave a life to %s. The Court wrote it down. So do I.",
     "choice_made": "I chose %s. I would choose it again, probably.",
     "quest_done": "Finished %s. Came home %d gleam heavier.",
+    "quest_done_quiet": "Finished %s. Nobody paid me. Some work keeps its own ledger.",
     "quest_withdrawn": "I walked away from %s. It will keep. Work always keeps.",
     "skill_gained": "I know %s now. My body learned it before I did.",
     "favor_tied": "Tied a knot in the thread: %s owes me, and everyone can see it."
@@ -142,12 +147,21 @@
       "case": "Study it, draw 2 — it studies you back: +1 first hit.",
       "ward": "Block 4 that holds through its first turn.",
       "walk_in_title": "Walk In",
-      "walk_in_desc": "Spend nothing. A door is a door."
+      "walk_in_desc": "Spend nothing. A door is a door.",
+      "spool_note": "An entrance is paid off the spool. The hand stays yours.",
+      "spool_short": "Not enough on the spool."
     },
     "withdraw_default": "This is not a fight. It is weather. Go around it.",
     "concentrate_desc": "Give up the whole turn to will one spent energy back onto the TOP OF THE DECK — you draw it next turn, not now. The enemy still moves. Twice a fight.",
     "concentrate_label": "Concentrate ×%d",
     "intent_masked": "Next: something Ash cannot read. Fight this creature again and its habits will show.",
+    "spool": {
+      "title": "The Spool",
+      "blurb": "Energy still wound on. Spent stays spent until Ash rests at home.",
+      "count": "×%d worth %d",
+      "none": "none left",
+      "total": "%d cards still wound on."
+    },
     "card_title": "%s — worth %d",
     "card_desc": "Energy powers your actions — tap an action card below to feed this to it. Spent energy is gone until you rest at home."
   },
@@ -176,6 +190,7 @@
       "plain": "'The everyday stuff. The city runs on it.'",
       "add": "'An appetite for what, exactly?'",
       "rare": "'Ah. The good shelf. For a discerning paw.'",
+      "moon_dear": "'Moonlight, pet? The moon only makes so much of it, and I only ever get the crumbs.'",
       "no_more_tonic": "'You are one cat. There are limits. That was the last one.'",
       "tonic": "'Drink it all. Yes, it tastes like pond. Medicinal pond.'",
       "bought_card": "'A fine choice. It fell off a windowsill, if anyone asks.'",
@@ -186,6 +201,7 @@
       "on_offer": "On offer",
       "you_hold": "You hold %d",
       "price": "%d gleam",
+      "price_from": "from %d gleam",
       "buy": "Buy — %d gleam",
       "back": "Put it back",
       "worth": "Worth %d %s when spent.",
@@ -235,7 +251,7 @@
     "needs": "needs %s",
     "free": "free",
     "instinct": "free, once per turn",
-    "charges": "%d uses a fight",
+    "charges": "%d uses a night",
     "instinct_uses": "Always there. Once a turn."
   },
   "dev": {

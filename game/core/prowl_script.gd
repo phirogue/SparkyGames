@@ -92,6 +92,19 @@ static func minigame_gate_blocks(step: Dictionary, last_won: bool) -> bool:
 	return (String(step["when_minigame"]) == "success") != last_won
 
 
+## A story step may be keyed to whether this quest has been TRIED before
+## (`"when_attempt": "first"` or `"retry"`). A withdrawn or died-on quest
+## comes back to the board, and replaying it identically is a continuity bug
+## (owner 2026-08-10: "npcs met in the first pass should remember you") — so
+## a retried quest swaps its first-meeting beats for remembering ones.
+## `attempt` counts the times the quest was started before this run; steps
+## without the key always play.
+static func attempt_gate_blocks(step: Dictionary, attempt: int) -> bool:
+	if not step.has("when_attempt"):
+		return false
+	return (String(step["when_attempt"]) == "first") != (attempt == 0)
+
+
 ## The next fight's encounter id after `index`, or "" — what the Press On
 ## card previews.
 static func next_battle_after(quest: Dictionary, index: int) -> String:

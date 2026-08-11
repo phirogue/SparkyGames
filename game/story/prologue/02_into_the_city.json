@@ -12,9 +12,10 @@
       "portrait": "sc_shambles_day",
       "art_desc": "The Shambles at night: market stalls sleeping under canvas, crooked timber shopfronts, one lit lantern",
       "lines": [
-        "Between the chimneys: a thread of silver light, thin as a hair, humming. Not mine. Not hers.",
         "Below: the Shambles. Eight bells from the tower. There is no ninth bell — there used to be.",
-        "I did not chase it. I am a professional."
+        "And between the chimneys: a thread of silver light, thin as a hair, humming.",
+        "Everything alive trails a thread, if you have the eyes for it. Witches stitch with them, she said. Cats only see them. Hers I know by heart — and this one is nobody's I know.",
+        "I did not chase the silver thread. I am a professional."
       ]
     },
     {
@@ -23,7 +24,7 @@
       "lines": [
         "Street level. The fog rolls up from the Mere, and the shadows deepen — deep enough to wear.",
         "Something small and hungry climbs out of the gutter: a GUTTER-WISP.",
-        "Bottle-sized. It eats small lies, and it heard mine — the one about not WANTING to chase the silver thread. It has come back for seconds."
+        "Bottle-sized. It eats small lies, and it heard mine — the one about not WANTING to chase the silver thread. It has come to collect."
       ]
     },
     {
@@ -47,18 +48,18 @@
       "coach": [
         {
           "target": "approach",
-          "text": "Every fight opens with the going-in. STALK costs 2 Shadow and starts you unseen — or walk in and keep the cards.",
+          "text": "Every fight opens with the going-in. STALK spends 2 Shadow straight off the spool and starts you unseen — or walk in and spend nothing.",
           "wait": true
         },
         {
           "target": "hand",
           "text": "This is your hand: ENERGY, not actions. You spend it to power the things you do.",
           "text_by_approach": {
-            "stalk": "Two Shadow went on the entrance — that is what an approach costs, up front, out of hand. What is left is your hand: ENERGY, not actions.",
-            "walk_in": "You spent nothing to get in, so the hand is untouched. This is ENERGY, not actions — you feed it to the things you do.",
-            "ambush": "Two Ferocity went on the entrance. What is left is your hand: ENERGY, not actions.",
-            "case": "Two Guile went on the entrance, and it bought you a longer look. What is left is your hand: ENERGY, not actions.",
-            "ward": "Two Moonlight went on the entrance. What is left is your hand: ENERGY, not actions."
+            "stalk": "Two Shadow came off the spool for the entrance — an approach is paid off the spool, never from your hand. This is your hand: ENERGY, not actions.",
+            "walk_in": "You spent nothing to get in — spool and hand both untouched. This is ENERGY, not actions — you feed it to the things you do.",
+            "ambush": "Two Ferocity came off the spool for the entrance. This is your hand: ENERGY, not actions.",
+            "case": "Two Guile came off the spool for the entrance, and it bought you a longer look. This is your hand: ENERGY, not actions.",
+            "ward": "Two Moonlight came off the spool for the entrance. This is your hand: ENERGY, not actions."
           }
         },
         {
@@ -71,7 +72,7 @@
         },
         {
           "target": "skill:slink",
-          "text": "SLINK: guard 3. The fog makes it free — but it has 3 USES, and uses do not come back until Ash sleeps at the Mantel. Tonight is all you get.",
+          "text": "SLINK: guard 3. The fog makes it free — but it has 3 USES, and uses do not come back until Ash sleeps at home. Tonight, 3 is all you get.",
           "wait": true
         },
         {
@@ -85,7 +86,7 @@
         },
         {
           "target": "skill:pounce",
-          "text": "POUNCE carried over from the roof with 2 uses left. Charges are a whole night's budget, not a per-fight one — they refill at the Mantel and nowhere else."
+          "text": "POUNCE carried over from the roof with 2 uses left. Charges are a whole night's budget, not a per-fight one — they refill when Ash sleeps at home, and nowhere else."
         },
         {
           "target": "end_turn",

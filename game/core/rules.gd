@@ -57,10 +57,11 @@ const DEFAULTS := {
 		"tonic_hp": 2,
 		"goods": [
 			{"mode": "plain", "cost": 6, "seal": "ui/ui_seal_blue"},
-			{"mode": "add", "cost": 12, "seal": "ui/ui_seal_red"},
-			{"mode": "rare", "cost": 30, "seal": "ui/ui_seal_gold"},
+			{"mode": "add", "cost": 16, "seal": "ui/ui_seal_red"},
+			{"mode": "rare", "cost": 36, "seal": "ui/ui_seal_gold"},
 			{"mode": "tonic", "cost": 25, "seal": "ui/ui_seal_red"},
 		],
+		"humour_mult": {"mysticism": 2.0},
 	},
 	"minigames": {
 		"crossing": {"night_presses_turn": 8},
@@ -172,6 +173,13 @@ func validate() -> Array[String]:
 		if int((good as Dictionary).get("cost", 0)) < 1:
 			problems.append("rules: exchange good '%s' costs nothing"
 				% (good as Dictionary).get("mode", "?"))
+	# A humour multiplier below 1 would make the rare humour the CHEAP one —
+	# the exact opposite of why the dial exists.
+	var mults := table("exchange.humour_mult")
+	for humour in mults:
+		if float(mults[humour]) < 1.0:
+			problems.append("rules: exchange.humour_mult.%s is %.2f — must be at least 1.0"
+				% [humour, float(mults[humour])])
 	if count("exchange.tonic_hp") < 1:
 		problems.append("rules: exchange.tonic_hp must add at least one life")
 	if count("presentation.recap_line_max") < 20:

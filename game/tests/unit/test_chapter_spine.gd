@@ -334,14 +334,20 @@ func test_the_mantel_starts_with_one_door_and_earns_the_rest() -> void:
 	assert_true(QuestGate.doors(fresh)["case_board"], "something to pin opens the board")
 
 
-func test_the_first_board_holds_exactly_the_magpie() -> void:
+## The first board is a CHOICE of two (owner 2026-08-10): follow the thread
+## itself — the obvious move, which fails on purpose — or find the fence who
+## sells answers. Both open the chapter; neither waits on the other.
+func test_the_first_board_offers_the_thread_and_the_magpie() -> void:
 	var catalog := DataLoader.load_catalog()
 	var fresh := SaveService.DEFAULT_PROFILE.duplicate(true)
 	fresh["prologue_done"] = true
 	var board := QuestGate.board(catalog, fresh)
-	assert_eq(board.size(), 1, "one note on the first board, got %d" % board.size())
-	assert_eq(String(board[0]["id"]), QuestGate.MAGPIE_QUEST,
-		"and it is the one that teaches the city")
+	var ids: Array[String] = []
+	for quest: Dictionary in board:
+		ids.append(String(quest["id"]))
+	ids.sort()
+	assert_eq(ids, ["find_the_magpie", "follow_the_thread"] as Array[String],
+		"the first board is the two starting jobs, got %s" % str(ids))
 	QuestGate.mark_done(fresh, QuestGate.MAGPIE_QUEST)
 	assert_true(QuestGate.board(catalog, fresh).size() > 1,
-		"finishing it puts the city's work up")
+		"finishing the Magpie puts the city's work up")

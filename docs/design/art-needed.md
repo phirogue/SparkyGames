@@ -127,9 +127,34 @@ portraits/scenes 512, UI 512, glyphs 220), run
 | `sc_hollow_court_desk`, `sc_shambles_day` | Chapter 1 scenes — both now referenced and wired |
 | `ref_ash_prologue` | reference only — the bare-necked Ash, for prologue scenes |
 
+## Done 2026-08-10 (owner review pass)
+
+- **`ui_frame_portrait` repaired, not regenerated**: the white-key pass had
+  left ~4,300 transparent pinholes inside the drawn wood (the owner could
+  see the page through the frame). `tools/repair_frame_alpha.py` measures
+  the aperture geometrically and restores alpha on every hole, inpainting
+  the keyed highlights. Free, deterministic, and the calibrated frame
+  geometry did not change. The holed take is archived.
+- **`sc_shambles_after_hours`** generated (`--ref ref_ash.png`): the
+  Shambles asleep, one lit stall with the magpie, Ash in his red kerchief
+  carrying the thimble. Chapter 1's `find_the_magpie` now uses it — the
+  owner's rule that Chapter 1 shares no picture with the prologue.
+- **`sc_lamplighters_hall_watch`** generated (`--ref ref_ash.png`): the
+  hall interior for `the_lamplighters_talk` — empty coats over boots, four
+  left at one lamp, Ash at the threshold. Replaces the prologue's
+  `sc_lamplighters_hall` in Chapter 1 for the same rule.
+- **Kerchief audit of Chapter 1 scenes**: `sc_the_carrying` and
+  `sc_the_wake` verified correct (red kerchief present). Remaining defect
+  noted below.
+
 ## Open work
 
-1. **Seven older UI elements have heavy transparent padding** — content fills
+1. **`sc_shambles_day`'s cat is not Ash** — it is a tuxedo cat (white bib
+   and paws); Ash is solid black. The image now only serves prologue scene
+   6 (pre-kerchief, so the missing kerchief is canon-correct there, but the
+   breed is not). Wants a regeneration from `ref_ash_prologue.png` on the
+   next batch.
+2. **Seven older UI elements have heavy transparent padding** — content fills
    only 26–58% of canvas (`ui_needle_pin` 26%, `ui_ash_head` 28%,
    `ui_paw_full` 31%, `ui_paw_empty` 34%, `ui_button_pile` 44%,
    `ui_icon_intent_hand` 53%, `ui_icon_intent_skills` 58%). Fix by re-cropping

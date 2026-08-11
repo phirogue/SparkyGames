@@ -47,6 +47,8 @@ var toasts: Array[String] = [] # achievement lines to surface on the next story 
 var quest: Dictionary = {}
 var encounter_index := 0
 var satchel := 0
+## Times the current quest was started before this run (drives when_attempt).
+var quest_attempt := 0
 var carryover: Dictionary = {}
 var last_outcome := CombatState.Outcome.ONGOING
 ## How the most recent minigame step ended, for `when_minigame` story gates —
@@ -656,6 +658,8 @@ func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {
 	}
 	if carryover.has("skill_charges"):
 		config["skill_charges"] = carryover["skill_charges"]
+	if carryover.has("skill_powered"):
+		config["skill_powered"] = carryover["skill_powered"]
 	if _dev_seed != 0:
 		config["seed"] = _dev_seed
 	config.merge(extra, true)
@@ -902,8 +906,14 @@ func _digest(state: CombatState) -> void:
 		carryover = {}  # a new life: full deck, full charges, full hp
 	else:
 		var charges := {}
+		# Energy fed onto a card that never fired stays ON the card for the
+		# rest of this venture (owner rule 2026-08-10) — the Mantel is what
+		# clears it, by way of _start_quest resetting the carryover.
+		var powered := {}
 		for s in state.skills:
 			charges[s["id"]] = s["charges_left"]
+			if not (s["powered"] as Dictionary).is_empty():
+				powered[s["id"]] = (s["powered"] as Dictionary).duplicate()
 		# The pool persists between encounters (owner rule: no reset until
 		# a rest); spent stays spent — EXCEPT one breath back with a win.
 		var pool: Array = state.deck + state.hand
@@ -921,6 +931,7 @@ func _digest(state: CombatState) -> void:
 			"deck": pool,
 			"spent": spent_pool,
 			"skill_charges": charges,
+			"skill_powered": powered,
 			"lingering": state.lingering_out(),
 		}
 	_save()
@@ -1056,9 +1067,11 @@ func _run_prologue_scene(index: int) -> void:
 				if int(profile["flags"].get(gate["flag"], -1)) == int(gate["value"]):
 					extra["start_hidden"] = true
 			if scene.has("deck"):
-				# Tutorial opener: fixed teaching deck, fresh charges.
+				# Tutorial opener: fixed teaching deck, fresh charges, no
+				# power sitting on the cards.
 				extra["deck"] = scene["deck"]
 				extra["skill_charges"] = {}
+				extra["skill_powered"] = {}
 			elif scene.has("add_cards"):
 				# New energy joins the CARRIED pool (appended last so an
 				# unshuffled battle opens with exactly these cards).
@@ -1320,6 +1333,16 @@ func _start_quest(quest_id: String) -> void:
 	encounter_index = 0
 	satchel = 0
 	carryover = {}
+	# How many times this quest has been STARTED before tonight. Story steps
+	# gate on it (`when_attempt`), so a retried quest changes instead of
+	# replaying, and the people in it remember the first visit (owner
+	# 2026-08-10). Counted at the door, not at the finish — a withdrawal and
+	# a death are both a first visit the city noticed.
+	var attempts: Dictionary = profile.get("quest_attempts", {})
+	quest_attempt = int(attempts.get(quest_id, 0))
+	attempts[quest_id] = quest_attempt + 1
+	profile["quest_attempts"] = attempts
+	_save()
 	# A stale outcome from a previous quest's minigame must never route this
 	# quest's `when_minigame` pages.
 	last_minigame_won = false
@@ -1383,6 +1406,9 @@ func _run_prowl_story(step: Dictionary, on_done: Callable) -> void:
 			on_done.call()
 			return
 	if ProwlScript.minigame_gate_blocks(step, last_minigame_won):
+		on_done.call()
+		return
+	if ProwlScript.attempt_gate_blocks(step, quest_attempt):
 		on_done.call()
 		return
 	_apply_scene_spine(step)
@@ -1489,7 +1515,13 @@ func _finish_quest() -> void:
 	var bonus := int(quest.get("reward_bonus", 0))
 	var banked := satchel + bonus
 	profile["gleam"] = int(profile["gleam"]) + banked
-	_remember("quest_done", {"quest": String(quest["id"])}, {"gleam": banked})
+	# Not every job pays (owner 2026-08-09: gleam with no diegetic source is a
+	# canon bug). A quest that banked nothing says so plainly instead of
+	# reporting a zero like a till receipt.
+	if banked > 0:
+		_remember("quest_done", {"quest": String(quest["id"])}, {"gleam": banked})
+	else:
+		_remember("quest_done_quiet", {"quest": String(quest["id"])})
 	if quest.has("unlock_skill") and not profile["skills"].has(quest["unlock_skill"]):
 		_grant_skills([quest["unlock_skill"]])
 	# Standing and knots are paid ONCE per quest, even for repeatable ones:
@@ -1517,8 +1549,9 @@ func _finish_quest() -> void:
 	for id in tracker.increment("gleam_banked", banked):
 		toasts.append("★ %s" % catalog.achievements[id]["name"])
 	_save()
-	_show_story(_story_config("parlor_cold",
-		Strings.lines("prowl.finish", [banked, satchel, bonus])),
+	var finish_lines: Array = Strings.lines("prowl.finish", [banked, satchel, bonus]) \
+		if banked > 0 else Strings.lines("prowl.finish_quiet")
+	_show_story(_story_config("parlor_cold", finish_lines),
 		func(_i: int) -> void: _show_hub())
 
 

@@ -755,6 +755,10 @@ func _validate_prowl_script(id: String, quest: Dictionary) -> Array[String]:
 						and not ["success", "loss"].has(String(step["when_minigame"])):
 					problems.append("quest '%s' gates a beat on unknown minigame outcome '%s'"
 						% [id, step["when_minigame"]])
+				if step.has("when_attempt") \
+						and not ["first", "retry"].has(String(step["when_attempt"])):
+					problems.append("quest '%s' gates a beat on unknown attempt value '%s' (first/retry)"
+						% [id, step["when_attempt"]])
 			ProwlScript.FLASHBACK:
 				var flash_environment := String(step.get("environment", ""))
 				if flash_environment != "" and not environments.has(flash_environment):
@@ -773,9 +777,20 @@ func _validate_prowl_script(id: String, quest: Dictionary) -> Array[String]:
 				problems.append("quest '%s' has unknown step type '%s'"
 					% [id, ProwlScript.type_of(step)])
 	# A prowl with no fight cannot be died on, which is fine for a wake or a
-	# conversation — but it must then not promise a satchel it cannot fill.
+	# conversation — but it must then leave SOMETHING behind. Not every job
+	# pays gleam (owner 2026-08-10: the women who carry a witch away do not
+	# tip the cat) — evidence, growth, a favor, a skill, a lead or a lesson
+	# all count as the night mattering.
 	if fights == 0 and int(quest.get("reward_bonus", 0)) <= 0:
-		problems.append("quest '%s' has no fights and no reward — nothing happens" % id)
+		var leaves_something := quest.has("unlock_skill") or quest.has("grant_favor") \
+			or quest.has("lead") or not Array(quest.get("grant_evidence", [])).is_empty()
+		for step: Dictionary in steps:
+			if step.has("grant_evidence") or step.has("grant_growth") \
+					or step.has("lead") \
+					or ProwlScript.type_of(step) == ProwlScript.LESSON:
+				leaves_something = true
+		if not leaves_something:
+			problems.append("quest '%s' has no fights, no reward and no findings — nothing happens" % id)
 	return problems
 
 

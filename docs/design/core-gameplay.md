@@ -64,8 +64,13 @@
 
 > **v0.2 additions (2026-07-30, owner-directed, implemented):**
 >
-> - **The Approach.** Before turn 1 you may spend from your opening hand to
->   choose how Ash enters: **Stalk** (Shadow 2 — begin hidden: the enemy's
+> - **The Approach.** Before turn 1 you may spend energy to choose how Ash
+>   enters. The price is paid straight **off the spool** (the wound deck),
+>   never from the opening hand — the entrance is decided before the fight,
+>   so the hand stays yours (owner 2026-08-10; it drew from the opening hand
+>   until then). Smallest cards pay first, preserving potent ones. An
+>   entrance the spool cannot cover is offered *inactive*, so the price is
+>   still learned. The modes: **Stalk** (Shadow 2 — begin hidden: the enemy's
 >   first move is wasted and your first hit is sharpened), **Ambush**
 >   (Ferocity 2 — open with 3 free damage, but its first hit comes back +2),
 >   **Case It** (Guile 2 — draw 2, even past the hand limit), **Ward**

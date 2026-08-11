@@ -280,9 +280,19 @@ func refresh() -> void:
 	for id in catalog.achievements:
 		if not catalog.achievements[id].get("hidden", false) or tracker.is_unlocked(id):
 			visible_total += 1
-	_status.add_child(_chip("ui/ui_medallions",
+	# The deeds count answers taps (owner 2026-08-10: "I should have a way to
+	# see my deeds") — straight to the Casebook, which opens on Deeds. Wrapped
+	# in a PanelContainer so the tap layer stretches over the whole chip.
+	var deeds_chip := _chip("ui/ui_medallions",
 		"%d/%d" % [tracker.unlocked.size(), visible_total],
-		Strings.line("mantel.deeds")))
+		Strings.line("mantel.deeds"))
+	var deeds_wrap := PanelContainer.new()
+	deeds_wrap.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	deeds_wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	deeds_wrap.add_child(deeds_chip)
+	UITheme.tap_layer(deeds_wrap).pressed.connect(
+		func() -> void: open_journal.emit())
+	_status.add_child(deeds_wrap)
 
 
 ## A quest note: torn parchment, a brass needle through the top, a wax seal
