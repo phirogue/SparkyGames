@@ -159,7 +159,7 @@ func test_walk_away_fights_have_both_outcome_variants() -> void:
 func test_narration_lines_are_strings_or_rule_objects() -> void:
 	var story := _story()
 	var blocks: Array = story.get("scenes", []).duplicate()
-	for key in ["hollow_court_first", "hollow_court_repeat"]:
+	for key in ["hollow_court_first", "hollow_court_repeat", "hollow_court_refused"]:
 		blocks.append_array(story.get(key, []))
 	for scene in blocks:
 		var lines: Array = _lines_of(scene)
@@ -187,7 +187,7 @@ func test_narration_lines_are_strings_or_rule_objects() -> void:
 ## answer per choice or picking the last option falls through silently.
 func test_hollow_court_pages_answer_every_choice() -> void:
 	var story := _story()
-	for key in ["hollow_court_first", "hollow_court_repeat"]:
+	for key in ["hollow_court_first", "hollow_court_repeat", "hollow_court_refused"]:
 		var pages: Array = story.get(key, [])
 		assert_true(not pages.is_empty(), "%s must have pages" % key)
 		for page in pages:

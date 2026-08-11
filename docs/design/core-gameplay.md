@@ -238,22 +238,33 @@ A story game can't treat death as free. The structure:
   with your progress marked. Retreat is framed as feline wisdom, never
   cowardice — cats are the world's masters of deciding a fight is beneath
   them.
-- **Death (a life spent)** hurts three ways, but never touches
-  meta-progression (research rule: busts must not destroy meta):
+- **Defeat (an ordinary loss)** ends the run but spends NO life — lives are
+  spent, never taken (owner decision 2026-08-11,
+  [death-and-lives.md](death-and-lives.md)). The Hollow Court refuses an
+  unscheduled death: the satchel spills where you fell, a **filing fee**
+  (`prowl.refusal_rate` of banked Gleam) is taken at the desk, and whatever
+  beat you gains a *Grudge* (small buff, named after the win: "Dropped Ash
+  Twice"). The REFUSED stamp is its own rotating scene — losing still buys
+  the Clerk relationship.
+- **Death (a life spent)** happens only at **mortal beats** — encounters the
+  story marks `mortal: true`, always signposted, always authored (the
+  prologue's parlor fight is death #1). It hurts three ways, but never
+  touches meta-progression (research rule: busts must not destroy meta):
   1. **The satchel spills** — un-banked loot and evidence from this run are
      lost where you fell. Some can be reclaimed by winning back to that spot.
   2. **The Toll** — the Hollow Court (death's bureaucracy) takes its fee for
      the returned life: your choice of one shadow-pocket item *or* a cut of
      banked Gleam. A softened, Quacks-style bust: it stings, you choose the
      sting.
-  3. **The world remembers** — whatever killed you gains a *Grudge* (small
-     buff, named after the kill: "Slew Ash Twice"), and certain NPCs comment.
+  3. **The world remembers** — the canonical-death countdown scene plays
+     (each of the nine is distinct and waiting), and certain NPCs comment.
      Dying is canon. It is also, occasionally, story: some doors only open to
      a cat who has died in a particular way (curiosity rewarded — sparingly).
-- Net effect: **pressing on risks the satchel; retreating banks it; dying
-  costs treasure, dignity, and gives your enemy a name for you.** The optimal
-  emotional loop: push one encounter too far, *almost* die, slip away at 1 HP,
-  come back sharper.
+- Net effect: **pressing on risks the satchel; retreating banks half; losing
+  spills it, costs a fee, and gives your enemy a name for you.** The optimal
+  emotional loop: push one encounter too far, *almost* lose, slip away at
+  1 HP, come back sharper. The nine-life ledger moves only where the story
+  stakes it — see [death-and-lives.md](death-and-lives.md).
 
 ## Push-your-luck: the delve structure
 

@@ -118,6 +118,13 @@ var hp_floor: int = 0
 ## cannot be beaten and should not be ground against; on this turn it simply
 ## finishes what it came to do.
 var doom_turn: int = 0
+## Whether defeat here SPENDS A LIFE (owner decision 2026-08-11, see
+## docs/design/death-and-lives.md). Lives are spent, never taken: only an
+## encounter the story marks `mortal` can kill Ash — every other defeat is
+## the Hollow Court refusing an unscheduled death. The flag lives on the
+## state so the tracker and the flow can file the outcome without asking
+## the catalog which fight this was.
+var mortal: bool = false
 ## Concentrations left in this fight. Carried like a skill charge so the
 ## button can show the count -- an unlimited escape hatch is not a decision.
 var concentrate_left: int = CONCENTRATE_USES
@@ -196,6 +203,7 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 	state.no_retreat = bool(config.get("no_retreat", false))
 	state.hp_floor = int(config.get("hp_floor", 0))
 	state.doom_turn = int(config.get("doom_turn", 0))
+	state.mortal = bool(config.get("mortal", false))
 	state.enemy_id = String(config.get("enemy", ""))
 	var enemy_def: Dictionary = p_catalog.enemies[state.enemy_id]
 	state.enemy_max_hp = int(enemy_def["hp"])

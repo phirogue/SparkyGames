@@ -4,10 +4,13 @@
     "",
     "The Hollow Court is played as a small SCENE rather than one wall of",
     "text (owner 2026-08-04: the first visit read as if Ash already knew",
-    "the place). First death gets the arrival; every death after that gets",
-    "the short form, because by then he does know it. Repeated content must",
-    "vary -- a death that reads identically to the last death tells the",
-    "player nothing happened (law 15).",
+    "the place). Lives are spent, never taken (owner 2026-08-11,",
+    "docs/design/death-and-lives.md): hollow_court_first and _repeat are",
+    "TRUE deaths only -- authored `mortal` beats, one countdown visit per",
+    "life, each seen at most once. hollow_court_refused is every ordinary",
+    "defeat: the Court refusing an unscheduled death. Its first entry",
+    "teaches; the rest rotate (law 15). TWO refused variants carry planted",
+    "clues -- read docs/design/the-unraveler.md before editing ANY of them.",
     "",
     "mantel_coach walks the room once, the first time it is entered.",
     "unpicked_won is the scene for beating a fight that is not meant to be",
@@ -54,9 +57,9 @@
     {
       "portrait": "sc_hollow_court_desk",
       "lines": [
-        "'The arrangement, since it is your first: you are difficult to kill but not impossible. When you are killed you come here, we take the Toll, and you go back up.'",
+        "'The arrangement, since it is your first: deaths are appointments. Tonight you had one. Arrive dead WITHOUT an appointment and you will be refused at this desk — we are a court, not a revolving door.'",
         {
-          "text": "Dying costs a life and a quarter of the shine you have banked at home. Whatever you were carrying stays where you dropped it. Nothing else is lost — not your kit, not your case, not what you have already worked out.",
+          "text": "A true death — the kind you will always see coming — costs a life. After the first, it also costs the Toll: a quarter of the shine banked at home. Any other defeat is REFUSED: no life spent, a small filing fee. Either way the satchel stays where you dropped it, and nothing else is ever lost — not your kit, not your case, not what you have worked out.",
           "rule": true
         },
         "'The first visit is complimentary. Do consider it a courtesy rather than a habit.'",
@@ -133,6 +136,60 @@
         "The lamp is turned up. He has turned the lamp up, for me, which is the most alarming thing that has happened tonight.",
         "'One,' says the Clerk. 'I will not lecture you. You know precisely what you are spending and precisely what you are spending it on.'",
         "'Whatever it is up there — do finish it.'"
+      ]
+    }
+  ],
+  "hollow_court_refused": [
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "The corridor. The filing. The desk. I appear to be dead — and the Clerk is already shaking his head.",
+        "'You are not on the docket.' He holds the sheet up as proof. 'No appointment, no death. We do not process walk-ins.'",
+        {
+          "text": "A defeat off the docket spends no life. You are sent back up, minus a filing fee and whatever the satchel held. A true death is always announced. This was not one.",
+          "rule": true
+        },
+        "The stamp says REFUSED. It is also, somehow, still a paw print."
+      ]
+    },
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "'Still not on the docket,' he says, before I have reached the chair.",
+        "'There is a folder for these now. IRREGULAR, it says on the cover. It is becoming a thick folder, and thick folders attract auditors.'",
+        "The fee is taken. The stamp, I notice, was inked before I arrived."
+      ]
+    },
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "He has my thread out on the desk, laid along a ruled line in the ledger. The ruled line is shorter.",
+        "'You have arrived with more thread than my arithmetic says you left with. I have written CLERICAL ERROR.' He looks at the words a while. 'I do not write fiction, as a rule.'",
+        "REFUSED, says the stamp, with feeling."
+      ]
+    },
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "There is a queue tonight. The queue is ghosts, and the ghosts wave me forward, which I find polite and insulting in equal parts.",
+        "'No appointment under your name,' says the Clerk. 'The docket is beginning to feel strongly about you.'",
+        "Back up the stairs. They are no shorter for the practice."
+      ]
+    },
+    {
+      "portrait": "sc_hollow_court_desk",
+      "lines": [
+        "He stops mid-stamp, spectacles down, and runs my thread through his fingers, slowly.",
+        "'There is a knot here that is not one of ours,' he says. 'Close work. Old-fashioned. Whoever ties these does not care to have them noticed.' He files nothing. He remembers it, though. So do I.",
+        "The stamp comes down late. REFUSED, as ever."
+      ]
+    },
+    {
+      "portrait": "sc_hollow_stairs",
+      "lines": [
+        "'One day,' says the Clerk, 'you will arrive here properly, with an appointment. I confess I do not look forward to the filing.'",
+        "'Until then: the fee, the stamp, the stairs. You know the way better than some of my staff.'",
+        "The stairs. Again. Up."
       ]
     }
   ],

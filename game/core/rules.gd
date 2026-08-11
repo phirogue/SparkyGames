@@ -38,6 +38,7 @@ const DEFAULTS := {
 		"press_on_mult": 0.25,
 		"slip_forfeit": 0.5,
 		"toll_rate": 0.25,
+		"refusal_rate": 0.1,
 	},
 	"start": {
 		"max_hp": 10,
@@ -150,7 +151,8 @@ func validate() -> Array[String]:
 	if count("combat.opening_hand") > count("combat.hand_limit"):
 		problems.append("rules: combat.opening_hand (%d) exceeds combat.hand_limit (%d)"
 			% [count("combat.opening_hand"), count("combat.hand_limit")])
-	for path in ["prowl.press_on_mult", "prowl.slip_forfeit", "prowl.toll_rate"]:
+	for path in ["prowl.press_on_mult", "prowl.slip_forfeit", "prowl.toll_rate",
+			"prowl.refusal_rate"]:
 		var rate := num(path)
 		if rate < 0.0 or rate > 1.0:
 			problems.append("rules: %s is %.2f — rates run 0.0 to 1.0" % [path, rate])

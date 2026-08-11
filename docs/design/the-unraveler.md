@@ -91,6 +91,47 @@ Every hard constraint in the docs points the same way:
   terrifies them. (The Clerk's "irregular" folder is where the truth
   slowly accumulates across all of Ash's deaths.)
 
+## Why Ash cannot die out of turn (owner 2026-08-11 — the death-rule layer)
+
+[death-and-lives.md](death-and-lives.md) establishes the visible rule:
+ordinary defeats are REFUSED by the Court and spend no life. **The buried
+truth is Bodkin.** He is fond of Ash — the one thing he will not unpick —
+and when Ash's thread should snap out of turn, Bodkin re-knots it. The
+Court's REFUSED stamp is a bureaucracy's name for arithmetic that will not
+balance: they cannot process a death whose thread arrives already mended,
+so they file it as irregular and send the cat back up. The mercy mechanic
+the player leans on all game IS a planted clue, and it inverts the murder
+weapon: the killer spends stored life to buy half-seconds; the same craft,
+turned kind, keeps re-tying one small thread. Same hands. Same fondness.
+
+Rules for this layer:
+
+- **Hints ride the refusal scenes** (`hollow_court_refused`,
+  interludes.json), which the player sees on ordinary losses from Ch1 on.
+  Two shipped variants carry them: the Clerk's arithmetic that will not
+  reconcile ("arrived with more thread than you left with — I have written
+  CLERICAL ERROR"), and the knot that is not the Court's ("close work.
+  Old-fashioned"). Both literally true; neither names a direction. Budget:
+  never more than one hint per new batch of refusal variants — the scenes
+  are comedy first or the pointing hand shows.
+- **The Clerk never solves it.** He accumulates the irregular folder
+  (shipped: `unpicked_won` files "irregular") and is professionally
+  disturbed by it; he must not deduce Bodkin on-screen before the player
+  can.
+- **Bodkin's line audit extends here:** he may never deny helping Ash
+  survive; he simply is never asked. If a scene ever puts him near the
+  question, the answer must be literally true ("I look after my own" —
+  true).
+- **Payoff:** the Ch3 stitch lesson re-reads every refusal scene at once —
+  mirror-handed knot-work is a familiar's. The final conversation gains its
+  weight from this: the being who murdered her witch has been keeping her
+  cat alive the whole game.
+- **The Ch3 Court-agent branch composes with it:** a ninth-spent Ash works
+  for the Court and can be SHOWN his own irregular file — the refusal
+  arithmetic, laid out as evidence — an alternate route to the same
+  realization for a player who spent recklessly. The branch must not
+  hard-require it (the stitch lesson stays the canonical break).
+
 ## Bodkin in play (Ch1–Ch3 spine)
 
 - **Ch1 — introduce and endear.** A one-eyed grey tom around the Shambles

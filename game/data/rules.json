@@ -53,12 +53,16 @@
     "_notes": [
       "The wager. press_on_mult is how much richer each fight deeper makes",
       "the satchel; slip_forfeit is what going over the wall in a hurry",
-      "spills; toll_rate is the Hollow Court's cut of banked gleam on a death",
-      "after the first."
+      "spills; toll_rate is the Hollow Court's cut of banked gleam on a TRUE",
+      "death (a `mortal` encounter) after the first; refusal_rate is the",
+      "filing fee for an ordinary defeat -- the Court refusing an unscheduled",
+      "death (death-and-lives.md). Refusal must sting less than the Toll but",
+      "still sting, or losing stops mattering."
     ],
     "press_on_mult": 0.25,
     "slip_forfeit": 0.5,
-    "toll_rate": 0.25
+    "toll_rate": 0.25,
+    "refusal_rate": 0.1
   },
 
   "start": {

@@ -331,3 +331,14 @@ What this does to the economy:
   worth, so the premium on the 2s (12) and 3s (30) is convenience-per-draw,
   not raw worth. Gives the early game a sink smaller than the 12-gleam
   entry step. No combat number moved.
+
+## 2026-08-11 — lives are spent, never taken (death-and-lives.md)
+
+- **New dial `prowl.refusal_rate` (0.10)** — the filing fee when the Court
+  refuses an unscheduled death (an ordinary defeat, which no longer spends
+  a life). Priced against the Toll (0.25): a refusal must sting less than a
+  true death but more than a clean retreat's banked half. The defeat still
+  loses the whole satchel, so the fee is deliberately light. Watch for
+  players shrugging off losses; the lever is this rate, not new punishment.
+- **No combat number moved** — outcome bookkeeping only. Sim and fuzzer
+  rerun to confirm no rules regression; win rates unchanged by design.

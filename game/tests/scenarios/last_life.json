@@ -1,5 +1,5 @@
 {
-  "comment": "One hit from the Hollow Court. A 1-hp cat on a thin deck walks a full prowl, so the first blow lands the death beat, the Toll and the run-ending flow without ten minutes of playing well first. NOTE: the low hp is profile.max_hp, NOT carryover — a quest launch resets carryover (see this folder's README).",
+  "comment": "One hit from the Hollow Court. A 1-hp cat on a thin deck walks a full prowl, so the first blow lands the REFUSED desk scene, the filing fee and the run-ending flow without ten minutes of playing well first (night_rounds is not a mortal beat — no life is spent; see docs/design/death-and-lives.md). NOTE: the low hp is profile.max_hp, NOT carryover — a quest launch resets carryover (see this folder's README).",
   "profile": {
     "prologue_done": true,
     "gleam": 60,

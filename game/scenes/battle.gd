@@ -111,13 +111,7 @@ const HUMOUR_CARD_FRAME := {
 	"shadow": "ui/ui_frame_card_black",
 	"mysticism": "ui/ui_frame_card_blue",
 }
-## Same glyph-per-humour vocabulary the loadout and the Exchange use.
-const HUMOUR_GLYPHS := {
-	"ferocity": "energy_claw",
-	"guile": "energy_eye",
-	"shadow": "energy_shade",
-	"mysticism": "energy_moon",
-}
+## The glyph-per-humour vocabulary every screen shares.
 const HUMOUR_GLYPH := {
 	"ferocity": "energy_claw",
 	"guile": "energy_eye",
@@ -258,6 +252,9 @@ func setup(p_catalog: Catalog, config: Dictionary, encounter_id: String,
 	full_config["no_retreat"] = encounter_def.get("no_retreat", false)
 	full_config["hp_floor"] = encounter_def.get("hp_floor", 0)
 	full_config["doom_turn"] = encounter_def.get("doom_turn", 0)
+	# Whether losing here spends a LIFE is a property of the encounter too
+	# (docs/design/death-and-lives.md): only a `mortal` beat can kill Ash.
+	full_config["mortal"] = encounter_def.get("mortal", false)
 	# Seed comes from config when a test/scenario needs a reproducible fight;
 	# live play stays clock-random.
 	var seed_value := int(config.get("seed", int(Time.get_ticks_usec()) % 1000000007))
@@ -1118,7 +1115,7 @@ func _spool_row(humour: String, by_value: Dictionary) -> Control:
 	row.add_theme_constant_override("separation", 10)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	plate.add_child(row)
-	var glyph := UITheme.icon(String(HUMOUR_GLYPHS.get(humour, "")), 44.0)
+	var glyph := UITheme.icon(String(HUMOUR_GLYPH.get(humour, "")), 44.0)
 	glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(glyph)
 	var name_label := UITheme.measured_label(Catalog.humour_name(humour), 30,

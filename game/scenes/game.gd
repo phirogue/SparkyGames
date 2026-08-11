@@ -26,12 +26,15 @@ const CrossingScreen := preload("res://scenes/minigames/crossing_screen.gd")
 ## could not see the numbers the game actually ran on.
 ##   prowl.press_on_mult  satchel multiplier growth per fight of depth
 ##   prowl.toll_rate      the Hollow Court's cut of banked gleam on a death
+##   prowl.refusal_rate   the filing fee when the Court refuses an
+##                        unscheduled death (an ordinary defeat)
 ##   prowl.slip_forfeit   what goes over the wall when you leave in a hurry
 ##   presentation.flashback_tint  the one sepia every Remembered Day uses, so
 ##                                memory reads the same everywhere (a scene
 ##                                may still override with image_tint)
 func _press_on_mult() -> float: return catalog.rules.num("prowl.press_on_mult")
 func _toll_rate() -> float: return catalog.rules.num("prowl.toll_rate")
+func _refusal_rate() -> float: return catalog.rules.num("prowl.refusal_rate")
 func _slip_forfeit() -> float: return catalog.rules.num("prowl.slip_forfeit")
 func _flashback_tint() -> String: return catalog.rules.text("presentation.flashback_tint")
 
@@ -532,10 +535,13 @@ func _show_story(config: Dictionary, on_done: Callable) -> void:
 
 ## The Hollow Court, played as a small SCENE rather than one wall of text
 ## (owner 2026-08-04: the first visit read as if Ash already knew the place).
-## First death gets the arrival — the room before the Clerk, the Clerk's
-## banter, a line of Ash's own choosing, and a plain account of what dying
-## costs. Every death after that gets the short form, because by then he does
-## know the place. Extra lines (the Toll) are appended to the last page.
+## This is the TRUE-DEATH scene only — a `mortal` beat spending a life
+## (docs/design/death-and-lives.md); ordinary defeats play the REFUSED desk
+## in _show_court_refused instead. First death gets the arrival — the room
+## before the Clerk, the Clerk's banter, a line of Ash's own choosing, and a
+## plain account of what dying costs. Every death after that gets one of the
+## countdown visits, because by then he does know the place. Extra lines
+## (the Toll) are appended to the last page.
 func _show_hollow_court(on_done: Callable, extra_lines: Array = []) -> void:
 	var lives_spent := int(tracker.stats.get("lives_spent", 0))
 	var pages: Array
@@ -543,11 +549,10 @@ func _show_hollow_court(on_done: Callable, extra_lines: Array = []) -> void:
 		pages = story["hollow_court_first"].duplicate(true)
 	else:
 		# EVERY DEATH IS A DIFFERENT VISIT (owner rule 2026-08-05, law 15).
-		# `hollow_court_repeat` is a list of alternative visits, not one page
-		# shown again — the Clerk has a different thing to say each time, and
-		# the ninth life gets the one that has been waiting for it. A death
-		# that reads exactly like the last death tells the player nothing
-		# happened, and this is the screen they will see most often.
+		# `hollow_court_repeat` is the canonical-death COUNTDOWN — one scene
+		# per life, in order, each written for its number, and the ninth gets
+		# the one that has been waiting for it. Deaths are authored `mortal`
+		# beats now, so every entry here will be seen at most once per game.
 		var visits: Array = story["hollow_court_repeat"]
 		var index: int = mini(lives_spent - 2, visits.size() - 1)
 		pages = [visits[index].duplicate(true)] if visits[index] is Dictionary \
@@ -885,6 +890,10 @@ func _grant_skills(skill_ids: Array) -> void:
 
 
 var _last_encounter_env := ""
+## Whether the defeat _digest just recorded was a true death (a `mortal`
+## encounter) or one the Court will refuse — read by _prowl_defeat, which
+## runs after _digest and has no state in hand.
+var last_defeat_mortal := false
 
 
 func _digest(state: CombatState) -> void:
@@ -897,13 +906,17 @@ func _digest(state: CombatState) -> void:
 	if _last_encounter_env != "" and not codex["places"].has(_last_encounter_env):
 		codex["places"].append(_last_encounter_env)
 	if state.outcome == CombatState.Outcome.DEFEAT:
-		_remember("life_spent", {"enemy": state.enemy_id})
+		# Lives are spent, never taken (docs/design/death-and-lives.md): only
+		# a `mortal` beat files a death; everything else the Court refuses.
+		last_defeat_mortal = state.mortal
+		_remember("life_spent" if state.mortal else "court_refused",
+			{"enemy": state.enemy_id})
 	for id in tracker.record_encounter(state):
 		toasts.append("★ %s — %s" % [
 			catalog.achievements[id]["name"], catalog.achievements[id]["description"],
 		])
 	if state.outcome == CombatState.Outcome.DEFEAT:
-		carryover = {}  # a new life: full deck, full charges, full hp
+		carryover = {}  # sent home either way: full deck, full charges, full hp
 	else:
 		var charges := {}
 		# Energy fed onto a card that never fired stays ON the card for the
@@ -1472,7 +1485,7 @@ func _on_prowl_battle_done(state: CombatState) -> void:
 			else:
 				_run_step(encounter_index + 1)
 		CombatState.Outcome.DEFEAT:
-			_prowl_death()
+			_prowl_defeat()
 		CombatState.Outcome.RETREATED:
 			_prowl_retreat()
 
@@ -1578,6 +1591,17 @@ func _prowl_retreat() -> void:
 		func(_i: int) -> void: _show_hub())
 
 
+## Defeat forks on what the fight WAS (docs/design/death-and-lives.md): a
+## `mortal` beat is a true death and spends a life; anything else is an
+## unscheduled arrival the Court refuses. _digest has already filed the
+## stats and the chronicle — this only decides which desk scene plays.
+func _prowl_defeat() -> void:
+	if last_defeat_mortal:
+		_prowl_death()
+	else:
+		_prowl_refusal()
+
+
 func _prowl_death() -> void:
 	var first_ever: bool = int(tracker.stats.get("lives_spent", 0)) <= 1
 	var toll := 0
@@ -1589,3 +1613,36 @@ func _prowl_death() -> void:
 	if toll > 0:
 		extra.append({"text": Strings.line("prowl.toll", [toll]), "rule": true})
 	_show_hollow_court(_show_hub, extra)
+
+
+## An ordinary defeat: the Court refuses the death and takes a filing fee —
+## smaller than the Toll, but a defeat that costs nothing teaches nothing.
+## The satchel is simply never banked, same as a death.
+func _prowl_refusal() -> void:
+	var fee := int(ceil(int(profile["gleam"]) * _refusal_rate()))
+	profile["gleam"] = int(profile["gleam"]) - fee
+	_save()
+	var extra: Array = []
+	if fee > 0:
+		extra.append({"text": Strings.line("prowl.refusal_fee", [fee]), "rule": true})
+	_show_court_refused(_show_hub, extra)
+
+
+## The REFUSED stamp, played as a desk scene like every other visit. The
+## first refusal is the one that TEACHES (its page carries the rule line);
+## after that the variants rotate, because this is a screen a struggling
+## player will see often and a refusal that reads exactly like the last one
+## tells them nothing happened (law 15). Two variants carry planted clues —
+## see docs/design/the-unraveler.md before editing ANY of them.
+func _show_court_refused(on_done: Callable, extra_lines: Array = []) -> void:
+	var refusals := int(tracker.stats.get("refusals", 0))
+	var visits: Array = story["hollow_court_refused"]
+	var index := 0
+	if refusals > 1 and visits.size() > 1:
+		index = 1 + ((refusals - 2) % (visits.size() - 1))
+	var pages: Array = [visits[index].duplicate(true)] if visits[index] is Dictionary \
+		else Array(visits[index]).duplicate(true)
+	if not extra_lines.is_empty() and not pages.is_empty():
+		var last: Dictionary = pages[pages.size() - 1]
+		last["lines"] = Array(last["lines"]) + extra_lines
+	_play_pages(pages, 0, on_done)

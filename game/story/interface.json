@@ -39,6 +39,7 @@
     "journal_withdrew": "Withdrew from %s. The quest keeps.",
     "journal_done": "%s: done. %d gleam banked.",
     "toll": "The Toll: %d gleam. The satchel stays wherever you dropped it.",
+    "refusal_fee": "The filing fee: %d gleam. The satchel stays wherever you dropped it. No life spent — the death was not on the docket.",
     "journal_prologue": "The night the kettle screamed. Elspeth is gone. The thread leads into the city."
   },
   "chronicle": {
@@ -117,6 +118,7 @@
     "prologue_done": "The night the kettle screamed. She is gone, and the thread leads into the city. I am writing this down so that somebody has.",
     "evidence_found": "I brought home %s. It means something. I intend to find out what.",
     "life_spent": "I gave a life to %s. The Court wrote it down. So do I.",
+    "court_refused": "%s put me down and the Court sent me back stamped REFUSED. I am choosing to take it as a compliment.",
     "choice_made": "I chose %s. I would choose it again, probably.",
     "quest_done": "Finished %s. Came home %d gleam heavier.",
     "quest_done_quiet": "Finished %s. Nobody paid me. Some work keeps its own ledger.",
@@ -317,6 +319,11 @@
       "away": "Slip Away",
       "status": "%d of %d home   ·   %d safe   ·   %d hp",
       "gust_plate": "the gust owns  %s",
+      "gust_title": "The gust owns",
+      "next_unread": "Next: an unread sky. Pick the Line reads it.",
+      "next_reads": "Next: the gust turns %s.",
+      "night_note": "The night presses. The gusts bite double.",
+      "home_label": "%d to home",
       "slipped": "The gust takes it. %d back, and it stings.",
       "gained": "On, by %d.",
       "peeked": "The sky says: %s next.",

@@ -47,7 +47,12 @@ at a time (escalation philosophy in core-gameplay.md).
 - **Chapter 3 — The Ninth Bell:** the missing bell, the Hollow Court's
   interest, suspects fall to two, then one. Mid-Ch3: the third suspect
   breaks — played as a **Testimony** scene (minigames.md), not a cutscene.
-  End: the case is presented — or settled.
+  End: the case is presented — or settled. Ch3 is also where the nine-life
+  ledger can genuinely reach nought: a cat who spends his ninth becomes a
+  probationary **hearth-cat of the Court** and finishes the case from the
+  night-side — an authored branch, not a fail state
+  ([death-and-lives.md](death-and-lives.md)); day-side doors close,
+  night-side doors open, and it feeds the nine-deaths ending.
 
 **Story variety rule:** adjacent quests must differ in KIND, not just
 place — a heist, then a diplomacy, then an escort, then a haunting.

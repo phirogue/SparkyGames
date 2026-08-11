@@ -27,6 +27,7 @@ const KINDS := {
 	"prologue_done": {"ids": [], "nums": []},
 	"evidence_found": {"ids": ["evidence"], "nums": []},
 	"life_spent": {"ids": ["enemy"], "nums": []},
+	"court_refused": {"ids": ["enemy"], "nums": []},
 	"choice_made": {"ids": [], "nums": [], "texts": ["choice"]},
 	"quest_done": {"ids": ["quest"], "nums": ["gleam"]},
 	"quest_done_quiet": {"ids": ["quest"], "nums": []},

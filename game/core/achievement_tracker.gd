@@ -50,7 +50,14 @@ func record_encounter(state: CombatState) -> Array:
 			if state.stealth_threshold > 0 and not state.spotted:
 				newly.append_array(increment("unspotted_wins"))
 		CombatState.Outcome.DEFEAT:
-			newly.append_array(increment("lives_spent"))
+			# Lives are spent, never taken (docs/design/death-and-lives.md):
+			# only a `mortal` encounter files a death. Every other defeat is
+			# the Hollow Court refusing an unscheduled one — but the enemy's
+			# Grudge does not care whether the ledger moved.
+			if state.mortal:
+				newly.append_array(increment("lives_spent"))
+			else:
+				newly.append_array(increment("refusals"))
 			newly.append_array(increment("felled_by_" + state.enemy_id))
 		CombatState.Outcome.RETREATED:
 			newly.append_array(increment("retreats"))

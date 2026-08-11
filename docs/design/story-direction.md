@@ -50,11 +50,17 @@ heartbroken. Rules of the voice:
 - **One run = one lead.** Every prowl is framed as following a scent, a
   witness, a stolen ledger. Win or lose, the case moves (Hades cadence): the
   quest board updates, someone new leaves a note, a suspect gets nervous.
-- **Retreat and death are canon.** Slipping away is a cat deciding the fight
-  is beneath him. Dying spends a life — NPCs notice ("You smell of the Toll
-  again"), some doors only open to a cat who has died the right way, and the
-  Hollow Court's clerk greets Ash by name with increasing familiarity. The
-  cost design lives in [core-gameplay.md](core-gameplay.md).
+- **Retreat, refusal and death are canon.** Slipping away is a cat deciding
+  the fight is beneath him. An ordinary defeat is the Hollow Court stamping
+  an unscheduled death REFUSED — sent back up, minus a filing fee — because
+  Ash's file, like his witch's, will not reconcile (owner 2026-08-11,
+  [death-and-lives.md](death-and-lives.md)). Truly dying spends a life and
+  happens only at authored mortal beats — NPCs notice ("You smell of the
+  Toll again"), some doors only open to a cat who has died the right way,
+  and the Clerk greets Ash with increasing familiarity either way. The
+  ninth life spent is not game over: from Chapter 3 it opens the
+  Court-agent branch. The cost design lives in
+  [core-gameplay.md](core-gameplay.md).
 - **Endings.** The final chapter's accusation is the player's: evidence
   gathered across chapters unlocks endings (justice, vengeance, mercy, and
   one ending only reachable by a cat who has died all nine canonical deaths).

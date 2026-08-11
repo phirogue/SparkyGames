@@ -110,8 +110,8 @@ func test_the_prologue_assembles_from_its_arcs() -> void:
 	assert_true(not story.is_empty(), "story/prologue/ assembles")
 	assert_true(Array(story.get("scenes", [])).size() >= 30,
 		"the whole prologue is present, not one arc of it")
-	for key in ["hollow_court_first", "hollow_court_repeat", "mantel_coach",
-			"unpicked_won"]:
+	for key in ["hollow_court_first", "hollow_court_repeat", "hollow_court_refused",
+			"mantel_coach", "unpicked_won"]:
 		assert_true(story.has(key), "interludes.json contributes '%s'" % key)
 
 

@@ -31,6 +31,14 @@
     "threshold": 9,
     "hidden": false
   },
+  "returned_to_sender": {
+    "id": "returned_to_sender",
+    "name": "Returned to Sender",
+    "description": "Be refused by the Hollow Court three times. Death has standards, apparently.",
+    "stat": "refusals",
+    "threshold": 3,
+    "hidden": false
+  },
   "the_meeting_was_declined": {
     "id": "the_meeting_was_declined",
     "name": "The Meeting Was Declined",

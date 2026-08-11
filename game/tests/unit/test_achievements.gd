@@ -24,6 +24,48 @@ func _quick_win(seed_value: int = 7) -> CombatState:
 	state.do_command({"type": "play_skill", "skill_id": "swat"})
 	return state
 
+func _quick_loss(mortal: bool, seed_value: int = 11) -> CombatState:
+	# A 1-hp cat who ends the turn until the wisp lands a hit. The loop is
+	# bounded: a fixture that never resolves fails the outcome assert below
+	# rather than hanging the runner.
+	var state := CombatState.create(catalog, seed_value, {
+		"player_hp": 1,
+		"deck": ["ferocity_1", "guile_1", "shadow_1", "mysticism_1", "shadow_1"],
+		"skills": ["scratch", "pounce", "slink", "purr", "loaf"],
+		"enemy": "gutter_wisp",
+		"mortal": mortal,
+	})
+	for i in 20:
+		if state.outcome != CombatState.Outcome.ONGOING:
+			break
+		state.do_command({"type": "end_turn"})
+	return state
+
+## Lives are spent, never taken (docs/design/death-and-lives.md): an
+## ordinary defeat is a Court refusal, not a death — but the enemy's Grudge
+## stat moves either way.
+func test_ordinary_defeat_is_refused_not_death() -> void:
+	var tracker := _tracker()
+	var state := _quick_loss(false)
+	assert_eq(state.outcome, CombatState.Outcome.DEFEAT, "fixture should lose")
+	tracker.record_encounter(state)
+	assert_eq(int(tracker.stats.get("lives_spent", 0)), 0,
+		"an ordinary defeat spends no life")
+	assert_eq(int(tracker.stats.get("refusals", 0)), 1,
+		"the Court refuses it instead")
+	assert_eq(int(tracker.stats.get("felled_by_gutter_wisp", 0)), 1,
+		"the Grudge does not care whether the ledger moved")
+
+func test_mortal_defeat_spends_a_life() -> void:
+	var tracker := _tracker()
+	var state := _quick_loss(true)
+	assert_eq(state.outcome, CombatState.Outcome.DEFEAT, "fixture should lose")
+	tracker.record_encounter(state)
+	assert_eq(int(tracker.stats.get("lives_spent", 0)), 1,
+		"a mortal beat files a true death")
+	assert_eq(int(tracker.stats.get("refusals", 0)), 0,
+		"a docketed death is not refused")
+
 func test_unlocks_at_threshold_once() -> void:
 	var tracker := _tracker()
 	var newly := tracker.increment("encounters_won")
@@ -66,6 +108,9 @@ func test_retreat_and_death_stats() -> void:
 	var doomed := CombatState.create(catalog, 5, {
 		"player_hp": 3,
 		"deck": ["guile_1", "guile_1"], "skills": [], "enemy": "the_unpicked",
+		# The parlor fight is a `mortal` beat (death-and-lives.md) — this
+		# fixture mirrors its encounter data, or the Court would refuse it.
+		"mortal": true,
 	})
 	for i in 10:
 		if doomed.outcome != CombatState.Outcome.ONGOING:
@@ -90,7 +135,7 @@ func test_save_round_trip() -> void:
 func test_every_achievement_stat_is_reachable_naming() -> void:
 	# Guard against typos: every achievement stat must be either a known
 	# lifetime stat or a per-enemy pattern over enemies that exist.
-	var known := ["encounters_won", "lives_spent", "retreats", "flawless_wins",
+	var known := ["encounters_won", "lives_spent", "refusals", "retreats", "flawless_wins",
 		"exhausted_wins", "shelf_justice_kills",
 		"scratch_only_wins", "purrs_completed", "hand_cards_lost", "energy_spent",
 		"unspotted_wins", "pressed_on", "quests_completed", "gleam_banked"]

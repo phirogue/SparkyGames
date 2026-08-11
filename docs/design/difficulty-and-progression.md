@@ -55,10 +55,12 @@ does the player have", used to calibrate encounters.
   runs, sparring against ally friends to test loadouts — no story cost);
   core quests are one-shot; some scenarios knock Ash out (fail forward)
   instead of killing.
-- **Death is rare and expensive.** Losing a life carries the Hollow Court
-  toll and world consequences that make the game harder — most failures
-  should be knockouts or retreats, with death reserved for walking into
-  clearly-signposted overweight fights.
+- **Lives are spent, never taken** (owner 2026-08-11,
+  [death-and-lives.md](death-and-lives.md)). An ordinary defeat is a Court
+  REFUSAL — satchel lost, filing fee, Grudge, no life spent. A life is spent
+  only at authored `mortal` beats (and, later, player stakes), so the
+  nine-life ledger is a story instrument, not a fail meter. Losing must
+  still sting; tune `prowl.refusal_rate` if it stops stinging.
 - **Merchant gating:** the Magpie Exchange (and later merchants) refuse
   service until Ash completes their introductory quest — standing before
   shopping.

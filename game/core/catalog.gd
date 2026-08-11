@@ -51,7 +51,7 @@ const RECAP_LINE_MAX := 70
 var energy_cards: Dictionary = {}   # id -> {id, humour, value}
 var skills: Dictionary = {}         # id -> {id, name, cost, charges, effects, instinct}
 var enemies: Dictionary = {}        # id -> {id, name, hp, intents}
-var encounters: Dictionary = {}     # id -> {id, enemies, environment}
+var encounters: Dictionary = {}     # id -> {id, enemies, environment, mortal?}
 var achievements: Dictionary = {}   # id -> {id, name, description, stat, threshold, hidden}
 var environments: Dictionary = {}   # id -> {id, name, color, cost_mod, sunbeam_turns, stealth_threshold}
 var quests: Dictionary = {}         # id -> {id, name, board_card, encounters, kind, guild, district, once, requires}
@@ -178,6 +178,11 @@ func validate() -> Array[String]:
 		var environment_id: String = encounters[id].get("environment", "")
 		if not environments.is_empty() and not environments.has(environment_id):
 			problems.append("encounter '%s' references unknown environment '%s'" % [id, environment_id])
+		# `mortal` decides whether losing spends a LIFE (death-and-lives.md).
+		# A truthy string here would quietly kill Ash in a fight the story
+		# never meant to be mortal, so the type is checked, not coerced.
+		if encounters[id].has("mortal") and not (encounters[id]["mortal"] is bool):
+			problems.append("encounter '%s' has a non-boolean 'mortal' flag" % id)
 	for id in quests:
 		var quest: Dictionary = quests[id]
 		# `encounters` is the short form of a script that is all fighting.
