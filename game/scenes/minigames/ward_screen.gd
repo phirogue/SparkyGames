@@ -61,6 +61,19 @@ func _ready() -> void:
 	_board = shell["board"]
 	_help = shell["help"]
 
+	# The torn ward is CLOTH (owner 2026-08-11: boards at the battle's
+	# standard): the frayed linen square fields the grid zone, and the drawn
+	# cells read as damage on fabric rather than as a diagram.
+	var linen := TextureRect.new()
+	linen.texture = UITheme.tex("ui/ui_cloth_linen")
+	linen.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	linen.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	linen.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	linen.set_offset(SIDE_BOTTOM, GRID_ZONE)
+	linen.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	linen.visible = linen.texture != null
+	_board.add_child(linen)
+
 	_canvas = WardBoard.new()
 	_canvas.screen = self
 	_canvas.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -344,7 +357,10 @@ class WardBoard extends Control:
 					draw_rect(rect, MinigameShell.TORN)
 					draw_rect(rect, Color("00000044"), false, 2.0)
 				else:
-					draw_rect(rect, MinigameShell.CLOTH)
+					# Sound cloth is a translucent wash, so the LINEN behind
+					# the grid shows its weave through every whole square —
+					# the tear reads as damage on real fabric.
+					draw_rect(rect, Color(MinigameShell.CLOTH, 0.35))
 					MinigameShell.guide_line(self, rect.position,
 						rect.position + Vector2(rect.size.x, 0), Color("00000018"))
 					MinigameShell.guide_line(self, rect.position,

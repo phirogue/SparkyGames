@@ -127,6 +127,24 @@ portraits/scenes 512, UI 512, glyphs 220), run
 | `sc_hollow_court_desk`, `sc_shambles_day` | Chapter 1 scenes — both now referenced and wired |
 | `ref_ash_prologue` | reference only — the bare-necked Ash, for prologue scenes |
 
+## Done 2026-08-11 (minigame boards pass, owner-funded)
+
+Six board-furniture pieces, all generated on white and alpha-keyed locally
+(`tools/genart_crossing.py`, `tools/genart_minigames.py`), wired through the
+`UI_KEYED` list in wire_assets.py:
+
+- `ui_token_ash` — Ash as a route token, side profile, red kerchief
+- `ui_icon_home_lamp` — the lit window at the end of a crossing
+- `ui_gust_swirl` — the storm's mark, on the gust plate and exposed cards
+- `ui_hoop` — the embroidery hoop Seam & Stitch sews inside
+- `ui_cloth_linen` — frayed linen: Patch the Ward's field, and (dark) the
+  Unpicking's
+- `ui_ribbon_band` — Testimony's stitched statement bands
+
+Also spent: two accidental settings-icon regenerations (a batch script run
+by mistake); the displaced originals were restored from git and the takes
+archived as `__accidental`. Total spend this pass ≈ $1.52 of the owner's $4.
+
 ## Done 2026-08-10 (owner review pass)
 
 - **`ui_frame_portrait` repaired, not regenerated**: the white-key pass had

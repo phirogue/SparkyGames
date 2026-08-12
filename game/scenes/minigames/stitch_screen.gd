@@ -42,6 +42,9 @@ var _note := ""                    # what Squint last said, in words
 var _origin := Vector2.ZERO
 var _step := 0.0
 var _finished := false
+var _hoop: TextureRect
+## What was satisfied at the last refresh, so a clue coming RIGHT can pulse.
+var _prev_satisfied := -1
 
 
 func setup(chart_data: Dictionary) -> void:
@@ -55,6 +58,20 @@ func _ready() -> void:
 	_status = shell["status"]
 	_board = shell["board"]
 	_help = shell["help"]
+
+	# The chart sits in a real embroidery hoop (owner 2026-08-11: boards at
+	# the battle screen's standard). The hoop centres itself in whatever the
+	# banner leaves; the grid lays out into its linen (see _layout). A bare
+	# dev checkout without the texture keeps the old full-page grid.
+	_hoop = TextureRect.new()
+	_hoop.texture = UITheme.tex("ui/ui_hoop")
+	_hoop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_hoop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_hoop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_hoop.set_offset(SIDE_TOP, BANNER_HEIGHT if state.mirrored else 0.0)
+	_hoop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hoop.visible = _hoop.texture != null
+	_board.add_child(_hoop)
 
 	var canvas := StitchBoard.new()
 	canvas.screen = self
@@ -122,7 +139,13 @@ func _first_clue_cell() -> Vector2i:
 
 
 ## Board geometry: the largest square cell that fits the zone, centred under
-## the mirror banner when there is one.
+## the mirror banner when there is one. With the hoop present, the grid lays
+## out into the hoop's LINEN — the inscribed square of the stretched cloth
+## inside the wooden ring (measured off the texture: the linen circle is
+## ~84% of the hoop's diameter, and a circle's inscribed square is 0.707 of
+## it → 0.59, held at 0.58 for a thread's width of breathing room).
+const HOOP_INNER := 0.58
+
 func _layout(board_size: Vector2) -> void:
 	var cols := state.width
 	var rows := state.height
@@ -130,10 +153,14 @@ func _layout(board_size: Vector2) -> void:
 		return
 	var top := BANNER_HEIGHT if state.mirrored else 0.0
 	var usable := Vector2(board_size.x, board_size.y - top)
-	# A third of a cell of margin, not a whole one: the clue numbers scale off
-	# the cell, so every pixel the grid gives up is type the owner asked to
-	# make bigger. A 4x4 goes from 115px cells to 134.
-	_step = minf(usable.x / (cols + 0.3), usable.y / (rows + 0.3))
+	if _hoop != null and _hoop.visible:
+		var side := minf(usable.x, usable.y) * HOOP_INNER
+		_step = side / (maxi(cols, rows) + 0.3)
+	else:
+		# A third of a cell of margin, not a whole one: the clue numbers
+		# scale off the cell, so every pixel the grid gives up is type the
+		# owner asked to make bigger. A 4x4 goes from 115px cells to 134.
+		_step = minf(usable.x / (cols + 0.3), usable.y / (rows + 0.3))
 	var used := Vector2(_step * cols, _step * rows)
 	_origin = Vector2((usable.x - used.x) * 0.5,
 		top + (usable.y - used.y) * 0.5)
@@ -221,6 +248,11 @@ func _refresh() -> void:
 		else Strings.line("minigames.stitch.status",
 			[state.clues_satisfied(), total])
 	_status.text = headline if _note == "" else "%s   ·   %s" % [headline, _note]
+	# A clue coming right is FELT (the battle's rule for numbers that
+	# change): the count pulses when the satisfied total rises.
+	if _prev_satisfied >= 0 and state.clues_satisfied() > _prev_satisfied:
+		UITheme.pulse(_status, 1.12)
+	_prev_satisfied = state.clues_satisfied()
 	_squint_button.text = Strings.line("minigames.stitch.squint", [state.paws]) \
 		if state.paws > 0 else Strings.line("minigames.stitch.squint_spent")
 	_squint_button.disabled = state.paws < 1

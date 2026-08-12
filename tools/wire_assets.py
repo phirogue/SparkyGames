@@ -75,6 +75,15 @@ UI_KEYED = {
     # processed file, don't assume the pass worked).
     "ui_paw_full": 200,
     "ui_paw_empty": 200,
+    # The Long Way Round's board marks (2026-08-11): generated on white and
+    # keyed by tools/genart_crossing.py, same pass as the settings icons.
+    "ui_token_ash": 200,
+    "ui_icon_home_lamp": 160,
+    "ui_gust_swirl": 200,
+    # Minigame board furniture (2026-08-11), keyed by genart_minigames.py.
+    "ui_hoop": 720,
+    "ui_cloth_linen": 720,
+    "ui_ribbon_band": 768,
 }
 
 

@@ -51,6 +51,20 @@ func _ready() -> void:
 	_board = shell["board"]
 	_help = shell["help"]
 
+	# The working hangs on dark cloth (owner 2026-08-11): the same linen as
+	# the ward's, modulated toward night so the threads read bright against
+	# it — the Unpicking is the killer's verb, and its board is darker.
+	var cloth := TextureRect.new()
+	cloth.texture = UITheme.tex("ui/ui_cloth_linen")
+	cloth.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	cloth.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	cloth.set_anchors_preset(Control.PRESET_FULL_RECT)
+	cloth.clip_contents = true
+	cloth.modulate = Color(0.62, 0.58, 0.66)
+	cloth.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cloth.visible = cloth.texture != null
+	_board.add_child(cloth)
+
 	var canvas := LatticeBoard.new()
 	canvas.screen = self
 	canvas.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

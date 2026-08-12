@@ -56,9 +56,32 @@ beat; diegetic; failure is a story outcome with `when_outcome` prose
 seed; a scenario spec + tour stop + unit tests per module; every module
 gets an escape path and a tour tap-budget (law 13). Puzzle CONTENT lives
 in `game/data/*.json` with stable ids and `Catalog.validate()` coverage —
-adding a puzzle must never mean touching a scene script. All boards are
-drawn (UITheme primitives, thread rendering), not generated art — no new
-asset dependencies.
+adding a puzzle must never mean touching a scene script.
+
+> **The "drawn boards only" rule is retired (owner 2026-08-11: funded art
+> for the minigame boards, battle-screen standard).** Boards still DRAW
+> their rules-bearing geometry (threads, pips, cells — anything whose
+> position is the puzzle), but they now wear real furniture:
+>
+> - **The Long Way Round** is a full battle-skeleton page: the crossing's
+>   environment backdrop in the battle's wood frame (the opponent is
+>   weather), a coloured GUST plate + a NEXT-gust chip in the intent
+>   chip's seat, the route as a stitched serpentine thread with brass
+>   knots for banked ground, Ash himself (`ui_token_ash`) walking it
+>   toward a lit window (`ui_icon_home_lamp`), the hand as the battle's
+>   own humour-framed card chips (storm-owned cards wear `ui_gust_swirl`
+>   and flutter), a battle status-chip strip, and the battle's feedback
+>   vocabulary — floats, red wash on a slip, ghost cards blown off the
+>   hand, settle/pulse on plates that change.
+> - **Seam & Stitch** sews inside a real embroidery hoop (`ui_hoop`); the
+>   grid lays out into the hoop's linen (`HOOP_INNER`), and the satisfied
+>   count pulses when a clue comes right.
+> - **Patch the Ward** fields its grid on frayed linen (`ui_cloth_linen`)
+>   with sound cloth as a translucent wash so the weave shows through.
+> - **The Unpicking** hangs its threads on the same linen modulated dark.
+> - **Testimony** frames the witness in the battle's portrait frame with
+>   their last reply beside it; statements are stitched ribbon bands
+>   (`ui_ribbon_band`); new ribbons settle in, spent patience pulses.
 
 ---
 
