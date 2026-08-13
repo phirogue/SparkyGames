@@ -1,27 +1,39 @@
 extends Control
-## The Unpicking prototype board — geometry only (minigames.md #4).
+## The Unpicking board (minigames.md #4).
 ##
-## Threads are straight lines across the page; where two cross, the one that
-## lies OVER is drawn unbroken and the one beneath is drawn with a gap. That
-## single visual IS the puzzle: a thread you can see all the way along has
-## nothing on top of it, so it can be pulled.
+## Threads lie across the page in a real stack. Where two cross, the one on
+## top is drawn over the other AND casts its shadow onto it — the same way a
+## cord lying on a cord looks in a hand. That stack IS the puzzle: a thread
+## with nothing crossing above it slides out.
 ##
-## Tap a thread to pull it. A blocked pull twangs — the blockers flash and
-## the Alarm climbs — but it is never rejected, because learning which
-## thread is trapped is how the puzzle is played.
+## Owner 2026-08-13: "the minigame is trivial if the legal threads become red
+## if they are legal… make it a better animation so the player need to
+## determine (and can determine) dependencies without the strands turning
+## different colors. Turning red is fine for the tutorial game."
 ##
-## None of which the player could possibly have known: the owner reported
-## this module as making no sense (2026-08-09). It now teaches itself over
-## its own board from data/minigame_tutorials.json, and the "?" in the
-## header replays that lesson forever.
+## So colour is IDENTITY here, never legality: each thread keeps its own dyed
+## shade so it can be followed across the page, and nothing on the board
+## announces which one is free. Reading the stack is the whole game. The one
+## exception is a lattice with `teach_free` in its data (the first one the
+## player ever meets) and any board while the lesson is actually playing —
+## there the free threads do wear brass and a warm tint, because a lesson that
+## cannot point at an example teaches nothing.
+##
+## Feedback is motion instead: a freed thread SLIDES out along its own line
+## with a hiss, and a trapped one twangs — it and everything lying across it
+## shiver against each other, which is the answer to "why not that one?".
 
 signal closed
 
 const TAP_RADIUS := 30.0
-## Half-width of the break drawn in an under-thread. This is the ONLY thing
-## telling the player which thread is trapped, so it is deliberately wider
-## than looks tidy — at 9px the over/under barely read on a phone.
-const GAP := 14.0
+## How long a freed thread takes to slide off the page, and how long a twang
+## keeps shivering. Both are feedback, not delay: nothing waits on them.
+const SLIDE_TIME := 0.34
+const TWANG_TIME := 0.5
+## The dyed shades the lattice is strung with. Identity only — which shade a
+## thread gets never depends on whether it can be pulled.
+const THREAD_DYES := ["#8c4a3a", "#4a6a7a", "#6a6a3a", "#7a5a8a", "#8a7a4a",
+	"#3a6a5a", "#7a4a5a", "#5a5a7a"]
 
 var state: LatticeState
 var lattice: Dictionary = {}
@@ -37,6 +49,11 @@ var _flash: Array[String] = []
 var _markers: Dictionary = {}
 var _note := ""
 var _finished := false
+## Threads mid-slide: id -> how far out they are, 0 to 1. They are already
+## gone from the rules; this is only the picture catching up.
+var _sliding: Dictionary = {}
+## How hard the lattice is still shivering after a refused pull, 1 down to 0.
+var _twang := 0.0
 
 
 func setup(lattice_data: Dictionary) -> void:
@@ -138,6 +155,16 @@ func thread_points(thread_id: String) -> Array[Vector2]:
 	return points
 
 
+## A thread's dye, fixed by its place in the data. Identity, never legality:
+## the same thread is the same colour whether it is trapped or loose, so
+## following one across the page is possible and reading one is not free.
+func thread_dye(thread_id: String) -> Color:
+	var at := state.order.find(thread_id)
+	if at < 0:
+		at = 0
+	return Color(THREAD_DYES[at % THREAD_DYES.size()])
+
+
 func nearest_thread(point: Vector2) -> String:
 	var best := ""
 	var best_distance := TAP_RADIUS
@@ -172,13 +199,17 @@ func pull_thread(thread_id: String) -> void:
 	if Minigame.is_over(state.outcome) or not state.threads.has(thread_id):
 		return
 	var result := state.do_command({"type": "pull", "thread": thread_id})
-	# A refused pull flashes what is holding it down — the puzzle teaches
+	# A refused pull SHIVERS what is holding it down — the puzzle teaches
 	# itself rather than making the player guess at an invisible rule.
 	var pulled: bool = result.get("pulled", true)
 	_flash.clear()
 	if not pulled:
 		for blocker in result.get("blocked_by", []):
 			_flash.append(String(blocker))
+		_flash.append(thread_id)
+		_start_twang()
+	else:
+		_start_slide(thread_id)
 	_note = Strings.line("minigames.lattice.free") if pulled \
 		else Strings.line("minigames.lattice.twang")
 	if pulled and coach != null:
@@ -186,8 +217,53 @@ func pull_thread(thread_id: String) -> void:
 	_refresh()
 
 
+## A freed thread does not blink out of existence: it draws off the page along
+## its own line, which is the one moment the player gets to see that it really
+## was lying loose on top.
+func _start_slide(thread_id: String) -> void:
+	_sliding[thread_id] = 0.0
+	var tween := create_tween()
+	tween.tween_method(func(value: float) -> void:
+		_sliding[thread_id] = value
+		_redraw_board(), 0.0, 1.0, SLIDE_TIME) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tween.tween_callback(func() -> void:
+		_sliding.erase(thread_id)
+		_redraw_board())
+
+
+func _start_twang() -> void:
+	var tween := create_tween()
+	tween.tween_method(func(value: float) -> void:
+		_twang = value
+		_redraw_board(), 1.0, 0.0, TWANG_TIME) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+
+func _redraw_board() -> void:
+	for child in _board.get_children():
+		child.queue_redraw()
+
+
 func flashing() -> Array[String]:
 	return _flash
+
+
+func sliding() -> Dictionary:
+	return _sliding
+
+
+func twang() -> float:
+	return _twang
+
+
+## Whether the board may say out loud which threads are free. True only on
+## the lattice the player meets first (`teach_free` in its data) and while a
+## lesson is actually running — everywhere else, reading the stack is the
+## game and colouring the answer in would be playing it for them.
+func revealing_free() -> bool:
+	return bool(lattice.get("teach_free", false)) \
+		or (coach != null and is_instance_valid(coach))
 
 
 func _refresh() -> void:
@@ -229,69 +305,90 @@ class LatticeBoard extends Control:
 		elif event is InputEventScreenTouch and event.pressed:
 			screen.on_board_tap(event.position)
 
+	const WIDTH := 11.0
+
 	func _draw() -> void:
 		var state: LatticeState = screen.state
-		var remaining := state.remaining()
-		var flashing: Array = screen.flashing()
-		for thread_id in remaining:
+		var sliding: Dictionary = screen.sliding()
+		# Threads still on the page, PLUS the ones mid-slide (the rules let go
+		# of those the moment they came free; the picture has not yet).
+		var showing: Array[String] = state.remaining()
+		for thread_id in sliding:
+			if not showing.has(String(thread_id)):
+				showing.append(String(thread_id))
+		# Bottom of the stack first: a thread is drawn AFTER everything it
+		# lies over, so the picture is a real stack and the crossing needs no
+		# annotation. This replaces the drawn gaps, which said the same thing
+		# in a language the player had to be taught.
+		for thread_id in _stack_order(state, showing):
+			_draw_thread(state, thread_id, sliding)
+		# The pins the working is strung between: every thread, both ends, so
+		# a pin is furniture and never a hint.
+		for thread_id in showing:
 			var points: Array = screen.thread_points(thread_id)
-			var a: Vector2 = points[0]
-			var b: Vector2 = points[1]
-			var free := state.can_pull(thread_id)
-			var colour := MinigameShell.THREAD if free else Color("6b5747")
-			if flashing.has(thread_id):
-				colour = Color("c2884a")     # this is what is holding it down
-			if state.trembling.has(thread_id):
-				colour = Color("2b6ea8")     # it just re-crossed: look again
-			var width := 8.0 if free else 6.0
-			# Break the line wherever another remaining thread lies OVER it.
-			var breaks: Array[Vector2] = []
-			for other in remaining:
-				if other == thread_id:
-					continue
-				if not state._over.get(other, {}).has(thread_id):
-					continue
-				var other_points: Array = screen.thread_points(other)
-				var crossing = _intersection(a, b, other_points[0], other_points[1])
-				if crossing != null:
-					breaks.append(crossing)
-			if breaks.is_empty():
-				draw_line(a, b, colour, width, true)
-			else:
-				_draw_broken(a, b, breaks, colour, width)
-			# A pull-ready thread gets a brass tag at its head.
-			if free:
-				draw_circle(a, 9.0, MinigameShell.BRASS)
+			var slide: float = float(sliding.get(thread_id, 0.0))
+			if slide > 0.0:
+				continue
+			for end in [points[0], points[1]]:
+				draw_circle(end, 7.0, Color("5a4a3a"))
+				draw_circle(end + Vector2(-1.5, -1.5), 3.0, Color("a99c82"))
 
-	## Draws a-to-b but skipping a gap around each crossing point, which is
-	## how "this one is underneath" reads without any art.
-	func _draw_broken(a: Vector2, b: Vector2, breaks: Array[Vector2],
-			colour: Color, width: float) -> void:
-		var direction := (b - a).normalized()
-		var total := a.distance_to(b)
-		var stops: Array[float] = []
-		for point in breaks:
-			stops.append(a.distance_to(point))
-		stops.sort()
-		var cursor := 0.0
-		for stop in stops:
-			var segment_end := maxf(cursor, stop - GAP)
-			if segment_end > cursor:
-				draw_line(a + direction * cursor, a + direction * segment_end,
-					colour, width, true)
-			cursor = minf(total, stop + GAP)
-		if cursor < total:
-			draw_line(a + direction * cursor, b, colour, width, true)
+	## Painter's order: everything a thread lies over comes first.
+	func _stack_order(state: LatticeState, showing: Array[String]) -> Array[String]:
+		var ordered: Array[String] = []
+		var seen := {}
+		for thread_id in showing:
+			_visit(state, thread_id, showing, seen, ordered)
+		return ordered
 
-	## Segment intersection, or null when they do not cross.
-	static func _intersection(p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2):
-		var d1 := p2 - p1
-		var d2 := p4 - p3
-		var denominator := d1.cross(d2)
-		if absf(denominator) < 0.0001:
-			return null
-		var t := (p3 - p1).cross(d2) / denominator
-		var u := (p3 - p1).cross(d1) / denominator
-		if t < 0.0 or t > 1.0 or u < 0.0 or u > 1.0:
-			return null
-		return p1 + d1 * t
+	func _visit(state: LatticeState, thread_id: String, showing: Array[String],
+			seen: Dictionary, ordered: Array[String]) -> void:
+		if seen.has(thread_id):
+			return
+		seen[thread_id] = true   # marked BEFORE recursing: a cycle stops here
+		for under in state._over.get(thread_id, {}):
+			if showing.has(String(under)):
+				_visit(state, String(under), showing, seen, ordered)
+		ordered.append(thread_id)
+
+	## One thread: its shadow on whatever it lies over, its own dyed cord, and
+	## a sheen along the top of it. The shadow is what carries the over/under
+	## reading — a cord with something across it is in shade there.
+	func _draw_thread(state: LatticeState, thread_id: String,
+			sliding: Dictionary) -> void:
+		var points: Array = screen.thread_points(thread_id)
+		var a: Vector2 = points[0]
+		var b: Vector2 = points[1]
+		var slide: float = float(sliding.get(thread_id, 0.0))
+		if slide > 0.0:
+			# Out along its own line, and off the page: the hiss, drawn.
+			var run := (b - a)
+			a += run * slide
+			b += run * (1.0 + slide * 0.4)
+		var colour: Color = screen.thread_dye(thread_id)
+		var width := WIDTH
+		var alpha := 1.0 - slide
+		# A refused pull shivers the thread and everything lying across it,
+		# perpendicular to its own run — the twang, and the only answer the
+		# board ever gives to "why not that one?".
+		var shake: float = screen.twang()
+		if shake > 0.0 and screen.flashing().has(thread_id):
+			var normal := (b - a).orthogonal().normalized()
+			var swing := sin(shake * 34.0) * shake * 7.0
+			a += normal * swing
+			b += normal * swing
+		if state.trembling.has(thread_id):
+			colour = Color("2b6ea8")     # it just re-crossed: look again
+		# The tutorial's exception (owner: "turning red is fine for the
+		# tutorial game"): the first lattice, and any board mid-lesson, says
+		# which threads are loose. Everywhere else the stack says it.
+		if screen.revealing_free() and state.can_pull(thread_id):
+			colour = MinigameShell.THREAD
+			width = WIDTH + 2.0
+		draw_line(a + Vector2(3.0, 4.0), b + Vector2(3.0, 4.0),
+			Color(0.1, 0.07, 0.05, 0.42 * alpha), width + 5.0, true)
+		draw_line(a, b, Color(colour, alpha), width, true)
+		draw_line(a + Vector2(-1.0, -1.6), b + Vector2(-1.0, -1.6),
+			Color(colour.lightened(0.34), 0.7 * alpha), width * 0.32, true)
+		if screen.revealing_free() and state.can_pull(thread_id) and slide <= 0.0:
+			draw_circle(a, 9.0, MinigameShell.BRASS)

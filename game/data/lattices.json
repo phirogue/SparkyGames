@@ -2,6 +2,7 @@
   "lattice_counting_room": {
     "id": "lattice_counting_room",
     "name": "The Counting-Room Ward",
+    "teach_free": true,
     "error_cost": "alarm",
     "alarm_per_mistake": 1,
     "alarm_threshold": 4,

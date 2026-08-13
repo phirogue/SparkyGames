@@ -83,6 +83,64 @@ adding a puzzle must never mean touching a scene script.
 >   their last reply beside it; statements are stitched ribbon bands
 >   (`ui_ribbon_band`); new ribbons settle in, spent patience pulses.
 
+> **Owner pass, 2026-08-13.** The five boards were played and came back with
+> a defect list. These override the per-module text below where they disagree.
+>
+> - **The verbs under a board are bigger.** `MinigameShell.ACTION_FONT` is 42
+>   and every action button FITS its face to the width its row actually gives
+>   it (`MinigameShell.fit_font`), rather than being set to a size and hoped
+>   at. "The text for squint and leave it should be bigger."
+> - **Seam & Stitch says what is wrong with a board that is right.** A chart
+>   that answers every clue and still is not one closed loop raises a card
+>   naming *which* way the thread failed — a loose end, a fork at a hole, or
+>   two separate rings (`StitchState.seam_fault`). Answering the numbers and
+>   closing the loop are two rules, and the board had never said the second
+>   one out loud.
+> - **Patch the Ward: lifting a patch hands its card back.** "The energy goes
+>   down even if I choose not to play the card afterwards." A patch you took
+>   off is a patch you did not play. What is scarce is which patches you lay
+>   (each is on the rack once), never how steady the thumb is; this replaces
+>   the old spent-is-spent rule for lifts only. Placing still pays.
+> - **Patches are quilt, and they turn where their picture is.** Every patch
+>   is cut from one of four drawn weaves and stitched down with running
+>   stitch. **Turn it** animates the swing in the RACK TILE, because a
+>   rotation that only exists under the finger cannot be gauged.
+> - **The ward's price is on the page.** An energy strip (spool + a count per
+>   humour, the battle's own glyphs) runs between the cloth and the rack, and
+>   each rack patch is stamped with the humour glyph that pays for it.
+> - **The Unpicking never colours in its answer.** Colour is IDENTITY (each
+>   thread keeps its dye so it can be followed); the over/under reading comes
+>   from a real painter's-order STACK plus the shadow the upper thread casts.
+>   Freed threads slide out; a refused pull shivers the thread and everything
+>   lying across it. The one exception is `teach_free` in a lattice's data
+>   (set on `lattice_counting_room`, the first one the player meets) and any
+>   board while its lesson is playing — "turning red is fine for the tutorial
+>   game".
+> - **The Long Way Round posts an OBSTACLE, not a humour.** "What does it
+>   mean for the gust to control a specific energy" was the right question.
+>   The plate names the thing in the road — a chained dog, a crowd, a ward
+>   across an arch — and prices it in the humour that gets you past it
+>   (`minigames.crossing.obstacle.*` / `.cost.*`, three obstacles per humour
+>   so the same plate is not shown all night, law 15). Press on carrying that
+>   humour and the obstacle takes those cards and your ground; **Go Round**
+>   (was Shelter) takes the long way for one card. **Read Ahead** (was Pick
+>   the Line) says what it does.
+> - **The route is a straight line**, left to right, with the pips closing up
+>   to fit — never serpentine. Crossings were shortened accordingly (11–16,
+>   from 20–34): the module "loses all your energy very quickly".
+> - **The crossing's spool answers taps**, showing what is left to draw by
+>   humour — "you should be able to see your deck contents to be able to
+>   gauge the probability of making it" — and Press On is SEEN drawing: the
+>   card flies off the spool into the paw. The location vignette lost its
+>   portrait frame ("the location card here doesn't need a border").
+> - **Testimony was streamlined.** The witness portrait is most of the top of
+>   the board; the reply is a CARD at body size rather than a small column
+>   beside the portrait; statements never scroll (the type is fitted to the
+>   zone, floor 22); a pressed statement wears paler cloth; a Casebook chip
+>   opens what the Casebook says about it and you hold it up from there; and
+>   "Let it lie" is one thin plate (`MinigameShell.ACTIONS_THIN`), the height
+>   it gave up going to the board.
+
 ---
 
 ## 1. Seam & Stitch — the ritual loop [prototype first]
@@ -210,10 +268,12 @@ a perfect patch grants one (`warmed`, or the ward's own boon).
 
 - **Placement is a DRAG** (owner 2026-08-09): press a patch on the rack,
   carry it onto the cloth, let go, and it lands where it was dropped.
-  Rotation is the **Turn it** button while the patch is in the paw. A tap
-  on a rack patch still picks it up and a second tap lays it, because a
-  single way into an interaction is how players get stuck (law 7). Tapping
-  a laid patch lifts it — the cloth comes free, the card does not.
+  Rotation is the **Turn it** button while the patch is in the paw, and the
+  swing plays in the patch's own rack tile (owner 2026-08-13). A tap on a
+  rack patch still picks it up and a second tap lays it, because a single
+  way into an interaction is how players get stuck (law 7). Tapping a laid
+  patch lifts it — cloth AND card both come back (owner 2026-08-13: a patch
+  you took off is a patch you did not play).
 - **Patches may stack, and may hang over sound cloth** (owner 2026-08-09).
   The only placement the rules refuse is one that falls off the grid. This
   replaced an exact-cover rule that rejected any placement outside a
@@ -222,7 +282,9 @@ a perfect patch grants one (`warmed`, or the ward's own boon).
   for a bad placement is already the right one: it closed nothing, and it
   cost a card.** Only torn squares still OPEN are scored. Lifting the top
   of a stack uncovers back to the patch underneath, which is why coverage
-  is recomputed from the laying order rather than erased cell by cell.
+  is recomputed from the laying order rather than erased cell by cell —
+  and refunds the card that laid it, so the cost is always of a patch that
+  is actually on the cloth.
 - Shipped wards must still be *perfectly* coverable — the exact-cover
   search in `validate_minigames_deep()` stays, as the proof that a perfect
   mend exists for a player good enough to find it.

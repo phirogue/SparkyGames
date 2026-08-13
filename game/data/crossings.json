@@ -2,7 +2,7 @@
   "crossing_practice": {
     "id": "crossing_practice",
     "name": "The Long Way Home",
-    "length": 22,
+    "length": 12,
     "hazard": 1,
     "environment": "needle_lane",
     "gust_script": ["ferocity", "shadow", "guile", "ferocity", "mysticism", "shadow"],
@@ -16,7 +16,7 @@
   "crossing_needle_fog": {
     "id": "crossing_needle_fog",
     "name": "The Lane, Fogged Shut",
-    "length": 26,
+    "length": 14,
     "hazard": 2,
     "environment": "needle_lane_wrong",
     "gust_script": ["shadow", "guile", "shadow", "ferocity", "shadow", "mysticism"],
@@ -30,7 +30,7 @@
   "crossing_rooftops": {
     "id": "crossing_rooftops",
     "name": "The Seed Trail",
-    "length": 24,
+    "length": 13,
     "hazard": 1,
     "environment": "rooftop_dusk",
     "gust_script": ["guile", "shadow", "guile", "ferocity", "guile"],
@@ -44,7 +44,7 @@
   "crossing_day_round": {
     "id": "crossing_day_round",
     "name": "The Dawn Round",
-    "length": 20,
+    "length": 11,
     "hazard": 1,
     "environment": "rooftop_dusk",
     "gust_script": ["guile", "shadow", "guile", "ferocity"],
@@ -58,7 +58,7 @@
   "crossing_mereside": {
     "id": "crossing_mereside",
     "name": "The Mereside Approach",
-    "length": 34,
+    "length": 16,
     "hazard": 2,
     "environment": "needle_lane",
     "gust_weights": {

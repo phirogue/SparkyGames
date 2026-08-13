@@ -22,13 +22,28 @@ const ZONE_HEADER := 96
 const ZONE_STATUS := 84
 const ZONE_BOARD := 720
 const ZONE_ACTIONS := 168
+## A board with ONE verb under it does not need two rows' worth of plate.
+## Testimony's "Let it lie" was "way too thick" (owner 2026-08-13), and the
+## height it gives up goes straight to the board — `build` trades the two
+## against each other so the template still sums to CONTENT_HEIGHT exactly
+## (law 6), which is why this is a build argument and not a fourth ZONE_.
+const ACTIONS_THIN := 108
 
 const STATUS_FONT := 30
-const ACTION_FONT := 34
+## Owner 2026-08-13: "the text for squint and leave it should be bigger". The
+## verbs under a board are the two things a stuck player reads, so they now
+## start at 42 and are FITTED down to whatever the button's share of the row
+## actually holds (law 5 — never a guessed box). A one-verb row keeps 42; the
+## ward's "Done mending" comes down a couple of steps and still reads bigger
+## than the 34 it shipped at.
+const ACTION_FONT := 42
 const ACTION_HEIGHT := 112.0
 ## Two rows of verbs inside the same 168: 80 + 80 + one 8px separation.
 const ACTION_HEIGHT_HALF := 80.0
-const ACTION_FONT_HALF := 28
+const ACTION_FONT_HALF := 34
+## Half the content width less the row separation: what one of two side-by-side
+## action buttons really gets, which is what its type has to fit inside.
+const ACTION_BUDGET_HALF := (UITheme.CONTENT_WIDTH - 10.0) / 2.0
 
 ## Guide lines on a drawn board. Godot's thin-line path dropped whole rows of
 ## 1px un-antialiased lines on the mobile renderer (the missing right and
@@ -46,12 +61,32 @@ const TORN := Color("6b5747")
 const DONE := Color("3f6b46")
 const DONE_SOFT := Color("3f6b4644")
 
+## The battle screen's per-humour vocabulary, shared verbatim so a card on a
+## crossing, a patch on a ward and a card in a fight are the same colour and
+## wear the same glyph. Lived in crossing_screen.gd until the ward's energy
+## strip needed it too.
+const HUMOUR_COLOURS := {
+	"ferocity": Color("a24a3a"),
+	"guile": Color("6a6a2a"),
+	"shadow": Color("3a4a6a"),
+	"mysticism": Color("6a4a7a"),
+}
+const HUMOUR_GLYPH := {
+	"ferocity": "energy_claw",
+	"guile": "energy_eye",
+	"shadow": "energy_shade",
+	"mysticism": "energy_moon",
+}
+
 
 ## Builds page + margin + the four zones. Returns
 ## {"header": HBox, "status": Label, "board": Control, "actions": VBox,
 ##  "help": Button}. The caller draws into `board`, adds rows of buttons to
 ## `actions` via `action_row`, and wires `help` with `start_tutorial`.
-static func build(root: Control, title: String, on_back: Callable) -> Dictionary:
+## `action_zone` shrinks the verb row and hands the difference to the board,
+## so the two always add up to the same page (see ACTIONS_THIN).
+static func build(root: Control, title: String, on_back: Callable,
+		action_zone := ZONE_ACTIONS) -> Dictionary:
 	var margin := UITheme.page_scaffold(root)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", SEPARATION)
@@ -93,12 +128,13 @@ static func build(root: Control, title: String, on_back: Callable) -> Dictionary
 	column.add_child(status)
 
 	var board := Control.new()
-	board.custom_minimum_size = Vector2(UITheme.CONTENT_WIDTH, ZONE_BOARD)
+	board.custom_minimum_size = Vector2(UITheme.CONTENT_WIDTH,
+		ZONE_BOARD + ZONE_ACTIONS - action_zone)
 	board.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_child(board)
 
 	var actions := VBoxContainer.new()
-	actions.custom_minimum_size = Vector2(0, ZONE_ACTIONS)
+	actions.custom_minimum_size = Vector2(0, action_zone)
 	actions.add_theme_constant_override("separation", 8)
 	actions.alignment = BoxContainer.ALIGNMENT_CENTER
 	column.add_child(actions)
@@ -118,20 +154,36 @@ static func action_row(actions: VBoxContainer) -> HBoxContainer:
 	return row
 
 
-## The HELPFUL action (Squint, Turn it, Pick the Line): amber, ink text.
+## The biggest size at or under `font_size` at which `text` fits `budget`
+## pixels of button on one line. Measured at a wrap wide enough that nothing
+## wraps, because a wrapped measurement reports the box, not the string, and
+## that is exactly how a button label ends up cropped (law 5).
+static func fit_font(text: String, budget: float, font_size: int) -> int:
+	var size := font_size
+	var room := budget - 32.0   # the plate's own content margins
+	while size > UITheme.TYPE_FLOOR and UITheme.measure_text(
+			text, UITheme.display_font(), size, 4000.0).x > room:
+		size -= 1
+	return size
+
+
+## The HELPFUL action (Squint, Turn it, Read the Sky): amber, ink text.
 ## `height` only shrinks for a module that needs two rows of verbs — the
 ## action zone is a fixed 168 and two rows have to fit inside it (law 6).
+## `budget` is the width this button will really get; the type is fitted to it.
 static func aid_button(text: String, font_size := ACTION_FONT,
-		height := ACTION_HEIGHT) -> Button:
-	return UITheme.amber_button(text, font_size, Vector2(0, height))
+		height := ACTION_HEIGHT, budget := ACTION_BUDGET_HALF) -> Button:
+	return UITheme.amber_button(text, fit_font(text, budget, font_size),
+		Vector2(0, height))
 
 
 ## The action that ENDS the working (Leave it, Step back, Done mending):
 ## a deep red plate, unmistakably not the amber one beside it.
 static func leave_button(text: String, font_size := ACTION_FONT,
-		height := ACTION_HEIGHT) -> Button:
+		height := ACTION_HEIGHT, budget := ACTION_BUDGET_HALF) -> Button:
 	var b := Button.new()
 	b.text = text
+	font_size = fit_font(text, budget, font_size)
 	b.custom_minimum_size = Vector2(0, height)
 	b.add_theme_font_override("font", UITheme.display_font())
 	b.add_theme_font_size_override("font_size", font_size)
@@ -205,6 +257,108 @@ static func show_outcome(root: Control, outcome: int, data: Dictionary,
 static func _outcome_heading(outcome: int) -> String:
 	var key := Minigame.outcome_key(outcome)
 	return "" if key == "" else Strings.line("minigames.outcome." + key)
+
+
+## A one-thing-to-say card over a live board: the seam that answers every
+## number and still is not one loop, and anything else the board can be
+## RIGHT about and still not finished. Frees itself on dismissal, so a board
+## may raise as many of these as the puzzle earns.
+static func notice(root: Control, heading: String, body: String) -> void:
+	var modal := UITheme.modal(root, 500.0)
+	var overlay: Control = modal["overlay"]
+	var panel: Control = modal["panel"]
+	var box: VBoxContainer = modal["box"]
+	var title := UITheme.measured_label(heading, 36, 468.0, UITheme.display_font())
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(title)
+	var line := UITheme.measured_label(body, UITheme.TYPE_BODY, 468.0,
+		UITheme.body_font(), UITheme.INK)
+	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(line)
+	var close := func() -> void:
+		UITheme.close_modal(overlay, panel)
+		overlay.queue_free()
+	var onward := UITheme.amber_button(Strings.line("minigames.back_to_it"), 32)
+	onward.pressed.connect(close)
+	box.add_child(onward)
+	# Law 7: a dim-tap gets out too, never the button alone.
+	UITheme.modal_escape(modal, close)
+	UITheme.open_modal(overlay, panel)
+
+
+## The spool close-up, shared with the battle screen's (owner 2026-08-10:
+## "I should be able to click on the spool to see how many of each energy I
+## still have left"). A crossing is the same question with the storm asking
+## it — "will I make it?" is a deck-contents question, and the owner asked
+## for the answer here too (2026-08-13).
+static func spool_popup(root: Control, catalog: Catalog, deck: Array,
+		hand: Array) -> void:
+	var modal := UITheme.modal(root, 560.0)
+	var overlay: Control = modal["overlay"]
+	var panel: Control = modal["panel"]
+	var box: VBoxContainer = modal["box"]
+	var wrap := 528.0
+	var title := UITheme.measured_label(Strings.line("battle.spool.title"), 36,
+		wrap, UITheme.display_font())
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(title)
+	box.add_child(UITheme.measured_label(Strings.line("minigames.spool.blurb"),
+		UITheme.TYPE_SUPPORT, wrap, UITheme.italic_font(), UITheme.INK_SOFT))
+	for humour in Catalog.HUMOURS:
+		box.add_child(_spool_row(catalog, String(humour), deck, hand))
+	var total := UITheme.measured_label(
+		Strings.line("minigames.spool.total", [deck.size(), hand.size()]),
+		UITheme.TYPE_SUPPORT, wrap, UITheme.body_font(), UITheme.INK_SOFT)
+	total.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(total)
+	var close := func() -> void:
+		UITheme.close_modal(overlay, panel)
+		overlay.queue_free()
+	var onward := UITheme.amber_button(Strings.line("minigames.back_to_it"), 32)
+	onward.pressed.connect(close)
+	box.add_child(onward)
+	UITheme.modal_escape(modal, close)
+	UITheme.open_modal(overlay, panel)
+
+
+## One humour's row: how many are still wound on, and how many are in the paw
+## right now. Both numbers, because on a crossing the paw is the thing that
+## trips you and the spool is the thing that carries you.
+static func _spool_row(catalog: Catalog, humour: String, deck: Array,
+		hand: Array) -> Control:
+	var plate := PanelContainer.new()
+	plate.add_theme_stylebox_override("panel", UITheme.panel_stylebox(8))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	plate.add_child(row)
+	row.add_child(UITheme.icon(String(HUMOUR_GLYPH.get(humour, "")), 44.0))
+	var humour_colour: Color = HUMOUR_COLOURS.get(humour, UITheme.INK)
+	var name_label := UITheme.measured_label(Catalog.humour_name(humour),
+		UITheme.TYPE_BODY, 220.0, UITheme.display_font(), humour_colour)
+	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	name_label.size_flags_vertical = Control.SIZE_FILL
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(name_label)
+	var in_deck := _count_humour(catalog, deck, humour)
+	var in_hand := _count_humour(catalog, hand, humour)
+	var counts := UITheme.measured_label(
+		Strings.line("minigames.spool.count", [in_deck, in_hand]),
+		UITheme.TYPE_SUPPORT, 230.0, UITheme.body_font(),
+		UITheme.INK if in_deck + in_hand > 0 else UITheme.INK_FADED)
+	counts.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	counts.size_flags_vertical = Control.SIZE_FILL
+	counts.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	row.add_child(counts)
+	return plate
+
+
+static func _count_humour(catalog: Catalog, cards: Array, humour: String) -> int:
+	var count := 0
+	for card_id in cards:
+		if String(catalog.energy_cards.get(card_id, {}).get("humour", "")) == humour:
+			count += 1
+	return count
 
 
 ## A pip row (patience, paws, alarm) drawn as filled and empty circles.

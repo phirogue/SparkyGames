@@ -266,20 +266,34 @@
     "_notes": [
       "THE FIVE MISSION MODULES (docs/design/minigames.md). Every word a",
       "board says: button faces, the running status line, and what an aid",
-      "tells you when you spend a paw on it. The boards themselves are drawn",
-      "geometry, so this file is the whole of their writing.",
+      "tells you when you spend a paw on it. The boards draw their own",
+      "rules-bearing geometry, so this file is the whole of their writing.",
       "",
       "Owner pass 2026-08-09: the buttons under a board were the same colour",
       "and the same size as each other, the status line was too small to",
       "read, and three modules explained nothing at all. The teaching lives",
-      "in data/minigame_tutorials.json; the labels live here."
+      "in data/minigame_tutorials.json; the labels live here.",
+      "",
+      "Owner pass 2026-08-13: the verbs under a board got bigger again; the",
+      "seam says what is wrong with a board that answers every number and",
+      "still is not one loop; and the crossing stopped posting a bare humour",
+      "at the player. 'What does it mean for the gust to control a specific",
+      "energy' was the right question, so the plate now names the thing in",
+      "the road and prices it -- a dog you have to hide from, a crowd you",
+      "have to weave through, a wall you have to go at."
     ],
     "help": "?",
     "onward": "Onward",
+    "back_to_it": "Back to it",
     "outcome": {
       "success": "It holds",
       "partial": "It half-holds",
       "walk_away": "Left as it lies"
+    },
+    "spool": {
+      "blurb": "What is still wound on, and what is already in the paw. Spent stays spent.",
+      "count": "%d wound on · %d in paw",
+      "total": "%d still on the spool, %d in the paw."
     },
     "stitch": {
       "squint": "Squint  ·  %d",
@@ -287,52 +301,83 @@
       "leave": "Leave it",
       "status": "%d of %d clues answered",
       "status_done": "The seam is closed.",
-      "mirror_banner": "MIRROR CHART — the numbers are pinned on backward. The clue on the far LEFT counts the square on the far RIGHT.",
+      "mirror_banner": "MIRROR CHART · the numbers are pinned on backward. The clue on the far LEFT counts the square on the far RIGHT.",
       "squint_wrong": "Squint: the crossed stitch is not in this seam. Take it out.",
       "squint_sew": "Squint: the seam runs along the blue gap. Sew it.",
       "squint_both": "Squint: take out the crossed stitch, then sew the blue gap.",
       "squint_clean": "Squint: nothing is wrong and nothing is missing.",
-      "squint_none": "No squints left. The rest of it is yours."
+      "squint_none": "No squints left. The rest of it is yours.",
+      "open_seam_title": "Every number, and no seam",
+      "open_seam": {
+        "loose_end": "Every number has what it asked for — but the thread stops in mid-air. A seam is one closed loop: no ends. Find the stitch with nothing carrying on from it.",
+        "branch": "Every number has what it asked for — but the thread forks. Three stitches meet at one hole, and thread cannot go three ways. A seam passes through a hole, it does not gather at one.",
+        "two_rings": "Every number has what it asked for — but this is two rings of thread, not one seam. They have to be joined, which means unpicking some of what is already right."
+      }
     },
     "ward": {
       "turn": "Turn it",
       "finish": "Done mending",
       "status": "%d of %d torn squares still open",
       "status_whole": "Not a square of it left open.",
-      "paw": "Paw: %s",
       "rack_down": "%s  (down)",
-      "rack_unaffordable": "%s  (no energy)",
-      "drag_hint": "Drag a patch off the rack and onto the tear. Tap a laid patch to lift it.",
-      "lift_warning": "Lifting frees the cloth, never the card."
+      "rack_unaffordable": "%s  (no energy)"
     },
     "lattice": {
       "leave": "Step back",
       "status": "%d of %d threads out   ·   alarm %d of %d",
-      "status_shifted": "Something shifted — read it again.",
+      "status_shifted": "Something shifted · read it again.",
       "twang": "It will not come. Something still lies across it.",
       "free": "Out, and quietly."
     },
     "crossing": {
       "press": "Press On",
-      "peek": "Pick the Line",
-      "shelter": "Shelter",
+      "peek": "Read Ahead",
+      "shelter": "Go Round",
       "away": "Slip Away",
-      "status": "%d of %d home   ·   %d safe   ·   %d hp",
-      "gust_plate": "the gust owns  %s",
-      "gust_title": "The gust owns",
-      "next_unread": "Next: an unread sky. Pick the Line reads it.",
-      "next_reads": "Next: the gust turns %s.",
-      "night_note": "The night presses. The gusts bite double.",
-      "home_label": "%d to home",
-      "slipped": "The gust takes it. %d back, and it stings.",
-      "gained": "On, by %d.",
-      "peeked": "The sky says: %s next.",
-      "sheltered": "Sheltered. That much can no longer be lost."
+      "ahead_title": "IN THE ROAD",
+      "obstacle": {
+        "ferocity": [
+          "A gap too wide to walk",
+          "A gate, and no way under it",
+          "A cart coming, and one gap behind it"
+        ],
+        "guile": [
+          "A crowd at the crossing",
+          "A market packing up across the whole lane",
+          "A queue out of the Hollow Court door"
+        ],
+        "shadow": [
+          "A chained dog, awake",
+          "A watchman on the corner",
+          "A yard lit wall to wall"
+        ],
+        "mysticism": [
+          "A ward drawn across the arch",
+          "A street that was not here last night",
+          "A door that opens on the wrong side"
+        ]
+      },
+      "cost": {
+        "ferocity": "The sprint costs %s.",
+        "guile": "Weaving through costs %s.",
+        "shadow": "Keeping out of sight costs %s.",
+        "mysticism": "Getting round it costs %s."
+      },
+      "next_unread": "After this: unread.",
+      "next_reads": "After this: something wanting %s.",
+      "night_note": "The night presses. Everything ahead asks double.",
+      "slipped": "It takes the %s off him, and %d paces with it.",
+      "gained": "Past it, and %d on.",
+      "peeked": "Next after this: %s. It wants %s.",
+      "sheltered": "The long way round it. A card for the detour, and the ground behind him is his."
     },
     "testimony": {
       "leave": "Let it lie",
-      "status": "%d said   ·   patience %d",
-      "casebook": "The Casebook — tap a thing, then the words it breaks"
+      "status": "%d said",
+      "casebook": "The Casebook — tap a thing to read it",
+      "hold_up": "Hold it up",
+      "put_back": "Put it back",
+      "go_on": "Go on"
     }
   },
   "codex": {

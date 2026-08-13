@@ -375,8 +375,11 @@ func solve_ward(ward_id: String, hand: Array) -> Dictionary:
 		"uncovered": uncovered, "spent": state.spent.size()}
 
 
-## Lifting a patch frees its cells but must NOT refund the card — otherwise
-## the tear can be brute-forced for nothing and the economy hook is a lie.
+## Lifting a patch frees its cells AND hands its card back (owner 2026-08-13:
+## "the energy goes down even if I choose not to play the card afterwards").
+## The card that comes back must be the one that paid, and the paw must be
+## exactly what it was before the patch went down — a refund that returned
+## the wrong humour would be a quiet way to launder energy.
 func probe_ward_lift(ward_id: String, hand: Array) -> void:
 	_label = "ward/%s/lift" % ward_id
 	var state := WardState.create(catalog, catalog.wards[ward_id], hand)
@@ -386,13 +389,14 @@ func probe_ward_lift(ward_id: String, hand: Array) -> void:
 	if move.is_empty():
 		return
 	var patch_id := String(move["patch"])
+	var hand_before := hand.duplicate()
+	hand_before.sort()
 	state.do_command({"type": "place", "patch": patch_id,
 		"row": int(move["row"]), "col": int(move["col"]),
 		"rotation": int(move["rotation"])})
 	if Minigame.is_over(state.outcome):
 		return  # that patch finished the mend; there is nothing left to lift
 	var spent_after_place: int = state.spent.size()
-	var hand_after_place: int = state.hand.size()
 	var open_after_place: int = state.uncovered_cells().size()
 	# Only the TORN squares under it reopen: a patch may hang over sound
 	# cloth now, and sound cloth was never counted as mended.
@@ -401,8 +405,12 @@ func probe_ward_lift(ward_id: String, hand: Array) -> void:
 		if state.hole.has(String(key)):
 			torn_under += 1
 	state.do_command({"type": "lift", "patch": patch_id})
-	if state.spent.size() != spent_after_place or state.hand.size() != hand_after_place:
-		_violation("lifting a patch refunded its energy — spent must be spent")
+	if state.spent.size() != spent_after_place - 1:
+		_violation("lifting a patch left its card spent — a patch not played costs nothing")
+	var hand_after_lift: Array = state.hand.duplicate()
+	hand_after_lift.sort()
+	if hand_after_lift != hand_before:
+		_violation("lifting handed back a different paw than the one that paid")
 	if state.uncovered_cells().size() != open_after_place + torn_under:
 		_violation("lifting freed %d torn cells, expected %d" % [
 			state.uncovered_cells().size() - open_after_place, torn_under])

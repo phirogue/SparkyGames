@@ -45,6 +45,10 @@ var _finished := false
 var _hoop: TextureRect
 ## What was satisfied at the last refresh, so a clue coming RIGHT can pulse.
 var _prev_satisfied := -1
+## Whether the board was answering every clue at the last refresh, so the
+## "every number, and still not a seam" card is raised on the MOVE that makes
+## it true and never again while it stays true.
+var _prev_all_clues := false
 
 
 func setup(chart_data: Dictionary) -> void:
@@ -259,8 +263,24 @@ func _refresh() -> void:
 	queue_redraw()
 	for child in _board.get_children():
 		child.queue_redraw()
+	_check_open_seam()
 	if Minigame.is_over(state.outcome):
 		_finish()
+
+
+## Every number answered and the thread still not one closed loop. Without
+## this the board simply sits there looking correct, and the player has no way
+## to learn that the loop is a second rule (owner 2026-08-13). Raised on the
+## move that makes it true, once, and again only after the board has left the
+## state and come back to it.
+func _check_open_seam() -> void:
+	var all_clues := state.all_clues_satisfied()
+	var fault := state.seam_fault()
+	if all_clues and not _prev_all_clues and fault != "":
+		MinigameShell.notice(self,
+			Strings.line("minigames.stitch.open_seam_title"),
+			Strings.line("minigames.stitch.open_seam." + fault))
+	_prev_all_clues = all_clues
 
 
 ## The outcome card waits a beat. A seam that closes has to be SEEN closing:

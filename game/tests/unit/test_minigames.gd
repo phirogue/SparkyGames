@@ -125,6 +125,42 @@ func test_stitch_closes_when_the_last_move_is_an_unpick() -> void:
 		"taking out the last wrong stitch closes it")
 
 
+## Owner 2026-08-13: "if a player handles all the constraints but it's not a
+## continuous seam, a hint pop up should appear saying that the constraints
+## are met but it's not a continuous seam." The board can only raise that card
+## if the rules can name WHICH way the thread failed, so seam_fault does —
+## and it must say nothing at all when there is nothing wrong.
+func test_stitch_names_why_an_answered_board_is_still_not_a_seam() -> void:
+	var chart: Dictionary = catalog.stitch_charts["chart_hoop"]
+	var solved := StitchState.create(chart)
+	assert_eq(solved.seam_fault(), "", "an untouched board has nothing to say")
+	for edge_id in chart["solution"]:
+		solved.do_command({"type": "sew", "edge": String(edge_id)})
+	assert_eq(solved.outcome, Minigame.Outcome.SUCCESS, "the hoop closes")
+	assert_eq(solved.seam_fault(), "", "and a closed seam has no fault")
+
+	# A run of stitches with two ends, on a board whose clues are all still
+	# unanswered, must also stay quiet: an unanswered number is the louder
+	# problem and the card would be shouting past it.
+	var open_board := StitchState.create(chart)
+	open_board.do_command({"type": "sew", "edge": "h:0:0"})
+	assert_true(not open_board.all_clues_satisfied(), "numbers still outstanding")
+	assert_eq(open_board.seam_fault(), "", "so the board says nothing yet")
+
+	# A clue-less chart is the honest way to build each fault: with nothing to
+	# answer, every board answers everything, and only the thread is at issue.
+	var blank := StitchState.create({"width": 3, "height": 3, "clues": {},
+		"solution": [], "when_outcome": {}})
+	blank.do_command({"type": "sew", "edge": "h:0:0"})
+	assert_eq(blank.seam_fault(), "loose_end", "one stitch has two loose ends")
+	# A T-junction at a dot: three stitches meeting where thread cannot fork.
+	var forked := StitchState.create({"width": 3, "height": 3, "clues": {},
+		"solution": [], "when_outcome": {}})
+	for edge_id in ["h:1:0", "h:1:1", "v:0:1", "v:1:1"]:
+		forked.do_command({"type": "sew", "edge": edge_id})
+	assert_eq(forked.seam_fault(), "branch", "the thread forks at a hole")
+
+
 ## Owner 2026-08-09: "Squint doesn't do anything, but should highlight a
 ## possible edge that is part of the solution."
 func test_squint_points_at_a_stitch_that_is_in_the_seam() -> void:
@@ -263,6 +299,26 @@ func test_ward_lifting_the_top_of_a_stack_leaves_what_was_under_it() -> void:
 	assert_eq(String(state.covered["1,1"]), "p_domino",
 		"lifting the dot uncovers the domino, not the cloth")
 	assert_eq(state.uncovered_cells().size(), 2, "and opens nothing new")
+
+
+## Owner 2026-08-13: "the energy goes down even if I choose not to play the
+## card afterwards." A patch you took back off is a patch you did not play, so
+## lifting hands the exact card that paid straight back to the paw. What is
+## scarce is which patches you lay, never how steady your thumb is.
+func test_ward_lifting_a_patch_hands_its_card_back() -> void:
+	var state := WardState.create(catalog, catalog.wards["ward_practice"],
+		["mysticism_1", "shadow_1"])
+	assert_ok(state.do_command({"type": "place", "patch": "p_domino",
+		"row": 1, "col": 1, "rotation": 0}), "the domino goes down")
+	assert_eq(state.hand.size(), 1, "a card left the paw")
+	assert_eq(String(state.spent[0]), "shadow_1", "the shadow card paid for it")
+	assert_ok(state.do_command({"type": "lift", "patch": "p_domino"}))
+	assert_eq(state.spent.size(), 0, "lifting it un-spends the card")
+	assert_true(state.hand.has("shadow_1"),
+		"and the card that comes back is the one that paid, got %s" % str(state.hand))
+	# It can then be laid again — which is the point of a free undo.
+	assert_ok(state.do_command({"type": "place", "patch": "p_domino",
+		"row": 1, "col": 1, "rotation": 0}), "and it can go down again")
 
 
 func test_ward_gap_effects_match_the_cells_left_open() -> void:

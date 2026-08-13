@@ -302,6 +302,41 @@ func _connected_component_size() -> int:
 	return seen.size()
 
 
+## Every number on the chart has exactly what it asked for. NOT the same as
+## solved: a chart can answer all of its clues with a thread that branches,
+## stops short, or runs as two separate rings.
+func all_clues_satisfied() -> bool:
+	return clues_satisfied() == clues.size()
+
+
+## Why a board that answers every clue is still not a seam, as a key the UI
+## can hang a line on. "" means there is nothing to say — either the seam is
+## closed, or a number is still unanswered and that is the louder problem.
+##
+## Owner 2026-08-13: a player who satisfies every constraint and then watches
+## nothing happen has no way to learn that a closed LOOP is a separate rule.
+## The board knows exactly which of the three ways it failed, so it says so.
+##   loose_end -- a dot with one stitch: the thread stops in mid-air
+##   branch    -- a dot with three or four: the thread forks
+##   two_rings -- every dot fine, but the stitches make more than one loop
+func seam_fault() -> String:
+	if sewn.is_empty() or not all_clues_satisfied() or is_solved():
+		return ""
+	var degree := {}
+	for edge_id in sewn:
+		for dot in edge_dots(String(edge_id)):
+			degree[dot] = int(degree.get(dot, 0)) + 1
+	var loose := false
+	for dot in degree:
+		if int(degree[dot]) > 2:
+			return "branch"        # the worst-formed one wins: say that first
+		if int(degree[dot]) == 1:
+			loose = true
+	if loose:
+		return "loose_end"
+	return "two_rings"
+
+
 ## Progress for the UI: clues satisfied out of clues given.
 func clues_satisfied() -> int:
 	var count := 0

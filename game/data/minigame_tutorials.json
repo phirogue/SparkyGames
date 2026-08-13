@@ -2,11 +2,17 @@
   "_notes": [
     "HOW EACH MISSION MODULE IS TAUGHT (docs/design/minigames.md).",
     "",
-    "Owner pass 2026-08-09: 'The Unpicking puzzle makes no sense, needs a",
-    "tutorial. The Long way around minigame makes no sense, needs a",
-    "tutorial. This minigame needs a tutorial' (Seam & Stitch). The one-page",
-    "blurbs in lessons.json are flavour; they never said what a clue counts,",
-    "what a break in a thread means, or what a gust does.",
+    "Owner pass 2026-08-09: three of the five modules 'make no sense, need a",
+    "tutorial'. The one-page blurbs in lessons.json are flavour; they never",
+    "said what a clue counts, what a break in a thread means, or what a gust",
+    "does.",
+    "",
+    "Owner pass 2026-08-13 rewrote three of these where the BOARD changed",
+    "under them: the Unpicking no longer colours its free threads in (it",
+    "stacks them, and only the first lattice tags them), the crossing posts",
+    "an obstacle instead of a bare humour, and the ward hands a card back",
+    "when a patch comes up. A lesson describing an older board is worse than",
+    "no lesson.",
     "",
     "These play as coach marks over the REAL board (ui/coach.gd), the same",
     "overlay the prologue's battle uses. A step with no `wait` is a note:",
@@ -52,7 +58,7 @@
       },
       {
         "target": "",
-        "text": "Answer every number, close the loop, and the seam cinches taut on its own. Nothing else to press."
+        "text": "Answer every number AND close the loop — they are two rules, not one. Get the numbers right with the thread still open and the seam will tell you what is missing."
       }
     ]
   },
@@ -92,15 +98,15 @@
       },
       {
         "target": "board:rack",
-        "text": "Each patch is paid for with an energy card of its own humour, out of the same paw you fight with. Moonlight pays for any of them."
+        "text": "Each patch is paid for with an energy card of its own humour — the glyph under it is the price, and the strip above the rack is what you have. Moonlight pays for any of them."
       },
       {
         "target": "board:rack",
-        "text": "DRAG a patch off the rack and drop it on the cloth. Tap a patch already down to lift it — the cloth comes free, the card does not."
+        "text": "DRAG a patch off the rack and drop it on the cloth. Tap a patch already down to lift it — cloth and card both come back, so nothing here punishes a slip of the thumb."
       },
       {
         "target": "turn",
-        "text": "TURN IT rotates the patch you are holding, a quarter at a time."
+        "text": "TURN IT rotates the patch you are holding, a quarter at a time. Watch its own picture on the rack: that is where the turn shows."
       },
       {
         "target": "board:hole",
@@ -122,20 +128,20 @@
       },
       {
         "target": "board:free",
-        "text": "A thread you can follow ALL THE WAY along has nothing lying on top of it. Those slide out. They wear a brass tag at the head."
+        "text": "The threads lie in a stack. One with nothing crossing over the top of it is loose — follow it end to end and see."
       },
       {
         "target": "board:blocked",
-        "text": "A thread drawn with a BREAK in it runs underneath something else. The break is where the other thread crosses over it."
+        "text": "A thread that passes UNDER another is in its shadow where they cross, and the one on top runs unbroken across it. That shadow is the whole puzzle: it says which is holding which down."
       },
       {
         "target": "board",
-        "text": "Pull a free thread. Tap it once and it hisses out.",
+        "text": "Pull a loose thread. Tap it once and it slides out.",
         "wait": true
       },
       {
         "target": "board:alarm",
-        "text": "Pull a trapped one and the lattice twangs: the threads holding it flash, and the ALARM climbs. Fill the pips and you are heard."
+        "text": "Pull a trapped one and the lattice twangs: it and everything lying across it shiver, and the ALARM climbs. Fill the pips and you are heard."
       },
       {
         "target": "",
@@ -143,7 +149,7 @@
       },
       {
         "target": "",
-        "text": "Every thread out, and the working is undone. Half of them out, and it is half undone, which is its own kind of answer."
+        "text": "This first working tags its loose threads in brass, and so does this lesson whenever you replay it. No other working will. After tonight you read the stack yourself."
       }
     ]
   },
@@ -157,36 +163,36 @@
       },
       {
         "target": "board:track",
-        "text": "The pips are the road home. RED is ground you have made. BRASS is ground the storm can no longer take back from you."
+        "text": "The pips are the road home, left to right. RED is ground you have made. BRASS is ground nothing can take back off you."
       },
       {
         "target": "board:gust",
-        "text": "The gust owns one humour tonight. That plate says which."
+        "text": "That plate is what stands in the road — a dog, a crowd, a wall — and the humour under it is what getting past costs you."
       },
       {
         "target": "board:paw",
-        "text": "Cards in your paw of that humour are RINGED. They are what the storm is reaching for."
+        "text": "Cards of that humour in your paw are RINGED. Those are the ones the thing in the road will take."
       },
       {
         "target": "press",
-        "text": "PRESS ON draws a card and moves you one step for every card in your paw — so a fat paw moves fast.",
+        "text": "PRESS ON draws a card and moves you one step for every card in your paw — so a full paw moves fast.",
         "wait": true
       },
       {
         "target": "board:track",
-        "text": "But press with a ringed card in paw and you SLIP: that much ground back, and it costs you health. Greed is the whole game."
+        "text": "But press on carrying a ringed card and it takes it off you, along with the ground you just made and some of your health. Greed is the whole game."
       },
       {
         "target": "shelter",
-        "text": "SHELTER ends the turn and banks what you have made — brass pips are yours for good. A new gust posts, and the night presses harder as it goes."
+        "text": "GO ROUND takes the long way past it for one card, and banks what you have made — brass pips are yours for good. Something new is in the road, and the night asks harder as it goes."
       },
       {
         "target": "peek",
-        "text": "PICK THE LINE spends a paw to read the next gust before you commit to it."
+        "text": "READ AHEAD spends a paw to see what is after this one before you commit to it."
       },
       {
         "target": "away",
-        "text": "Or SLIP AWAY, and the long way round becomes the very long way round. The story will mention it."
+        "text": "Tap the spool up top to count what is left to draw. Or SLIP AWAY, and the long way round becomes the very long way round."
       }
     ]
   },
@@ -196,15 +202,15 @@
     "steps": [
       {
         "target": "",
-        "text": "Ash cannot press a person. He can press anything else in the city, about people, and they answer him."
+        "text": "Ash cannot question a person — to them he is a cat on a wall. Animals are another matter. They will talk to him about people all night."
       },
       {
         "target": "board:ribbons",
-        "text": "Each ribbon is something the witness said. Tap one to PRESS it — they elaborate, and now and then say more than they meant to."
+        "text": "Each band is something the witness said. Tap one to PRESS it — they elaborate, and now and then say more than they meant to. A band you have pressed goes pale."
       },
       {
         "target": "board:casebook",
-        "text": "To catch a lie: pick the thing from the Casebook that disproves it, THEN tap the ribbon it breaks."
+        "text": "Tap a thing in the Casebook to read what you wrote about it, then hold it up. With it in your paw, tap the band it breaks."
       },
       {
         "target": "board:patience",
@@ -212,7 +218,7 @@
       },
       {
         "target": "",
-        "text": "A ribbon you can already disprove wears a loose thread. You will never have to guess at one you cannot break yet."
+        "text": "A band you can already disprove wears a loose thread. You will never have to guess at one you cannot break yet."
       }
     ]
   }

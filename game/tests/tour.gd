@@ -151,6 +151,16 @@ func _tour_stitch(screen: Control) -> void:
 	screen._on_squint()
 	await _wait(0.3)
 	await _shot("stitch_squint")
+	# The card for a board that answers every number and still is not a seam
+	# (owner 2026-08-13). Raised directly: the state that triggers it depends
+	# on the chart, and the thing that needs looking at is the CARD.
+	MinigameShell.notice(screen,
+		Strings.line("minigames.stitch.open_seam_title"),
+		Strings.line("minigames.stitch.open_seam.two_rings"))
+	await _wait(0.45)
+	await _shot("stitch_open_seam")
+	_dismiss_overlay(screen)
+	await _wait(0.2)
 	var solution: Array = screen.chart.get("solution", [])
 	for i in solution.size():
 		screen.state.do_command({"type": "sew", "edge": String(solution[i])})
@@ -176,6 +186,15 @@ func _tour_ward(screen: Control) -> void:
 	screen.on_press(canvas._rack_rects[rack_index].get_center())
 	await _wait(0.2)
 	await _shot("ward_picked_up")
+	# The turn shows in the rack tile now (owner 2026-08-13), so the tour has
+	# to photograph the tile mid-swing or nobody ever looks at it.
+	screen._on_turn()
+	await _wait(0.1)
+	await _shot("ward_turning")
+	screen._on_turn()
+	screen._on_turn()
+	screen._on_turn()
+	await _wait(0.3)
 	var target: Vector2 = canvas._origin + Vector2(
 		(int(move["col"]) + 0.5) * canvas._step,
 		(int(move["row"]) + 0.5) * canvas._step)
@@ -213,11 +232,21 @@ func _tour_lattice(screen: Control) -> void:
 
 func _tour_crossing(screen: Control) -> void:
 	screen._command({"type": "press_on"}, "press")
+	await _wait(0.15)
+	await _shot("crossing_drawing")   # the card, mid-air, off the spool
 	await _wait(0.3)
 	await _shot("crossing_pressed")
 	screen._command({"type": "pick_line"}, "peek")
 	await _wait(0.3)
 	await _shot("crossing_peeked")
+	# The spool close-up: "will I make it" is a deck question (owner
+	# 2026-08-13), and a popup nobody photographs is a popup nobody checks.
+	MinigameShell.spool_popup(screen, screen._catalog, screen.state.deck,
+		screen.state.hand)
+	await _wait(0.45)
+	await _shot("crossing_spool")
+	_dismiss_overlay(screen)
+	await _wait(0.2)
 	screen._command({"type": "shelter"}, "shelter")
 	await _wait(0.3)
 	await _shot("crossing_sheltered")
@@ -226,9 +255,32 @@ func _tour_crossing(screen: Control) -> void:
 func _tour_testimony(screen: Control) -> void:
 	var ribbons: Array = screen.state.visible.duplicate()
 	if not ribbons.is_empty():
+		# Pressing raises the reply as a card now — the old cramped column
+		# beside the portrait is gone (owner 2026-08-13).
 		screen._on_ribbon(String(ribbons[0]))
-		await _wait(0.3)
-		await _shot("testimony_pressed")
+		await _wait(0.45)
+		await _shot("testimony_said")
+		_dismiss_overlay(screen)
+		await _wait(0.25)
+		await _shot("testimony_pressed")   # the band, now visibly spent
+	var held: Array = screen.state.held_evidence()
+	if not held.is_empty():
+		screen._open_evidence(String(held[0]))
+		await _wait(0.45)
+		await _shot("testimony_casebook_note")
+		_dismiss_overlay(screen)
+		await _wait(0.2)
+
+
+## Closes the topmost modal a board raised, so the tour can carry on past it.
+## Modals here are built and freed per use (they are not long-lived members),
+## so the last ColorRect child IS the one standing open.
+func _dismiss_overlay(screen: Control) -> void:
+	var children := screen.get_children()
+	for i in range(children.size() - 1, -1, -1):
+		if children[i] is ColorRect and children[i].visible:
+			children[i].queue_free()
+			return
 
 ## The Case Board, its evidence note, and the "previously on" recap the same
 ## state composes. The prologue never finds evidence, so a tour of the real

@@ -180,12 +180,14 @@ func _cmd_place(patch_id: String, row: int, col: int, rotation: int) -> Dictiona
 	if index < 0:
 		return _fail("no %s energy in hand to sew it with" %
 			Catalog.humour_name(String(patch_def(patch_id).get("humour", ""))))
-	# Pay FIRST, then place: the card is gone whatever happens next, which is
-	# what makes lifting a patch a real decision rather than a free undo.
-	spent.append(hand[index])
+	# Pay on placement, and remember WHICH card paid — lifting the patch hands
+	# that exact card back (see _cmd_lift).
+	var paid: String = String(hand[index])
+	spent.append(paid)
 	hand.remove_at(index)
 	var cells := footprint(patch_id, row, col, rotation)
-	placed[patch_id] = {"row": row, "col": col, "rotation": rotation, "cells": cells}
+	placed[patch_id] = {"row": row, "col": col, "rotation": rotation,
+		"cells": cells, "paid": paid}
 	placed_order.append(patch_id)
 	_recompute_cover()
 	_events.append("patch_placed")
@@ -196,11 +198,24 @@ func _cmd_place(patch_id: String, row: int, col: int, rotation: int) -> Dictiona
 	return _ok()
 
 
-## Lifting frees the cells but NOT the card: spent is spent, here as in
-## combat. Otherwise a player would brute-force placements for free.
+## Lifting takes the patch back off the cloth AND hands its card back to the
+## paw (owner 2026-08-13: "the energy goes down even if I choose not to play
+## the card afterwards"). A patch you took off is a patch you did not play,
+## and charging for it made a mis-drop read as a punishment for a slip of the
+## thumb rather than for a bad decision.
+##
+## The mend is still an economy: every patch is on the rack once, and what is
+## actually scarce is which patches you are willing to spend, not how steady
+## your hand is. Only laid patches cost anything.
 func _cmd_lift(patch_id: String) -> Dictionary:
 	if not placed.has(patch_id):
 		return _fail("that patch is not down")
+	var paid := String(placed[patch_id].get("paid", ""))
+	if paid != "":
+		var at := spent.rfind(paid)
+		if at >= 0:
+			spent.remove_at(at)
+			hand.append(paid)
 	placed.erase(patch_id)
 	placed_order.erase(patch_id)
 	# Rebuilt rather than erased cell by cell: with patches allowed to stack,
