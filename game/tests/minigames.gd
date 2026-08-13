@@ -168,10 +168,10 @@ func _report_crossing(bots: MinigameBots, seeds: int) -> void:
 		var crossed := 0
 		var partial := 0
 		var walked := 0
-		var turn_sum := 0
+		var clean_sum := 0
 		for i in seeds:
 			var summary := bots.solve_crossing(crossing_id, TEST_DECK, 400 + i * 131)
-			turn_sum += int(summary["turns"])
+			clean_sum += int(summary["clean"])
 			match int(summary["outcome"]):
 				Minigame.Outcome.SUCCESS: crossed += 1
 				Minigame.Outcome.PARTIAL: partial += 1
@@ -185,8 +185,9 @@ func _report_crossing(bots: MinigameBots, seeds: int) -> void:
 			if int(summary["outcome"]) == Minigame.Outcome.SUCCESS:
 				rush_crossed += 1
 		_row(crossing_id, _verdict(bots, before),
-			"careful %d%% cross (~%.1f turns) · reckless %d%% cross, ~%.1f hp left" % [
-				100 * crossed / seeds, float(turn_sum) / seeds,
+			"%d points · careful %d%% home, ~%.1f paid in full · reckless %d%% home, ~%.1f hp left" % [
+				catalog.crossings[crossing_id].get("points", []).size(),
+				100 * crossed / seeds, float(clean_sum) / seeds,
 				100 * rush_crossed / seeds, float(rush_hp) / seeds])
 
 

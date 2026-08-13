@@ -63,16 +63,14 @@ adding a puzzle must never mean touching a scene script.
 > their rules-bearing geometry (threads, pips, cells — anything whose
 > position is the puzzle), but they now wear real furniture:
 >
-> - **The Long Way Round** is a full battle-skeleton page: the crossing's
->   environment backdrop in the battle's wood frame (the opponent is
->   weather), a coloured GUST plate + a NEXT-gust chip in the intent
->   chip's seat, the route as a stitched serpentine thread with brass
->   knots for banked ground, Ash himself (`ui_token_ash`) walking it
->   toward a lit window (`ui_icon_home_lamp`), the hand as the battle's
->   own humour-framed card chips (storm-owned cards wear `ui_gust_swirl`
->   and flutter), a battle status-chip strip, and the battle's feedback
->   vocabulary — floats, red wash on a slip, ghost cards blown off the
->   hand, settle/pulse on plates that change.
+> - **The Long Way Home** is a full battle-skeleton page: the thing in the
+>   road as a wide unframed picture with its name on a dark band (it is the
+>   opponent), the ways past it as priced plates below, the hand as the
+>   battle's own humour-framed card chips — cards no use on the chosen way
+>   are dimmed, cards already on it are lifted and ringed — a battle
+>   status-chip strip, and the battle's feedback vocabulary: the red wash and
+>   a float when a shortfall bites, and the picture cross-fading as he
+>   arrives somewhere new.
 > - **Seam & Stitch** sews inside a real embroidery hoop (`ui_hoop`); the
 >   grid lays out into the hoop's linen (`HOOP_INNER`), and the satisfied
 >   count pulses when a clue comes right.
@@ -118,23 +116,21 @@ adding a puzzle must never mean touching a scene script.
 >   (set on `lattice_counting_room`, the first one the player meets) and any
 >   board while its lesson is playing — "turning red is fine for the tutorial
 >   game".
-> - **The Long Way Round posts an OBSTACLE, not a humour.** "What does it
->   mean for the gust to control a specific energy" was the right question.
->   The plate names the thing in the road — a chained dog, a crowd, a ward
->   across an arch — and prices it in the humour that gets you past it
->   (`minigames.crossing.obstacle.*` / `.cost.*`, three obstacles per humour
->   so the same plate is not shown all night, law 15). Press on carrying that
->   humour and the obstacle takes those cards and your ground; **Go Round**
->   (was Shelter) takes the long way for one card. **Read Ahead** (was Pick
->   the Line) says what it does.
-> - **The route is a straight line**, left to right, with the pips closing up
->   to fit — never serpentine. Crossings were shortened accordingly (11–16,
->   from 20–34): the module "loses all your energy very quickly".
+> - **The Long Way Home is played by paying.** "What does it mean for the
+>   gust to control a specific energy" was the right question, and the answer
+>   turned out to be that the gust had to go. A crossing is now a chain of
+>   decision points: a thing in the road, two or three priced ways past it,
+>   and cards put on the one you choose. Going short is always allowed and
+>   always a posted gamble. See #5.
+> - **The route stopped being a track at all.** It was straightened first
+>   ("do not make the path loop back on itself") and then replaced by the
+>   decision-point chain, which is four to seven stops instead of twenty-odd
+>   pips — the answer to "this minigame loses all your energy very quickly".
 > - **The crossing's spool answers taps**, showing what is left to draw by
 >   humour — "you should be able to see your deck contents to be able to
->   gauge the probability of making it" — and Press On is SEEN drawing: the
->   card flies off the spool into the paw. The location vignette lost its
->   portrait frame ("the location card here doesn't need a border").
+>   gauge the probability of making it". The location picture lost its
+>   portrait frame ("the location card here doesn't need a border") and now
+>   changes at every decision point.
 > - **Testimony was streamlined.** The witness portrait is most of the top of
 >   the board; the reply is a CARD at body size rather than a small column
 >   beside the portrait; statements never scroll (the type is fitted to the
@@ -359,52 +355,65 @@ neighbor is removed (state changes mid-puzzle, telegraphed by a tremble).
 - **Scope:** [M]. Shares thread rendering with Seam & Stitch — build
   Seam first and reuse its drawing layer.
 
-## 5. The Long Way Round — push-your-luck traversal
+## 5. The Long Way Home — pay your way past
 
-**Lineage:** Can't Stop / Quacks of Quedlinburg. **Owner framing (the
-design contract): the SAME energy deck, different actions.** No new
-board, no new resources — a crossing is played with the battle screen's
-skeleton: same hand fan, same paws, same spent pile; only the action row
-and the "opponent" change.
+**Lineage:** none, in the end — it started as Can't Stop and became its own
+thing. **Owner framing (the design contract): the SAME energy deck, different
+actions.** No new board and no new resources.
 
-The opponent zone becomes the crossing: a route track (progress pips
-toward home) and a posted **gust** — a humour the storm currently owns.
-Each turn, instead of skills:
+> **Redesigned by the owner, 2026-08-13.** "Rather than the gust dynamic, it
+> might be better for the character to continuously choose the energy in their
+> hand to play based on the marked effects described. Eg: rushing forward
+> requires so much energy, going around takes x amount, etc. If not enough
+> energy is put on a chosen path there is a chance for a consequence. And
+> here, it would be cool for the location image to change as Ash comes to a
+> new decision point." The gust is gone. Everything below is that design.
 
-- **Press On** — draw 1 and advance 1 per card currently in hand…
-  but if any drawn/held card matches the gust humour, you **slip**:
-  lose that much progress back and take 1 damage. (Hold a big hand to
-  move fast; the gust punishes greed. Banked cards are safe — the bank
-  finally shines.)
-- **Pick the Line** (1 paw) — peek the next gust before choosing.
-- **Shelter** (ends turn) — bank current progress (it can no longer be
-  lost), discard the gust, a new one posts. The night still presses:
-  from turn 8 gusts double (same escalation clock as combat).
-- **Slip Away** — abandon the crossing (walk-away outcome; the long way
-  round becomes the *very* long way round, story notes it).
+A crossing is a short chain of **decision points** — four to seven of them.
+Each is a thing standing in the road, with its own picture, and two or three
+named ways past it, each priced in an energy and an amount:
 
-Cards spent to slips/shelters go to the SAME spent pool and stay spent
-into the prowl's next encounter — traversal and combat share one
-stamina, which is the whole point ("the deck is the run's clock" now
-includes the weather).
+> **A gate, and no way under it**
+> Go over it — 3 Ferocity · Work the hinge — 2 Guile · Wait for it to open — 4 of anything
 
-- **Systems hooks:** deck/hand/bank/paws/spent (all existing), carryover,
-  night-presses, `when_outcome`. Mechanically this is a CombatState
-  sibling: a pure `CrossingState` with `do_command()`, seeded, simmable —
-  add a crossing table to simulate.gd the same week it lands.
-- **Data:** `game/data/crossings.json` — id, length, gust script or
-  seeded gust weights, hazard damage, environment id, rewards,
-  `when_outcome` ids. Validate: length > 0, humours legal.
-- **First placement:** the deferred survival/escort leads (Ch2 garden
-  storm, rooftop chase). **Ch1 option (owner's call at Phase 4):** L4's
-  survival prowl was converted to plain combat by the Phase-0 cut; if
-  the prototype lands early and feels right, the Mereside approach
-  crossing can use it instead — amend chapter1-build-plan Phase 4 then,
-  not preemptively.
-- **Scope:** [S–M] — smallest of the five precisely because of the
-  owner's reuse framing.
+You choose a way, then **put cards on it** out of your paw. Worth counts, not
+card count, and Moonlight pays toward anything at its worth. Then **GO**.
 
----
+- **Pay in full and you are past it clean.** The cards are spent either way,
+  and stay spent into the prowl's next encounter — traversal and combat share
+  one stamina, which is the whole point of the module.
+- **You may always go SHORT.** Nothing here refuses the player; no board in
+  this game is a wall. A shortfall is a rolled chance of the consequence
+  (`SHORTFALL_RISK` per point short, capped at 95%), and the odds are on the
+  GO button in words BEFORE the commit — "it will probably hold" / "it could
+  go either way" / "this is going to cost". An informed gamble is the house
+  rule; a hidden one is a coin toss. The roll is off `CoreRng`, so a crossing
+  still replays and still sims (law 8).
+- **The picture changes at every point** (the owner's ask, and the reason a
+  crossing reads as a journey rather than as a progress bar). The eight
+  obstacle views are `bg_way_*`; a point names one, so a new obstacle is a
+  data edit.
+- **Read Ahead** (1 paw) shows what is round the next corner, so something can
+  be kept back for it. **Turn Back** abandons the crossing (walk-away, or
+  partial once he is past the first point).
+- **From the night-presses point on the consequence bites double**, the same
+  escalation clock combat runs on.
+
+- **Every point MUST offer a way any energy can pay for**, enforced in
+  `_validate_crossing`. Without it a player holding the wrong colours has no
+  choice left but to underpay, and "choose how to get past" degenerates into
+  "watch the dice".
+- **Systems hooks:** deck/hand/paws/spent (all existing), carryover,
+  night-presses, `when_outcome`. Mechanically this is a CombatState sibling: a
+  pure `CrossingState` with `do_command()`, seeded and simmable.
+- **Data:** `game/data/crossings.json` — id, hazard, `points` [{id, name,
+  image, ways [{id, label, humour, cost}]}], rewards, `when_outcome` ids.
+  Validate: at least one point; every point has two-plus ways, one of them
+  `any`; humours legal; every cost at least 1.
+- **First placement:** the deferred survival/escort leads (Ch2 garden storm,
+  rooftop chase), and L4's Mereside approach.
+- **Scope:** [S–M] — smallest of the five precisely because of the owner's
+  reuse framing.
 
 ## Build order (feeds chapter1-build-plan.md)
 

@@ -127,7 +127,7 @@
     "warding": {
       "id": "warding",
       "name": "Patching a Ward",
-      "blurb": "Holding a hole shut with the wrong colour thread.",
+      "blurb": "Mend a torn ward off your own spool, one card at a time.",
       "kind": "practice",
       "order": 60,
       "scene": "ward:ward_practice",
@@ -135,16 +135,16 @@
         {
           "title": "Wards",
           "lines": [
-            "A ward is a promise stitched into a doorway, and promises tear. Patch each gap with energy of the humour it is crying for.",
-            "MOONLIGHT patches anything, which is why there is never enough of it."
+            "A ward is a promise stitched into a doorway, and promises tear. There is no basket of patches — draw off your own spool, and take whatever cloth the card cuts.",
+            "The humour is the shape of the cut and the worth is its size. Every card you draw here is a card the next fight will not have."
           ]
         }
       ]
     },
     "crossings": {
       "id": "crossings",
-      "name": "The Long Way Round",
-      "blurb": "Same deck. No claws. Get to the other side.",
+      "name": "The Long Way Home",
+      "blurb": "Same deck. No claws. Pay your way past.",
       "kind": "practice",
       "order": 70,
       "scene": "crossing:crossing_practice",
@@ -152,8 +152,8 @@
         {
           "title": "Crossings",
           "lines": [
-            "Some rooms cannot be fought through. Same hand, same spool — different question: what does it cost to get across?",
-            "Spend to move, spend to stay unseen, and do not arrive with nothing left."
+            "Some roads cannot be fought down. Same paw, same spool — a different question: what does it cost to get across?",
+            "Every thing in the road has its price, and its ways round. Put too little on a way and you still get past, mostly."
           ]
         }
       ]

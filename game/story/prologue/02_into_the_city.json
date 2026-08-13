@@ -9,8 +9,8 @@
     {
       "type": "story",
       "environment": "shambles_market",
-      "portrait": "sc_shambles_day",
-      "art_desc": "The Shambles at night: market stalls sleeping under canvas, crooked timber shopfronts, one lit lantern",
+      "portrait": "sc_shambles_night",
+      "art_desc": "Looking down from the roofs into the sleeping Shambles at night: stalls shut under canvas, one lit lantern, and a thread of silver light stretched between two chimneys. Ash on the ridge, bare-necked — this is before the collar.",
       "lines": [
         "Below: the Shambles. Eight bells from the tower. There is no ninth bell — there used to be.",
         "And between the chimneys: a thread of silver light, thin as a hair, humming.",

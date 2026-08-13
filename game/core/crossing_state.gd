@@ -1,55 +1,74 @@
 class_name CrossingState
 extends RefCounted
-## The Long Way Round — push-your-luck traversal (minigames.md #5).
-## Lineage: Can't Stop / Quacks. Pure rules, seeded, simmable.
+## The Long Way Home — get across, one decision at a time (minigames.md #5).
+## Pure rules, seeded, simmable.
 ##
-## The owner's design contract: **the same energy deck, different actions.**
-## No new board and no new resources — a crossing runs on the battle
-## screen's skeleton (same hand, same paws, same spent pile). Only the
-## action row and the "opponent" change: the opponent zone becomes a route
-## track and a posted GUST, the humour the storm currently owns.
+## OWNER 2026-08-13, the design this file now implements: "rather than the
+## gust dynamic, it might be better for the character to continuously choose
+## the energy in their hand to play based on the marked effects described.
+## Eg: rushing forward requires so much energy, going around takes x amount,
+## etc. If not enough energy is put on a chosen path there is a chance for a
+## consequence."
 ##
-##   PRESS ON    draw 1, advance 1 per card in hand — but if ANY card in
-##               hand matches the gust you slip: lose that advance back
-##               (never below what you sheltered), take the hazard, and the
-##               storm takes the matching cards into the spent pile.
-##   PICK THE LINE (1 paw) peek the next gust before committing.
-##   SHELTER     bank the progress so far, post a fresh gust, end the turn.
-##   SLIP AWAY   abandon the crossing (walk-away).
+## So a crossing is a short chain of DECISION POINTS. Each one is a thing in
+## the road with its own picture, and two or three ways past it — each way
+## named, and priced in a humour and an amount:
 ##
-## Spent cards stay spent into the prowl's next encounter: traversal and
-## combat share one stamina, which is the point. The night presses from
-## turn 8 exactly as in combat — gusts double.
+##   The gate, and no way under it
+##     Rush it       3 Ferocity
+##     Go round      2 Guile
+##     Wait it out   1 anything
+##
+## You put cards from your paw ON the way you choose. Worth counts, not card
+## count, and Moonlight pays for anything at its worth (the wild, as
+## everywhere else). Then you go.
+##
+## Pay in full and you are past it clean. Pay SHORT and you still get past —
+## no minigame in this game is a wall — but the shortfall is a rolled chance
+## of the consequence: the hazard bites and you are hurt. The roll is off the
+## seeded CoreRng, so a crossing still replays exactly and still sims (law 8),
+## and the odds are posted on the board BEFORE the commit so the gamble is
+## informed rather than a coin toss.
+##
+## Cards put on a way are spent, and stay spent into the prowl's next
+## encounter. Traversal and combat share one stamina, which is the point.
 
-## Shipped default; the live value is the per-state `night_presses_turn`
-## field, read from data/rules.json `minigames.crossing.night_presses_turn`.
-const NIGHT_PRESSES_TURN := 8
-var night_presses_turn: int = NIGHT_PRESSES_TURN
+## Shipped default; the live value is the per-state `night_presses_point`,
+## read from data/rules.json `minigames.crossing.night_presses_turn`. From
+## that point on the consequence bites double — the same escalation clock
+## combat runs on.
+const NIGHT_PRESSES_POINT := 8
+## How much one point of shortfall is worth as a chance of the consequence,
+## and the ceiling. Short by one is a real gamble; short by three is close to
+## a promise. Both are dials in data/rules.json.
+const SHORTFALL_RISK := 0.35
+const RISK_CEILING := 0.95
+
+var night_presses_point: int = NIGHT_PRESSES_POINT
+var shortfall_risk: float = SHORTFALL_RISK
 
 var crossing: Dictionary = {}
-var length: int = 10
-var progress: int = 0
-var sheltered: int = 0          # progress that can no longer be lost
-var gust: String = ""           # humour the storm owns this turn
-var next_gust: String = ""      # revealed only by Pick the Line
-var peeked: bool = false
+var points: Array = []          # the things in the road, in order
+var at: int = 0                 # which one is in front of him
+var paid: Array = []            # card ids put on the chosen way so far
+var chosen: String = ""         # the way being paid for, "" if none yet
+var revealed: bool = false      # has Read Ahead paid for the next point
 var hazard: int = 1
-var turn: int = 1
-var paws: int = 3
-var paw_limit: int = 3
+var hurts: int = 0              # how many times a shortfall actually bit
 var player_hp: int = 10
 var player_max_hp: int = 10
 var deck: Array = []
 var hand: Array = []
 var spent: Array = []
+var paws: int = 3
+var paw_limit: int = 3
 var outcome: int = Minigame.Outcome.ONGOING
 var rng: CoreRng
 var log: CommandLog
 
+const WILD_HUMOUR := "mysticism"
+
 var _catalog: Catalog
-var _gust_weights: Dictionary = {}
-var _script: Array = []         # authored gust order, if the data pins one
-var _script_index: int = 0
 var _events: Array[String] = []
 
 
@@ -60,15 +79,13 @@ static func create(catalog: Catalog, seed_value: int,
 	state.crossing = crossing_data
 	state.rng = CoreRng.new(seed_value)
 	state.log = CommandLog.new()
-	state.length = int(crossing_data.get("length", 10))
+	state.points = crossing_data.get("points", []).duplicate(true)
 	state.hazard = int(crossing_data.get("hazard", 1))
-	state._script = crossing_data.get("gust_script", []).duplicate()
-	state._gust_weights = crossing_data.get("gust_weights", {})
 	# Shared dials: the crossing spends the same paws and opens the same hand
-	# as a fight, because it IS a fight against weather (owner framing: same
-	# energy deck, different actions — no new resources).
+	# as a fight, because it IS one — against a street (owner framing: same
+	# energy deck, different actions; no new resources).
 	var dials := catalog.rules
-	state.night_presses_turn = dials.count("minigames.crossing.night_presses_turn")
+	state.night_presses_point = dials.count("minigames.crossing.night_presses_turn")
 	state.player_max_hp = int(config.get("player_max_hp", config.get("player_hp", 10)))
 	state.player_hp = int(config.get("player_hp", state.player_max_hp))
 	state.paw_limit = int(config.get("paws", dials.count("combat.paws")))
@@ -79,42 +96,90 @@ static func create(catalog: Catalog, seed_value: int,
 	for i in mini(int(config.get("opening_hand", dials.count("combat.opening_hand"))),
 			state.deck.size()):
 		state.hand.append(state.deck.pop_back())
-	state.gust = state._roll_gust()
 	return state
 
 
-## The storm's next humour: an authored script when the data pins one (so a
-## tutorial crossing can promise what it teaches — law 6), otherwise a
-## weighted roll off the seeded stream.
-func _roll_gust() -> String:
-	if not _script.is_empty():
-		var picked := String(_script[_script_index % _script.size()])
-		_script_index += 1
-		return picked
-	if _gust_weights.is_empty():
-		return Catalog.HUMOURS[rng.pick_index(Catalog.HUMOURS.size())]
-	var pool: Array[String] = []
-	for humour in _gust_weights:
-		for _i in int(_gust_weights[humour]):
-			pool.append(String(humour))
-	if pool.is_empty():
-		return Catalog.HUMOURS[rng.pick_index(Catalog.HUMOURS.size())]
-	return pool[rng.pick_index(pool.size())]
+# -------------------------------------------------------------- the road
+
+## The thing in the road right now, or {} once he is home.
+func point() -> Dictionary:
+	return points[at] if at >= 0 and at < points.size() else {}
 
 
-## The cards in hand the storm would take right now. The player can see this
-## before pressing — the gamble is informed, which is what makes it a
-## decision rather than a coin toss.
-func exposed_cards() -> Array[int]:
-	var exposed: Array[int] = []
+func next_point() -> Dictionary:
+	return points[at + 1] if at + 1 < points.size() else {}
+
+
+func length() -> int:
+	return points.size()
+
+
+## The ways past the thing in front of him: [{id, label, humour, cost}].
+func ways() -> Array:
+	return point().get("ways", [])
+
+
+func way(way_id: String) -> Dictionary:
+	for entry in ways():
+		if String(entry.get("id", "")) == way_id:
+			return entry
+	return {}
+
+
+## What a card is worth toward a way: its own worth in its own humour, and
+## Moonlight is worth its own worth toward anything. A card of the wrong
+## humour is worth nothing there, which is what makes the choice a choice.
+func worth_toward(card_id: String, humour: String) -> int:
+	var card: Dictionary = _catalog.energy_cards.get(card_id, {})
+	var card_humour := String(card.get("humour", ""))
+	if humour == "any" or card_humour == humour or card_humour == WILD_HUMOUR:
+		return int(card.get("value", 0))
+	return 0
+
+
+## What is already on the chosen way.
+func paid_worth() -> int:
+	if chosen == "":
+		return 0
+	var humour := String(way(chosen).get("humour", "any"))
+	var total := 0
+	for card_id in paid:
+		total += worth_toward(String(card_id), humour)
+	return total
+
+
+func cost_of(way_id: String) -> int:
+	return int(way(way_id).get("cost", 0))
+
+
+## How far short the chosen way still is. Zero means it is covered.
+func shortfall() -> int:
+	return maxi(0, cost_of(chosen) - paid_worth()) if chosen != "" else 0
+
+
+## The odds the shortfall bites, posted BEFORE the commit — an informed
+## gamble is the house rule; a hidden one is a coin toss.
+func risk() -> float:
+	return minf(shortfall_risk * float(shortfall()), RISK_CEILING)
+
+
+## What the consequence costs if it lands. Doubles once the night presses,
+## the same escalation clock combat runs on.
+func bite() -> int:
+	return hazard * (2 if at + 1 >= night_presses_point else 1)
+
+
+## Every card in the paw that would count toward the chosen way. The board
+## rings these, so "what can I even pay with" is never a guess.
+func useful_cards() -> Array[int]:
+	var useful: Array[int] = []
+	if chosen == "":
+		return useful
+	var humour := String(way(chosen).get("humour", "any"))
 	for i in hand.size():
-		if String(_catalog.energy_cards.get(hand[i], {}).get("humour", "")) == gust:
-			exposed.append(i)
-	return exposed
-
-
-func at_risk() -> bool:
-	return not exposed_cards().is_empty()
+		if worth_toward(String(hand[i]), humour) > 0:
+			useful.append(i)
+	return useful
 
 
 # ------------------------------------------------------------------ commands
@@ -124,116 +189,136 @@ func do_command(command: Dictionary) -> Dictionary:
 		return _fail("the crossing is behind you")
 	var result: Dictionary
 	match String(command.get("type", "")):
-		"press_on":
-			result = _cmd_press_on()
-		"pick_line":
-			result = _cmd_pick_line()
-		"shelter":
-			result = _cmd_shelter()
-		"slip_away":
-			result = _cmd_slip_away()
+		"choose":
+			result = _cmd_choose(String(command.get("way", "")))
+		"put":
+			result = _cmd_put(String(command.get("card", "")))
+		"take_back":
+			result = _cmd_take_back(String(command.get("card", "")))
+		"go":
+			result = _cmd_go()
+		"read_ahead":
+			result = _cmd_read_ahead()
+		"turn_back":
+			result = _cmd_turn_back()
 		_:
 			result = _fail("unknown command '%s'" % command.get("type", ""))
 	if result["ok"]:
-		log.record(turn, command)
+		log.record(at, command)
 	return result
 
 
-func _cmd_press_on() -> Dictionary:
-	if not deck.is_empty():
-		hand.append(deck.pop_back())
-	var gain := hand.size()
-	if gain <= 0:
-		_check_exhausted()
-		return _fail("nothing in hand to move on")
-	var exposed := exposed_cards()
-	if exposed.is_empty():
-		progress += gain
-		_events.append("advanced")
-		if progress >= length:
-			progress = length
-			outcome = Minigame.Outcome.SUCCESS
-			_events.append("crossed")
-		return {"ok": true, "error": "", "slipped": false, "gain": gain}
-	# Slipped. The advance is given back (never below what was sheltered),
-	# the hazard lands, and the storm keeps the cards it caught.
-	progress = maxi(sheltered, progress - gain)
-	player_hp -= hazard
-	for i in range(exposed.size() - 1, -1, -1):
-		spent.append(hand[exposed[i]])
-		hand.remove_at(exposed[i])
-	_events.append("slipped")
-	_check_exhausted()
+## Pick a way past this one. Changing your mind takes back whatever you had
+## already put down — the cards were never committed, only offered.
+func _cmd_choose(way_id: String) -> Dictionary:
+	if way(way_id).is_empty():
+		return _fail("there is no way '%s' past this" % way_id)
+	if way_id == chosen:
+		return _fail("that way is already chosen")
+	_return_paid()
+	chosen = way_id
+	_events.append("way_chosen")
+	return _ok()
+
+
+func _cmd_put(card_id: String) -> Dictionary:
+	if chosen == "":
+		return _fail("choose a way past it first")
+	var index := hand.find(card_id)
+	if index < 0:
+		return _fail("that card is not in your paw")
+	if worth_toward(card_id, String(way(chosen).get("humour", "any"))) <= 0:
+		return _fail("that energy is no use on this way")
+	hand.remove_at(index)
+	paid.append(card_id)
+	_events.append("card_put")
+	return {"ok": true, "error": "", "paid": paid_worth(),
+		"cost": cost_of(chosen)}
+
+
+func _cmd_take_back(card_id: String) -> Dictionary:
+	var index := paid.find(card_id)
+	if index < 0:
+		return _fail("that card is not on the way")
+	paid.remove_at(index)
+	hand.append(card_id)
+	_events.append("card_taken_back")
+	return _ok()
+
+
+## Go. Whatever is on the way is spent whether it was enough or not, and a
+## shortfall is a rolled chance of the consequence rather than a refusal —
+## this module never stops the player, it only charges them.
+func _cmd_go() -> Dictionary:
+	if chosen == "":
+		return _fail("choose a way past it first")
+	var short := shortfall()
+	var odds := risk()
+	var bitten := false
+	if short > 0:
+		bitten = rng.chance(odds)
+	for card_id in paid:
+		spent.append(card_id)
+	paid.clear()
+	var taken := bite() if bitten else 0
+	if bitten:
+		player_hp -= taken
+		_events.append("bitten")
+	else:
+		_events.append("passed")
+	chosen = ""
+	revealed = false
+	paws = paw_limit
+	at += 1
+	_draw_up()
 	if player_hp <= 0:
 		player_hp = 0
-		# Foundering is a PARTIAL outcome, not a death: the crossing beat
-		# you, the story picks it up on the near bank. No game-overs here.
+		# Foundering is a PARTIAL outcome, not a death: the street beat him,
+		# and the story picks it up wherever he stopped. No game-overs here.
 		outcome = Minigame.Outcome.PARTIAL
 		_events.append("foundered")
-	return {"ok": true, "error": "", "slipped": true, "lost": gain}
+	elif at >= points.size():
+		outcome = Minigame.Outcome.SUCCESS
+		_events.append("home")
+	if bitten:
+		hurts += 1
+	return {"ok": true, "error": "", "short": short, "odds": odds,
+		"bitten": bitten, "hurt": taken}
 
 
-func _cmd_pick_line() -> Dictionary:
+## One card back into the paw at each new point, so a long crossing keeps
+## dealing and a short one does not hand out a whole second hand.
+func _draw_up() -> void:
+	if not deck.is_empty():
+		hand.append(deck.pop_back())
+
+
+## Read the next thing in the road before committing to this one. A paw
+## buys certainty, which is the only thing a paw buys here.
+func _cmd_read_ahead() -> Dictionary:
 	if paws < 1:
-		return _fail("no paws left this turn")
-	if peeked:
-		return _fail("you have already read the sky this turn")
+		return _fail("no paws left at this corner")
+	if revealed:
+		return _fail("you have already read what is after this")
+	if next_point().is_empty():
+		return _fail("there is nothing after this but the door")
 	paws -= 1
-	peeked = true
-	if next_gust == "":
-		next_gust = _roll_gust()
-	_events.append("peeked")
-	return {"ok": true, "error": "", "next_gust": next_gust}
+	revealed = true
+	_events.append("read_ahead")
+	return {"ok": true, "error": "", "point": next_point()}
 
 
-## Sheltering BURNS a card — you wait the gust out on your own stamina.
-##
-## This is the design doc's "cards spent to slips/shelters go to the SAME
-## spent pool", and leaving it out made the module unfinishable: cards only
-## ever left the hand on a slip, so a careful player's hand grew until it
-## held every humour, every gust matched something, and there was no safe
-## press left. Free shelters also meant infinite gust-rerolling. Burning a
-## card makes waiting cost what pressing costs, and guarantees the crossing
-## ends: hand and deck now only ever shrink. Found by tests/minigames.gd.
-func _cmd_shelter() -> Dictionary:
-	if hand.is_empty():
-		return _fail("nothing left in hand to wait it out with")
-	# The storm takes what it was reaching for; failing that, the top card.
-	var exposed := exposed_cards()
-	var index: int = exposed[0] if not exposed.is_empty() else 0
-	spent.append(hand[index])
-	hand.remove_at(index)
-	sheltered = progress
-	# A peeked gust is the one that actually posts — Pick the Line must not
-	# lie, or the aid is worthless.
-	gust = next_gust if next_gust != "" else _roll_gust()
-	next_gust = ""
-	peeked = false
-	turn += 1
-	paws = paw_limit
-	if turn >= night_presses_turn:
-		hazard = int(crossing.get("hazard", 1)) * 2
-		_events.append("night_presses")
-	_events.append("sheltered")
-	_check_exhausted()
-	return _ok()
-
-
-## Out of cards and out of deck is the end of the crossing, not a stall.
-## Without this the player could sit on an empty hand forever, and a beat
-## that is supposed to last 30-90 seconds would have no end condition at all.
-func _check_exhausted() -> void:
-	if outcome != Minigame.Outcome.ONGOING:
-		return
-	if hand.is_empty() and deck.is_empty():
-		outcome = Minigame.Outcome.PARTIAL if sheltered > 0 else Minigame.Outcome.WALKED
-		_events.append("exhausted")
-
-
-func _cmd_slip_away() -> Dictionary:
-	outcome = Minigame.Outcome.WALKED if sheltered <= 0 else Minigame.Outcome.PARTIAL
+func _cmd_turn_back() -> Dictionary:
+	_return_paid()
+	outcome = Minigame.Outcome.WALKED if at <= 0 else Minigame.Outcome.PARTIAL
 	_events.append("walked_away")
 	return _ok()
+
+
+func _return_paid() -> void:
+	for card_id in paid:
+		hand.append(card_id)
+	paid.clear()
 
 
 # ------------------------------------------------------------------ results
@@ -243,7 +328,7 @@ func _cmd_slip_away() -> Dictionary:
 func carryover() -> Dictionary:
 	return {
 		"hp": player_hp,
-		"deck": deck + hand,
+		"deck": deck + hand + paid,
 		"spent": spent.duplicate(),
 	}
 

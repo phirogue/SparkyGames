@@ -704,27 +704,58 @@ func _validate_lattice(id: String, lattice: Dictionary) -> Array[String]:
 	return problems
 
 
+## A crossing is a chain of decision points (owner 2026-08-13). Each point is
+## a thing in the road with a picture and two or three priced ways past it.
+##
+## The load-bearing rule is the last one: every point needs a way ANY energy
+## can pay for. Without it a player holding the wrong colours has no choice
+## left but to underpay, and "choose how to get past" degenerates into
+## "watch the dice" — which is not what was asked for.
 func _validate_crossing(id: String, crossing: Dictionary) -> Array[String]:
 	var problems := _validate_outcomes("crossing", id, crossing)
-	if int(crossing.get("length", 0)) < 1:
-		problems.append("crossing '%s' has no distance to cover" % id)
+	var points: Array = crossing.get("points", [])
+	if points.is_empty():
+		problems.append("crossing '%s' has nothing in the road" % id)
 	if int(crossing.get("hazard", 0)) < 1:
-		problems.append("crossing '%s' has no hazard — slipping would be free" % id)
-	var environment_id := String(crossing.get("environment", ""))
-	if environment_id != "" and not environments.is_empty() \
-			and not environments.has(environment_id):
-		problems.append("crossing '%s' names unknown environment '%s'" % [id, environment_id])
-	for humour in crossing.get("gust_script", []):
-		if not HUMOURS.has(String(humour)):
-			problems.append("crossing '%s' scripts unknown gust '%s'" % [id, humour])
-	for humour in crossing.get("gust_weights", {}):
-		if not HUMOURS.has(String(humour)):
-			problems.append("crossing '%s' weights unknown gust '%s'" % [id, humour])
-		if int(crossing["gust_weights"][humour]) < 0:
-			problems.append("crossing '%s' has a negative weight for '%s'" % [id, humour])
-	if crossing.get("gust_script", []).is_empty() \
-			and crossing.get("gust_weights", {}).is_empty():
-		problems.append("crossing '%s' has no gusts at all" % id)
+		problems.append("crossing '%s' has no hazard — a shortfall would be free" % id)
+	var seen := {}
+	for entry in points:
+		var point: Dictionary = entry
+		var point_id := String(point.get("id", ""))
+		if point_id == "" or seen.has(point_id):
+			problems.append("crossing '%s' has a nameless or repeated point id '%s'" % [
+				id, point_id])
+		seen[point_id] = true
+		if String(point.get("name", "")).is_empty():
+			problems.append("crossing '%s' point '%s' is not described" % [id, point_id])
+		var ways: Array = point.get("ways", [])
+		if ways.size() < 2:
+			problems.append("crossing '%s' point '%s' offers fewer than two ways past" % [
+				id, point_id])
+		var has_any := false
+		var way_ids := {}
+		for way_entry in ways:
+			var way: Dictionary = way_entry
+			var way_id := String(way.get("id", ""))
+			if way_id == "" or way_ids.has(way_id):
+				problems.append("crossing '%s' point '%s' has a nameless or repeated way '%s'"
+					% [id, point_id, way_id])
+			way_ids[way_id] = true
+			if String(way.get("label", "")).is_empty():
+				problems.append("crossing '%s' way '%s' has no name the player can read"
+					% [id, way_id])
+			var humour := String(way.get("humour", ""))
+			if humour == "any":
+				has_any = true
+			elif not HUMOURS.has(humour):
+				problems.append("crossing '%s' way '%s' is priced in unknown energy '%s'"
+					% [id, way_id, humour])
+			if int(way.get("cost", 0)) < 1:
+				problems.append("crossing '%s' way '%s' costs nothing" % [id, way_id])
+		if not has_any:
+			problems.append(("crossing '%s' point '%s' has no way any energy can pay "
+				+ "for — a player holding the wrong colours could only gamble") % [
+				id, point_id])
 	return problems
 
 

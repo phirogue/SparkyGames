@@ -160,44 +160,40 @@
   },
   "crossing": {
     "id": "crossing",
-    "name": "The Long Way Round",
+    "name": "The Long Way Home",
     "steps": [
       {
         "target": "",
         "text": "Nothing to fight here. Same paw, same spool, same spent pile — a different question: what does it cost to get across?"
       },
       {
-        "target": "board:track",
-        "text": "The pips are the road home, left to right. RED is ground you have made. BRASS is ground nothing can take back off you."
+        "target": "board:picture",
+        "text": "Something is in the road. There will be a few of these between here and the door, and each one is its own decision."
       },
       {
-        "target": "board:gust",
-        "text": "That plate is what stands in the road — a dog, a crowd, a wall — and the humour under it is what getting past costs you."
+        "target": "board:ways",
+        "text": "Every way past it is priced: what ENERGY it wants, and how much of it. Tap a way to choose it."
       },
       {
         "target": "board:paw",
-        "text": "Cards of that humour in your paw are RINGED. Those are the ones the thing in the road will take."
-      },
-      {
-        "target": "press",
-        "text": "PRESS ON draws a card and moves you one step for every card in your paw — so a full paw moves fast.",
+        "text": "Then put cards on it. Tap a card to lay it down, tap it again to take it back. Worth is what counts, not how many cards — and Moonlight pays for anything.",
         "wait": true
       },
       {
-        "target": "board:track",
-        "text": "But press on carrying a ringed card and it takes it off you, along with the ground you just made and some of your health. Greed is the whole game."
+        "target": "go",
+        "text": "GO takes the way you chose. Pay in full and you are past it clean; the cards are spent either way, and stay spent into whatever comes after tonight."
       },
       {
-        "target": "shelter",
-        "text": "GO ROUND takes the long way past it for one card, and banks what you have made — brass pips are yours for good. Something new is in the road, and the night asks harder as it goes."
+        "target": "go",
+        "text": "You may go SHORT. Nothing here refuses you — but the button tells you the odds first, and if the street collects, it collects in health."
       },
       {
         "target": "peek",
-        "text": "READ AHEAD spends a paw to see what is after this one before you commit to it."
+        "text": "READ AHEAD spends a paw to see what is round the next corner, so you can keep something back for it."
       },
       {
         "target": "away",
-        "text": "Tap the spool up top to count what is left to draw. Or SLIP AWAY, and the long way round becomes the very long way round."
+        "text": "Tap the spool up top to count what is left to draw. Or TURN BACK, and the long way home becomes the very long way home."
       }
     ]
   },

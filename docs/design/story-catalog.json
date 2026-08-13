@@ -1,0 +1,1909 @@
+{
+  "_what_this_is": [
+    "The hand-written half of the story catalog: for every scene the game can",
+    "show, what happens in it, who is in it, and WHEN it happens.",
+    "",
+    "Run `python tools/story_catalog.py build` after any story change -- it",
+    "re-derives the other half (type, environment, art, branch conditions,",
+    "choices, grants) straight out of game/story and game/data, and adds a",
+    "blank row for any scene that has appeared since last time.",
+    "",
+    "story_time is the clock IN THE PROSE: dawn | day | dusk | night |",
+    "timeless. It is deliberately separate from `environment`, which is the",
+    "mechanical backdrop and carries the battle rules. The two disagree on",
+    "purpose in places -- the whole of `the_fish_giver` is day-side work",
+    "played on the dusk rooftop -- and the only way to tell a deliberate",
+    "difference from a mistake is to write both down."
+  ],
+  "characters": {
+    "ash": {
+      "name": "Ash",
+      "what": "The narrator. Elspeth's cat."
+    },
+    "elspeth": {
+      "name": "Elspeth Vane",
+      "what": "The witch. Murdered in the prologue; appears after only in memory and one flashback."
+    },
+    "the_unpicked": {
+      "name": "The Unpicked",
+      "what": "The shape wearing her threads. Killed her; still unidentified."
+    },
+    "clerk": {
+      "name": "The Clerk",
+      "what": "The Hollow Court's registrar. Processes every death."
+    },
+    "brindle": {
+      "name": "Brindle",
+      "what": "Magpie fence in the Shambles. First ally."
+    },
+    "cardew": {
+      "name": "Mother Cardew",
+      "what": "The eldest witch. Carries Elspeth out, sews the shroud, names herself at the wake and owes Ash a debt."
+    },
+    "young_witches": {
+      "name": "The two young witches",
+      "what": "Cardew's juniors. Frightened of the job.",
+      "no_art_needed": true
+    },
+    "bodkin": {
+      "name": "Bodkin",
+      "what": "A grey one-eyed street tom. Teaches Ash to read paws, points him at the counting-house, will not go into the Wickhouse."
+    },
+    "merrow": {
+      "name": "Shift-Boss Merrow",
+      "what": "Runs what is left of the Lamplighters. Torn ear, chalk on her paws."
+    },
+    "lamplighters": {
+      "name": "The Lamplighters",
+      "what": "The guild's survivors. Half their coats hang over boots nobody came back for.",
+      "no_art_needed": true
+    },
+    "wick": {
+      "name": "Ellery Wick",
+      "what": "Chandlers' Guildmaster. Bought Elspeth's debts to get her building. Guilty of everything except the murder."
+    },
+    "rat_boss": {
+      "name": "The Grey Boss",
+      "what": "Presides over the Ratsmeet. Claims to remember the ninth bell."
+    },
+    "gentleman": {
+      "name": "The Quiet Gentleman",
+      "what": "The name that is not a name. Buys purrs, silence and favours; never signs anything that can be settled."
+    },
+    "tansy": {
+      "name": "Tansy",
+      "what": "An orange kitten of the canal litter who sold her purr. Appoints herself Ash's apprentice and moves in."
+    },
+    "clowder": {
+      "name": "The Court of Whiskers",
+      "what": "The city's cats in session, on the ropewalk roof.",
+      "no_art_needed": true
+    },
+    "postmaster": {
+      "name": "The old Postmaster",
+      "what": "The Pigeon Post's incumbent. Confesses that the Post was fed to keep it quiet."
+    },
+    "toby": {
+      "name": "Toby",
+      "what": "The slick young pigeon challenger, running on bought seed.",
+      "no_art_needed": true
+    },
+    "fish_giver": {
+      "name": "The Fish-Giver",
+      "what": "A stallholder who has fed Thimblefield's strays every dawn for eleven years. Never learns any of it."
+    },
+    "guild_delegates": {
+      "name": "Guild delegates",
+      "what": "Sent to the wake to be seen not caring.",
+      "no_art_needed": true
+    },
+    "magistrates_cat": {
+      "name": "The magistrate's cat",
+      "what": "Owes Ash a favour. A matter of a terrier, never discussed.",
+      "no_art_needed": true
+    },
+    "the_vole": {
+      "name": "The vole",
+      "what": "The prologue's first opponent."
+    },
+    "gutter_wisp": {
+      "name": "Gutter-wisps",
+      "what": "Small appetites that drink lies and shine."
+    },
+    "rag_wraith": {
+      "name": "The rag-wraith",
+      "what": "A coat out wearing somebody's evening."
+    },
+    "chained_dog": {
+      "name": "The dog at Number Twelve",
+      "what": "Eleven feet of chain and a standing appointment."
+    },
+    "garden_watch": {
+      "name": "The Watch geese",
+      "what": "Cannot be bribed. Have never liked a cat."
+    },
+    "tallowman": {
+      "name": "The Tallowman",
+      "what": "The Guildhall's keeper of votives."
+    },
+    "candle_golem": {
+      "name": "Counting-house golem",
+      "what": "Wax, guarding paper."
+    },
+    "the_drowned": {
+      "name": "The Drowned",
+      "what": "What the Wickhouse wax is feeding."
+    },
+    "unknown_cat": {
+      "name": "An unidentified cat",
+      "what": "Not a story character. The art catalog uses this id to mark a cat drawn into a picture who is neither Ash nor anybody named -- currently only sc_shambles_day. If it ever turns up in a scene row here, something has gone wrong.",
+      "no_art_needed": true
+    }
+  },
+  "scenes": {
+    "prologue.00": {
+      "synopsis": "Dusk over Hollowmere. Ash sets out the evening's arrangement: she puts the kettle on when the lamps go up, and tonight calls for a gift.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "dusk",
+      "notes": "Establishes the routine the whole prologue exists to destroy."
+    },
+    "prologue.01": {
+      "synopsis": "He finds the vole under a chimney pot and goes low. 'Tonight the world is simple, and the world is RED.'",
+      "characters": [
+        "ash",
+        "the_vole"
+      ],
+      "story_time": "dusk",
+      "notes": null
+    },
+    "prologue.02": {
+      "synopsis": "Ferocity is named as the red energy, the only one a cat is born knowing. Grants POUNCE.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "dusk",
+      "notes": "First of four humour introductions; each is a notice, not narration."
+    },
+    "prologue.03": {
+      "synopsis": "Fight: prologue_vole",
+      "characters": [
+        "ash",
+        "the_vole"
+      ],
+      "story_time": "dusk",
+      "notes": "Deck is ordered and shuffle is off so the coach can promise what it teaches (law 17)."
+    },
+    "prologue.04": {
+      "synopsis": "Victory: the vole is acquired, thoughtfully dead. She will say 'not on the table' and mean 'thank you'.",
+      "characters": [
+        "ash",
+        "the_vole"
+      ],
+      "story_time": "dusk",
+      "notes": null
+    },
+    "prologue.05": {
+      "synopsis": "Retreat: the vole declines to be a gift. She will have to make do with his company.",
+      "characters": [
+        "ash",
+        "the_vole"
+      ],
+      "story_time": "dusk",
+      "notes": null
+    },
+    "prologue.06": {
+      "synopsis": "Above the Shambles he counts eight bells, notes there is no ninth any more, and sees a silver thread between the chimneys that belongs to nobody he knows. He declines to chase it.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "Carries the art defect: the beat is written for night and shows sc_shambles_day. Also plants the missing ninth bell, which the Grey Boss claims to remember."
+    },
+    "prologue.07": {
+      "synopsis": "Street level in the fog. A gutter-wisp climbs out to collect on the small lie he just told about not wanting to chase the thread.",
+      "characters": [
+        "ash",
+        "gutter_wisp"
+      ],
+      "story_time": "night",
+      "notes": "The wisp's motive is the previous scene's line — a nice tight causal join."
+    },
+    "prologue.08": {
+      "synopsis": "Shadow is named as the black energy; it hides and wards, and costs one less in this fog. Grants SLINK.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "prologue.09": {
+      "synopsis": "Fight: prologue_wisp",
+      "characters": [
+        "ash",
+        "gutter_wisp"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "prologue.10": {
+      "synopsis": "Victory: the wisp reconsiders its position on his honesty.",
+      "characters": [
+        "ash",
+        "gutter_wisp"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "prologue.11": {
+      "synopsis": "Retreat: he lets it keep its opinions; the night is too strange to argue with weather made of appetite.",
+      "characters": [
+        "ash",
+        "gutter_wisp"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "prologue.12": {
+      "synopsis": "Something is wrong and it is not the wisp: no pigeons. Quiet is against their religion.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "The silenced pigeons are set up here and paid off two chapters later in the_pigeon_ballot."
+    },
+    "prologue.13": {
+      "synopsis": "The lamps are lit in the wrong order, the Lamplighters have missed, the dog at Number Twelve is awake and silent — and the fog halfway down has sleeves. Every cut thread on the street runs toward it.",
+      "characters": [
+        "ash",
+        "rag_wraith"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "prologue.14": {
+      "synopsis": "Guile and Moonlight are named; Moonlight is hers, and is wild. Grants LOAF and PURR.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "Moonlight is the player-facing name; the data id is mysticism."
+    },
+    "prologue.15": {
+      "synopsis": "Fight: prologue_wraith",
+      "characters": [
+        "ash",
+        "rag_wraith"
+      ],
+      "story_time": "night",
+      "notes": "The lesson is that declining a fight is allowed."
+    },
+    "prologue.16": {
+      "synopsis": "Retreat: three streets before his legs stop. Nothing followed. And it was not hunting him — it was WORKING.",
+      "characters": [
+        "ash",
+        "rag_wraith"
+      ],
+      "story_time": "night",
+      "notes": "The stronger of the two outcomes thematically; the wraith's indifference is the point."
+    },
+    "prologue.17": {
+      "synopsis": "Victory: it comes apart in the road and the threads it was pulling go slack. He does not feel clever about it.",
+      "characters": [
+        "ash",
+        "rag_wraith"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "prologue.18": {
+      "synopsis": "Her window is ahead. Dark. Her window is never dark.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "Three lines, one of them blank — the prologue's shortest beat and its turn."
+    },
+    "prologue.19": {
+      "synopsis": "THE PROLOGUE'S ONE CHOICE: the long way past the Lamplighters' hall, or over the fences and home now. Sets prologue_route.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "Route 0 pays a card and a clue; route 1 pays speed. The branch is honoured at 20-22."
+    },
+    "prologue.20": {
+      "synopsis": "Long way: the hall stands open and empty, kettle cold, and a thread of HER silver is caught on a lamp-hook. She was here tonight. Grants Her Stitching (Moonlight 2).",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "The only card in the game the player can miss permanently by taking the other route."
+    },
+    "prologue.21": {
+      "synopsis": "Long way: eleven streets home and he remembers three of them. Her street, her gate, her drainpipe.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "prologue.22": {
+      "synopsis": "Fast way: over the fences, under the gate, up the drainpipe. The hall goes by dark on his left — later, if there is a later.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "prologue.23": {
+      "synopsis": "In through the workroom window. The house is doing the wrong thing with sound: a kettle screaming and nobody going to it.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "The kettle starts screaming here and is not silenced until beat 30 — a seven-beat sustained note."
+    },
+    "prologue.24": {
+      "synopsis": "Every thread on the walls is cut, all at the same height, as if by someone tidying. Forty years of her work. He stops at the parlor door and looks before going in.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "prologue.25": {
+      "synopsis": "Something person-shaped stands in the doorway wearing the room's own threads. It looks at him, decides he is not an interruption, and goes back to work.",
+      "characters": [
+        "ash",
+        "the_unpicked"
+      ],
+      "story_time": "night",
+      "notes": "Uses the enemy portrait en_the_unpicked as story art rather than a bespoke scene."
+    },
+    "prologue.26": {
+      "synopsis": "Fight: prologue_parlor",
+      "characters": [
+        "ash",
+        "the_unpicked"
+      ],
+      "story_time": "night",
+      "notes": "The fight that cannot be won. Losing is the canonical path."
+    },
+    "prologue.27": {
+      "synopsis": "If he died in the fight above, the Hollow Court interlude runs here",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": "The hook that makes the first death a scripted scene rather than a failure state."
+    },
+    "prologue.28": {
+      "synopsis": "Defeat: hearing comes back first. Floorboards, cold hearth, four paws — count them. The thing is gone.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "prologue.29": {
+      "synopsis": "Elspeth in her chair, the light gone out of her hands. The beat ends on an ellipsis and nothing else.",
+      "characters": [
+        "ash",
+        "elspeth"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "prologue.30": {
+      "synopsis": "The kettle is still screaming and he only now hears it. He takes it off the fire — one paw, three tries, nobody will ever know.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "Carries the collar defect: sc_kettle shows him already wearing the kerchief he does not take until beat 32."
+    },
+    "prologue.31": {
+      "synopsis": "The house goes quiet. He gets up on the arm of the chair, which he is not allowed to do, and nobody tells him to get down. Fifteen years, every evening, she always came to the window.",
+      "characters": [
+        "ash",
+        "elspeth"
+      ],
+      "story_time": "night",
+      "notes": "Reuses sc_elspeth_still, its second of two beats."
+    },
+    "prologue.32": {
+      "synopsis": "THE COLLAR. Her red kerchief folded on the sewing table; he puts his head through it and nobody ties it. The thread at his chest is cut — all but one strand, running out under the window into the city.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "The canon hinge. Every image at or after this beat wears the kerchief; nothing before it does. tools/art_catalog.py dates the whole library from here."
+    },
+    "prologue.33": {
+      "synopsis": "Title card.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "interlude.hollow_court_first.0": {
+      "synopsis": "Dying, from the inside: the cold goes, then the noise, then the part that was worried about the noise. He arrives in a corridor that is all filing and no building.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "timeless",
+      "notes": null
+    },
+    "interlude.hollow_court_first.1": {
+      "synopsis": "A desk, a lamp, a queue of one. The Clerk does not look up. 'Name?' — and the player picks how Ash answers.",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": "The game's first characterisation choice, and it costs nothing — which is the point."
+    },
+    "interlude.hollow_court_first.2": {
+      "synopsis": "The Clerk states the arrangement: deaths are appointments, a true death costs a life and the Toll, any other defeat is REFUSED. The first visit is complimentary. The stamp is a paw print and neither of them remarks on it.",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": "Carries the death rules as an in-world rule block rather than a tutorial pop-up."
+    },
+    "interlude.hollow_court_first.3": {
+      "synopsis": "The stairs up are longer than the fall down. They always are.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "timeless",
+      "notes": null
+    },
+    "interlude.hollow_court_repeat.0": {
+      "synopsis": "Second death. 'Back so soon. The form remembers you.' The Toll is taken, professionally, almost gently.",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": "The seven repeat pages are the answer to law 15 — the Court has to read differently every time."
+    },
+    "interlude.hollow_court_repeat.1": {
+      "synopsis": "Third. The stamp is out before he reaches the chair. 'Habits are how arrangements become entitlements.'",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": null
+    },
+    "interlude.hollow_court_repeat.2": {
+      "synopsis": "Fourth. The Clerk asks what he is doing up there. 'I am looking for someone.' — 'That is the usual answer, and the usual number of lives it takes.'",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": "The first crack in the Clerk's procedure."
+    },
+    "interlude.hollow_court_repeat.3": {
+      "synopsis": "Fifth. His file now lives on the desk rather than in the drawer. 'Halfway. The allotment is not a budget. It is a quantity of you.'",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": null
+    },
+    "interlude.hollow_court_repeat.4": {
+      "synopsis": "Sixth. There is a second chair at the desk, exactly cat-sized, and neither of them mentions it. 'Go carefully. That is not in the form. I am saying it anyway.'",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": "The chair is the whole arc of the Clerk in one prop."
+    },
+    "interlude.hollow_court_repeat.5": {
+      "synopsis": "Seventh. He counts what is left twice, and he is not a man who counts twice. 'Two. You will want to know what happens at nought.'",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": null
+    },
+    "interlude.hollow_court_repeat.6": {
+      "synopsis": "Eighth. He has turned the lamp up, which is the most alarming thing that has happened tonight. 'One. Whatever it is up there — do finish it.'",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": null
+    },
+    "interlude.hollow_court_refused.0": {
+      "synopsis": "Dead without an appointment. 'You are not on the docket. We do not process walk-ins.' No life spent, a filing fee, and the satchel stays where it fell.",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": "The refused set exists so a cheap defeat cannot cost a life — the rule is delivered in character."
+    },
+    "interlude.hollow_court_refused.1": {
+      "synopsis": "Second refusal. There is a folder for these now. IRREGULAR, it says, and it is becoming thick, and thick folders attract auditors.",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": null
+    },
+    "interlude.hollow_court_refused.2": {
+      "synopsis": "Third. His thread measures longer than the ledger's ruled line. The Clerk writes CLERICAL ERROR and looks at the words a while. 'I do not write fiction, as a rule.'",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": "First hint that something is being done to Ash's thread that the Court cannot account for."
+    },
+    "interlude.hollow_court_refused.3": {
+      "synopsis": "Fourth. There is a queue of ghosts and they wave him forward. 'The docket is beginning to feel strongly about you.'",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": null
+    },
+    "interlude.hollow_court_refused.4": {
+      "synopsis": "Fifth. The Clerk runs the thread through his fingers and finds a knot that is not one of theirs — close work, old-fashioned, tied by somebody who does not care to be noticed. He files nothing and remembers it.",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": "The single biggest plot seed in the interludes, and it is only reachable by dying badly five times."
+    },
+    "interlude.hollow_court_refused.5": {
+      "synopsis": "Sixth. 'One day you will arrive here properly, with an appointment. I confess I do not look forward to the filing.'",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": null
+    },
+    "interlude.mantel_coach.0": {
+      "synopsis": "Coach: her parlor, cold and still hers — where a night begins and, with luck, ends.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "The mantel coach is interface teaching in Ash's voice rather than notices."
+    },
+    "interlude.mantel_coach.1": {
+      "synopsis": "Coach: what the city wants doing gets pinned to the chimney breast. One thing tonight.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "interlude.mantel_coach.2": {
+      "synopsis": "Coach: tap a note to take the work; backing out costs nothing.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "interlude.mantel_coach.3": {
+      "synopsis": "Coach: gleam — buttons, mostly, and the occasional tooth. It buys cards and it is what the Court takes when you die.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "interlude.mantel_coach.4": {
+      "synopsis": "Coach: lives, the spool, and deeds. The spool does not refill while you are out.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "interlude.mantel_coach.5": {
+      "synopsis": "Coach: the Casebook is everything he knows; the Prowl is what he carries out the door.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "interlude.unpicked_won.0": {
+      "synopsis": "It comes apart, thread by thread. That was not supposed to happen.",
+      "characters": [
+        "ash",
+        "the_unpicked"
+      ],
+      "story_time": "night",
+      "notes": "Fires only if the player wins the unwinnable prologue fight."
+    },
+    "interlude.unpicked_won.1": {
+      "synopsis": "Somewhere below the city, a clerk files something under 'irregular'.",
+      "characters": [
+        "clerk"
+      ],
+      "story_time": "timeless",
+      "notes": "Ties the impossible win to the refused-death folder the Clerk keeps complaining about."
+    },
+    "quest.follow_the_thread.0": {
+      "synopsis": "First attempt: the one strand nobody cut still runs out from under the window. He recalls her teaching — magic is needlework, the Weft is every thread of everything crossing — and puts a paw on the line.",
+      "characters": [
+        "ash",
+        "elspeth"
+      ],
+      "story_time": "night",
+      "notes": "The quest that exists because the owner asked why he does not simply follow the thread."
+    },
+    "quest.follow_the_thread.1": {
+      "synopsis": "Retry: the strand is still there, patient the way only thread is. 'It did not go anywhere. I did.'",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "when_attempt=retry — the world remembers he has been here (law 30)."
+    },
+    "quest.follow_the_thread.2": {
+      "synopsis": "The thread runs the rooftops the clean way, chimney to chimney — whoever owns it knows the city too well. A wisp is drinking the hum off it, which is not trespass but grave-robbing.",
+      "characters": [
+        "ash",
+        "gutter_wisp"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.follow_the_thread.3": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.follow_the_thread.4": {
+      "synopsis": "The thread drops to street level and runs for the Mere, and the fog stands up to meet it. There is no fighting through this — only getting across without losing the line.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.follow_the_thread.5": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.follow_the_thread.6": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.follow_the_thread.7": {
+      "synopsis": "At the Mere-edge the thread runs out over the sea-wall and stops mid-air above the water. Not frayed — CUT, one clean bite, by something that could see it. Almost nothing can.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "The obvious move is allowed to fail, and the failure is itself the clue."
+    },
+    "quest.follow_the_thread.8": {
+      "synopsis": "So the thread is not a road but an answer: the killer reads the Weft, cuts clean, and did not want to be followed across the water. A trail closed on purpose has to be bought open — and the Shambles keeps a fence.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "Hands off to find_the_magpie."
+    },
+    "quest.find_the_magpie.0": {
+      "synopsis": "First attempt: he cannot stay in the room tonight. He carries her second-best thimble to the Shambles in his own mouth, because a cat has no pockets, to buy a conversation.",
+      "characters": [
+        "ash",
+        "brindle"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.find_the_magpie.1": {
+      "synopsis": "Retry: down the Shambles again with the thimble back in his teeth. 'It kept. Dignity did not.'",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.find_the_magpie.2": {
+      "synopsis": "First attempt: a gutter-wisp comes up a drain for the shine in his mouth. It is not after him at all — it wants the thimble.",
+      "characters": [
+        "ash",
+        "gutter_wisp"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.find_the_magpie.3": {
+      "synopsis": "Retry: the drain is loud again; the shine rings them up like a bell.",
+      "characters": [
+        "ash",
+        "gutter_wisp"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.find_the_magpie.4": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.find_the_magpie.5": {
+      "synopsis": "First attempt: he reaches the stall with the thimble still in his teeth. 'You are the witch's cat,' says Brindle. 'Was.' She does not say sorry, and he likes her enormously for it.",
+      "characters": [
+        "ash",
+        "brindle"
+      ],
+      "story_time": "night",
+      "notes": "The line that defines every ally worth having in this game: they do not say sorry."
+    },
+    "quest.find_the_magpie.6": {
+      "synopsis": "Retry: 'Back,' says Brindle, before he has said anything. Being remembered in this city is halfway to a friendship and all the way to a debt.",
+      "characters": [
+        "ash",
+        "brindle"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.find_the_magpie.7": {
+      "synopsis": "First attempt: she has not touched the thimble. Clear three nights of wisps out of her back alley and they can talk like professionals. Payment comes in kinds.",
+      "characters": [
+        "ash",
+        "brindle"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.find_the_magpie.8": {
+      "synopsis": "Retry: 'The alley, pet. Three nights of wisps in my stock, and I am one bird.'",
+      "characters": [
+        "ash",
+        "brindle"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.find_the_magpie.9": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.find_the_magpie.10": {
+      "synopsis": "The alley quiet, he asks who was on Needle Lane last night. 'You're not useless. That's the whole interview.' She takes the thimble at last and holds it longer than trade requires. Bring buttons and she'll remember harder.",
+      "characters": [
+        "ash",
+        "brindle"
+      ],
+      "story_time": "night",
+      "notes": "Opens the Exchange."
+    },
+    "quest.find_the_magpie.11": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_carrying.0": {
+      "synopsis": "Three witches at first light. They do not knock — witches do not knock at a house where a witch has died. They have brought undyed linen, the only clean thing in the room.",
+      "characters": [
+        "ash",
+        "cardew",
+        "young_witches"
+      ],
+      "story_time": "dawn",
+      "notes": "The first daylight scene in the game."
+    },
+    "quest.the_carrying.1": {
+      "synopsis": "They lift her the way you lift someone who might wake. Cardew stops in the doorway, looks at the cut threads, and says 'Who did this to the room' — not a question, because burglars take things.",
+      "characters": [
+        "ash",
+        "cardew",
+        "elspeth",
+        "young_witches"
+      ],
+      "story_time": "dawn",
+      "notes": null
+    },
+    "quest.the_carrying.2": {
+      "synopsis": "CHOICE: Cardew is looking at him and everyone else is looking at the floor. One chance to be taken seriously. Tell it, say nothing, or ask what unpicks a witch's own stitching. Sets carrying_answer.",
+      "characters": [
+        "ash",
+        "cardew"
+      ],
+      "story_time": "dawn",
+      "notes": "All three branches pay real information; none is a trap."
+    },
+    "quest.the_carrying.3": {
+      "synopsis": "Told it all in order. 'A shape wearing her work.' And then, quieter, to nobody: 'Again.' She puts the word down like something she had not meant to be holding.",
+      "characters": [
+        "ash",
+        "cardew",
+        "young_witches"
+      ],
+      "story_time": "dawn",
+      "notes": null
+    },
+    "quest.the_carrying.4": {
+      "synopsis": "Said nothing. She waits him out, which nobody does, then gives up first, which nobody does either. At the door: 'It has happened before. Twice that I will admit to.'",
+      "characters": [
+        "ash",
+        "cardew"
+      ],
+      "story_time": "dawn",
+      "notes": null
+    },
+    "quest.the_carrying.5": {
+      "synopsis": "Asked the question. The room gets colder in a way the room is not responsible for. 'Something that learned it from her. Or from one of us.' She looks at her two frightened girls and does not look at them for quite long enough.",
+      "characters": [
+        "ash",
+        "cardew",
+        "young_witches"
+      ],
+      "story_time": "dawn",
+      "notes": "The most incriminating of the three answers, and it points at the craft itself."
+    },
+    "quest.the_carrying.6": {
+      "synopsis": "Alone, he goes over the room the way she went over a hem. Under the window: a beeswax candle stub stamped with the Chandlers' bee. She burned tallow her whole life. Somebody else's light was in this room.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "dawn",
+      "notes": "First hard evidence. Opens the Case Board."
+    },
+    "quest.the_carrying.7": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.what_i_saw.0": {
+      "synopsis": "Nobody asked him to do this. He walks last night again in order — roof, market, lane, lamps — not for anybody, for the order of it. There is another wisp in the gutter. There is always another one.",
+      "characters": [
+        "ash",
+        "gutter_wisp"
+      ],
+      "story_time": "night",
+      "notes": "'Everyone believes you, and nobody acts on it' — the thesis of the whole detective frame."
+    },
+    "quest.what_i_saw.1": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.what_i_saw.2": {
+      "synopsis": "The lamps are still out and nobody has been up the ladders — the Lamplighters are not coming, which is itself a fact. The Mere fog sits over the street where fog does not sit.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.what_i_saw.3": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.what_i_saw.4": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.what_i_saw.5": {
+      "synopsis": "In the gutter at the lane's mouth: a Chandlers' cart docket, night of, Needle Lane, consignee filled in and then scratched out. Somebody drove a cart down an unlit street and did not want to be the sort of person who had.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "Second evidence. 'That takes a professional. That takes a QUIET one' — first brush with the Gentleman."
+    },
+    "quest.what_i_saw.6": {
+      "synopsis": "Alternate route to the same find: the long way round to the lane's far mouth, arriving like a tourist, and the same docket in the same gutter.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "Variant of step 5 for players who took the other path."
+    },
+    "quest.ask_the_rats.0": {
+      "synopsis": "The Ratsmeet convenes under the fish market in the hour the ice melts. There is a protocol: do not eat anybody, do not say 'trap' or 'terrier', do not be a cat about it. And do not argue with the doorman, who is a goose.",
+      "characters": [
+        "ash",
+        "rat_boss",
+        "garden_watch"
+      ],
+      "story_time": "night",
+      "notes": "'A goose cannot be bribed, and has never once liked a cat' — the funniest justification for a tutorial fight in the game."
+    },
+    "quest.ask_the_rats.1": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.ask_the_rats.2": {
+      "synopsis": "The Grey Boss is grey to the point of transparency and will tell you he remembers the ninth bell. 'The witch's cat. We had a lively night. Everyone had a lively night.'",
+      "characters": [
+        "ash",
+        "rat_boss"
+      ],
+      "story_time": "night",
+      "notes": "The ninth bell was flagged as missing back in prologue.06."
+    },
+    "quest.ask_the_rats.3": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.ask_the_rats.4": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.ask_the_rats.5": {
+      "synopsis": "Success: a cart with no chandler on it and a gentleman behind it going nowhere in particular. 'You cannot clear out of an empty street.' By morning the Chandlers will know a cat was asking.",
+      "characters": [
+        "ash",
+        "rat_boss",
+        "gentleman"
+      ],
+      "story_time": "night",
+      "notes": "First direct sighting of the Quiet Gentleman in testimony."
+    },
+    "quest.ask_the_rats.6": {
+      "synopsis": "Failure: a rat's silence is a price list. He called it a lively night on a lane he swears was empty — empty lanes are not lively. He will come back armed.",
+      "characters": [
+        "ash",
+        "rat_boss"
+      ],
+      "story_time": "night",
+      "notes": "The failure branch still advances the case, which is the right way to lose a Testimony."
+    },
+    "quest.sharpen_the_claws.0": {
+      "synopsis": "The part nobody puts in the stories: he lost. It came into her house and did not even hurry. So he is going to get better deliberately, like a person, instead of waiting to be improved by events.",
+      "characters": [
+        "ash",
+        "the_unpicked"
+      ],
+      "story_time": "night",
+      "notes": "The only quest whose premise is the player character admitting defeat."
+    },
+    "quest.sharpen_the_claws.1": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.sharpen_the_claws.2": {
+      "synopsis": "First: the Watch goose behind the tannery, which has never lost an argument, which is what makes it worth arguing with. Elspeth's rule — the difference between brave and stupid is about four seconds of looking.",
+      "characters": [
+        "ash",
+        "garden_watch",
+        "elspeth"
+      ],
+      "story_time": "night",
+      "notes": "Teaches reading the intent telegraph, in her voice."
+    },
+    "quest.sharpen_the_claws.3": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.sharpen_the_claws.4": {
+      "synopsis": "Next: the dog at Number Twelve, eleven feet of chain and a standing offer to discuss territory. Slower this time — watch what it will do before deciding what to do about it.",
+      "characters": [
+        "ash",
+        "chained_dog"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.sharpen_the_claws.5": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.sharpen_the_claws.6": {
+      "synopsis": "And one more thing, which is not fighting and is the reason for the fighting: her ward is still on the door frame with a hole in it the size of what walked through. He watched her patch it four hundred times. Watching is not doing.",
+      "characters": [
+        "ash",
+        "elspeth"
+      ],
+      "story_time": "night",
+      "notes": "The emotional centre of the quest is a chore."
+    },
+    "quest.sharpen_the_claws.7": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.sharpen_the_claws.8": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.sharpen_the_claws.9": {
+      "synopsis": "A wall behind the tannery that has held up nothing for sixty years. He goes at it until his legs are wrong and then a bit past that. 'Better. Not enough. But the kind of not-enough that has a direction in it.'",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.the_wake.0": {
+      "synopsis": "They give a witch to the tide at the turn, because the tide is the only thing in Hollowmere that has never been bribed. The Lamplighters send four — everyone the hall has left. The Chandlers send one, early, standing where he can be seen being sorry.",
+      "characters": [
+        "ash",
+        "cardew",
+        "lamplighters",
+        "guild_delegates"
+      ],
+      "story_time": "dusk",
+      "notes": null
+    },
+    "quest.the_wake.1": {
+      "synopsis": "The rite is the seam: you sew the shroud shut in the dead woman's own pattern. Cardew gets four stitches in, stops, and holds the linen up with unsteady hands. 'I don't know her hand. Sixty years, and I don't know her hand.'",
+      "characters": [
+        "ash",
+        "cardew",
+        "elspeth"
+      ],
+      "story_time": "dusk",
+      "notes": "The setup is airtight: a hundred people at the tideline and not one of them can finish it."
+    },
+    "quest.the_wake.2": {
+      "synopsis": "He has watched those hands from a windowsill every evening of his life. He knows the hand better than he knows his own name, which she also gave him. He gets up onto the bier; somebody starts to stop him and Cardew says 'let him.'",
+      "characters": [
+        "ash",
+        "cardew",
+        "elspeth"
+      ],
+      "story_time": "dusk",
+      "notes": "The payoff for fifteen years of being furniture."
+    },
+    "quest.the_wake.3": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_wake.4": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_wake.5": {
+      "synopsis": "The seam closes and the tide takes her without discussion. One lamplighter forgets not to salute. The eldest gives her name — Mother Cardew — and ties a small grey knot into the thread at his chest. 'A debt. Mine. You will know when to spend it.'",
+      "characters": [
+        "ash",
+        "cardew",
+        "lamplighters",
+        "elspeth"
+      ],
+      "story_time": "dusk",
+      "notes": "Cardew is named here and nowhere earlier; the first favour-knot is granted diegetically (law 30)."
+    },
+    "quest.the_wake.6": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_wake.7": {
+      "synopsis": "'It has happened twice before. Both times a stitcher. Both times nobody looked. I am too old and too watched. You are neither.'",
+      "characters": [
+        "ash",
+        "cardew"
+      ],
+      "story_time": "dusk",
+      "notes": "Converts a personal loss into a case, and hands Ash the job on the page."
+    },
+    "quest.the_wake.8": {
+      "synopsis": "Home to a house with nobody in it. The kettle is where he left it, off the fire, which is the wrongest thing in the room. 'My whole job used to be: be somewhere warm at the correct time. All right, then. New job.'",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "Closes the loop opened at prologue.23 with the same kettle."
+    },
+    "quest.creditors.0": {
+      "synopsis": "Brindle reads the docket — paper is her native language — and stops half a second at the cart-slot seal. 'Counting-house paper. The originals live under the ledgers, second yard off Wick Row. Mind the night shift, pet.'",
+      "characters": [
+        "ash",
+        "brindle"
+      ],
+      "story_time": "night",
+      "notes": "'Cats collect half-seconds' — the detective voice at its most economical."
+    },
+    "quest.creditors.1": {
+      "synopsis": "Wickrow: every doorway wears a little flame and every flame is a warded bee. A district that sells light to people frightened of the dark, and he has never once seen it dark.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "States the Chandlers' business model as an observation rather than exposition."
+    },
+    "quest.creditors.2": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.creditors.3": {
+      "synopsis": "A paw hooks his scruff and hauls him into a doorway as the watch walks past. A grey tom with one eye and half an ear. 'You fight like a housecat.' — 'I was one.' — 'Were,' he agrees, and does not say sorry.",
+      "characters": [
+        "ash",
+        "bodkin"
+      ],
+      "story_time": "night",
+      "notes": "BODKIN'S FIRST APPEARANCE. He has no portrait anywhere in assets/library."
+    },
+    "quest.creditors.4": {
+      "synopsis": "Bodkin's lesson: watch the paws, not the claws — claws are a rumor, paws are an appointment. He points at the wax door in the second yard, says Wick's paper is worth the reading, gives his name and goes. 'I knew your witch to look at. Everyone did.'",
+      "characters": [
+        "ash",
+        "bodkin",
+        "elspeth"
+      ],
+      "story_time": "night",
+      "notes": "Teaches the intent telegraph a second time, in a mentor's voice."
+    },
+    "quest.creditors.5": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.creditors.6": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.creditors.7": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.creditors.8": {
+      "synopsis": "The ledger under the ledgers, her name in a guildmaster's own hand: buy Vane's paper, all of it, call it due Lady's Day. Every debt she owed, bought quiet, in one week. He wanted her OUT — and you do not evict a woman you have had killed.",
+      "characters": [
+        "ash",
+        "wick",
+        "elspeth"
+      ],
+      "story_time": "night",
+      "notes": "The quest's whole point: it makes Wick look guilty and then hands over the reason he is not."
+    },
+    "quest.creditors.9": {
+      "synopsis": "Out over the yards with a page of a rich man's handwriting folded into his shadow. Paper says what Wick WANTED, not what he DID. For that he needs people who watch the Chandlers professionally and hate them fluently.",
+      "characters": [
+        "ash",
+        "wick"
+      ],
+      "story_time": "night",
+      "notes": "Hands off to the_lamplighters_talk."
+    },
+    "quest.the_lamplighters_talk.0": {
+      "synopsis": "The hall burns lamps at its own door — a guild that cannot spare the oil making a point to the dark. Half the coats on the pegs hang over boots nobody came back for. Forty lamplighters used to walk this city; what is left fits in one cold room.",
+      "characters": [
+        "ash",
+        "lamplighters"
+      ],
+      "story_time": "night",
+      "notes": "'They have stopped saying missing. They have not started saying anything else.'"
+    },
+    "quest.the_lamplighters_talk.1": {
+      "synopsis": "CHOICE: a cat in a grieving hall, wanting something. Lay the ledger page down, ask after their missing, or sit and wait to be spoken to. Shift-Boss Merrow — torn ear, chalk on her paws — is the one to convince. Sets lamp_approach.",
+      "characters": [
+        "ash",
+        "merrow",
+        "lamplighters"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.the_lamplighters_talk.2": {
+      "synopsis": "Paper first: Merrow reads Wick's hand upside down, which means she has read it before. Other pages, other nights. 'Walk my round with me, cat. Rounds first. Paper after.'",
+      "characters": [
+        "ash",
+        "merrow"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.the_lamplighters_talk.3": {
+      "synopsis": "Asked about the coats: the room stops bracing. 'Not dead. The Court itself said not dead. So they are SOMEWHERE, and this hall lights lamps until they walk back in.'",
+      "characters": [
+        "ash",
+        "merrow",
+        "lamplighters"
+      ],
+      "story_time": "night",
+      "notes": "Ties the missing lamplighters to the Hollow Court's own docket — they never arrived."
+    },
+    "quest.the_lamplighters_talk.4": {
+      "synopsis": "Sat and waited. 'Fine. You do manners. Walk my round with me and we will see what else you do.' It takes four minutes; furniture usually wins.",
+      "characters": [
+        "ash",
+        "merrow"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.the_lamplighters_talk.5": {
+      "synopsis": "Her round is forty-one lamps and something has been ahead of them, snuffing what she lights. A pair of wisps working her lamps IN ORDER, which wisps do not do — appetite does not read route-maps. Somebody taught it to.",
+      "characters": [
+        "ash",
+        "merrow",
+        "gutter_wisp"
+      ],
+      "story_time": "night",
+      "notes": "The clue that turns wisps from weather into a weapon."
+    },
+    "quest.the_lamplighters_talk.6": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_lamplighters_talk.7": {
+      "synopsis": "The round finishes lit and Merrow looks at him colleague-shaped. She chalks a fresh tally on the hall door. 'You came about the night. Ask, then. And mind: I answer exactly what is asked.'",
+      "characters": [
+        "ash",
+        "merrow"
+      ],
+      "story_time": "night",
+      "notes": "States the Testimony minigame's rule in character before it starts."
+    },
+    "quest.the_lamplighters_talk.8": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_lamplighters_talk.9": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_lamplighters_talk.10": {
+      "synopsis": "Success: 'That is Wick's hand. And that is the night nobody signed.' The tally shows two years of ward-shifts at the Wickhouse paid to nobody — she sewed a rich man's warehouse shut for free. Nobody sews free. Elspeth least of all.",
+      "characters": [
+        "ash",
+        "merrow",
+        "elspeth",
+        "wick"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.the_lamplighters_talk.11": {
+      "synopsis": "Failure: Merrow hands over the tally anyway, because the grievance is hers and grievances want witnesses. Same conclusion, less credit.",
+      "characters": [
+        "ash",
+        "merrow",
+        "elspeth"
+      ],
+      "story_time": "night",
+      "notes": "A losing Testimony that still moves the case — the pattern this game uses everywhere."
+    },
+    "quest.the_lamplighters_talk.12": {
+      "synopsis": "Behind the meeting-board the hall's own ward hangs torn, left that way because the one who always mended it is one of the coats. Merrow watches him look at it; the whole room watches Merrow. Cats inspect seams, by ancient arrangement.",
+      "characters": [
+        "ash",
+        "merrow",
+        "lamplighters"
+      ],
+      "story_time": "night",
+      "notes": "Sets up the Ward minigame as a public act of respect rather than a chore."
+    },
+    "quest.the_lamplighters_talk.13": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_lamplighters_talk.14": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_lamplighters_talk.15": {
+      "synopsis": "Merrow ties a lamplighter's knot into the thread at his chest, in front of everyone, where the whole Weft can read it. 'The hall owes the cat.' Quieter: 'Wisps do not learn a route unless somebody teaches them the taste. Find the teacher.'",
+      "characters": [
+        "ash",
+        "merrow",
+        "lamplighters"
+      ],
+      "story_time": "night",
+      "notes": "Second favour-knot, granted diegetically. Points at the Wickhouse."
+    },
+    "quest.the_ward_that_failed.0": {
+      "synopsis": "The Wickhouse squats on the Mere-edge, fat as a tick, warded to the chimneys in her stitch. Bodkin is on the sea-wall. 'Keep your feet dry and your business short — and go in by the wax door, not the water door.' He stays on the stone. 'I don't go in there.'",
+      "characters": [
+        "ash",
+        "bodkin",
+        "elspeth"
+      ],
+      "story_time": "night",
+      "notes": "Bodkin's refusal to enter is never explained, and is the more interesting for it."
+    },
+    "quest.the_ward_that_failed.1": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_ward_that_failed.2": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_ward_that_failed.3": {
+      "synopsis": "At the wax door the fog has residents, and one of them stands dry-footed on a wet street between him and the handle. It is not fast; it does not need to be. It is ARRIVING, the way the tide arrives.",
+      "characters": [
+        "ash",
+        "the_drowned"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.the_ward_that_failed.4": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_ward_that_failed.5": {
+      "synopsis": "Inside: wax to the rafters, white hills of it, a hundred winters of light not yet sold. Under the merchant smell — pond-bottom, old rope, patience. The wax is not stock. The wax is FEED. Her seam runs the whole water wall.",
+      "characters": [
+        "ash",
+        "elspeth"
+      ],
+      "story_time": "night",
+      "notes": "'Fifteen years I watched her leave at odd hours with her kit. Here is where the hours went.'"
+    },
+    "quest.the_ward_that_failed.6": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_ward_that_failed.7": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_ward_that_failed.8": {
+      "synopsis": "FLASHBACK. Her table years ago, this same chart half-sewn, a much smaller cat deployed on top of it as a paperweight. 'That winter I tried eight strays. Every one declined the interview. The ninth fell asleep on my work, and I took it for a signature.'",
+      "characters": [
+        "ash",
+        "elspeth"
+      ],
+      "story_time": "night",
+      "notes": "The only flashback in the game, the only scene with Elspeth alive and speaking, and the origin of Ash's name and the nine-lives conceit. Played on parlor_warm."
+    },
+    "quest.the_ward_that_failed.9": {
+      "synopsis": "Back in the cold warehouse her seam is wrong at the near end. Not torn, not burned — UNDONE, each stitch lifted out clean, in her own hand, in her own order, run BACKWARD. To read it he has to sew it the way it was unsewn.",
+      "characters": [
+        "ash",
+        "elspeth"
+      ],
+      "story_time": "night",
+      "notes": "Turns the Stitch minigame inside out to make a plot point mechanical."
+    },
+    "quest.the_ward_that_failed.10": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_ward_that_failed.11": {
+      "synopsis": "A hand's length of her thread comes away — evidence, hers then his. The ward did not fail: it was unpicked in her exact stitch, mirror-handed, faster than any needle honestly goes. Perfect technique, and Elspeth taught exactly nobody.",
+      "characters": [
+        "ash",
+        "elspeth",
+        "cardew"
+      ],
+      "story_time": "night",
+      "notes": "'Somebody learned without teaching, which is a different crime, with a shorter list of suspects. I do not like how short.'"
+    },
+    "quest.the_ward_that_failed.12": {
+      "synopsis": "Out by the wax door; Bodkin is gone and the fog holds his shape for a second. The wax feeds a thing the guild will not name, her ward holds it, she held the ward unpaid — and the man who profits bought her debts. Coincidence is what mice call carelessness.",
+      "characters": [
+        "ash",
+        "bodkin",
+        "wick",
+        "elspeth"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.an_audience_of_wax.0": {
+      "synopsis": "A Chandlers' invitation arrives: a beeswax candle trimmed to burn exactly one hour. You light it and start walking, and if it dies before you arrive so does the appointment. He carries it lit through the streets in his teeth, like a comet with dignity problems.",
+      "characters": [
+        "ash",
+        "wick"
+      ],
+      "story_time": "night",
+      "notes": "The first free Chandlers' light this house has ever seen — the guild's whole character in one prop."
+    },
+    "quest.an_audience_of_wax.1": {
+      "synopsis": "The Guildhall is a chapel to the bee: ten thousand lit votives, the heat standing in the room like a body. The keeper unfolds between him and the stairs — a tower of poured wax with a gentle face. 'The Guildmaster will see you presently.'",
+      "characters": [
+        "ash",
+        "tallowman"
+      ],
+      "story_time": "night",
+      "notes": "'Presently is doing a great deal of work in that sentence.'"
+    },
+    "quest.an_audience_of_wax.2": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.an_audience_of_wax.3": {
+      "synopsis": "Ellery Wick, small behind a desk built to make everything else smaller, already talking. 'The ward-cat! The seam-mender! Sit — no, not there, the good chair.' Warm the way his hall is warm: by the burning of something.",
+      "characters": [
+        "ash",
+        "wick"
+      ],
+      "story_time": "night",
+      "notes": "'You will find I have nothing at all to hide' — which is what that sentence is always for."
+    },
+    "quest.an_audience_of_wax.4": {
+      "synopsis": "He lays the whole case on the desk item by item. Wick's books come out and they are TRUE, which is the awful part: he bought her debts to buy her building. 'I wanted her EVICTED. You do not kill the one needle holding your roof shut. So who ELSE knew the ward was hers?'",
+      "characters": [
+        "ash",
+        "wick",
+        "elspeth"
+      ],
+      "story_time": "night",
+      "notes": "The interrogation the whole chapter has been building to, and it clears the suspect."
+    },
+    "quest.an_audience_of_wax.5": {
+      "synopsis": "He produces the counterfoil for his own cart-slot, signed out for Needle Lane against FAVOR-paper: a debt the Chandlers owed, called in blind, no name asked. 'Everything in this city comes through the usual quiet channels. The not-asking is what the quiet costs.'",
+      "characters": [
+        "ash",
+        "wick",
+        "gentleman"
+      ],
+      "story_time": "night",
+      "notes": "Wick is guilty of everything except the murder. Cross him off, keep the rest."
+    },
+    "quest.an_audience_of_wax.6": {
+      "synopsis": "CHOICE: expose him — the city reads his books at eight bells — or squeeze him for a guildmaster's knot tied where the Weft can see. He watches Ash decide what to do with him, which is the most honest fear in the room. Sets wick_verdict.",
+      "characters": [
+        "ash",
+        "wick"
+      ],
+      "story_time": "night",
+      "notes": "The chapter's one consequential moral choice, and both options are self-interested."
+    },
+    "quest.an_audience_of_wax.7": {
+      "synopsis": "Exposed: by eight bells the Lamplighters have his books and by nine the criers do. The terror margin dies on the counting-room floor. Merrow reads the ward-shift page aloud on the hall steps, twice, the second time slower. Wick keeps his desk, barely, and now needs the cat who ruined him.",
+      "characters": [
+        "ash",
+        "wick",
+        "merrow",
+        "lamplighters"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.an_audience_of_wax.8": {
+      "synopsis": "Squeezed: a Guildmaster's knot goes into his thread, tied by a man who has never visibly owed anyone anything, hating every loop of it. The Chandlers become exquisitely civil. Civility, from a guild, is an invoice.",
+      "characters": [
+        "ash",
+        "wick",
+        "merrow"
+      ],
+      "story_time": "night",
+      "notes": "Merrow says nothing and re-chalks the tally one stroke shorter — the consequence lands off-screen."
+    },
+    "quest.an_audience_of_wax.9": {
+      "synopsis": "Home. The board gets its last pin of the season: a counterfoil and a thread running to a gentleman nobody meets. Favor-paper drains toward Gravamen, where the carts change hands. The quiet channels have an address now.",
+      "characters": [
+        "ash",
+        "gentleman"
+      ],
+      "story_time": "night",
+      "notes": "Chapter 1's closing beat. One suspect off the board, one name-that-is-not-a-name left on it."
+    },
+    "quest.night_rounds.0": {
+      "synopsis": "The lamps are short-handed and the dark has noticed. Nobody pays a cat to walk the streets that miss their light; he does it so the city stays the kind of city he can work in.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "Side quest. The purest statement of Ash's self-appointed job."
+    },
+    "quest.night_rounds.1": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.night_rounds.2": {
+      "synopsis": "Two more down the lane, sharing one appetite between them. Wisps used to be rare on this street. Used to be.",
+      "characters": [
+        "ash",
+        "gutter_wisp"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.night_rounds.3": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.night_rounds.4": {
+      "synopsis": "Last leg past Number Twelve, where the dog and he keep a standing appointment neither has ever missed.",
+      "characters": [
+        "ash",
+        "chained_dog"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.night_rounds.5": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.garden_route.0": {
+      "synopsis": "Six gardens between the Shambles and Thimblefield, and the fastest way through is a gate nobody has opened since the old captain died. It is not locked. It is WOVEN — withies through withies, by somebody who knew what they were doing.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "Side quest. The woven gate quietly implies a stitcher was here too."
+    },
+    "quest.garden_route.1": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.garden_route.2": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.garden_route.3": {
+      "synopsis": "Clean: the gate un-weaves without a whisper, which leaves the Watch goose with nothing to do all night but listen. You cannot unpick a goose; some things have to be argued with.",
+      "characters": [
+        "ash",
+        "garden_watch"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.garden_route.4": {
+      "synopsis": "Loud: the gate fought, the first garden heard it, and the Watch goose is up and delighted. 'Quiet was the plan. The plan has been amended.'",
+      "characters": [
+        "ash",
+        "garden_watch"
+      ],
+      "story_time": "night",
+      "notes": "Minigame performance changes which scene you get — the right way to spend a puzzle result."
+    },
+    "quest.garden_route.5": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.garden_route.6": {
+      "synopsis": "Past the goose: the captain's lawn and the Captain. The chain of office is load-bearing and the bird underneath it is worse.",
+      "characters": [
+        "ash",
+        "garden_watch"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.garden_route.7": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.empty_coat.0": {
+      "synopsis": "A Lamplighter's coat is out on Needle Lane wearing someone's evening, and the wisps have found it first — two of them drinking the lie of a man who is not there.",
+      "characters": [
+        "ash",
+        "rag_wraith",
+        "gutter_wisp"
+      ],
+      "story_time": "night",
+      "notes": "Side quest, gated on Lamplighter standing. Puts a face on the missing coats."
+    },
+    "quest.empty_coat.1": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.empty_coat.2": {
+      "synopsis": "The coat notices him objecting and straightens — the way he must have straightened, clocking on. Whoever wore this is not dead. Missing. The coat remembers the shape of him, and now so does Ash.",
+      "characters": [
+        "ash",
+        "rag_wraith"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.empty_coat.3": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.empty_coat.4": {
+      "synopsis": "The coat comes quiet in the end. He walks it back to the hall and leaves it on its peg, where somebody will look the day the man comes home. Nobody says anything. Everybody sees.",
+      "characters": [
+        "ash",
+        "lamplighters"
+      ],
+      "story_time": "night",
+      "notes": "A side quest that pays entirely in standing and grief."
+    },
+    "quest.the_milk_debt.0": {
+      "synopsis": "The Court of Whiskers convenes on the ropewalk roof at the wrong hour on purpose, so attending is itself a sacrifice. Tonight's docket: Tansy, who sold her purr to the Quiet Gentleman for the favour that fished her brothers out. The contract is legal.",
+      "characters": [
+        "ash",
+        "clowder",
+        "tansy",
+        "gentleman"
+      ],
+      "story_time": "night",
+      "notes": "Side quest, and the clearest look at how the Gentleman does business."
+    },
+    "quest.the_milk_debt.1": {
+      "synopsis": "The kitten wakes, locates him, and announces to the Court that her counsel has arrived. He has issued no such appointment; the Court minutes it anyway. 'He never signs anything that can be settled. Read it before you touch it.'",
+      "characters": [
+        "ash",
+        "tansy",
+        "clowder"
+      ],
+      "story_time": "night",
+      "notes": "'Cats have a genius for making your dignity load-bearing.'"
+    },
+    "quest.the_milk_debt.2": {
+      "synopsis": "The contract lodges in a strongroom under the Shambles with no guards — his paper guards itself. Her purr sits in escrow: a knot of thread on a shelf, purring faintly to itself. And the knot has grown a loop nobody tied. INTEREST.",
+      "characters": [
+        "ash",
+        "gentleman"
+      ],
+      "story_time": "night",
+      "notes": "'A debt owed to itself has its own loose end. Which makes it my kind of paper.'"
+    },
+    "quest.the_milk_debt.3": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_milk_debt.4": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_milk_debt.5": {
+      "synopsis": "First-try success: the purr comes loose like a cork and goes home all at once, at volume. Tansy vibrates so hard she falls off the shelf. On the empty shelf: a blank calling card smelling faintly of fog, which was not there when he started.",
+      "characters": [
+        "ash",
+        "tansy",
+        "gentleman"
+      ],
+      "story_time": "night",
+      "notes": "The card is the Gentleman noticing Ash back."
+    },
+    "quest.the_milk_debt.6": {
+      "synopsis": "Retried: he comes back the next night and the next, and the loop keeps its slack — interest is patient on both sides. On the third night the knot gives. Same blank calling card.",
+      "characters": [
+        "ash",
+        "tansy",
+        "gentleman"
+      ],
+      "story_time": "night",
+      "notes": "'Some jobs are won by arithmetic and stubbornness. Most jobs, honestly.'"
+    },
+    "quest.the_milk_debt.7": {
+      "synopsis": "Tansy follows him home. He explains that he lives alone; she agrees enthusiastically and moves in, asleep on his paws, purring like a small wrong engine. Somewhere tonight a page of the Gentleman's is one line lighter.",
+      "characters": [
+        "ash",
+        "tansy",
+        "gentleman"
+      ],
+      "story_time": "night",
+      "notes": "Gives Ash a dependent, and the Gentleman his first loss."
+    },
+    "quest.the_pigeon_ballot.0": {
+      "synopsis": "The Pigeon Post is electing a Postmaster by hat — you perch on the brim of your candidate and the hat that bows lowest wins. Toby is winning on unlimited seed. It is Ash's problem because the night his witch died, every pigeon in the city went quiet at once.",
+      "characters": [
+        "ash",
+        "toby",
+        "postmaster"
+      ],
+      "story_time": "night",
+      "notes": "Side quest that pays off prologue.12's silent pigeons. Requires the cart docket."
+    },
+    "quest.the_pigeon_ballot.1": {
+      "synopsis": "First the seed itself, which comes up to the roosts from somewhere in quantity. Follow the trail without being seen following it — pigeons notice a cat on a roofline the way bankers notice fire.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.the_pigeon_ballot.2": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_pigeon_ballot.3": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_pigeon_ballot.4": {
+      "synopsis": "The trail ends above Needle Lane at a grain-chute swept a little too neatly. Good seed, bought in bulk, hauled UP — nobody hauls seed up. This was scattered from above, wide as weather, by somebody with HANDS.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.the_pigeon_ballot.5": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_pigeon_ballot.6": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_pigeon_ballot.7": {
+      "synopsis": "Success: 'We voted with our beaks full, and we called the quiet weather.' From a Postmaster before the whole Perch that is a confession with plumage. Toby is sat on by his own electors. The murder night had a QUARTERMASTER.",
+      "characters": [
+        "ash",
+        "postmaster",
+        "toby"
+      ],
+      "story_time": "night",
+      "notes": "Escalates the Gentleman from a buyer of favours to a planner of operations."
+    },
+    "quest.the_pigeon_ballot.8": {
+      "synopsis": "Failure: no confession, but the old bird's chest deflates when the docket touches the rail, and a Perch cannot un-see what its Postmaster saw. The seed came BEFORE the night — planned the way a clerk plans a shipment.",
+      "characters": [
+        "ash",
+        "postmaster"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "quest.the_pigeon_ballot.9": {
+      "synopsis": "Elections resume next moon with fresh hats and a seed audit. Below, a lamplighter relights Needle Lane and the first pigeon in a month settles over her old window and says something rude. The city is talking again.",
+      "characters": [
+        "ash",
+        "lamplighters"
+      ],
+      "story_time": "night",
+      "notes": "'The next time a street goes silent around me, I will know I am standing in somebody's purchase.'"
+    },
+    "quest.the_fish_giver.0": {
+      "synopsis": "For eleven years the Fish-Giver has set out scraps behind his stall every dawn for half the strays in Thimblefield. He has missed two dawns and the half is assembling on his roof like a jury. The stall is shuttered; the man is inside doing day-side arithmetic with his head in his hands.",
+      "characters": [
+        "ash",
+        "fish_giver"
+      ],
+      "story_time": "dawn",
+      "notes": "Side quest, and the only one that runs on the day side. 'Cats do not worry. I am not worried. I am investigating, which is different, and has better posture.'"
+    },
+    "quest.the_fish_giver.1": {
+      "synopsis": "The trouble is on his door in paper: rent behind, lease called, seven days — through a bank that banks for the Chandlers. Nobody is going to knife the Fish-Giver in his parlor; they are going to FILE him out of it.",
+      "characters": [
+        "ash",
+        "fish_giver"
+      ],
+      "story_time": "day",
+      "notes": "'This city bleeds by paper' — the side quests carry the same thesis as the main case."
+    },
+    "quest.the_fish_giver.2": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_fish_giver.3": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.the_fish_giver.4": {
+      "synopsis": "First asset: the grandmother's brooch he lost down the drainpipe nine years ago and still tells customers about. No hand fits that pipe. A paw does. It costs a wet shoulder, a spider's whole opinion of him, and one bent whisker.",
+      "characters": [
+        "ash",
+        "fish_giver"
+      ],
+      "story_time": "day",
+      "notes": null
+    },
+    "quest.the_fish_giver.5": {
+      "synopsis": "Second asset: the pigeons know where everyone drinks — the landlord's man takes his evenings loudly at the Bent Anchor and has a magistrate for a sister. Third asset: the magistrate keeps a cat, and that cat owes him a favour. He sits on her windowsill at dusk and pays the slow blink.",
+      "characters": [
+        "ash",
+        "magistrates_cat"
+      ],
+      "story_time": "dusk",
+      "notes": "The one quest solved entirely without a fight — by knowing what a street is worth."
+    },
+    "quest.the_fish_giver.6": {
+      "synopsis": "Dawn, three days later. The shutter goes up, the scraps go down, the jury disperses into a congregation, and the Fish-Giver stands in the middle grinning at nothing, wearing his grandmother on his coat. He never learns any of it — that is the point.",
+      "characters": [
+        "ash",
+        "fish_giver"
+      ],
+      "story_time": "dawn",
+      "notes": "'Somebody once put a saucer down for a stray with eight failed interviews behind him. The account stays open.' Ties straight back to the flashback in the_ward_that_failed."
+    }
+  }
+}

@@ -580,10 +580,10 @@ func chaos_lattice(lattice_id: String, seed_value: int) -> void:
 
 func _crossing_snapshot(state) -> String:
 	return JSON.stringify({
-		"progress": state.progress, "sheltered": state.sheltered,
-		"gust": state.gust, "hp": state.player_hp, "turn": state.turn,
-		"hand": state.hand, "deck": state.deck, "spent": state.spent,
-		"paws": state.paws, "outcome": state.outcome,
+		"at": state.at, "chosen": state.chosen, "paid": state.paid,
+		"hp": state.player_hp, "hand": state.hand, "deck": state.deck,
+		"spent": state.spent, "paws": state.paws, "revealed": state.revealed,
+		"outcome": state.outcome,
 	})
 
 
@@ -591,80 +591,141 @@ func _crossing_config(hand_deck: Array) -> Dictionary:
 	return {"player_hp": 10, "player_max_hp": 10, "deck": hand_deck, "paws": 3}
 
 
-## Solver: press while the hand is clean, shelter when the gust is holding a
-## card you own. Proves a crossing is winnable by informed play alone.
+## Every card in the paw that counts toward a way, cheapest first, so the
+## solver spends its smallest coins before its biggest — the play a careful
+## person makes, and the one that leaves the most for the fight after.
+func _payment_order(state, humour: String) -> Array:
+	var useful: Array = []
+	for card_id in state.hand:
+		var worth: int = state.worth_toward(String(card_id), humour)
+		if worth > 0:
+			useful.append({"card": String(card_id), "worth": worth})
+	useful.sort_custom(func(a, b): return int(a["worth"]) < int(b["worth"]))
+	return useful
+
+
+## Solver: at each point take the way it can actually afford, cheapest total
+## first, and pay it in full. Proves a crossing is crossable by informed play
+## alone — and that "informed" is possible, since the validator guarantees
+## every point has a way any energy can pay for.
 func solve_crossing(crossing_id: String, deck: Array, seed_value: int) -> Dictionary:
 	_label = "crossing/%s/solver seed %d" % [crossing_id, seed_value]
 	var state := CrossingState.create(catalog, seed_value,
 		catalog.crossings[crossing_id], _crossing_config(deck))
 	var commands := 0
 	var total_cards: int = state.deck.size() + state.hand.size() + state.spent.size()
+	var clean := 0
 	while not Minigame.is_over(state.outcome) and commands < COMMAND_CAP:
-		# Informed play: wait out a gust that is holding something of yours,
-		# press otherwise. Sheltering costs a card, so this converges — that
-		# it did NOT converge is how the free-shelter defect was found.
-		var command := {"type": "shelter"} if state.at_risk() else {"type": "press_on"}
+		# Pick the way this paw can cover for the least worth. Ties go to the
+		# first listed, so the choice is deterministic under a seed.
+		var best := ""
+		var best_spend := 99
+		for entry in state.ways():
+			var way: Dictionary = entry
+			var humour := String(way.get("humour", "any"))
+			var cost := int(way.get("cost", 0))
+			var have := 0
+			var spend := 0
+			for payment in _payment_order(state, humour):
+				if have >= cost:
+					break
+				have += int(payment["worth"])
+				spend += 1
+			if have >= cost and spend < best_spend:
+				best_spend = spend
+				best = String(way.get("id", ""))
+		if best == "":
+			# Cannot cover anything: take the cheapest way and go short. That is
+			# a legal, sensible line, and the module must survive it.
+			best = String(state.ways()[0].get("id", ""))
+		var choose := {"type": "choose", "way": best}
 		var before := _crossing_snapshot(state)
-		var result := state.do_command(command)
-		_guard(state, command, before, result, _crossing_snapshot)
+		var result := state.do_command(choose)
+		_guard(state, choose, before, result, _crossing_snapshot)
 		commands += 1
-		if state.progress < state.sheltered:
-			_violation("progress fell below what was sheltered")
+		var humour := String(state.way(best).get("humour", "any"))
+		for payment in _payment_order(state, humour):
+			if state.shortfall() <= 0:
+				break
+			var put := {"type": "put", "card": String(payment["card"])}
+			var put_before := _crossing_snapshot(state)
+			var put_result := state.do_command(put)
+			_guard(state, put, put_before, put_result, _crossing_snapshot)
+			commands += 1
+		if state.shortfall() <= 0:
+			clean += 1
+		var go := {"type": "go"}
+		var go_before := _crossing_snapshot(state)
+		var go_result := state.do_command(go)
+		_guard(state, go, go_before, go_result, _crossing_snapshot)
+		commands += 1
 		if state.player_hp > state.player_max_hp:
 			_violation("hp climbed over max")
-		if state.deck.size() + state.hand.size() + state.spent.size() != total_cards:
+		if state.deck.size() + state.hand.size() + state.spent.size() 				+ state.paid.size() != total_cards:
 			_violation("energy was created or destroyed during the crossing")
-		if not result.get("ok", false) and command["type"] == "press_on":
-			# Hand and deck both empty: nothing left to move on with.
-			state.do_command({"type": "slip_away"})
+		if not go_result.get("bitten", false) and int(go_result.get("short", 0)) == 0 \
+				and int(go_result.get("hurt", 0)) != 0:
+			_violation("a way paid in full still cost health")
 	if not Minigame.is_over(state.outcome):
 		_violation("the crossing never resolved")
-	_guard_finished(state, [{"type": "press_on"}, {"type": "shelter"},
-		{"type": "slip_away"}], _crossing_snapshot)
-	return {"outcome": state.outcome, "progress": state.progress,
-		"turns": state.turn, "hp": state.player_hp, "commands": commands}
+	_guard_finished(state, [{"type": "go"}, {"type": "read_ahead"},
+		{"type": "turn_back"}], _crossing_snapshot)
+	return {"outcome": state.outcome, "at": state.at, "points": state.length(),
+		"clean": clean, "hurts": state.hurts, "hp": state.player_hp,
+		"commands": commands}
 
 
-## Reckless: press every turn, never wait. The counterweight to the careful
-## solver — if BOTH lines cross every time the module has no gamble in it,
-## and if reckless never founders the hazard is decoration.
+## Reckless: choose the first way and go without paying anything at all. The
+## counterweight to the careful solver — if this ALSO gets home unharmed the
+## shortfall risk is decoration, and if the careful line ever gets hurt the
+## price of paying in full is a lie.
 func rush_crossing(crossing_id: String, deck: Array, seed_value: int) -> Dictionary:
 	_label = "crossing/%s/reckless seed %d" % [crossing_id, seed_value]
 	var state := CrossingState.create(catalog, seed_value,
 		catalog.crossings[crossing_id], _crossing_config(deck))
 	var commands := 0
 	while not Minigame.is_over(state.outcome) and commands < COMMAND_CAP:
+		var choose := {"type": "choose", "way": String(state.ways()[0].get("id", ""))}
 		var before := _crossing_snapshot(state)
-		var command := {"type": "press_on"}
-		var result := state.do_command(command)
-		_guard(state, command, before, result, _crossing_snapshot)
-		commands += 1
-		if not result.get("ok", false):
-			state.do_command({"type": "slip_away"})
+		var result := state.do_command(choose)
+		_guard(state, choose, before, result, _crossing_snapshot)
+		var go := {"type": "go"}
+		var go_before := _crossing_snapshot(state)
+		var go_result := state.do_command(go)
+		_guard(state, go, go_before, go_result, _crossing_snapshot)
+		commands += 2
 	if not Minigame.is_over(state.outcome):
 		_violation("reckless play never resolved the crossing")
-	return {"outcome": state.outcome, "progress": state.progress,
-		"turns": state.turn, "hp": state.player_hp}
+	return {"outcome": state.outcome, "at": state.at, "hurts": state.hurts,
+		"hp": state.player_hp}
 
 
-## Pick the Line must not lie: the gust it previews has to be the gust that
-## actually posts on the next shelter, or the aid is worse than nothing.
+## Read Ahead must not lie: the point it previews has to be the point that
+## actually arrives, or the aid is worse than nothing. It also costs exactly
+## one paw, once per corner.
 func probe_crossing_peek(crossing_id: String, deck: Array, seed_value: int) -> void:
 	_label = "crossing/%s/peek seed %d" % [crossing_id, seed_value]
 	var state := CrossingState.create(catalog, seed_value,
 		catalog.crossings[crossing_id], _crossing_config(deck))
-	var peek := state.do_command({"type": "pick_line"})
+	if state.next_point().is_empty():
+		return   # a one-point crossing has nothing to read ahead to
+	var paws_before: int = state.paws
+	var peek := state.do_command({"type": "read_ahead"})
 	if not peek.get("ok", false):
-		_violation("Pick the Line was refused on a fresh turn: %s" % peek.get("error", ""))
+		_violation("Read Ahead was refused at a fresh corner: %s" % peek.get("error", ""))
 		return
-	var promised := String(peek.get("next_gust", ""))
-	if state.do_command({"type": "pick_line"}).get("ok", false):
-		_violation("Pick the Line was payable twice in one turn")
-	state.do_command({"type": "shelter"})
-	if state.gust != promised:
-		_violation("peeked '%s' but '%s' posted" % [promised, state.gust])
+	if state.paws != paws_before - 1:
+		_violation("Read Ahead did not charge its paw")
+	var promised := String(peek.get("point", {}).get("id", ""))
+	if state.do_command({"type": "read_ahead"}).get("ok", false):
+		_violation("Read Ahead was payable twice at one corner")
+	state.do_command({"type": "choose", "way": String(state.ways()[0].get("id", ""))})
+	state.do_command({"type": "go"})
+	if String(state.point().get("id", "")) != promised:
+		_violation("read '%s' but '%s' arrived" % [
+			promised, state.point().get("id", "")])
 	if state.paws != state.paw_limit:
-		_violation("sheltering did not refresh the paws")
+		_violation("moving on did not refresh the paws")
 
 
 func chaos_crossing(crossing_id: String, deck: Array, seed_value: int) -> void:
@@ -672,20 +733,51 @@ func chaos_crossing(crossing_id: String, deck: Array, seed_value: int) -> void:
 	_rng = CoreRng.new(seed_value * 7 + 3)
 	var state := CrossingState.create(catalog, seed_value,
 		catalog.crossings[crossing_id], _crossing_config(deck))
-	var options: Array[Dictionary] = [{"type": "press_on"}, {"type": "shelter"},
-		{"type": "pick_line"}, {"type": "slip_away"}]
-	var junk: Array[Dictionary] = [{}, {"type": "wibble"}, {"type": "press"}]
+	var junk: Array[Dictionary] = [{}, {"type": "wibble"}, {"type": "press_on"},
+		{"type": "choose", "way": "nowhere"}, {"type": "put", "card": "ghost"},
+		{"type": "take_back", "card": "ghost"}]
+	var total_cards: int = state.deck.size() + state.hand.size()
 	var commands := 0
 	while not Minigame.is_over(state.outcome) and commands < COMMAND_CAP:
-		var command: Dictionary = junk[_rng.pick_index(junk.size())] \
-			if _rng.pick_index(6) == 0 else options[_rng.pick_index(3)]
+		var command: Dictionary
+		var roll := _rng.pick_index(10)
+		if roll == 0:
+			command = junk[_rng.pick_index(junk.size())]
+		elif roll == 1:
+			command = {"type": "read_ahead"}
+		elif roll == 2:
+			command = {"type": "turn_back"}
+		elif roll < 6 and not state.ways().is_empty():
+			var ways: Array = state.ways()
+			command = {"type": "choose",
+				"way": String(ways[_rng.pick_index(ways.size())].get("id", ""))}
+		elif roll < 8 and not state.hand.is_empty():
+			command = {"type": "put",
+				"card": String(state.hand[_rng.pick_index(state.hand.size())])}
+		elif roll == 8 and not state.paid.is_empty():
+			command = {"type": "take_back",
+				"card": String(state.paid[_rng.pick_index(state.paid.size())])}
+		else:
+			command = {"type": "go"}
 		var before := _crossing_snapshot(state)
 		var result := state.do_command(command)
 		_guard(state, command, before, result, _crossing_snapshot)
-		if state.progress < 0 or state.progress > state.length:
-			_violation("progress %d is outside 0..%d" % [state.progress, state.length])
+		if state.at < 0 or state.at > state.length():
+			_violation("at %d is outside 0..%d" % [state.at, state.length()])
 		if state.paws < 0 or state.paws > state.paw_limit:
 			_violation("paws %d outside 0..%d" % [state.paws, state.paw_limit])
+		if state.player_hp > state.player_max_hp:
+			_violation("hp climbed over max")
+		if state.deck.size() + state.hand.size() + state.spent.size() 				+ state.paid.size() != total_cards:
+			_violation("energy was created or destroyed: %d/%d/%d/%d of %d" % [
+				state.deck.size(), state.hand.size(), state.spent.size(),
+				state.paid.size(), total_cards])
+		# Cards offered on a way are never on it twice, and never in the paw at
+		# the same time — the one place a put/take_back pair could launder energy.
+		for card_id in state.paid:
+			if state.hand.has(card_id) and state.paid.count(card_id) \
+					+ state.hand.count(card_id) > total_cards:
+				_violation("card '%s' is both on the way and in the paw" % card_id)
 		commands += 1
 	if not Minigame.is_over(state.outcome):
 		_violation("the crossing never resolved under random play")

@@ -135,7 +135,7 @@ func test_combat_consts_match_the_dials() -> void:
 		"combat.loadout_size")
 	assert_eq(Catalog.RECAP_LINE_MAX, dials.count("presentation.recap_line_max"),
 		"presentation.recap_line_max")
-	assert_eq(CrossingState.NIGHT_PRESSES_TURN,
+	assert_eq(CrossingState.NIGHT_PRESSES_POINT,
 		dials.count("minigames.crossing.night_presses_turn"),
 		"minigames.crossing.night_presses_turn")
 

@@ -229,15 +229,32 @@ func _tour_lattice(screen: Control) -> void:
 		await _shot("lattice_pulled")
 
 
+## One decision point, played the way a player plays it: choose a way, put
+## energy on it, and go — plus the shot of a way that is NOT covered, which is
+## the one the owner has to be able to read the odds off (owner 2026-08-13).
 func _tour_crossing(screen: Control) -> void:
-	screen._command({"type": "press_on"}, "press")
-	await _wait(0.15)
-	await _shot("crossing_drawing")   # the card, mid-air, off the spool
+	var ways: Array = screen.state.ways()
+	if ways.is_empty():
+		return
+	# The cheapest way, so putting one card on it visibly moves the count.
+	screen._command({"type": "choose",
+		"way": String(ways[1].get("id", ways[0].get("id", "")))}, "choose")
 	await _wait(0.3)
-	await _shot("crossing_pressed")
-	screen._command({"type": "pick_line"}, "peek")
+	await _shot("crossing_chosen")     # a way picked, nothing on it yet
+	var humour := String(screen.state.way(screen.state.chosen).get("humour", "any"))
+	for card_id in screen.state.hand.duplicate():
+		if screen.state.shortfall() <= 0:
+			break
+		if screen.state.worth_toward(String(card_id), humour) > 0:
+			screen._command({"type": "put", "card": String(card_id)}, "put")
 	await _wait(0.3)
-	await _shot("crossing_peeked")
+	await _shot("crossing_paid")       # cards on the way, the count made up
+	screen._command({"type": "go"}, "go")
+	await _wait(0.4)
+	await _shot("crossing_went")       # the next thing in the road
+	screen._command({"type": "read_ahead"}, "peek")
+	await _wait(0.3)
+	await _shot("crossing_read_ahead")
 	# The spool close-up: "will I make it" is a deck question (owner
 	# 2026-08-13), and a popup nobody photographs is a popup nobody checks.
 	MinigameShell.spool_popup(screen, screen._catalog, screen.state.deck,
@@ -246,9 +263,15 @@ func _tour_crossing(screen: Control) -> void:
 	await _shot("crossing_spool")
 	_dismiss_overlay(screen)
 	await _wait(0.2)
-	screen._command({"type": "shelter"}, "shelter")
-	await _wait(0.3)
-	await _shot("crossing_sheltered")
+	# And a way deliberately left SHORT, so the posted odds get photographed.
+	if not screen.state.ways().is_empty():
+		screen._command({"type": "choose",
+			"way": String(screen.state.ways()[0].get("id", ""))}, "choose")
+		await _wait(0.3)
+		await _shot("crossing_short")
+		screen._command({"type": "go"}, "go")
+		await _wait(0.5)
+		await _shot("crossing_after_short")
 
 
 func _tour_testimony(screen: Control) -> void:

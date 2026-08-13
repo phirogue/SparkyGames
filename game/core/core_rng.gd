@@ -17,6 +17,16 @@ func pick_index(count: int) -> int:
 	assert(count > 0, "pick_index needs a non-empty range")
 	return _rng.randi_range(0, count - 1)
 
+## A weighted coin off the same seeded stream. Drawn in tenths of a percent
+## rather than as a float so the roll is an integer comparison and a replay
+## can never disagree with the original over a rounding bit.
+func chance(odds: float) -> bool:
+	if odds <= 0.0:
+		return false
+	if odds >= 1.0:
+		return true
+	return _rng.randi_range(0, 999) < int(round(odds * 1000.0))
+
 func shuffle(arr: Array) -> void:
 	# Fisher-Yates using our seeded stream (Array.shuffle() uses global RNG).
 	for i in range(arr.size() - 1, 0, -1):

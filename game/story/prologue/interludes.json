@@ -89,7 +89,8 @@
       ]
     },
     {
-      "portrait": "sc_hollow_court_desk",
+      "portrait": "sc_hollow_court_stamp",
+      "art_desc": "Extreme close on the Clerk's hand bringing the stamp down; the impression already on the paper is an inked cat paw print",
       "lines": [
         "Third. He has the stamp out before I reach the chair, which I choose to find efficient rather than insulting.",
         "'You are making a habit of an arrangement,' he says. 'Habits are how arrangements become entitlements. I mention it only professionally.'",
@@ -141,7 +142,8 @@
   ],
   "hollow_court_refused": [
     {
-      "portrait": "sc_hollow_court_desk",
+      "portrait": "sc_hollow_court_stamp",
+      "art_desc": "Extreme close on the Clerk's hand bringing the stamp down; the impression already on the paper is an inked cat paw print",
       "lines": [
         "The corridor. The filing. The desk. I appear to be dead — and the Clerk is already shaking his head.",
         "'You are not on the docket.' He holds the sheet up as proof. 'No appointment, no death. We do not process walk-ins.'",
@@ -161,7 +163,8 @@
       ]
     },
     {
-      "portrait": "sc_hollow_court_desk",
+      "portrait": "sc_hollow_court_thread",
+      "art_desc": "The Clerk running a length of fine silver thread through his fingers, the same thread laid along a ruled line in the open ledger that is plainly too short for it",
       "lines": [
         "He has my thread out on the desk, laid along a ruled line in the ledger. The ruled line is shorter.",
         "'You have arrived with more thread than my arithmetic says you left with. I have written CLERICAL ERROR.' He looks at the words a while. 'I do not write fiction, as a rule.'",
@@ -169,7 +172,8 @@
       ]
     },
     {
-      "portrait": "sc_hollow_court_desk",
+      "portrait": "sc_hollow_court_queue",
+      "art_desc": "A queue of translucent grey ghosts at the Hollow Court desk, turning to wave a small black cat forward to the front of the line",
       "lines": [
         "There is a queue tonight. The queue is ghosts, and the ghosts wave me forward, which I find polite and insulting in equal parts.",
         "'No appointment under your name,' says the Clerk. 'The docket is beginning to feel strongly about you.'",
@@ -177,7 +181,8 @@
       ]
     },
     {
-      "portrait": "sc_hollow_court_desk",
+      "portrait": "sc_hollow_court_thread",
+      "art_desc": "The Clerk stopped mid-stamp with the thread run through his fingers, spectacles down, finding a knot that is not one of theirs",
       "lines": [
         "He stops mid-stamp, spectacles down, and runs my thread through his fingers, slowly.",
         "'There is a knot here that is not one of ours,' he says. 'Close work. Old-fashioned. Whoever ties these does not care to have them noticed.' He files nothing. He remembers it, though. So do I.",

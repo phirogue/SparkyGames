@@ -198,3 +198,30 @@ No prompts written yet. When they are, they go in
 `STRICT_STYLE`, the framing conventions in
 [assets/README.md](../../assets/README.md), and `--ref` for every returning
 character.
+
+## Crossing decision points (2026-08-13) — DONE
+
+The Long Way Home was rebuilt as a chain of decision points, and the owner
+asked for the location image to change as Ash comes to each one. Eight
+obstacle views, 16:9, cat-height, generated in one batch
+(`tools/batches/genart_crossing_ways.py`) and wired:
+
+| id | what it is |
+|---|---|
+| `bg_way_gate` | an iron gate shut across a lane, no gap under it |
+| `bg_way_dog` | a chained yard-dog, awake, chain taut to the wall |
+| `bg_way_crowd` | boots, coat-hems and lantern-light — a crowd at cat height |
+| `bg_way_gap` | roof to roof, too wide to walk, the street far below |
+| `bg_way_lityard` | an empty courtyard lit wall to wall, nowhere dark |
+| `bg_way_arch` | waxed thread and chalk strung across a stone arch |
+| `bg_way_water` | black canal water and one wet plank |
+| `bg_way_watch` | a watchman's raised lantern, seen from behind and below |
+
+`bg_way_lityard` took two takes: the first read "the obstacle fills the
+frame" and invented a giant barrel to BE the obstacle, when the obstacle
+there is the light itself. The second take names the emptiness as the subject
+and forbids a foreground prop outright — the same lesson as every other style
+negative in this project. First take archived as `bg_way_lityard__1.png`.
+
+More obstacles are a data edit plus one image: `points[].image` in
+`game/data/crossings.json` names any backdrop id.

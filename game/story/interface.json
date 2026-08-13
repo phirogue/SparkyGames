@@ -320,10 +320,8 @@
       "draw": "Draw  ·  %d left",
       "draw_spent": "The spool is bare",
       "draw_paw_full": "Lay that first",
-      "paw_empty": "Nothing in the paw.
-Draw, and see what the card cuts.",
-      "spool_bare": "The spool is bare.
-Mend with what is down, or stop.",
+      "paw_empty": "Nothing in the paw. Draw, and see what the card cuts.",
+      "spool_bare": "The spool is bare. Mend with what is down, or stop.",
       "status": "%d of %d torn squares still open",
       "status_whole": "Not a square of it left open."
     },
@@ -335,46 +333,22 @@ Mend with what is down, or stop.",
       "free": "Out, and quietly."
     },
     "crossing": {
-      "press": "Press On",
+      "go": "Go",
+      "go_clean": "Go — paid in full",
+      "go_short": {
+        "long": "Go short by %d — it will probably hold",
+        "even": "Go short by %d — it could go either way",
+        "bad": "Go short by %d — this is going to cost"
+      },
       "peek": "Read Ahead",
-      "shelter": "Go Round",
-      "away": "Slip Away",
-      "ahead_title": "IN THE ROAD",
-      "obstacle": {
-        "ferocity": [
-          "A gap too wide to walk",
-          "A gate, and no way under it",
-          "A cart coming, and one gap behind it"
-        ],
-        "guile": [
-          "A crowd at the crossing",
-          "A market packing up across the whole lane",
-          "A queue out of the Hollow Court door"
-        ],
-        "shadow": [
-          "A chained dog, awake",
-          "A watchman on the corner",
-          "A yard lit wall to wall"
-        ],
-        "mysticism": [
-          "A ward drawn across the arch",
-          "A street that was not here last night",
-          "A door that opens on the wrong side"
-        ]
-      },
-      "cost": {
-        "ferocity": "The sprint costs %s.",
-        "guile": "Weaving through costs %s.",
-        "shadow": "Keeping out of sight costs %s.",
-        "mysticism": "Getting round it costs %s."
-      },
-      "next_unread": "After this: unread.",
-      "next_reads": "After this: something wanting %s.",
-      "night_note": "The night presses. Everything ahead asks double.",
-      "slipped": "It takes the %s off him, and %d paces with it.",
-      "gained": "Past it, and %d on.",
-      "peeked": "Next after this: %s. It wants %s.",
-      "sheltered": "The long way round it. A card for the detour, and the ground behind him is his."
+      "away": "Turn Back",
+      "any_energy": "any",
+      "price": "%d of %d %s",
+      "price_idle": "%d %s",
+      "clean": "Past it, and nobody the wiser.",
+      "scraped": "He gets past. It costs him nothing but the look of the thing.",
+      "bitten": "Not enough, and the street collects. %d off him.",
+      "read": "Round the next corner: %s."
     },
     "testimony": {
       "leave": "Let it lie",

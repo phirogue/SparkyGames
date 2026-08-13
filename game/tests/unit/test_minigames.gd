@@ -378,7 +378,7 @@ func test_lattice_elastic_still_has_a_safe_order() -> void:
 	assert_eq(String(order[0]), "e_top", "the free thread goes first")
 
 
-# ---------------------------------------------------- 5. The Long Way Round
+# ---------------------------------------------------- 5. The Long Way Home
 
 func test_crossings_can_be_crossed() -> void:
 	var bots := _bots()
@@ -389,51 +389,146 @@ func test_crossings_can_be_crossed() -> void:
 	assert_eq(bots.violations.size(), 0, "crossing: %s" % str(bots.violations))
 
 
-## Sheltering burns a card. Without that cost the hand only ever grew, every
-## gust eventually matched something, and the crossing could not be finished
-## — the defect the feasibility runner caught on its first pass.
-func test_crossing_sheltering_costs_a_card() -> void:
+## Owner 2026-08-13: "the character continuously chooses the energy in their
+## hand to play based on the marked effects described." Paying is the whole
+## verb, so it gets the whole test: the right energy counts, the wrong energy
+## is refused outright, Moonlight counts toward anything, and worth is what is
+## counted rather than cards.
+func test_crossing_pays_a_way_in_the_energy_it_asks_for() -> void:
 	var state := CrossingState.create(catalog, 42,
 		catalog.crossings["crossing_practice"],
-		{"player_hp": 10, "deck": TEST_DECK.duplicate()})
+		{"player_hp": 10, "deck": TEST_DECK.duplicate(), "shuffle": false,
+		"opening_hand": 8})
+	# The practice road opens on a gate: over it for 3 ferocity, the hinge for
+	# 2 guile, or wait for 4 of anything.
+	assert_ok(state.do_command({"type": "choose", "way": "hinge"}))
+	assert_eq(state.cost_of("hinge"), 2, "the hinge wants two of guile")
+	assert_true(not state.do_command({"type": "put", "card": "shadow_2"})
+		.get("ok", false), "shadow is no use on a guile way")
+	assert_ok(state.do_command({"type": "put", "card": "guile_1"}),
+		"guile counts toward a guile way")
+	assert_eq(state.paid_worth(), 1, "worth 1 down")
+	assert_eq(state.shortfall(), 1, "and one still owing")
+	assert_ok(state.do_command({"type": "put", "card": "mysticism_1"}),
+		"Moonlight pays toward anything")
+	assert_eq(state.shortfall(), 0, "which covers it")
+	assert_eq(state.risk(), 0.0, "a way paid in full is no gamble at all")
+
+
+## Changing your mind hands the cards back. They were offered, never spent —
+## only GO spends them.
+func test_crossing_choosing_again_returns_what_was_offered() -> void:
+	var state := CrossingState.create(catalog, 42,
+		catalog.crossings["crossing_practice"],
+		{"player_hp": 10, "deck": TEST_DECK.duplicate(), "shuffle": false,
+		"opening_hand": 8})
 	var hand_before: int = state.hand.size()
-	assert_ok(state.do_command({"type": "shelter"}))
-	assert_eq(state.hand.size(), hand_before - 1, "waiting it out costs energy")
-	assert_eq(state.spent.size(), 1, "and the card is spent, not discarded")
+	state.do_command({"type": "choose", "way": "hinge"})
+	state.do_command({"type": "put", "card": "guile_1"})
+	assert_eq(state.hand.size(), hand_before - 1, "the card left the paw")
+	assert_eq(state.spent.size(), 0, "but nothing is spent yet")
+	assert_ok(state.do_command({"type": "choose", "way": "wait"}))
+	assert_eq(state.hand.size(), hand_before, "changing way hands it back")
+	assert_eq(state.paid_worth(), 0, "and the new way starts unpaid")
 
 
-## No soft-locks: at every moment either the crossing is over, or there is
-## still something the player can do. Shelter needs a card to burn and
-## Press On needs a card or a deck, so the dangerous state is "hand empty" —
-## and that must always leave Press On (which draws) or the ending.
+## Paying in full is never a gamble; going short always is, and the odds rise
+## with the shortfall. The board posts risk() before the commit, so this is
+## the number the player is shown.
+func test_crossing_shortfall_is_a_posted_gamble() -> void:
+	var state := CrossingState.create(catalog, 42,
+		catalog.crossings["crossing_practice"],
+		{"player_hp": 10, "deck": TEST_DECK.duplicate(), "shuffle": false,
+		"opening_hand": 8})
+	state.do_command({"type": "choose", "way": "wait"})   # 4 of anything
+	assert_eq(state.shortfall(), 4, "nothing down yet")
+	var bare := state.risk()
+	state.do_command({"type": "put", "card": "shadow_2"})
+	assert_eq(state.shortfall(), 2, "worth 2 down against a cost of 4")
+	assert_true(state.risk() < bare,
+		"putting energy down must lower the risk, %f vs %f" % [state.risk(), bare])
+	assert_true(state.risk() > 0.0, "and short is never free")
+
+
+## Going is never refused, however little is on the way — no board in this
+## game is a wall. What it costs is health, and only sometimes.
+func test_crossing_going_short_is_allowed_and_only_sometimes_bites() -> void:
+	var bitten := 0
+	var arrived := 0
+	for seed_value in [1, 2, 3, 4, 5, 6, 7, 8]:
+		var state := CrossingState.create(catalog, seed_value,
+			catalog.crossings["crossing_practice"],
+			{"player_hp": 40, "player_max_hp": 40, "deck": TEST_DECK.duplicate()})
+		var guard := 0
+		while not Minigame.is_over(state.outcome) and guard < 40:
+			assert_ok(state.do_command({"type": "choose",
+				"way": String(state.ways()[0].get("id", ""))}),
+				"there is always a way to choose")
+			var result := state.do_command({"type": "go"})
+			assert_ok(result, "going short is a legal move, not a refusal")
+			if result.get("bitten", false):
+				bitten += 1
+			guard += 1
+		if state.outcome == Minigame.Outcome.SUCCESS:
+			arrived += 1
+		assert_true(Minigame.is_over(state.outcome), "the crossing must resolve")
+	assert_true(bitten > 0, "paying nothing at all must sometimes cost")
+	assert_true(arrived > 0,
+		"and a cat with health to spare must sometimes still get home")
+
+
+## The same seed and the same choices must give the same night — the roll is
+## off CoreRng, so a crossing still replays and still sims (law 8).
+func test_crossing_is_deterministic_under_a_seed() -> void:
+	var first := _walk_crossing(99)
+	var second := _walk_crossing(99)
+	assert_eq(first, second, "the same seed must produce the same crossing")
+	# ...and the rolls must actually be rolls. Sampled rather than compared in
+	# pairs: two seeds CAN agree by chance, and a test that fails on a
+	# coincidence is a test that fails for no reason.
+	var seen := {}
+	for seed_value in [1, 2, 3, 5, 8, 13, 21, 34]:
+		seen[_walk_crossing(seed_value)] = true
+	assert_true(seen.size() > 1,
+		"a shortfall must be a gamble, not a foregone conclusion (got %s)"
+			% str(seen.keys()))
+
+
+func _walk_crossing(seed_value: int) -> String:
+	var state := CrossingState.create(catalog, seed_value,
+		catalog.crossings["crossing_mereside"],
+		{"player_hp": 40, "player_max_hp": 40, "deck": TEST_DECK.duplicate()})
+	var guard := 0
+	while not Minigame.is_over(state.outcome) and guard < 40:
+		state.do_command({"type": "choose",
+			"way": String(state.ways()[0].get("id", ""))})
+		state.do_command({"type": "go"})
+		guard += 1
+	return "%d/%d/%d" % [state.outcome, state.player_hp, state.hurts]
+
+
+## No soft-locks: at every corner there is always a way to choose and always
+## a GO available, because going short is legal. The validator guarantees a
+## way any energy can pay for; the rules guarantee you may go anyway.
 func test_crossing_never_soft_locks() -> void:
 	var state := CrossingState.create(catalog, 7,
 		catalog.crossings["crossing_practice"],
 		{"player_hp": 10, "deck": TEST_DECK.duplicate()})
 	var guard := 0
 	while not Minigame.is_over(state.outcome) and guard < 300:
-		assert_true(not state.hand.is_empty() or not state.deck.is_empty(),
-			"nothing in hand AND nothing in deck must end the crossing, not stall it")
-		# Wait out a gust when there is something to burn, press otherwise.
-		var command := {"type": "shelter"} if not state.hand.is_empty() \
-			else {"type": "press_on"}
-		assert_ok(state.do_command(command), "a legal move must always exist")
+		assert_true(state.ways().size() >= 2, "every point offers a way past")
+		var has_any := false
+		for way in state.ways():
+			if String(way.get("humour", "")) == "any":
+				has_any = true
+		assert_true(has_any, "and one of them takes any energy at all")
+		state.do_command({"type": "choose",
+			"way": String(state.ways()[0].get("id", ""))})
+		assert_ok(state.do_command({"type": "go"}), "a legal move must always exist")
 		guard += 1
 	assert_true(Minigame.is_over(state.outcome),
 		"the crossing must reach an ending, got %s after %d moves" % [
 			Minigame.outcome_name(state.outcome), guard])
-
-
-func test_crossing_progress_never_falls_below_shelter() -> void:
-	var state := CrossingState.create(catalog, 5,
-		catalog.crossings["crossing_mereside"],
-		{"player_hp": 10, "deck": TEST_DECK.duplicate()})
-	var guard := 0
-	while not Minigame.is_over(state.outcome) and guard < 200:
-		state.do_command({"type": "press_on"})
-		assert_true(state.progress >= state.sheltered,
-			"sheltered progress must be safe from a slip")
-		guard += 1
 
 
 # ------------------------------------------------------------------ chaos
