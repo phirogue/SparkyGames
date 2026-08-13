@@ -96,18 +96,20 @@ adding a puzzle must never mean touching a scene script.
 >   two separate rings (`StitchState.seam_fault`). Answering the numbers and
 >   closing the loop are two rules, and the board had never said the second
 >   one out loud.
-> - **Patch the Ward: lifting a patch hands its card back.** "The energy goes
->   down even if I choose not to play the card afterwards." A patch you took
->   off is a patch you did not play. What is scarce is which patches you lay
->   (each is on the rack once), never how steady the thumb is; this replaces
->   the old spent-is-spent rule for lifts only. Placing still pays.
+> - **Patch the Ward is dealt, not laid out.** Later the same day the owner
+>   replaced the rack outright: "treat it as another card game — each new
+>   card drawn has a shape on it, the shape corresponds to the energy type.
+>   Player can choose to draw more cards winding down the deck or leave early
+>   with parts not covered." DRAW spends a card off the spool and hands you
+>   the cloth it cuts; lifting a laid patch picks the cloth back up and moves
+>   no cards at all, because the cost was the draw. See #3.
 > - **Patches are quilt, and they turn where their picture is.** Every patch
 >   is cut from one of four drawn weaves and stitched down with running
->   stitch. **Turn it** animates the swing in the RACK TILE, because a
->   rotation that only exists under the finger cannot be gauged.
+>   stitch. **Turn it** animates the swing on the drawn CARD'S FACE, because
+>   a rotation that only exists under the finger cannot be gauged.
 > - **The ward's price is on the page.** An energy strip (spool + a count per
->   humour, the battle's own glyphs) runs between the cloth and the rack, and
->   each rack patch is stamped with the humour glyph that pays for it.
+>   humour, the battle's own glyphs) runs between the cloth and the card, so
+>   what a draw costs is beside what a draw gives.
 > - **The Unpicking never colours in its answer.** Colour is IDENTITY (each
 >   thread keeps its dye so it can be followed); the over/under reading comes
 >   from a real painter's-order STACK plus the shadow the upper thread casts.
@@ -252,42 +254,59 @@ present = the break: new evidence and/or a `leads_done` advance.
 - **Scope:** [M]. UI is story-screen-family; logic is a pure
   `TestimonyState` core class; content is data.
 
-## 3. Patch the Ward — thread-patch quilting
+## 3. Patch the Ward — mend it off your own spool
 
-**Lineage:** Patchwork / Calico / The Isle of Cats. **Verb:** mend.
+**Lineage:** Patchwork / Calico, dealt as a push-your-luck draw.
+**Verb:** mend.
 
-A torn ward is a grid with a ragged hole (6–12 damaged cells). A rack
-offers thread-patch polyominoes; each patch is **paid with an energy card
-of its humour** from the player's actual hand/deck (the battle hand UI
-docks at the bottom, unchanged) — Moonlight pays any patch, spent is
-spent (the ward literally consumes tonight's energy; the mend is part of
-the prowl's economy, not free). You will usually NOT cover everything:
-each uncovered cell carries a data-declared *lingering* effect into the
-next encounter (drafts: enemy first hit +1; cold: start 1 card down), and
-a perfect patch grants one (`warmed`, or the ward's own boon).
+> **Redesigned by the owner, 2026-08-13.** "Treat it as another card game.
+> Each new card drawn has a shape on it, the shape corresponds to the energy
+> type. Player can choose to draw more cards winding down the deck or leave
+> early with parts not covered. Rather than having all patterns available
+> from the get go." The rack is gone. Everything below is that design.
 
-- **Placement is a DRAG** (owner 2026-08-09): press a patch on the rack,
-  carry it onto the cloth, let go, and it lands where it was dropped.
-  Rotation is the **Turn it** button while the patch is in the paw, and the
-  swing plays in the patch's own rack tile (owner 2026-08-13). A tap on a
-  rack patch still picks it up and a second tap lays it, because a single
-  way into an interaction is how players get stuck (law 7). Tapping a laid
-  patch lifts it — cloth AND card both come back (owner 2026-08-13: a patch
-  you took off is a patch you did not play).
+A torn ward is a grid with a ragged hole (4–12 damaged cells). There is no
+basket of patches: there is your **spool**. **DRAW** takes the next card off
+it, **spends it**, and hands you whatever cloth that card cuts. Lay the cloth
+anywhere on the ward, then decide again — another card, or stop.
+
+That decision is the whole module, and it is the same clock the rest of the
+run keeps: every card drawn here is a card the next fight will not have.
+Every torn square still open carries a data-declared *lingering* effect into
+that fight (drafts: enemy first hit +1; cold: start 1 card down), and a
+perfect mend grants one (`warmed`, or the ward's own boon). You will usually
+NOT cover everything, and choosing where to stop is the point.
+
+- **The card cuts the cloth.** `game/data/patch_shapes.json` maps every
+  energy card id to a polyomino: the **humour is the character** of the cut
+  and the **worth is its size**. Ferocity cuts long straight strips, guile
+  cuts crooked ones, shadow cuts compact squares, Moonlight cuts the small
+  odd piece that finishes a corner. A new energy card owes a shape or
+  `Catalog.validate()` fails the build — an unplaceable draw is not
+  something a player can tell apart from a bug.
+- **Placement is a DRAG:** press the card, carry the cloth onto the ward,
+  let go. Rotation is **Turn it**, and the swing plays on the card's own
+  face (owner 2026-08-13) — a rotation that exists only under the finger
+  cannot be gauged. A tap on the card also picks it up and a second tap on
+  the cloth lays it, because a modal interaction with exactly one way in is
+  how players get stuck (law 7).
+- **Lifting a laid patch picks the cloth back up into the paw.** It costs
+  nothing and returns nothing: the card went at the DRAW, which is where the
+  decision was. This is the shape of the owner's earlier complaint — energy
+  must only ever go down on a choice actually made — and it means the paw
+  holds one piece of cloth at a time, so lifting cannot be used to fish.
 - **Patches may stack, and may hang over sound cloth** (owner 2026-08-09).
   The only placement the rules refuse is one that falls off the grid. This
   replaced an exact-cover rule that rejected any placement outside a
   perfect tiling, which made a quilting game into a jigsaw with one answer
-  and made a mis-drop read as a bug rather than as waste. **The penalty
-  for a bad placement is already the right one: it closed nothing, and it
-  cost a card.** Only torn squares still OPEN are scored. Lifting the top
-  of a stack uncovers back to the patch underneath, which is why coverage
-  is recomputed from the laying order rather than erased cell by cell —
-  and refunds the card that laid it, so the cost is always of a patch that
-  is actually on the cloth.
-- Shipped wards must still be *perfectly* coverable — the exact-cover
-  search in `validate_minigames_deep()` stays, as the proof that a perfect
-  mend exists for a player good enough to find it.
+  and made a mis-drop read as a bug rather than as waste. Only torn squares
+  still OPEN are scored. Lifting the top of a stack uncovers back to the
+  patch underneath, which is why coverage is recomputed from the laying
+  order rather than erased cell by cell.
+- Shipped wards must still be *perfectly* coverable — the exact-cover search
+  in `validate_minigames_deep()` stays, now run against the SHAPE TABLE with
+  repeats allowed (the spool holds several of a card), as the proof that a
+  perfect mend exists for a player lucky and good enough to find it.
 
 - **Skill hook:** patching is where Ash's inheritance shows. Early
   charts' patches render crooked; after the Ch2 stitching lesson they
@@ -295,9 +314,11 @@ a perfect patch grants one (`warmed`, or the ward's own boon).
 - **Systems hooks:** energy deck + spent pool (shared with combat via
   carryover), lingering effects (existing), rewards standing/gleam with
   the guild whose ward it is.
-- **Data:** `game/data/wards.json` — id, grid, hole cells, patch rack
-  [{shape, humour}], gap_effect, perfect_effect, rewards, `when_outcome`
-  ids. Validate: hole coverable by rack; humours legal; effects known.
+- **Data:** `game/data/wards.json` — id, grid, hole cells, gap_effect,
+  perfect_effect, rewards, `when_outcome` ids (a ward carrying a `rack` is
+  now a validation error). Shapes live in `game/data/patch_shapes.json`.
+  Validate: hole coverable by the shape table; every energy card has a
+  connected shape; effects known.
 - **First placement:** L3 finale — Ash patches the Lamplighters' hall
   ward; that mend is WHY a guild of professionals trusts a cat (and sets
   the favor-knot economy beat already in chapters/01). Then: mending

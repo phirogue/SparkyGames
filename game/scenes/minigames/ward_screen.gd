@@ -1,46 +1,38 @@
 extends Control
 ## Patch the Ward — the quilting board (minigames.md #3).
 ##
-## The ward is a grid of squares: sound cloth pale, the tear dark. Patches sit
-## on a rack below, each stamped with the humour that pays for it. Each
-## placement takes an energy card out of the hand for real — the mend is paid
-## from the same stamina the fighting uses, which is the module's whole reason
-## to exist. Lifting a patch hands its card straight back (owner 2026-08-13):
-## a patch you took off is a patch you did not play.
+## OWNER 2026-08-13: "treat it as another card game. Each new card drawn has a
+## shape on it, the shape corresponds to the energy type. Player can choose to
+## draw more cards winding down the deck or leave early with parts not
+## covered." So there is no rack of patches waiting. There is a tear, and
+## there is your spool.
+##
+## The page says that in three bands: the CLOTH, the spool and what is still
+## wound on it, and the PAW — one card, drawn, with the cloth it cuts drawn on
+## its face. DRAW takes the next card and spends it; DRAG lays what it cut;
+## TURN IT swings the piece in its own picture; DONE MENDING stops, and every
+## square still open follows you into the next fight.
 ##
 ## The cloth is QUILTED, not coloured in: every patch is cut from one of four
 ## weaves and stitched down with running stitch, so a mend reads as pieced
-## work. The rack tile is where a patch turns — animated, in its own picture,
-## because a rotation that only exists under the finger cannot be gauged.
-## Between cloth and rack runs the energy strip: the spool and each humour's
-## count, so the price of a patch is on the page beside the patch.
-##
-## DRAG AND DROP (owner 2026-08-09), not the old pick-then-tap: press a patch
-## on the rack, carry it onto the cloth, let go. It lands where you dropped
-## it. Patches may sit on top of each other and may hang over sound cloth —
-## the rules stopped refusing sloppy placements, because the penalty is
-## already the right one: only the squares still OPEN count against you.
-##
-## A tap still works as well as a drag. Tap a rack patch to pick it up, tap
-## the cloth to lay it — the drag is the good way, but a modal interaction
-## with exactly one way in is how players get stuck (law 7).
+## work. Lifting a laid patch picks it back up into the paw — free, because
+## the card went at the draw, which is where the decision was.
 
 signal closed
 
-## Board zone (720) split between the cloth, the energy strip and the rack.
-## The strip grew from a line of drawn text to a real row of glyphs at the
-## owner's 2026-08-13 pass: "add the picture of the spool and the energies
-## like its done in the other uis so its clear that playing a patch costs
-## energy". 452 + 56 + 212 = 720 exactly (law 6).
+## Board zone (720) split between the cloth, the spool strip and the paw.
+## 452 + 56 + 212 = 720 exactly (law 6).
 const GRID_ZONE := 452.0
 const PAW_ZONE := 56.0
-const RACK_ZONE := 212.0
+const CARD_ZONE := 212.0
 ## How far a press may wander and still count as a tap rather than a drag.
 const TAP_SLOP := 14.0
-## How long a quarter-turn takes to swing through, in the rack tile where the
+## How long a quarter-turn takes to swing through, in the card face where the
 ## patch actually lives — the owner could not tell a turned patch from an
 ## untouched one, because nothing on the page ever moved.
 const TURN_SPIN := 0.18
+## The drawn card's face, centred in the card zone.
+const CARD_SIZE := Vector2(196.0, 196.0)
 
 var state: WardState
 var ward: Dictionary = {}
@@ -52,12 +44,10 @@ var _status: Label
 var _board: Control
 var _canvas: WardBoard
 var _help: Button
+var _draw_button: Button
 var _turn_button: Button
 var _finish_button: Button
 var _markers: Dictionary = {}
-## The patch in the paw: picked up by pressing its rack tile, put down by
-## releasing over the cloth. Also set by a plain tap, which is the fallback.
-var _held := ""
 var _rotation := 0
 var _pointer := Vector2.ZERO
 var _press_at := Vector2.ZERO
@@ -69,9 +59,9 @@ var _turn_spin := 0.0
 var _energy_chips: Dictionary = {}   # "spool" / humour -> Label
 
 
-func setup(catalog: Catalog, ward_data: Dictionary, hand: Array) -> void:
+func setup(catalog: Catalog, ward_data: Dictionary, deck: Array) -> void:
 	ward = ward_data
-	state = WardState.create(catalog, ward_data, hand)
+	state = WardState.create(catalog, ward_data, deck)
 
 
 func _ready() -> void:
@@ -99,22 +89,33 @@ func _ready() -> void:
 	_canvas.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_board.add_child(_canvas)
 	_build_energy_strip()
-	for key in ["hole", "rack"]:
+	for key in ["hole", "card"]:
 		var marker := MinigameShell.Marker.new()
 		_board.add_child(marker)
 		_markers[key] = marker
 
-	var row := MinigameShell.action_row(shell["actions"])
-	_turn_button = MinigameShell.aid_button(Strings.line("minigames.ward.turn"))
+	# Three verbs, two rows: drawing and turning are the moves you make over
+	# and over, and stopping is the one you make once.
+	var top := MinigameShell.action_row(shell["actions"])
+	_draw_button = MinigameShell.aid_button("", MinigameShell.ACTION_FONT_HALF,
+		MinigameShell.ACTION_HEIGHT_HALF)
+	_draw_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_draw_button.pressed.connect(_on_draw)
+	top.add_child(_draw_button)
+	_turn_button = MinigameShell.aid_button(Strings.line("minigames.ward.turn"),
+		MinigameShell.ACTION_FONT_HALF, MinigameShell.ACTION_HEIGHT_HALF)
 	_turn_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_turn_button.pressed.connect(_on_turn)
-	row.add_child(_turn_button)
-	_finish_button = MinigameShell.leave_button(Strings.line("minigames.ward.finish"))
+	top.add_child(_turn_button)
+	var bottom := MinigameShell.action_row(shell["actions"])
+	_finish_button = MinigameShell.leave_button(
+		Strings.line("minigames.ward.finish"), MinigameShell.ACTION_FONT_HALF,
+		MinigameShell.ACTION_HEIGHT_HALF, UITheme.CONTENT_WIDTH)
 	_finish_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_finish_button.pressed.connect(func() -> void:
 		state.do_command({"type": "finish"})
 		_finish())
-	row.add_child(_finish_button)
+	bottom.add_child(_finish_button)
 
 	_help.pressed.connect(_start_tutorial)
 	_help.visible = not coach_steps.is_empty()
@@ -123,10 +124,10 @@ func _ready() -> void:
 		_start_tutorial()
 
 
-## The energy strip: the spool and what is wound on it, by humour, drawn the
-## way the battle screen draws the same reading. It sits directly under the
-## cloth and directly over the rack, so the sentence the page makes is
-## "this much energy — these patches — that is what they cost".
+## The spool strip: what is still wound on, by humour, drawn the way the
+## battle screen draws the same reading. It sits between the cloth and the
+## card, so the sentence the page makes is "this much left — this is what the
+## next one cut — that is what it cost".
 func _build_energy_strip() -> void:
 	var strip := HBoxContainer.new()
 	strip.position = Vector2(0.0, GRID_ZONE)
@@ -158,11 +159,25 @@ func _energy_chip(parent: Container, icon_id: String, box: float,
 	return label
 
 
-## A quarter-turn, SEEN: the swing runs in the rack tile where the patch's own
-## picture lives, because a rotation that only exists under the finger is a
-## rotation the owner could not gauge (2026-08-13).
+## One more card off the spool. This is the whole wager: it mends more and it
+## leaves less for whatever is after this doorway.
+func _on_draw() -> void:
+	if not state.can_draw():
+		return
+	var result := state.do_command({"type": "draw"})
+	if result.get("ok", false):
+		_rotation = 0
+		if coach != null:
+			coach.notify("draw")
+		UITheme.pulse(_energy_chips["spool"].get_parent(), 1.2)
+	_refresh()
+
+
+## A quarter-turn, SEEN: the swing runs on the card face where the patch's own
+## picture lives, because a rotation that only exists under the finger cannot
+## be gauged (owner 2026-08-13).
 func _on_turn() -> void:
-	if _held == "":
+	if state.drawn == "":
 		return
 	_rotation = (_rotation + 1) % 4
 	if coach != null:
@@ -188,13 +203,14 @@ func _start_tutorial() -> void:
 
 func _coach_target(key: String) -> Control:
 	match key:
+		"draw": return _draw_button
 		"turn": return _turn_button
 		"finish": return _finish_button
 		"board": return _board
 		"board:hole": return _cover_marker("hole",
 			Rect2(0, 0, _board.size.x, GRID_ZONE))
-		"board:rack": return _cover_marker("rack",
-			Rect2(0, GRID_ZONE + PAW_ZONE, _board.size.x, RACK_ZONE))
+		"board:card": return _cover_marker("card",
+			Rect2(0, GRID_ZONE + PAW_ZONE, _board.size.x, CARD_ZONE))
 	return null
 
 
@@ -207,7 +223,7 @@ func _cover_marker(key: String, rect: Rect2) -> Control:
 # ------------------------------------------------------------------ pointer
 
 func held_patch() -> String:
-	return _held
+	return state.drawn
 
 
 func rotation() -> int:
@@ -227,15 +243,13 @@ func on_press(point: Vector2) -> void:
 		return
 	_press_at = point
 	_pointer = point
-	var patch_id := _canvas.rack_patch_at(point)
-	if patch_id != "":
-		if state.placed.has(patch_id) or not state.can_afford(patch_id):
-			return
-		_held = patch_id
+	# Pressing the drawn card picks the cloth up to carry it.
+	if state.drawn != "" and _canvas.card_rect().has_point(point):
 		_dragging = true
 		_refresh()
 		return
-	# Pressing a laid patch lifts it — cloth and card both come back.
+	# Pressing a laid patch lifts it back into the paw — free, and only when
+	# the paw is empty, which the rules enforce.
 	var cell := _canvas.cell_at(point)
 	if cell.x >= 0 and state.covered.has("%d,%d" % [cell.x, cell.y]):
 		state.do_command({"type": "lift",
@@ -254,13 +268,14 @@ func on_release(point: Vector2) -> void:
 	_pointer = point
 	var was_dragging := _dragging
 	_dragging = false
-	if Minigame.is_over(state.outcome) or _held == "":
+	if Minigame.is_over(state.outcome) or state.drawn == "":
 		_refresh()
 		return
-	# A press that never moved is a TAP: it picks the patch up and waits for a
-	# second tap on the cloth, which is the old flow and still a valid one.
+	# A press that never moved is a TAP: it holds the cloth up and waits for a
+	# second tap on the ward, because a modal interaction with exactly one way
+	# in is how players get stuck (law 7).
 	if was_dragging and point.distance_to(_press_at) < TAP_SLOP \
-			and _canvas.rack_patch_at(point) != "":
+			and _canvas.card_rect().has_point(point):
 		_refresh()
 		return
 	_drop_at(point)
@@ -268,20 +283,18 @@ func on_release(point: Vector2) -> void:
 
 ## The second tap of the tap-tap fallback, and the tour's way in.
 func on_tap_cell(point: Vector2) -> void:
-	if _held == "" or _dragging:
+	if state.drawn == "" or _dragging:
 		return
 	_drop_at(point)
 
 
 func _drop_at(point: Vector2) -> void:
-	var anchor := _canvas.anchor_for(_held, point, _rotation)
-	if anchor.x >= 0 and state.fits(_held, anchor.x, anchor.y, _rotation):
-		var result := state.do_command({"type": "place", "patch": _held,
-			"row": anchor.x, "col": anchor.y, "rotation": _rotation})
-		if result.get("ok", false):
-			_held = ""
-			if coach != null:
-				coach.notify("board")
+	var anchor := _canvas.anchor_for(state.drawn, point, _rotation)
+	if anchor.x >= 0 and state.fits(state.drawn, anchor.x, anchor.y, _rotation):
+		var result := state.do_command({"type": "place", "row": anchor.x,
+			"col": anchor.y, "rotation": _rotation})
+		if result.get("ok", false) and coach != null:
+			coach.notify("board")
 	_refresh()
 
 
@@ -289,22 +302,27 @@ func _refresh() -> void:
 	var open: int = state.uncovered_cells().size()
 	_status.text = Strings.line("minigames.ward.status_whole") if open == 0 \
 		else Strings.line("minigames.ward.status", [open, state.hole.size()])
-	_turn_button.disabled = _held == ""
+	_draw_button.text = Strings.line("minigames.ward.draw", [state.deck.size()]) \
+		if state.can_draw() \
+		else Strings.line("minigames.ward.draw_spent") if state.deck.is_empty() \
+		else Strings.line("minigames.ward.draw_paw_full")
+	_draw_button.disabled = not state.can_draw()
+	_turn_button.disabled = state.drawn == ""
 	_refresh_energy()
 	_canvas.queue_redraw()
 	if Minigame.is_over(state.outcome):
 		_finish()
 
 
-## What is left to sew with. Faded to nothing when a humour has run out —
-## knowing a colour is gone is the reading that changes which patch you reach
-## for (the battle's spool rule, on the ward's rack).
+## What is left to mend with. Faded to nothing when a humour has run out —
+## knowing a colour is gone is the reading that changes whether you draw
+## again (the battle's spool rule, on the ward's cloth).
 func _refresh_energy() -> void:
 	var counts := {}
-	for card_id in state.hand:
-		var humour := String(state._catalog.energy_cards.get(card_id, {}).get("humour", ""))
+	for card_id in state.deck:
+		var humour: String = state.humour_of(String(card_id))
 		counts[humour] = int(counts.get(humour, 0)) + 1
-	_energy_chips["spool"].text = str(state.hand.size())
+	_energy_chips["spool"].text = str(state.deck.size())
 	for humour in Catalog.HUMOURS:
 		var count: int = int(counts.get(humour, 0))
 		var label: Label = _energy_chips[humour]
@@ -325,18 +343,15 @@ func _finish() -> void:
 		func() -> void: closed.emit())
 
 
-## The cloth, the paw line, the rack, and whatever is currently in the paw.
+## The cloth, the spool strip, the drawn card, and whatever is in the paw.
 ## One canvas for all of it, because a drag has to cross between them.
 class WardBoard extends Control:
-	const PATCH_COLOURS := ["#7a5233", "#3a5a7a", "#4a7a5a", "#7a4a6a", "#8a7a2a"]
 	## How many weaves the scrap bag holds (see _draw_quilt_cell).
 	const WEAVES := 4
 
 	var screen
 	var _step := 0.0
 	var _origin := Vector2.ZERO
-	var _rack_rects: Array[Rect2] = []
-	var _rack_step := 0.0
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_STOP
@@ -381,12 +396,11 @@ class WardBoard extends Control:
 
 	## Where a dropped patch's ORIGIN cell goes, so the shape lands centred
 	## under the finger rather than hanging down and to the right of it.
-	func anchor_for(patch_id: String, point: Vector2, rotation: int) -> Vector2i:
+	func anchor_for(card_id: String, point: Vector2, rotation: int) -> Vector2i:
 		var state: WardState = screen.state
-		if _step <= 0.0 or patch_id == "":
+		if _step <= 0.0 or card_id == "":
 			return Vector2i(-1, -1)
-		var shape := WardState.rotate_shape(
-			state.patch_def(patch_id).get("shape", []), rotation)
+		var shape := WardState.rotate_shape(state.shape_of(card_id), rotation)
 		var rows := 0
 		var cols := 0
 		for offset in shape:
@@ -397,32 +411,20 @@ class WardBoard extends Control:
 		var row := int(floor(local.y / _step - rows * 0.5 + 0.5))
 		return Vector2i(row, col)
 
-	## Which rack tile a point is over, or "".
-	func rack_patch_at(point: Vector2) -> String:
-		var state: WardState = screen.state
-		for i in _rack_rects.size():
-			if i < state.rack.size() and _rack_rects[i].has_point(point):
-				return String(state.rack[i]["id"])
-		return ""
+	## The drawn card's face, centred in the card zone.
+	func card_rect() -> Rect2:
+		return Rect2(Vector2((size.x - CARD_SIZE.x) * 0.5,
+			GRID_ZONE + PAW_ZONE + (CARD_ZONE - CARD_SIZE.y) * 0.5), CARD_SIZE)
 
-	func _patch_colour(patch_id: String) -> Color:
-		var state: WardState = screen.state
-		for i in state.rack.size():
-			if String(state.rack[i]["id"]) == patch_id:
-				return Color(PATCH_COLOURS[i % PATCH_COLOURS.size()])
-		return Color("7a5233")
+	## Which weave a card's cloth is cut from — the humour picks it, so the
+	## same energy always looks like the same bolt.
+	func _weave_of(card_id: String) -> int:
+		return maxi(Catalog.HUMOURS.find(screen.state.humour_of(card_id)), 0) % WEAVES
 
-
-	## Which of the weaves this patch is cut from. Owner 2026-08-13: "the
-	## pieces should be textured as pieces of a quilt" — a quilt is scraps,
-	## and scraps do not all have the same weave, so the pattern is part of a
-	## patch's identity along with its colour.
-	func _patch_weave(patch_id: String) -> int:
-		var state: WardState = screen.state
-		for i in state.rack.size():
-			if String(state.rack[i]["id"]) == patch_id:
-				return i % WEAVES
-		return 0
+	func _colour_of(card_id: String) -> Color:
+		var humour: String = screen.state.humour_of(card_id)
+		var base: Color = MinigameShell.HUMOUR_COLOURS.get(humour, Color("7a5233"))
+		return base
 
 	# ----------------------------------------------------------------- draw
 
@@ -431,7 +433,7 @@ class WardBoard extends Control:
 		if state.width <= 0 or state.height <= 0:
 			return
 		_draw_cloth(state)
-		_draw_rack(state)
+		_draw_card(state)
 		_draw_held(state)
 
 	func _draw_cloth(state: WardState) -> void:
@@ -444,12 +446,12 @@ class WardBoard extends Control:
 				var rect := Rect2(_origin + Vector2(col * _step, row * _step),
 					Vector2(_step - 3.0, _step - 3.0))
 				if state.covered.has(key):
-					var patch_id := String(state.covered[key])
-					_draw_quilt_cell(rect, _patch_colour(patch_id),
-						_patch_weave(patch_id), 1.0)
+					var patch_key := String(state.covered[key])
+					var card := String(state.placed[patch_key]["card"])
+					_draw_quilt_cell(rect, _colour_of(card), _weave_of(card), 1.0)
 					# The seam where this square meets a square of ANOTHER
 					# patch: the stitching that says these are separate pieces.
-					_draw_patch_seams(state, row, col, rect, patch_id)
+					_draw_patch_seams(state, row, col, rect, patch_key)
 					# A patch sitting over sound cloth bought nothing, and says
 					# so: no torn square underneath, no brass pin.
 					if state.hole.has(key):
@@ -468,89 +470,72 @@ class WardBoard extends Control:
 					MinigameShell.guide_line(self, rect.position,
 						rect.position + Vector2(0, rect.size.y), Color("00000018"))
 
-	## The rack: each patch drawn as its true shape in its own cloth, stamped
-	## with the humour glyph that pays for it — the same glyph the energy strip
-	## above it counts, so "this patch costs one of those" is one glance.
-	## Greyed when it is down or the paw cannot pay.
-	##
-	## The patch in the paw turns HERE, in its own picture, with the swing
-	## animated (owner 2026-08-13). Under the finger a rotation is guesswork;
-	## in the tile it is a fact.
-	func _draw_rack(state: WardState) -> void:
-		_rack_rects.clear()
-		var count: int = maxi(state.rack.size(), 1)
-		var slot := size.x / float(count)
-		var top := GRID_ZONE + PAW_ZONE
-		_rack_step = minf(slot * 0.24, 26.0)
-		for i in state.rack.size():
-			var patch: Dictionary = state.rack[i]
-			var patch_id := String(patch["id"])
-			var rect := Rect2(i * slot + 4.0, top, slot - 8.0, RACK_ZONE - 8.0)
-			_rack_rects.append(rect)
-			var down: bool = state.placed.has(patch_id)
-			var poor: bool = not state.can_afford(patch_id)
-			var held: bool = screen.held_patch() == patch_id
-			var plate := Color("00000012") if not (down or poor) else Color("00000022")
-			draw_rect(rect, plate)
-			draw_rect(rect, UITheme.INK if held else Color("00000033"), false,
-				4.0 if held else 1.5)
-			var alpha := 0.28 if (down or poor) else 1.0
-			# The rack shows the patch as it will LAND: the live rotation while
-			# it is in the paw, its filed shape otherwise.
-			var shape: Array = patch.get("shape", [])
-			var spin := 0.0
-			if held:
-				shape = WardState.rotate_shape(shape, screen.rotation())
-				spin = deg_to_rad(screen.turn_spin())
-			var centre := Vector2(rect.get_center().x, rect.position.y + 62.0)
-			draw_set_transform(centre, spin, Vector2.ONE)
-			_draw_quilt_shape(shape, Vector2.ZERO, _rack_step,
-				_patch_colour(patch_id), i % WEAVES, alpha)
-			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-			_draw_humour_stamp(String(patch.get("humour", "")),
-				Vector2(rect.get_center().x, rect.end.y - 74.0), alpha)
-			var label := Catalog.humour_name(String(patch.get("humour", "")))
-			if down:
-				label = Strings.line("minigames.ward.rack_down", [label])
-			elif poor:
-				label = Strings.line("minigames.ward.rack_unaffordable", [label])
-			# At the type floor and WRAPPED: "Guile (down)" is wider than a
-			# rack slot, and draw_string would have quietly cropped it.
+	## The card in the paw: an energy card face with the cloth it cut drawn on
+	## it, its humour named, and its worth in the corner. This is the whole of
+	## the owner's "each new card drawn has a shape on it".
+	func _draw_card(state: WardState) -> void:
+		var rect := card_rect()
+		if state.drawn == "":
+			# An empty paw still shows the plate, so the page keeps its shape
+			# and the DRAW button has somewhere to point.
+			draw_rect(rect, Color("00000010"))
+			draw_rect(rect, Color("00000030"), false, 2.0)
+			var prompt := Strings.line("minigames.ward.paw_empty") \
+				if not state.deck.is_empty() \
+				else Strings.line("minigames.ward.spool_bare")
+			# Measured, not guessed: at three lines this plate cropped its own
+			# sentence mid-word (law 5).
+			var wrap := rect.size.x - 28.0
+			var box := UITheme.measure_text(prompt, UITheme.body_font(),
+				UITheme.TYPE_SUPPORT, wrap)
 			draw_multiline_string(UITheme.body_font(),
-				Vector2(rect.position.x + 4.0, rect.end.y - 40.0), label,
-				HORIZONTAL_ALIGNMENT_CENTER, rect.size.x - 8.0,
-				UITheme.TYPE_FLOOR, 2,
-				UITheme.INK_SOFT if not (down or poor) else UITheme.INK_FADED)
-
-	## The humour glyph a patch is paid with, drawn at its opaque size — the
-	## rack's half of "playing a patch costs energy".
-	func _draw_humour_stamp(humour: String, centre: Vector2, alpha: float) -> void:
-		var glyph := UITheme.cropped_tex(
-			String(MinigameShell.HUMOUR_GLYPH.get(humour, "")))
-		if glyph == null:
+				rect.position + Vector2(14.0, (rect.size.y - box.y) * 0.5 + 22.0),
+				prompt, HORIZONTAL_ALIGNMENT_CENTER, wrap,
+				UITheme.TYPE_SUPPORT, -1, UITheme.INK_FADED)
 			return
-		var box := 34.0
-		var scale := minf(box / glyph.get_width(), box / glyph.get_height())
-		var used := Vector2(glyph.get_width(), glyph.get_height()) * scale
+		var card: Dictionary = screen.state._catalog.energy_cards.get(state.drawn, {})
+		var humour := String(card.get("humour", ""))
 		var tint: Color = MinigameShell.HUMOUR_COLOURS.get(humour, UITheme.INK)
-		draw_texture_rect(glyph, Rect2(centre - used * 0.5, used), false,
-			Color(tint, alpha))
+		draw_rect(rect, Color("f2e4c8"))
+		draw_rect(rect, tint, false, 4.0)
+		# The cloth this card cuts, at the ward's own cell size where it fits,
+		# so what is on the card is exactly what will land on the cloth.
+		var shape := WardState.rotate_shape(state.shape_of(state.drawn),
+			screen.rotation())
+		var rows := 1
+		var cols := 1
+		for offset in shape:
+			rows = maxi(rows, int(offset[0]) + 1)
+			cols = maxi(cols, int(offset[1]) + 1)
+		var cell := minf(minf(_step, (rect.size.x - 48.0) / float(cols)),
+			(rect.size.y - 88.0) / float(rows))
+		draw_set_transform(rect.get_center() + Vector2(0.0, -8.0),
+			deg_to_rad(screen.turn_spin()), Vector2.ONE)
+		_draw_quilt_shape(shape, Vector2.ZERO, cell, _colour_of(state.drawn),
+			_weave_of(state.drawn), 1.0)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		var worth := int(card.get("value", 0))
+		draw_string(UITheme.display_font(), rect.position + Vector2(14.0, 36.0),
+			str(worth), HORIZONTAL_ALIGNMENT_LEFT, -1, 30, UITheme.INK)
+		draw_string(UITheme.body_font(),
+			rect.position + Vector2(0.0, rect.size.y - 18.0),
+			Catalog.humour_name(humour), HORIZONTAL_ALIGNMENT_CENTER,
+			rect.size.x, UITheme.TYPE_SUPPORT, tint)
 
-	## The patch in the paw, snapped to the cloth under the finger. Its own
-	## cloth where it would close a torn square, washed out where it would buy
+	## The cloth in the paw, snapped to the ward under the finger. Its own
+	## weave where it would close a torn square, washed out where it would buy
 	## nothing, and carried as a loose scrap while it is still in the air.
 	func _draw_held(state: WardState) -> void:
-		var patch_id: String = screen.held_patch()
-		if patch_id == "":
+		var card_id: String = state.drawn
+		if card_id == "" or not screen.dragging():
 			return
 		var point: Vector2 = screen.pointer()
 		var rotation: int = screen.rotation()
-		var anchor := anchor_for(patch_id, point, rotation)
-		var shape := WardState.rotate_shape(
-			state.patch_def(patch_id).get("shape", []), rotation)
-		if anchor.x >= 0 and state.fits(patch_id, anchor.x, anchor.y, rotation):
-			var colour := _patch_colour(patch_id)
-			var weave := _patch_weave(patch_id)
+		var anchor := anchor_for(card_id, point, rotation)
+		var shape := WardState.rotate_shape(state.shape_of(card_id), rotation)
+		if anchor.x >= 0 and state.fits(card_id, anchor.x, anchor.y, rotation):
+			var colour := _colour_of(card_id)
+			var weave := _weave_of(card_id)
 			for offset in shape:
 				var row: int = anchor.x + int(offset[0])
 				var col: int = anchor.y + int(offset[1])
@@ -561,9 +546,9 @@ class WardBoard extends Control:
 				_draw_quilt_cell(rect, colour, weave, 0.85 if useful else 0.4)
 				draw_rect(rect, Color("e0913a") if useful else Color("6b5747"),
 					false, 3.0)
-		elif screen.dragging():
-			_draw_quilt_shape(shape, point, _step * 0.6,
-				_patch_colour(patch_id), _patch_weave(patch_id), 0.6)
+		else:
+			_draw_quilt_shape(shape, point, _step * 0.6, _colour_of(card_id),
+				_weave_of(card_id), 0.6)
 
 	## A polyomino of quilt cloth, centred on `centre` at `cell` pixels a
 	## square, with running stitch around its outer edge.
@@ -599,8 +584,8 @@ class WardBoard extends Control:
 					at + Vector2(cell, cell), alpha)
 
 	## One square of quilt: dyed cloth with its weave showing through. Four
-	## weaves, so a rack of five patches reads as five different scraps rather
-	## than as five colours of the same plastic.
+	## weaves, one per humour, so the cloth a card cuts is recognisable as
+	## that card's before you read anything.
 	func _draw_quilt_cell(rect: Rect2, colour: Color, weave: int,
 			alpha: float) -> void:
 		draw_rect(rect, Color(colour, alpha))
@@ -642,11 +627,10 @@ class WardBoard extends Control:
 	## The seam between two DIFFERENT patches laid side by side on the cloth:
 	## stitched, so a stack reads as pieced work instead of one flat colour.
 	func _draw_patch_seams(state: WardState, row: int, col: int, rect: Rect2,
-			patch_id: String) -> void:
-		var neighbours := [[-1, 0], [1, 0], [0, -1], [0, 1]]
-		for step in neighbours:
+			patch_key: String) -> void:
+		for step in [[-1, 0], [1, 0], [0, -1], [0, 1]]:
 			var key := "%d,%d" % [row + int(step[0]), col + int(step[1])]
-			if String(state.covered.get(key, "")) == patch_id:
+			if String(state.covered.get(key, "")) == patch_key:
 				continue
 			if int(step[0]) == -1:
 				_running_stitch(rect.position,

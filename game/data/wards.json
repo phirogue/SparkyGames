@@ -6,21 +6,23 @@
     "width": 6,
     "height": 5,
     "hole": [
-      "1,1", "1,2", "1,3",
-      "2,1", "2,2", "2,3", "2,4",
-      "3,2", "3,3", "3,4"
-    ],
-    "rack": [
-      { "id": "p_square", "humour": "guile", "shape": [[0, 0], [0, 1], [1, 0], [1, 1]] },
-      { "id": "p_bar", "humour": "shadow", "shape": [[0, 0], [0, 1], [0, 2]] },
-      { "id": "p_ell", "humour": "ferocity", "shape": [[0, 0], [0, 1], [1, 0]] },
-      { "id": "p_domino", "humour": "shadow", "shape": [[0, 0], [1, 0]] },
-      { "id": "p_dot", "humour": "mysticism", "shape": [[0, 0]] }
+      "1,1",
+      "1,2",
+      "1,3",
+      "2,1",
+      "2,2",
+      "2,3",
+      "2,4",
+      "3,2",
+      "3,3",
+      "3,4"
     ],
     "gap_effect": "draft",
     "perfect_effect": "warmed",
     "rewards": {
-      "standing": { "lamplighters": 2 },
+      "standing": {
+        "lamplighters": 2
+      },
       "favor": "lamplighters_knot"
     },
     "when_outcome": {
@@ -36,15 +38,14 @@
     "width": 6,
     "height": 5,
     "hole": [
-      "0,2", "0,3",
-      "1,2", "1,3",
-      "2,2", "2,3",
-      "3,2", "3,3"
-    ],
-    "rack": [
-      { "id": "p_square", "humour": "shadow", "shape": [[0, 0], [0, 1], [1, 0], [1, 1]] },
-      { "id": "p_ell", "humour": "guile", "shape": [[0, 0], [0, 1], [1, 0]] },
-      { "id": "p_dot", "humour": "mysticism", "shape": [[0, 0]] }
+      "0,2",
+      "0,3",
+      "1,2",
+      "1,3",
+      "2,2",
+      "2,3",
+      "3,2",
+      "3,3"
     ],
     "gap_effect": "cold",
     "perfect_effect": "warmed",
@@ -62,13 +63,10 @@
     "width": 4,
     "height": 4,
     "hole": [
-      "1,1", "1,2",
-      "2,1", "2,2"
-    ],
-    "rack": [
-      { "id": "p_square", "humour": "mysticism", "shape": [[0, 0], [0, 1], [1, 0], [1, 1]] },
-      { "id": "p_domino", "humour": "shadow", "shape": [[0, 0], [1, 0]] },
-      { "id": "p_dot", "humour": "guile", "shape": [[0, 0]] }
+      "1,1",
+      "1,2",
+      "2,1",
+      "2,2"
     ],
     "gap_effect": "cold",
     "perfect_effect": "warmed",

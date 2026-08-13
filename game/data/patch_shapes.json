@@ -1,0 +1,82 @@
+{
+  "_notes": [
+    "WHAT SHAPE EACH ENERGY CARD CUTS (docs/design/minigames.md #3).",
+    "",
+    "Owner 2026-08-13: 'treat it as another card game, each new card drawn has",
+    "a shape on it. the shape corresponds to the energy type.' Patch the Ward",
+    "no longer offers a rack of patches at the start -- the player winds down",
+    "their own spool, one card at a time, and takes whatever cloth that card",
+    "cuts. Drawing more mends more and leaves less for the fight after.",
+    "",
+    "Keyed by ENERGY CARD ID, so every card in data/energy_cards.json owes a",
+    "shape and Catalog.validate() says so if one is missing. Offsets are",
+    "[row, col] from the shape's top-left; they must be connected edge to edge",
+    "(a patch is one piece of cloth) and are normalised at load.",
+    "",
+    "The humour is the CHARACTER of the cut and the worth is its SIZE:",
+    "  ferocity  -- the rake: straight, and as long as the card is worth",
+    "  guile     -- the crook: bent, awkward to place, covers more than it looks",
+    "  shadow    -- the blot: compact, square, fills a corner",
+    "  moonlight -- the odd stitch: small and strange, the one that finishes"
+  ],
+  "ferocity_1": {
+    "id": "ferocity_1",
+    "name": "a torn strip",
+    "shape": [[0, 0], [0, 1]]
+  },
+  "ferocity_2": {
+    "id": "ferocity_2",
+    "name": "a long strip",
+    "shape": [[0, 0], [0, 1], [0, 2]]
+  },
+  "ferocity_3": {
+    "id": "ferocity_3",
+    "name": "a whole bolt",
+    "shape": [[0, 0], [0, 1], [0, 2], [0, 3]]
+  },
+  "guile_1": {
+    "id": "guile_1",
+    "name": "a narrow strip",
+    "shape": [[0, 0], [1, 0]]
+  },
+  "guile_2": {
+    "id": "guile_2",
+    "name": "an elbow",
+    "shape": [[0, 0], [1, 0], [1, 1]]
+  },
+  "guile_3": {
+    "id": "guile_3",
+    "name": "a crook",
+    "shape": [[0, 1], [0, 2], [1, 0], [1, 1]]
+  },
+  "shadow_1": {
+    "id": "shadow_1",
+    "name": "a scrap",
+    "shape": [[0, 0], [0, 1]]
+  },
+  "shadow_2": {
+    "id": "shadow_2",
+    "name": "a corner",
+    "shape": [[0, 0], [0, 1], [1, 0]]
+  },
+  "shadow_3": {
+    "id": "shadow_3",
+    "name": "a square of cloth",
+    "shape": [[0, 0], [0, 1], [1, 0], [1, 1]]
+  },
+  "mysticism_1": {
+    "id": "mysticism_1",
+    "name": "a single stitch",
+    "shape": [[0, 0]]
+  },
+  "mysticism_2": {
+    "id": "mysticism_2",
+    "name": "a step",
+    "shape": [[0, 0], [0, 1], [1, 1]]
+  },
+  "mysticism_3": {
+    "id": "mysticism_3",
+    "name": "the needle's cross",
+    "shape": [[0, 1], [1, 0], [1, 1], [1, 2]]
+  }
+}

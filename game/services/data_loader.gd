@@ -21,6 +21,8 @@ static func load_catalog(data_dir: String = DATA_DIR) -> Catalog:
 		"stitch_charts": _load_json(data_dir + "/stitch_charts.json"),
 		"testimonies": _load_json(data_dir + "/testimonies.json"),
 		"wards": _load_json(data_dir + "/wards.json"),
+		# What shape each energy card cuts when it is spent on a mend.
+		"patch_shapes": _load_json(data_dir + "/patch_shapes.json"),
 		"lattices": _load_json(data_dir + "/lattices.json"),
 		"crossings": _load_json(data_dir + "/crossings.json"),
 		"minigame_tutorials": _load_json(data_dir + "/minigame_tutorials.json"),

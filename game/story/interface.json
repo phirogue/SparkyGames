@@ -317,10 +317,15 @@
     "ward": {
       "turn": "Turn it",
       "finish": "Done mending",
+      "draw": "Draw  ·  %d left",
+      "draw_spent": "The spool is bare",
+      "draw_paw_full": "Lay that first",
+      "paw_empty": "Nothing in the paw.
+Draw, and see what the card cuts.",
+      "spool_bare": "The spool is bare.
+Mend with what is down, or stop.",
       "status": "%d of %d torn squares still open",
-      "status_whole": "Not a square of it left open.",
-      "rack_down": "%s  (down)",
-      "rack_unaffordable": "%s  (no energy)"
+      "status_whole": "Not a square of it left open."
     },
     "lattice": {
       "leave": "Step back",

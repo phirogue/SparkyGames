@@ -172,22 +172,20 @@ func _tour_stitch(screen: Control) -> void:
 	await _wait(1.1)   # the seam cinches before the outcome card arrives
 
 
-## A patch carried out of the rack and dropped on the tear: the drag the
-## owner asked for, photographed mid-air and after it lands.
+## A card off the spool, the cloth it cut, and that cloth carried onto the
+## tear: the whole loop the module is now made of (owner 2026-08-13).
 func _tour_ward(screen: Control) -> void:
+	var canvas = screen._canvas
+	screen._on_draw()
+	await _wait(0.3)
+	await _shot("ward_drawn")        # the card face, with its cloth on it
 	var move: Dictionary = screen.state.best_placement()
 	if move.is_empty():
 		return
-	var canvas = screen._canvas
-	var rack_index := 0
-	for i in screen.state.rack.size():
-		if String(screen.state.rack[i]["id"]) == String(move["patch"]):
-			rack_index = i
-	screen.on_press(canvas._rack_rects[rack_index].get_center())
+	screen.on_press(canvas.card_rect().get_center())
 	await _wait(0.2)
-	await _shot("ward_picked_up")
-	# The turn shows in the rack tile now (owner 2026-08-13), so the tour has
-	# to photograph the tile mid-swing or nobody ever looks at it.
+	# The turn shows on the card face now, so the tour has to photograph the
+	# card mid-swing or nobody ever looks at it.
 	screen._on_turn()
 	await _wait(0.1)
 	await _shot("ward_turning")
@@ -204,8 +202,9 @@ func _tour_ward(screen: Control) -> void:
 	screen.on_release(target)
 	await _wait(0.3)
 	await _shot("ward_placed")
-	screen.state.do_command({"type": "finish"})
-	screen._refresh()
+	if not Minigame.is_over(screen.state.outcome):
+		screen.state.do_command({"type": "finish"})
+		screen._refresh()
 	await _wait(0.4)
 
 

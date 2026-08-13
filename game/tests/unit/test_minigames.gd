@@ -234,54 +234,66 @@ func test_wards_can_be_mended() -> void:
 	assert_eq(bots.violations.size(), 0, "ward: %s" % str(bots.violations))
 
 
-## The economy hook: a patch is paid from the hand, and Moonlight is wild.
-## If patches were free the module would be a puzzle bolted beside the game
-## rather than a decision inside it.
-func test_ward_patches_are_paid_for_from_the_hand() -> void:
+## Owner 2026-08-13: "treat it as another card game. Each new card drawn has a
+## shape on it, the shape corresponds to the energy type." There is no rack:
+## the cost is the DRAW, and what you get for it is whatever that card cuts.
+func test_ward_drawing_spends_a_card_off_the_spool() -> void:
 	var state := WardState.create(catalog, catalog.wards["ward_practice"],
-		["mysticism_1", "shadow_1"])
-	assert_eq(state.hand.size(), 2, "two cards to spend")
-	assert_true(state.can_afford("p_domino"), "shadow pays for the shadow patch")
-	assert_true(state.can_afford("p_square"), "and the wild pays for the square")
-	assert_ok(state.do_command({"type": "place", "patch": "p_domino",
-		"row": 1, "col": 1, "rotation": 0}), "place the domino")
-	assert_eq(state.hand.size(), 1, "a card left the paw")
-	assert_eq(state.spent.size(), 1, "and went to the spent pile")
+		["shadow_3", "guile_1"])
+	assert_eq(state.drawn, "", "the paw starts empty")
+	assert_ok(state.do_command({"type": "draw"}), "draw the top of the spool")
+	assert_eq(state.drawn, "guile_1", "the top card is in the paw")
+	assert_eq(state.deck.size(), 1, "and off the spool")
+	assert_eq(state.spent.size(), 1, "spent the moment it was drawn")
+	assert_true(not state.can_draw(), "and no second card while the paw is full")
+	assert_true(not state.do_command({"type": "draw"}).get("ok", false),
+		"drawing with cloth in the paw is refused")
+
+
+## The shape a card cuts is the card's, not the ward's — a new energy card
+## owes a shape in data/patch_shapes.json or the draw is unplaceable.
+func test_ward_shapes_come_from_the_card() -> void:
+	var state := WardState.create(catalog, catalog.wards["ward_practice"], [])
+	assert_eq(state.shape_of("shadow_3").size(), 4,
+		"a worth-3 shadow card cuts a square of four")
+	assert_eq(state.shape_of("mysticism_1").size(), 1,
+		"the thinnest Moonlight card cuts a single stitch")
+	for card_id in catalog.energy_cards:
+		assert_true(not state.shape_of(String(card_id)).is_empty(),
+			"energy card '%s' cuts nothing" % card_id)
+
+
+func test_ward_a_square_of_cloth_closes_the_practice_tear() -> void:
+	var state := WardState.create(catalog, catalog.wards["ward_practice"],
+		["shadow_3"])
+	state.do_command({"type": "draw"})
+	assert_ok(state.do_command({"type": "place", "row": 1, "col": 1,
+		"rotation": 0}), "the square lands over the tear")
+	assert_eq(state.uncovered_cells().size(), 0, "nothing left open")
+	assert_eq(state.outcome, Minigame.Outcome.SUCCESS,
+		"a whole ward finishes itself")
 
 
 ## Owner 2026-08-09: patches may sit on top of each other and may hang over
 ## sound cloth. The rules stopped policing tidiness because the score already
-## does it — a patch that covers nothing new bought nothing and cost a card.
-func test_ward_patches_may_spill_onto_sound_cloth() -> void:
-	var state := WardState.create(catalog, catalog.wards["ward_practice"], TEST_DECK)
-	# The practice tear is 2x2 at (1,1). Laying a domino on plain cloth is now
-	# legal, pays a card, and mends nothing.
+## does it — cloth that covers nothing new bought nothing, and the card is
+## gone either way.
+func test_ward_patches_may_spill_onto_sound_cloth_and_stack() -> void:
+	# The spool is drawn from the END, so shadow_1 (two straight) comes first
+	# and the 2x2 square comes second.
+	var state := WardState.create(catalog, catalog.wards["ward_practice"],
+		["shadow_3", "shadow_1"])
 	var open_before: int = state.uncovered_cells().size()
-	assert_ok(state.do_command({"type": "place", "patch": "p_domino",
-		"row": 0, "col": 0, "rotation": 0}), "a patch may land on sound cloth")
-	assert_eq(state.spent.size(), 1, "and it still costs a card")
+	state.do_command({"type": "draw"})
+	assert_ok(state.do_command({"type": "place", "row": 0, "col": 0,
+		"rotation": 0}), "cloth may land on sound cloth")
 	assert_eq(state.uncovered_cells().size(), open_before,
 		"but it closes nothing, which is the whole penalty")
-
-
-func test_ward_patches_may_stack_and_only_coverage_counts() -> void:
-	var state := WardState.create(catalog, catalog.wards["ward_practice"],
-		["mysticism_1", "shadow_1", "guile_1"])
-	# The square covers the whole 2x2 tear...
-	assert_ok(state.do_command({"type": "place", "patch": "p_square",
-		"row": 1, "col": 1, "rotation": 0}), "the square fills the tear")
-	assert_eq(state.uncovered_cells().size(), 0, "nothing left open")
-	assert_eq(state.outcome, Minigame.Outcome.SUCCESS, "a whole ward finishes itself")
-	# ...and a second patch laid over it would have been legal and worthless.
-	var stacked := WardState.create(catalog, catalog.wards["ward_practice"],
-		["shadow_1", "guile_1"])
-	assert_ok(stacked.do_command({"type": "place", "patch": "p_domino",
-		"row": 1, "col": 1, "rotation": 0}), "the domino takes two squares")
-	assert_eq(stacked.uncovered_cells().size(), 2, "two still open")
-	assert_ok(stacked.do_command({"type": "place", "patch": "p_dot",
-		"row": 1, "col": 1, "rotation": 0}), "a dot may sit on top of it")
-	assert_eq(stacked.uncovered_cells().size(), 2, "and mends nothing new")
-	assert_eq(stacked.spent.size(), 2, "while still costing its card")
+	assert_eq(state.spent.size(), 1, "and the card is still gone")
+	state.do_command({"type": "draw"})
+	assert_ok(state.do_command({"type": "place", "row": 0, "col": 0,
+		"rotation": 0}), "and a second piece may sit on top of the first")
+	assert_eq(state.spent.size(), 2, "costing its own card")
 
 
 ## Lifting the top of a stack must uncover back to the patch underneath, not
@@ -289,42 +301,46 @@ func test_ward_patches_may_stack_and_only_coverage_counts() -> void:
 ## order rather than erased cell by cell.
 func test_ward_lifting_the_top_of_a_stack_leaves_what_was_under_it() -> void:
 	var state := WardState.create(catalog, catalog.wards["ward_practice"],
-		["shadow_1", "guile_1"])
-	state.do_command({"type": "place", "patch": "p_domino",
-		"row": 1, "col": 1, "rotation": 0})
-	state.do_command({"type": "place", "patch": "p_dot",
-		"row": 1, "col": 1, "rotation": 0})
-	assert_eq(String(state.covered["1,1"]), "p_dot", "the dot is on top")
-	assert_ok(state.do_command({"type": "lift", "patch": "p_dot"}))
-	assert_eq(String(state.covered["1,1"]), "p_domino",
-		"lifting the dot uncovers the domino, not the cloth")
-	assert_eq(state.uncovered_cells().size(), 2, "and opens nothing new")
+		["mysticism_1", "shadow_1"])
+	state.do_command({"type": "draw"})            # shadow_1, two straight
+	state.do_command({"type": "place", "row": 1, "col": 1, "rotation": 0})
+	var under := String(state.placed_order[0])
+	state.do_command({"type": "draw"})            # mysticism_1, one stitch
+	state.do_command({"type": "place", "row": 1, "col": 1, "rotation": 0})
+	var over := String(state.placed_order[1])
+	assert_eq(String(state.covered["1,1"]), over, "the single stitch is on top")
+	assert_ok(state.do_command({"type": "lift", "patch": over}))
+	assert_eq(String(state.covered["1,1"]), under,
+		"lifting it uncovers the piece beneath, not the cloth")
 
 
-## Owner 2026-08-13: "the energy goes down even if I choose not to play the
-## card afterwards." A patch you took back off is a patch you did not play, so
-## lifting hands the exact card that paid straight back to the paw. What is
-## scarce is which patches you lay, never how steady your thumb is.
-func test_ward_lifting_a_patch_hands_its_card_back() -> void:
+## Lifting picks the cloth back UP. It must not un-spend the card (that went
+## at the draw, which is where the decision was) and must not put anything
+## back on the spool — otherwise the same card winds down forever.
+func test_ward_lifting_moves_cloth_and_never_cards() -> void:
 	var state := WardState.create(catalog, catalog.wards["ward_practice"],
 		["mysticism_1", "shadow_1"])
-	assert_ok(state.do_command({"type": "place", "patch": "p_domino",
-		"row": 1, "col": 1, "rotation": 0}), "the domino goes down")
-	assert_eq(state.hand.size(), 1, "a card left the paw")
-	assert_eq(String(state.spent[0]), "shadow_1", "the shadow card paid for it")
-	assert_ok(state.do_command({"type": "lift", "patch": "p_domino"}))
-	assert_eq(state.spent.size(), 0, "lifting it un-spends the card")
-	assert_true(state.hand.has("shadow_1"),
-		"and the card that comes back is the one that paid, got %s" % str(state.hand))
-	# It can then be laid again — which is the point of a free undo.
-	assert_ok(state.do_command({"type": "place", "patch": "p_domino",
-		"row": 1, "col": 1, "rotation": 0}), "and it can go down again")
+	state.do_command({"type": "draw"})
+	state.do_command({"type": "place", "row": 0, "col": 0, "rotation": 0})
+	var spent_before: int = state.spent.size()
+	var deck_before: int = state.deck.size()
+	var patch_key := String(state.placed_order[0])
+	assert_ok(state.do_command({"type": "lift", "patch": patch_key}))
+	assert_eq(state.drawn, "shadow_1", "the cloth is back in the paw")
+	assert_eq(state.spent.size(), spent_before, "the card stays spent")
+	assert_eq(state.deck.size(), deck_before, "and nothing goes back on the spool")
+	assert_true(not state.do_command({"type": "draw"}).get("ok", false),
+		"a full paw cannot draw")
+	assert_ok(state.do_command({"type": "place", "row": 1, "col": 1,
+		"rotation": 0}), "and the same cloth can be laid somewhere better")
 
 
 func test_ward_gap_effects_match_the_cells_left_open() -> void:
-	var state := WardState.create(catalog, catalog.wards["ward_hall"], ["shadow_1"])
-	assert_ok(state.do_command({"type": "place", "patch": "p_domino",
-		"row": 1, "col": 1, "rotation": 0}), "one patch, then out of matching energy")
+	var state := WardState.create(catalog, catalog.wards["ward_hall"],
+		["shadow_1"])
+	state.do_command({"type": "draw"})
+	assert_ok(state.do_command({"type": "place", "row": 1, "col": 1,
+		"rotation": 0}), "one piece, then the spool is bare")
 	assert_ok(state.do_command({"type": "finish"}))
 	assert_eq(state.outcome, Minigame.Outcome.PARTIAL, "a thin mend is partial")
 	assert_eq(state.carried_effects().size(), state.uncovered_cells().size(),

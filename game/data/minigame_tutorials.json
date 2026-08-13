@@ -97,24 +97,29 @@
         "text": "The dark squares are the tear. Every square you cover is a draft that does not get in."
       },
       {
-        "target": "board:rack",
-        "text": "Each patch is paid for with an energy card of its own humour — the glyph under it is the price, and the strip above the rack is what you have. Moonlight pays for any of them."
+        "target": "draw",
+        "text": "There is no basket of patches. There is your spool. DRAW takes the next card off it and spends it — and hands you whatever cloth that card cuts.",
+        "wait": true
       },
       {
-        "target": "board:rack",
-        "text": "DRAG a patch off the rack and drop it on the cloth. Tap a patch already down to lift it — cloth and card both come back, so nothing here punishes a slip of the thumb."
-      },
-      {
-        "target": "turn",
-        "text": "TURN IT rotates the patch you are holding, a quarter at a time. Watch its own picture on the rack: that is where the turn shows."
+        "target": "board:card",
+        "text": "The humour is the shape of the cut and the worth is its size. Ferocity cuts long strips, guile cuts crooked ones, shadow cuts squares, and Moonlight cuts the small strange piece that finishes a corner."
       },
       {
         "target": "board:hole",
-        "text": "Patches may sit on top of each other, and may hang over sound cloth. Nobody is grading the neatness — only the squares still OPEN count against you."
+        "text": "DRAG the cloth onto the ward. Tap a patch already down to pick it back up — moving cloth costs nothing. Only drawing does."
+      },
+      {
+        "target": "turn",
+        "text": "TURN IT swings the piece a quarter at a time. Watch its own picture on the card: that is where the turn shows."
+      },
+      {
+        "target": "board:hole",
+        "text": "Patches may sit on top of each other and may hang over sound cloth. Nobody is grading the neatness — only the squares still OPEN count against you."
       },
       {
         "target": "finish",
-        "text": "Stop when you have spent what you are willing to spend. Every square still open follows you into the next fight."
+        "text": "So the only real question is how many more cards you are willing to spend here. Every one you draw is one the next fight will not have; every square still open follows you into it."
       }
     ]
   },

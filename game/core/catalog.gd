@@ -62,7 +62,13 @@ var favors: Dictionary = {}         # id -> {id, name, guild, flavor, redeem_lin
 # adding a puzzle never means touching a scene script.
 var stitch_charts: Dictionary = {}  # id -> {width, height, clues, solution, mirrored}
 var testimonies: Dictionary = {}    # id -> {witness, ribbons, patience}
-var wards: Dictionary = {}          # id -> {width, height, hole, rack, effects}
+var wards: Dictionary = {}          # id -> {width, height, hole, effects}
+## What cloth each energy card cuts when it is spent on a mend
+## (data/patch_shapes.json). Keyed by energy card id: the humour is the
+## character of the cut, the worth is its size. Patch the Ward deals
+## these off the run's own spool rather than laying out a rack
+## (owner 2026-08-13).
+var patch_shapes: Dictionary = {}   # energy card id -> {id, name, shape}
 var lattices: Dictionary = {}       # id -> {threads, elastic, error_cost}
 var crossings: Dictionary = {}      # id -> {length, hazard, gusts}
 ## How each module TEACHES itself, as coach-mark steps over the live board
@@ -98,6 +104,7 @@ func _init(data: Dictionary = {}) -> void:
 	stitch_charts = data.get("stitch_charts", {})
 	testimonies = data.get("testimonies", {})
 	wards = data.get("wards", {})
+	patch_shapes = data.get("patch_shapes", {})
 	lattices = data.get("lattices", {})
 	crossings = data.get("crossings", {})
 	minigame_tutorials = data.get("minigame_tutorials", {})
@@ -372,6 +379,7 @@ func tutorial_steps(module: String) -> Array:
 func _validate_minigames(deep := false) -> Array[String]:
 	var problems: Array[String] = []
 	problems.append_array(_validate_tutorials())
+	problems.append_array(_validate_patch_shapes())
 	for id in stitch_charts:
 		problems.append_array(_validate_stitch_chart(id, stitch_charts[id]))
 	for id in testimonies:
@@ -410,6 +418,50 @@ func _validate_tutorials() -> Array[String]:
 				problems.append("minigame '%s' tutorial step %d waits on an untargeted action"
 					% [module, i])
 	return problems
+
+
+## Every energy card owes a patch shape, because Patch the Ward deals the
+## player's own spool at them (owner 2026-08-13) — an energy card with no
+## shape is an unplaceable draw, and the player cannot tell that from a bug.
+## The shape must also be ONE piece of cloth: a patch with a cell floating
+## off on its own would lay two patches for one card.
+func _validate_patch_shapes() -> Array[String]:
+	var problems: Array[String] = []
+	for card_id in energy_cards:
+		if not patch_shapes.has(card_id):
+			problems.append("energy card '%s' cuts no patch shape" % card_id)
+	for card_id in patch_shapes:
+		if String(card_id).begins_with("_"):
+			continue
+		if not energy_cards.has(card_id):
+			problems.append("patch shape '%s' is for no energy card" % card_id)
+		var shape: Array = patch_shapes[card_id].get("shape", [])
+		if shape.is_empty():
+			problems.append("patch shape '%s' has no cells" % card_id)
+			continue
+		if not _shape_is_connected(shape):
+			problems.append("patch shape '%s' is not one piece of cloth" % card_id)
+	return problems
+
+
+## Flood fill across edge-sharing cells. A patch is cloth, not confetti.
+func _shape_is_connected(shape: Array) -> bool:
+	var cells := {}
+	for offset in shape:
+		cells["%d,%d" % [int(offset[0]), int(offset[1])]] = true
+	var start := String(cells.keys()[0])
+	var seen := {start: true}
+	var queue: Array[String] = [start]
+	while not queue.is_empty():
+		var current: String = queue.pop_back()
+		var parts := current.split(",")
+		for step in [[-1, 0], [1, 0], [0, -1], [0, 1]]:
+			var key := "%d,%d" % [int(parts[0]) + int(step[0]),
+				int(parts[1]) + int(step[1])]
+			if cells.has(key) and not seen.has(key):
+				seen[key] = true
+				queue.append(key)
+	return seen.size() == cells.size()
 
 
 const OUTCOME_KEYS: Array[String] = ["success", "partial", "walk_away"]
@@ -537,18 +589,9 @@ func _validate_ward(id: String, ward: Dictionary, deep: bool) -> Array[String]:
 		if parts.size() != 2 or int(parts[0]) < 0 or int(parts[0]) >= height \
 				or int(parts[1]) < 0 or int(parts[1]) >= width:
 			problems.append("ward '%s' tear cell '%s' is off the grid" % [id, cell])
-	var rack_area := 0
-	for patch in ward.get("rack", []):
-		var humour := String(patch.get("humour", ""))
-		if not HUMOURS.has(humour):
-			problems.append("ward '%s' patch '%s' has unknown humour '%s'" % [
-				id, patch.get("id", "?"), humour])
-		if patch.get("shape", []).is_empty():
-			problems.append("ward '%s' patch '%s' has no shape" % [id, patch.get("id", "?")])
-		rack_area += patch.get("shape", []).size()
-	if rack_area < hole.size():
-		problems.append("ward '%s' rack covers %d cells, the tear is %d — unmendable" % [
-			id, rack_area, hole.size()])
+	if ward.has("rack"):
+		problems.append(("ward '%s' still carries a rack — patches come off the "
+			+ "spool now (data/patch_shapes.json), not out of the ward") % id)
 	problems.append_array(Minigame.unknown_effects(
 		[ward.get("gap_effect", "draft")], Minigame.GAP_EFFECTS).map(
 			func(e): return "ward '%s' has unknown gap effect '%s'" % [id, e]))
@@ -569,18 +612,32 @@ func _validate_ward(id: String, ward: Dictionary, deep: bool) -> Array[String]:
 	return problems
 
 
-## Exact-cover search: can the rack tile the tear with no overlap and no
-## spill? Small boards, heavy pruning (always fill the first open cell), so
-## this is cheap enough for a test but still not something to do at boot.
+## Exact-cover search: can the tear be tiled with no overlap and no spill by
+## the cloth the SPOOL can cut? Patches now come off drawn energy cards
+## (owner 2026-08-13), so the pieces are the shape table rather than a rack,
+## and a shape may be used more than once — a deck holds several of a card,
+## and the search's job is to prove a perfect mend is reachable at all.
+##
+## Small boards, heavy pruning (always fill the first open cell), so this is
+## cheap enough for a test but still not something to do at boot.
 func _hole_is_coverable(ward: Dictionary) -> bool:
 	var open := {}
 	for cell in ward.get("hole", []):
 		open[String(cell)] = true
-	var rack: Array = ward.get("rack", [])
-	return _cover_search(open, rack, {})
+	var pieces: Array = []
+	for card_id in patch_shapes:
+		if String(card_id).begins_with("_"):
+			continue   # the file's own notes, not a piece of cloth
+		pieces.append({"id": String(card_id),
+			"shape": patch_shapes[card_id].get("shape", [])})
+	return _cover_search(open, pieces)
 
 
-func _cover_search(open: Dictionary, rack: Array, used: Dictionary) -> bool:
+## A piece may be laid more than once: the spool holds several of a card, and
+## the question is whether the tear CAN be perfectly closed, not whether one
+## of each shape would do it. Every placement strictly shrinks `open`, so the
+## recursion still terminates without a used-set.
+func _cover_search(open: Dictionary, rack: Array) -> bool:
 	if open.is_empty():
 		return true
 	var keys: Array = open.keys()
@@ -590,9 +647,6 @@ func _cover_search(open: Dictionary, rack: Array, used: Dictionary) -> bool:
 	var target_row := int(target_parts[0])
 	var target_col := int(target_parts[1])
 	for patch in rack:
-		var patch_id := String(patch["id"])
-		if used.has(patch_id):
-			continue
 		for rotation in 4:
 			var shape := WardState.rotate_shape(patch.get("shape", []), rotation)
 			# Anchor each cell of the shape onto the target in turn, so the
@@ -613,11 +667,8 @@ func _cover_search(open: Dictionary, rack: Array, used: Dictionary) -> bool:
 				var next_open := open.duplicate()
 				for key in cells:
 					next_open.erase(key)
-				used[patch_id] = true
-				if _cover_search(next_open, rack, used):
-					used.erase(patch_id)
+				if _cover_search(next_open, rack):
 					return true
-				used.erase(patch_id)
 	return false
 
 

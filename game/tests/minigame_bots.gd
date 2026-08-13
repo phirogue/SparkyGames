@@ -330,33 +330,48 @@ func chaos_testimony(testimony_id: String, held: Array, seed_value: int) -> void
 func _ward_snapshot(state) -> String:
 	return JSON.stringify({
 		"covered": state.covered, "placed": state.placed.keys(),
-		"hand": state.hand, "spent": state.spent, "outcome": state.outcome,
+		"drawn": state.drawn, "deck": state.deck, "spent": state.spent,
+		"outcome": state.outcome,
 	})
 
 
-## Solver: greedily fill the tear, first-open-cell first. It does not have
-## to find the perfect cover — it has to prove that legal play converges and
-## that the effects a mend carries out are coherent.
-func solve_ward(ward_id: String, hand: Array) -> Dictionary:
+## Solver: wind the spool down, laying each drawn piece where it closes the
+## most tear. It does not have to find a perfect mend — it has to prove that
+## legal play converges, that drawing really costs, and that the effects a
+## mend carries out are coherent.
+##
+## Rebuilt for the draw model (owner 2026-08-13): there is no rack to search,
+## so the loop is DRAW, then place what came.
+func solve_ward(ward_id: String, deck: Array) -> Dictionary:
 	_label = "ward/%s/solver" % ward_id
-	var state := WardState.create(catalog, catalog.wards[ward_id], hand)
+	var state := WardState.create(catalog, catalog.wards[ward_id], deck)
 	var commands := 0
-	# Greedy on COVERAGE, not on the first legal square. Patches may now be
-	# laid anywhere on the cloth, so "the first placement that fits" is the
-	# top-left corner every time and proves nothing about mendability.
-	while commands < COMMAND_CAP:
+	var drawn := 0
+	while commands < COMMAND_CAP and not Minigame.is_over(state.outcome):
+		if state.drawn == "":
+			if state.deck.is_empty() or state.uncovered_cells().is_empty():
+				break
+			var before_draw := _ward_snapshot(state)
+			var draw_command := {"type": "draw"}
+			var draw_result := state.do_command(draw_command)
+			_guard(state, draw_command, before_draw, draw_result, _ward_snapshot)
+			drawn += 1
+			commands += 1
+			continue
+		# Greedy on COVERAGE, not on the first legal square: cloth may be laid
+		# anywhere, so "the first placement that fits" is the top-left corner
+		# every time and proves nothing about mendability.
 		var move := state.best_placement()
 		if move.is_empty():
-			break
+			# Nothing this piece can still close. Lay it out of the way rather
+			# than stalling — a paw that never empties can never draw again.
+			move = {"row": 0, "col": 0, "rotation": 0}
 		var before := _ward_snapshot(state)
-		var command := {"type": "place", "patch": String(move["patch"]),
-			"row": int(move["row"]), "col": int(move["col"]),
-			"rotation": int(move["rotation"])}
+		var command := {"type": "place", "row": int(move["row"]),
+			"col": int(move["col"]), "rotation": int(move["rotation"])}
 		var result := state.do_command(command)
 		_guard(state, command, before, result, _ward_snapshot)
 		commands += 1
-		if Minigame.is_over(state.outcome):
-			break
 	if not Minigame.is_over(state.outcome):
 		state.do_command({"type": "finish"})
 	var uncovered := state.uncovered_cells().size()
@@ -365,96 +380,99 @@ func solve_ward(ward_id: String, hand: Array) -> Dictionary:
 		_violation("a perfect mend was declared with %d cells still open" % uncovered)
 	if state.outcome == Minigame.Outcome.PARTIAL and effects.size() != uncovered:
 		_violation("%d open cells produced %d gap effects" % [uncovered, effects.size()])
-	if state.spent.size() != state.placed.size():
-		_violation("%d patches down but %d cards spent — the mend must cost" % [
-			state.placed.size(), state.spent.size()])
-	_guard_finished(state, [{"type": "finish"},
-		{"type": "place", "patch": "p_dot", "row": 0, "col": 0, "rotation": 0}],
-		_ward_snapshot)
+	if state.spent.size() != drawn:
+		_violation("%d cards drawn but %d spent — drawing must cost" % [
+			drawn, state.spent.size()])
+	if state.deck.size() + state.spent.size() != deck.size():
+		_violation("the spool gained or lost cards: %d + %d != %d" % [
+			state.deck.size(), state.spent.size(), deck.size()])
+	_guard_finished(state, [{"type": "finish"}, {"type": "draw"},
+		{"type": "place", "row": 0, "col": 0, "rotation": 0}], _ward_snapshot)
 	return {"commands": commands, "outcome": state.outcome,
-		"uncovered": uncovered, "spent": state.spent.size()}
+		"uncovered": uncovered, "drawn": drawn}
 
 
-## Lifting a patch frees its cells AND hands its card back (owner 2026-08-13:
-## "the energy goes down even if I choose not to play the card afterwards").
-## The card that comes back must be the one that paid, and the paw must be
-## exactly what it was before the patch went down — a refund that returned
-## the wrong humour would be a quiet way to launder energy.
-func probe_ward_lift(ward_id: String, hand: Array) -> void:
+## Lifting picks a laid patch back UP into the paw. It must not un-spend the
+## card (the card went at the draw, which is where the decision was) and it
+## must not put anything back on the spool — otherwise a player could wind the
+## same card down forever and the wager is not a wager.
+func probe_ward_lift(ward_id: String, deck: Array) -> void:
 	_label = "ward/%s/lift" % ward_id
-	var state := WardState.create(catalog, catalog.wards[ward_id], hand)
-	# The best first move, so the patch is over the tear and lifting it has
-	# something to give back.
+	var state := WardState.create(catalog, catalog.wards[ward_id], deck)
+	state.do_command({"type": "draw"})
+	var card := state.drawn
 	var move := state.best_placement()
 	if move.is_empty():
 		return
-	var patch_id := String(move["patch"])
-	var hand_before := hand.duplicate()
-	hand_before.sort()
-	state.do_command({"type": "place", "patch": patch_id,
-		"row": int(move["row"]), "col": int(move["col"]),
-		"rotation": int(move["rotation"])})
+	state.do_command({"type": "place", "row": int(move["row"]),
+		"col": int(move["col"]), "rotation": int(move["rotation"])})
 	if Minigame.is_over(state.outcome):
-		return  # that patch finished the mend; there is nothing left to lift
+		return  # that piece finished the mend; there is nothing left to lift
 	var spent_after_place: int = state.spent.size()
+	var deck_after_place: int = state.deck.size()
 	var open_after_place: int = state.uncovered_cells().size()
-	# Only the TORN squares under it reopen: a patch may hang over sound
-	# cloth now, and sound cloth was never counted as mended.
+	var patch_key := String(state.placed_order[0])
+	# Only the TORN squares under it reopen: cloth may hang over sound cloth,
+	# and sound cloth was never counted as mended.
 	var torn_under := 0
-	for key in state.placed[patch_id]["cells"]:
+	for key in state.placed[patch_key]["cells"]:
 		if state.hole.has(String(key)):
 			torn_under += 1
-	state.do_command({"type": "lift", "patch": patch_id})
-	if state.spent.size() != spent_after_place - 1:
-		_violation("lifting a patch left its card spent — a patch not played costs nothing")
-	var hand_after_lift: Array = state.hand.duplicate()
-	hand_after_lift.sort()
-	if hand_after_lift != hand_before:
-		_violation("lifting handed back a different paw than the one that paid")
+	state.do_command({"type": "lift", "patch": patch_key})
+	if state.spent.size() != spent_after_place or state.deck.size() != deck_after_place:
+		_violation("lifting a patch moved cards — the draw is what costs, not the placing")
+	if state.drawn != card:
+		_violation("lifting put a different piece of cloth in the paw")
 	if state.uncovered_cells().size() != open_after_place + torn_under:
 		_violation("lifting freed %d torn cells, expected %d" % [
 			state.uncovered_cells().size() - open_after_place, torn_under])
-	if state.placed.has(patch_id):
+	if state.placed.has(patch_key):
 		_violation("a lifted patch is still recorded as placed")
+	# A full paw cannot draw and cannot lift again: one piece of cloth at a
+	# time, or the wind-down means nothing.
+	if state.can_draw():
+		_violation("the spool paid out while there was cloth in the paw")
 
 
-func chaos_ward(ward_id: String, hand: Array, seed_value: int) -> void:
+func chaos_ward(ward_id: String, deck: Array, seed_value: int) -> void:
 	_label = "ward/%s/chaos seed %d" % [ward_id, seed_value]
 	_rng = CoreRng.new(seed_value)
-	var state := WardState.create(catalog, catalog.wards[ward_id], hand)
-	var patch_ids: Array = []
-	for patch in state.rack:
-		patch_ids.append(String(patch["id"]))
+	var state := WardState.create(catalog, catalog.wards[ward_id], deck)
 	var commands := 0
 	while not Minigame.is_over(state.outcome) and commands < COMMAND_CAP:
-		var roll := _rng.pick_index(8)
+		var roll := _rng.pick_index(9)
 		var command: Dictionary
 		if roll == 0:
-			command = [{}, {"type": "place", "patch": "ghost", "row": 0, "col": 0},
+			command = [{}, {"type": "place", "row": -5, "col": 99, "rotation": 17},
 				{"type": "lift", "patch": "ghost"},
-				{"type": "place", "patch": String(patch_ids[0]),
-					"row": -5, "col": 99, "rotation": 17}][_rng.pick_index(4)]
+				{"type": "place", "row": 0, "col": 0, "rotation": 0}][_rng.pick_index(4)]
 		elif roll == 1:
-			command = {"type": "lift",
-				"patch": String(patch_ids[_rng.pick_index(patch_ids.size())])}
-		elif roll == 7:
+			var keys: Array = state.placed_order
+			command = {"type": "lift", "patch": "ghost"} if keys.is_empty() \
+				else {"type": "lift",
+					"patch": String(keys[_rng.pick_index(keys.size())])}
+		elif roll == 8:
 			command = {"type": "finish"}
+		elif roll < 5:
+			command = {"type": "draw"}
 		else:
 			command = {"type": "place",
-				"patch": String(patch_ids[_rng.pick_index(patch_ids.size())]),
 				"row": _rng.pick_index(state.height),
 				"col": _rng.pick_index(state.width),
 				"rotation": _rng.pick_index(4)}
 		var before := _ward_snapshot(state)
 		var result := state.do_command(command)
 		_guard(state, command, before, result, _ward_snapshot)
-		if state.hand.size() + state.spent.size() != hand.size():
+		# Energy is conserved: every card is on the spool, in the paw as cloth
+		# already spent, or in the spent pile. Cloth in the paw is spent, so it
+		# is counted there and never twice.
+		if state.deck.size() + state.spent.size() != deck.size():
 			_violation("energy was created or destroyed: %d + %d != %d" % [
-				state.hand.size(), state.spent.size(), hand.size()])
-		# Patches may spill onto sound cloth and stack on each other now
-		# (owner 2026-08-09), so `covered` legitimately exceeds the tear. What
-		# must still hold: nothing is covered off the ward, and the mend can
-		# never close more torn squares than the tear has.
+				state.deck.size(), state.spent.size(), deck.size()])
+		# Patches may spill onto sound cloth and stack on each other (owner
+		# 2026-08-09), so `covered` legitimately exceeds the tear. What must
+		# still hold: nothing is covered off the ward, and the mend can never
+		# close more torn squares than the tear has.
 		for key in state.covered:
 			var parts := String(key).split(",")
 			var r := int(parts[0])

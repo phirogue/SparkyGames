@@ -145,9 +145,9 @@ func _report_ward(bots: MinigameBots) -> void:
 		bots.probe_ward_lift(ward_id, TEST_DECK)
 		var ward: Dictionary = catalog.wards[ward_id]
 		_row(ward_id, _verdict(bots, before),
-			"tear %d, greedy left %d open, spent %d cards" % [
+			"tear %d, greedy left %d open, wound %d off the spool" % [
 				ward.get("hole", []).size(), int(summary["uncovered"]),
-				int(summary["spent"])])
+				int(summary["drawn"])])
 
 
 func _report_lattice(bots: MinigameBots) -> void:
