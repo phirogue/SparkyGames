@@ -250,6 +250,8 @@ func _tour_crossing(screen: Control) -> void:
 	await _wait(0.3)
 	await _shot("crossing_paid")       # cards on the way, the count made up
 	screen._command({"type": "go"}, "go")
+	await _wait(0.15)
+	await _shot("crossing_drawing")    # the card, mid-air, off the spool
 	await _wait(0.4)
 	await _shot("crossing_went")       # the next thing in the road
 	screen._command({"type": "read_ahead"}, "peek")

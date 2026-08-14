@@ -268,6 +268,9 @@ func _command(command: Dictionary, key: String) -> void:
 	if Minigame.is_over(state.outcome):
 		return
 	var hp_before := state.player_hp
+	# The card moving on will deal him, read BEFORE the command — afterwards
+	# the top of the spool is a different card.
+	var incoming := "" if state.deck.is_empty() else String(state.deck.back())
 	var result := state.do_command(command)
 	if not result.get("ok", false):
 		_say(String(result.get("error", "")))
@@ -276,6 +279,11 @@ func _command(command: Dictionary, key: String) -> void:
 		coach.notify(key)
 	match String(command.get("type", "")):
 		"go":
+			# Moving on deals one card back into the paw, and the owner asked
+			# to SEE that happen (2026-08-13) — the hand simply having one more
+			# card in it the next time you look is not feedback.
+			if incoming != "" and state.hand.has(incoming):
+				_anim_draw(incoming)
 			if result.get("bitten", false):
 				_say(Strings.line("minigames.crossing.bitten",
 					[int(result.get("hurt", 0))]))
@@ -544,6 +552,29 @@ func _card_chip(card_id: String, on_way: bool, useful: bool) -> Control:
 
 
 # ---------------------------------------------------------------- animations
+
+## A card comes off the spool, face up, and lands in the paw.
+func _anim_draw(card_id: String) -> void:
+	if not _booted or not _catalog.energy_cards.has(card_id):
+		return
+	var ghost := _card_chip(card_id, false, true)
+	ghost.z_index = 58
+	ghost.scale = Vector2(0.6, 0.6)
+	ghost.pivot_offset = CARD_SIZE / 2.0
+	ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(ghost)
+	var spool: Label = _chips["spool"]
+	ghost.global_position = spool.global_position - CARD_SIZE * 0.3
+	var land := _paw_layer.global_position + Vector2(
+		(_paw_layer.size.x - CARD_SIZE.x) * 0.5, 18.0)
+	var fly := ghost.create_tween().set_parallel()
+	fly.tween_property(ghost, "global_position", land, 0.34) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	fly.tween_property(ghost, "scale", Vector2.ONE, 0.34) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	fly.chain().tween_property(ghost, "modulate:a", 0.0, 0.1)
+	fly.chain().tween_callback(ghost.queue_free)
+
 
 func _anim_bite(hurt: int) -> void:
 	if not _booted:
