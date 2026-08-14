@@ -1,0 +1,82 @@
+% The Nine Lives of Ashcat -- a novel adaptation of the SparkyGames game.
+% Build: pdflatex -interaction=nonstopmode main.tex  (run twice for the TOC)
+\documentclass[11pt,twoside]{book}
+
+\usepackage[paperwidth=6in,paperheight=9in,
+            top=0.9in,bottom=0.9in,inner=0.85in,outer=0.7in]{geometry}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+
+\frenchspacing
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{1.2em}
+
+% Scene break: a small centered flourish.
+\newcommand{\scenebreak}{%
+  \par\bigskip
+  \begin{center}\(\ast\quad\ast\quad\ast\)\end{center}
+  \bigskip\par\noindent}
+
+\raggedbottom
+
+\begin{document}
+
+\frontmatter
+
+% ---------- Title page ----------
+\begin{titlepage}
+  \centering
+  \vspace*{1.6in}
+  {\Huge\scshape The Nine Lives\\[0.35em] of Ashcat\par}
+  \vspace{0.6in}
+  {\large\itshape A Mystery of Hollowmere\par}
+  \vfill
+  {\large SparkyGames\par}
+  \vspace{0.8in}
+\end{titlepage}
+
+% ---------- Copyright page ----------
+\thispagestyle{empty}
+\vspace*{\fill}
+\begin{center}
+\begin{minipage}{0.85\textwidth}\centering\small
+Adapted from the video game \emph{The Nine Lives of Ashcat}.\\[0.6em]
+This book, like the game it grew from, was made with substantial help
+from artificial intelligence. We think honesty about that is worth more
+than mystique.\\[0.6em]
+All persons, cats, guilds, geese, and bureaucracies of death depicted
+herein are fictional. The Mere, in particular, does not exist, and
+would prefer you kept believing that.
+\end{minipage}
+\end{center}
+\vspace*{\fill}
+\clearpage
+
+\tableofcontents
+
+\mainmatter
+
+\input{chapters/00_prologue}
+
+\part{Wax and Wick}
+\input{chapters/01_the_carrying}
+\input{chapters/02_the_thread_itself}
+\input{chapters/03_creditors}
+\input{chapters/04_the_city_talks}
+\input{chapters/05_audience_of_wax}
+
+\part{The Quiet Roosts}
+\input{chapters/06_the_quiet_gentleman}
+\input{chapters/07_gargoyle_and_ghost}
+\input{chapters/08_remembered_days}
+\input{chapters/09_the_quiet_roosts}
+
+\part{The Ninth Bell}
+\input{chapters/10_slow_clock_escrow_key}
+\input{chapters/11_testimony_last_parcel}
+\input{chapters/12_the_ninth_bell}
+
+\input{chapters/13_epilogue}
+
+\end{document}
