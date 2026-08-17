@@ -12,10 +12,12 @@
       "lines": [
         [
           "Her window is ahead now.",
-          "Dark.",
           "",
-          "Her window is never dark."
-        ]
+          "The shutters are closed."
+        ],
+        "Old green shutters that fold back against the brick, and they have been folded back every evening of my life: in rain, in frost, in the week the chimney caught.",
+        "She did not close them for weather. She did not close them for company. She did not close them.",
+        "Something in me tried to file that and could not find the drawer. So I did what anybody does with a fact that will not sit down. I told myself she was out."
       ]
     },
     {
@@ -24,8 +26,8 @@
       "flag": "prologue_route",
       "lines": [
         "Two ways home from here.",
-        "The long way passes the Lamplighters' hall — whatever silenced the lamps went wrong there first.",
-        "The fast way is over the fences. Now."
+        "The long way passes the Lamplighters' hall — whatever silenced the lamps went wrong there first. Eleven minutes, perhaps twelve.",
+        "The fast way is over the fences, and the fences are a young cat's road."
       ],
       "choices": [
         "The long way — see what silenced the lamps",
@@ -45,8 +47,11 @@
       "portrait": "sc_lamplighters_hall",
       "art_desc": "Lamplighters' guild hall interior, abandoned mid-shift: racked ladders, cold kettle, one silver thread glinting on a lamp-hook",
       "lines": [
-        "The hall: door open, ladders racked, kettle cold. Nobody.",
-        "Caught on a lamp-hook: a thread of silver. HER stitching. She was here tonight. Why was she HERE?"
+        "I took the long way, and I have had a long time to decide why. Because the route had a wrongness at the head of it. Because her voice said look before you leap, Ash. Because the fences would have cost me a breath I had already had taken off me once tonight.",
+        "All three are true. I have not decided.",
+        "The hall stood open. Door wide, ladders racked, coats on their pegs. The kettle on the little stove was cold, and a guild hall's kettle is never cold.",
+        "Forty men and women walk out of this room every evening and light a city. Nobody was in it.",
+        "Caught on a lamp-hook by the door, glinting where it had snagged: a thread of silver. HER stitching. I would know it under floodwater. Why was she HERE?"
       ],
       "notes": [
         "❋ Her Stitching joins your deck — a Moonlight 2, and the only card of its kind you own."
@@ -61,8 +66,8 @@
       },
       "lines": [
         "Out of the hall and eleven streets home, and I do not remember eight of them.",
-        "The fog thins near the Mere. Ordinary houses. Ordinary gates. A cat crossing an ordinary city at an unreasonable speed.",
-        "Her street. Her gate. Her drainpipe, the one I have used nine hundred times."
+        "The fog thinning near the Mere. Ordinary houses, ordinary gates, a cat crossing an ordinary city at a speed that was going to cost him.",
+        "Her street. Her gate. Her drainpipe, the one I have used nine hundred times, and up — slower than nine hundred times, my back legs arguing the whole way."
       ]
     },
     {
@@ -75,9 +80,9 @@
       "portrait": "sc_over_the_fences",
       "art_desc": "Ash in full sprint leaping between fence tops at night, fog blurred with speed, a dark window ahead",
       "lines": [
-        "Over the fences, under the gate, up the drainpipe I have used nine hundred times.",
+        "Over the fences, which are a young cat's road, and I pay for every one of them.",
         "The Lamplighters' hall goes by dark on my left. Later. If there is a later.",
-        "Fast enough that something inside is still... busy."
+        "Under the gate, up the drainpipe I have used nine hundred times, and in. Fast enough that something inside is still busy."
       ]
     },
     {
@@ -93,9 +98,9 @@
       "environment": "parlor_cold",
       "portrait": "sc_threads_cut",
       "lines": [
-        "The threads on the walls — cut. All of them. Hanging like torn hems.",
-        "Forty years of her work, and every single one snipped at the same height, as if by someone tidying.",
-        "The parlor door is open and I am not going through it. Not yet. I am a cat who has learned to look at a room before he is in it."
+        "The workroom first, and the workroom is wrong. The threads on the walls, forty years of her work hung like a garden, cut.",
+        "Every one of them snipped at the same height, cleanly, as if by someone tidying.",
+        "The parlor door stands open, and I do not go through it. Not yet. I stop at the threshold, low, and I look."
       ]
     },
     {

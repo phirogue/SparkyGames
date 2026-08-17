@@ -10,17 +10,21 @@
       "type": "story",
       "environment": "needle_lane",
       "lines": [
-        "Something is wrong tonight, and it is not the wisp. No pigeons. Pigeons are never quiet; quiet is against their religion."
+        "That was when I noticed the quiet. No pigeons.",
+        "Understand: pigeons are never quiet. The roosts over Needle Lane keep up a session of complaint and scandal from dusk to dawn, and I have slept under that noise my whole life.",
+        "It was not there. The roofline sat against the sky, empty as a shelf."
       ]
     },
     {
       "type": "story",
       "environment": "needle_lane_wrong",
       "lines": [
-        "The lamps on Needle Lane are lit wrong — and the Lamplighters never miss. The dog at Number Twelve is awake and does not bark, which it has never once failed to do.",
-        "Halfway down, the fog stops being fog.",
-        "It has sleeves. A collar. The shape of a person who is not in it — and every cut thread on this street is running towards it, like water finding a drain.",
-        "It turns what it has instead of a face towards me. Whatever unpicked the lamps is still working, and I am standing in its light."
+        "The lamps on Needle Lane are lit in the wrong order.",
+        "You would have to live here to see it. Third lamp, then first, then the one by the pump. The order is the point — I have heard a lamplighter say so on a doorstep to an apprentice: we light them in an order, lad, and the order is the stitch.",
+        "Tonight the lane reads dark-bright-dark-dark-bright. A signature forged by someone who has only ever seen it written.",
+        "The dog at Number Twelve is awake — I can smell him being awake — and he does not bark, which he has never once in his loud and tedious life failed to do.",
+        "And halfway down, the fog stops being fog. It has sleeves. It has a collar. It has the shape of a person who is not in it.",
+        "Every cut thread on this street is sliding towards it like water finding a drain, and the shape is gathering them in. It turns what it has instead of a face towards me."
       ]
     },
     {
@@ -55,7 +59,7 @@
         },
         {
           "target": "portrait",
-          "text": "A RAG-WRAITH: clothes whose owner is missing. Not dead — missing. It is above your weight, and it knows it."
+          "text": "A RAG-WRAITH: clothes whose owner is missing. Not dead — missing. It is above your weight, and it knows it. Ten years ago it would still have been above your weight."
         },
         {
           "target": "hand",
@@ -80,9 +84,10 @@
       "environment": "needle_lane_wrong",
       "when_outcome": "retreat",
       "lines": [
-        "Three streets before I stop, and I stop because my legs decide it, not me.",
-        "Nothing followed. Nothing is missing. Ash: one. The weather: nothing. I would like that entered in the record.",
-        "And yet: it was not hunting me. It was WORKING. Whatever it is doing to this street, I interrupted about as much as a fly interrupts a window."
+        "I went in with everything I had left, and then with the thing of hers I carry, the pale cold weight under my ribs that is not mine and never was. I felt it go out of me and do nothing.",
+        "Then I did the intelligent thing, which the stories never put in. Three streets before I stopped, and I stopped because my legs decided it, not me.",
+        "Nothing followed. Nothing was missing.",
+        "And yet. It was not hunting me. All that gathered-up stolen thread, and it spent none of it on a cat. It was WORKING, and I did not know yet at what."
       ]
     },
     {
@@ -91,7 +96,8 @@
       "when_outcome": "victory",
       "lines": [
         "It comes apart in the middle of the road, and the threads it was pulling go slack.",
-        "That was not supposed to be possible, and I do not feel clever about it. I feel like something let go."
+        "That was above my weight and both of us knew it. I do not feel clever. I feel like something let go.",
+        "It was not hunting me. It was WORKING, and I did not know yet at what."
       ]
     }
   ]

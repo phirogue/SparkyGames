@@ -184,8 +184,18 @@ thread.
 drainpipe brooch, the pigeon-net, the slow blink — no combat anywhere, and
 he never learns Ash's name. The closing line pays the Ninth Stray forward.)*
 
-**Board card:** "The Fish-Giver missed two dawns. Cats don't worry. Ash is
-not worried. He is investigating."
+**His name is Pell** (novel `story-bible/01-characters.md`, applied to the
+quest 2026-08-16). He calls every stray *puss*, has done for eleven years,
+and says *mind the water, puss* without any idea what he is saying. He is
+the book's moral baseline and **must never be made quaint** — he wants
+nothing, he is owed nothing, and he keeps doing it anyway. The closing line
+used to say the saucer went down for "a stray with eight failed interviews
+behind him", which mixed Ash up with the eight strays who declined Elspeth's
+interview years before he arrived; it now reads "a stray who had nothing to
+trade for it."
+
+**Board card:** "Pell the Fish-Giver has missed two dawns. Cats don't worry.
+I am not worried. I am investigating."
 
 The fishmonger who fed half of Hollowmere's strays is behind on rent to a
 landlord who happens to hold the lease through the Chandlers' bank. A purely

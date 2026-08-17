@@ -38,7 +38,7 @@ python tools/art_catalog.py show sc_kettle    # full prompt + usage
 
 | Image | Kind | What it is | Who is in it | In/Out | Place | Time | Kerchief | Used by |
 |---|---|---|---|---|---|---|---|---|
-| npc_bodkin | characters | Bodkin | bodkin | exterior | wickrow_night | night | — | — |
+| npc_bodkin | characters | Bodkin | bodkin | exterior | wickrow_night | night | — | 1 place(s) |
 | npc_brindle_magpie | characters | Brindle | brindle | exterior | magpie_stall | night | — | 2 place(s) |
 | npc_clerk | characters | The Clerk | clerk | interior | hollow_court | timeless | — | 1 place(s) |
 | npc_fish_giver | characters | The Fish-Giver | fish_giver | exterior | shambles_market | dawn | — | — |
@@ -72,16 +72,16 @@ python tools/art_catalog.py show sc_kettle    # full prompt + usage
 
 | Image | Kind | What it is | Who is in it | In/Out | Place | Time | Kerchief | Used by |
 |---|---|---|---|---|---|---|---|---|
-| energy_claw | energy | Ferocity glyph | — | abstract | — | none | — | 5 place(s) |
-| energy_eye | energy | Guile glyph | — | abstract | — | none | — | 5 place(s) |
-| energy_moon | energy | Moonlight glyph | — | abstract | — | none | — | 5 place(s) |
-| energy_shade | energy | Shadow glyph | — | abstract | — | none | — | 5 place(s) |
+| energy_claw | energy | Ferocity glyph | — | abstract | — | none | — | 4 place(s) |
+| energy_eye | energy | Guile glyph | — | abstract | — | none | — | 4 place(s) |
+| energy_moon | energy | Moonlight glyph | — | abstract | — | none | — | 4 place(s) |
+| energy_shade | energy | Shadow glyph | — | abstract | — | none | — | 4 place(s) |
 
 ## evidence (5)
 
 | Image | Kind | What it is | Who is in it | In/Out | Place | Time | Kerchief | Used by |
 |---|---|---|---|---|---|---|---|---|
-| ev_candle_stub | evidence | The candle stub | — | plain | — | none | — | 1 place(s) |
+| ev_candle_stub | evidence | The candle stub | — | plain | — | none | — | 2 place(s) |
 | ev_docket | evidence | The docket | — | plain | — | none | — | 2 place(s) |
 | ev_ledger | evidence | The ledger | — | plain | — | none | — | 3 place(s) |
 | ev_seam | evidence | The seam | — | plain | — | none | — | 2 place(s) |
@@ -162,14 +162,14 @@ python tools/art_catalog.py show sc_kettle    # full prompt + usage
 | ui_frame_card_blue | ui | Card frame — Moonlight | — | abstract | — | none | — | 2 place(s) |
 | ui_frame_card_green | ui | Card frame — Guile | — | abstract | — | none | — | 2 place(s) |
 | ui_frame_card_red | ui | Card frame — Ferocity | — | abstract | — | none | — | 2 place(s) |
-| ui_frame_portrait | ui | Portrait frame | — | abstract | — | none | — | 3 place(s) |
+| ui_frame_portrait | ui | Portrait frame | — | abstract | — | none | — | 2 place(s) |
 | ui_frame_skill | ui | Skill card frame | — | abstract | — | none | — | — |
-| ui_gust_swirl | ui | Gust swirl | — | abstract | — | none | — | 1 place(s) |
+| ui_gust_swirl | ui | Gust swirl | — | abstract | — | none | — | — |
 | ui_heart_empty | ui | Life, remaining | — | abstract | — | none | — | — |
 | ui_heart_full | ui | Life, spent | — | abstract | — | none | — | 3 place(s) |
 | ui_hoop | ui | Embroidery hoop | — | abstract | — | none | — | 1 place(s) |
 | ui_icon_brightness | ui | Brightness icon | — | abstract | — | none | — | 1 place(s) |
-| ui_icon_home_lamp | ui | Home icon | — | abstract | — | none | — | 1 place(s) |
+| ui_icon_home_lamp | ui | Home icon | — | abstract | — | none | — | — |
 | ui_icon_intent_attack | ui | Intent — attack | — | abstract | — | none | — | — |
 | ui_icon_intent_hand | ui | Intent — hand | — | abstract | — | none | — | — |
 | ui_icon_intent_skills | ui | Intent — skills | — | abstract | — | none | — | — |
@@ -188,11 +188,11 @@ python tools/art_catalog.py show sc_kettle    # full prompt + usage
 | ui_ribbon | ui | Ribbon | — | abstract | — | none | — | 1 place(s) |
 | ui_ribbon_band | ui | Ribbon band | — | abstract | — | none | — | 1 place(s) |
 | ui_seal_blue | ui | Wax seal, blue | — | abstract | — | none | — | 2 place(s) |
-| ui_seal_gold | ui | Wax seal, gold | — | abstract | — | none | — | 4 place(s) |
+| ui_seal_gold | ui | Wax seal, gold | — | abstract | — | none | — | 3 place(s) |
 | ui_seal_red | ui | Wax seal, red | — | abstract | — | none | — | 2 place(s) |
 | ui_settings_row | ui | Settings row | — | abstract | — | none | — | 1 place(s) |
 | ui_shield | ui | Guard glyph | — | abstract | — | none | — | 1 place(s) |
-| ui_spool | ui | Spool | — | abstract | — | none | — | 5 place(s) |
+| ui_spool | ui | Spool | — | abstract | — | none | — | 6 place(s) |
 | ui_strip | ui | Strip plate | — | abstract | — | none | — | 1 place(s) |
 | ui_thread_fray | ui | Thread fray | — | abstract | — | none | — | 1 place(s) |
 | ui_thread_segment | ui | Thread bar segment | — | abstract | — | none | — | 1 place(s) |

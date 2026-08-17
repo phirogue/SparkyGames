@@ -4,7 +4,27 @@
 [chapter1-build-plan.md](chapter1-build-plan.md)). The veto window is
 closed: Ch1 prose plants clues against this answer, so changing it now
 means rewriting the chapter. This doc is the single source of truth for
-whodunit. Nothing outside `docs/design/` may state or imply the answer.
+whodunit *in the game*. Nothing outside `docs/design/` may state or imply
+the answer.
+
+**Upstream source, since 2026-08-16.** The novel now has a full story
+bible (`novel/story-bible/`) and it is authoritative for story,
+character, motive and timeline. Where this doc and the bible disagree,
+the bible wins and this doc is the bug. Read these before writing a line
+of Bodkin, Elspeth or Cardew:
+
+- `novel/story-bible/00-story-spine.md` — what the book is about, and the
+  three named voice defects to hunt.
+- `novel/story-bible/01-characters.md` — wants against needs, per person.
+- `novel/story-bible/03-timeline.md` — the murder night hour by hour, and
+  a who-knows-what-when chart that settles every consistency argument.
+- `novel/story-bible/05-why-nobody-investigates.md` — why a cat is the
+  only investigator, which is load-bearing and must never be softened.
+
+**Three things the 5th/6th-edition novel changed, applied below:** the
+motive is an *accounting*, not a refund; the reason it happens *now* is
+Elspeth's plan to make the seam permanent; and Bodkin armed Ash on
+purpose, because a settlement wants a party with standing.
 
 ---
 
@@ -62,9 +82,53 @@ Every hard constraint in the docs points the same way:
 7. **Motive that is also theme.** Elspeth's murder is not greed — it is
    her own bill come due. She spent another being's lives to save the
    city and called it necessary; the game is ABOUT what spending lives
-   costs. The Mere's offer to Bodkin: unpick the city's seams and it will
-   give back what the great seam holds — his eight lives, and everyone
-   else's "missing." He does not want the city dark. He wants a refund.
+   costs.
+
+## The motive, as the novel finally states it (2026-08-16 — supersedes "a refund")
+
+Forty years ago the anchor of the great sewing asked one **finished
+life**. Elspeth's was mortgaged to the seam while she lived, so there was
+none to tender. Bodkin — nine years her familiar — offered, and said it
+**to the clerk of the working rather than to her**, so that it would
+stand in the record where she could not unsay it: *He offers. Write down
+that he offers.* Eight lives went down her needle into the bottom of the
+lake, one at a time. He stood to her and did not run. She came back off
+the water alone; he walked into the fog on the one life she left him.
+Docket left open as to the balance.
+
+Then forty years on the sea-wall, watching her window, mending what he
+found frayed, waiting for a court that does not exist. She wrote *he is
+owed* at the head of every page for forty years and never once walked the
+half mile to say it to his face.
+
+**He does not want revenge, and he does not want a refund.** He wants the
+account **stated** — entire, aloud, by a party with standing. That is the
+one thing forty years never produced, because Hollowmere has no office
+whose job this is (see `05-why-nobody-investigates.md` — the same absence
+that made the murder).
+
+**Why now.** Elspeth had ordered forty spools of deep silver and written
+to the Circuit for every steady needle it could spare, *for a work of
+renewal, before winter, that I have put off too long*. She meant to make
+the seam **permanent**. While the seam can be opened, his debt stays
+collectible; a permanent seam prices his waiting at nothing, forever. She
+never once thought of it that way, because she was minding a city.
+
+**Why he armed Ash.** A collection without a stated account is theft, and
+he has never been a thief. A settlement wants a party with standing, and
+the only creature alive with standing to state this account is her ninth
+familiar. So he built one: found good stock, kept it alive, let it learn.
+**He paid for his own hearing.** That is what the whole helpful-mentor
+layer below actually is.
+
+**He is not a monster.** He is an old professional carrying an unpayable
+invoice who finally found a desk that would take it, and he never lies,
+not once, in the entire story.
+
+**The Mere is not his boss.** It is the city's oldest creditor and it
+commissioned the night, but Bodkin is not its servant and must never be
+written as possessed, corrupted or driven. He and the Mere want the same
+week to happen for entirely different reasons.
 
 ## The night, reconstructed (for clue-writing)
 
@@ -73,17 +137,31 @@ Every hard constraint in the docs points the same way:
   (Wick's strongbox evidence — real, and really not Wick's murder);
   pigeon silence bought with seed scattered by "a human hand" (a called-in
   favor — the hand was human; its debt was not).
-- **That evening:** the Lamplighters' hall is emptied (missing-not-dead —
-  fed forward to the Mere; also bait). Elspeth goes to the hall — the
-  lamps on Needle Lane burn wrong as her alarm — and spends hours of her
-  thread re-warding it. **That is why she was there** (the shipped
-  "Why was she HERE?" resolves: she was being exhausted, ward by ward,
-  before the real visit). Her silver thread on the lamp-hook is honest.
-- **The parlor:** she comes home depleted, puts the kettle on. Her wards
-  are unpicked in her own mirrored stitch — fast, between the boiling and
-  the screaming — by the shape the prologue meets still finishing the
-  work: the Unpicked, threads worn as a garment, "wearing her training."
-  Sootbeard's street is crossed inside one bought blink.
+- **That evening:** the Lamplighters' hall is emptied — every soul in it
+  told there is work elsewhere, by the one voice that knew where elsewhere
+  was. Missing-not-dead. Elspeth goes to the hall during the day and her
+  silver thread snags on a lamp-hook; that thread is honest, and it is the
+  shipped "Why was she HERE?".
+- **Dusk:** lamps go up, eight bells. **She closes her shutters, which she
+  has never done in fifteen years.** She sets out the beeswax candle she
+  bought escrow-grade forty years ago and kept unburned, and puts the
+  kettle on. **For two.**
+- **Bodkin walks Needle Lane's lamps in reverse order.** A round run
+  backward is an unpicking: her ward is off the lane before he reaches the
+  gate. Sootbeard's street is crossed inside one bought half-second.
+- **The parlor: she lets him in.** *"You'll take tea, then."* He lights her
+  candle. They sit an hour. **He does not spend four seconds looking,
+  because if it was welcome he could not have collected** — this is the
+  guest-right he himself teaches Ash in `creditors`, and the reason the
+  candle stub is the whole case in one object. The work is done between the
+  boiling and the scream, in her own stitch mirrored, faster than any
+  needle honestly goes. He pinches the candle out.
+- **The shutters are why nobody saw an hour of light.** Ash reads them in
+  Ch1 as the intruder shutting the lane out, is pleased with the deduction,
+  and is wrong. She closed them, for a guest she owed.
+- **Ash's own death that night is POSTED as an appointment** — the gentlest
+  slot on the ledger — by Bodkin. The Court's posting line stays blank.
+  Shipped as an unremarked detail in `hollow_court_first`.
 - **The file:** the Hollow Court recorded her death correctly and her
   file is *wrong* — the life-ledger attached to her name does not
   reconcile. Nine lives were spent around that parlor across the years,
@@ -146,9 +224,30 @@ Rules for this layer:
   — "L1" of the built chapter), hauling Ash out of the watch's path after
   the yard fight, and reappears on the sea-wall in `the_ward_that_failed`
   ("I don't go in there" — true). Shipped lines audited against this
-  rule, including "I knew your witch to look at. Everyone did." No
-  portrait art yet, deliberately (see art-needed.md — read THIS DOC
-  before prompting him).
+  rule, including "I knew your witch to look at. Everyone did."
+  *PORTRAIT, 2026-08-16:* `npc_bodkin` (drawn 2026-08-12, wired, now shown
+  on all three of his `creditors` beats and on the sea-wall in
+  `the_ward_that_failed`). He gets a face because the reader should like
+  him — the whole construction depends on the player being taught by him
+  and helped by him. **That file is his reference:** pass it to `--ref`
+  for any future Bodkin, never a text description (art rule 4).
+  *ADDED 2026-08-16, from novel ch3:* **guest-right**, given unasked in
+  `creditors` immediately after his name. *"Nobody collects off a lit
+  candle. You take a house's light, you take its salt, you take its fire:
+  take any of the three and you take nothing else under that roof that
+  night. Not a debt. Not a favor. Not a mouse."* This is the single most
+  important thing he says in the built chapter. It is literally true, it
+  is generous, it is the oldest law he knows — **and it is the law he
+  broke in her parlor**, because she lit that candle for him and he
+  collected anyway. The payoff is the beeswax stub the player has already
+  pinned to the board. He taught Ash the rule he broke, which is the same
+  move as giving him his name.
+  Also from the character sheet: he **gives things exactly once** — his
+  name, a rule, a lesson — take it or leave it; half his sentences are
+  worn smooth with saying and he leaves the listener to fetch the rest; he
+  mends what he finds frayed and never mentions it; he sits where he can
+  see the water. Not menacing — *available*. The horror of him is that
+  everything he says is true and he will answer anything he is asked.
 - **Ch2 — the method narrows** (fabric + magic clues): the technique ages
   40 years (Understudy), the third thread hums over Gravamen, the
   Gentleman's brokerage surfaces (suspect #2), the Circuit's seatless
@@ -195,3 +294,25 @@ going forward:
 1. Bodkin must be added to the Ch1 cast doc and appear by L1.
 2. story-direction.md's "chosen late, after playtesting" line is now
    superseded by this doc (edited to point here).
+
+## Reconciliation pass, 2026-08-16 (game brought level with the novel)
+
+What changed in the shipped content, and why:
+
+| Was | Now | Because |
+|---|---|---|
+| Witches simply arrive at first light | Cardew explains the Circuit: nine seats, one rope; she felt the seat go out at dusk with a pan in her hand, and would not walk Needle Lane in the dark | the witches arrived at a death nobody reported |
+| Her window is "dark" | Her **shutters are closed**, for the first time in fifteen years, and Ash cannot file it | closes the candle-logistics hole and makes the re-read land |
+| Candle stub found, read as "somebody else's light" | Plus the full deduction: an inch of wax is an hour, an hour of lit window should have been seen, *of course — he closed them*, **and Ash is pleased with himself** | the deduction is correct, complete, and wrong |
+| Cardew "enormous, moves like weather" | small, grey and folded, like something kept a long time in a drawer; her knees cost her when she kneels | character sheet |
+| The wake opens on "the tide is the only thing in Hollowmere that has never once been bribed" | "That is the custom" + why: a witch's work is thread, and thread must be tied off, not buried | the story bible's example #1 of the unearned aphorism |
+| Retreat from the wraith: "Ash: one. The weather: nothing." | the pale going out of him and doing nothing; three streets; legs decided it | the story bible's example #2, the scoreboard joke |
+| Two prior killings, unnamed | the Tatterstage's lead player forty years gone, and Widow Sarn of Hemlock Row three winters after, with her terrier | timeline, and it makes "again" cost something |
+| Nobody says why no institution looks | the two constables, "heart, most like, at her age", stepping twice over the stub; then the four night-side offices and none of them owns a killing | `05-why-nobody-investigates.md` |
+| Bodkin gives his name and a fighting tip | plus **guest-right** | ch3; detonates at the stub |
+| Merrow: "the Court itself said not dead" | eleven names, filings that come back **marked**, "the day-side says contract work up the coast", two rounds she walks herself | character sheet: strip epigrams, give her procedure |
+| "That winter I tried eight strays" | "Eight I tried, over the years. Not one of them stayed long enough to finish." | timeline: the eight span Years 3–25 |
+| Ash's age never mentioned | fifteen, stiff, privately retired, goes round by the wall at Cooper's, back legs arguing up the drainpipe, a shoulder that does not come back | "Ash is old, and the book has not noticed" |
+| The Clerk books the appointment | …and the **posting line is blank**, unremarked | Bodkin posted it |
+| "The Fish-Giver" | **Pell**, who calls every stray *puss* and says *mind the water* | character sheet; he is the moral baseline |
+| A generic lamplighter's coat | one of the **eleven**; **Fenn** hangs it back on its peg and squares the boots | Fenn is one of the four left, NOT one of the missing — do not kill him early |

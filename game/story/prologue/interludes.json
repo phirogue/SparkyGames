@@ -14,7 +14,16 @@
     "",
     "mantel_coach walks the room once, the first time it is entered.",
     "unpicked_won is the scene for beating a fight that is not meant to be",
-    "winnable -- it exists because somebody will."
+    "winnable -- it exists because somebody will.",
+    "",
+    "A THIRD PLANTED CLUE lives in hollow_court_first, not in the refusal",
+    "rotation, so the one-hint-per-refusal-batch budget is untouched: the",
+    "Clerk reaches the posting line for Ash's first appointment and finds it",
+    "BLANK. Somebody booked that death and did not sign for it. Literally",
+    "true, unremarked, and it re-reads in Ch3 (novel/story-bible/03-timeline",
+    ".md: Bodkin posts Ash's death as an appointment, the gentlest slot on the",
+    "ledger). Do not have the Clerk notice it aloud -- he must not deduce",
+    "before the player can."
   ],
   "hollow_court_first": [
     {
@@ -57,7 +66,9 @@
     {
       "portrait": "sc_hollow_court_desk",
       "lines": [
-        "'The arrangement, since it is your first: deaths are appointments. Tonight you had one. Arrive dead WITHOUT an appointment and you will be refused at this desk — we are a court, not a revolving door.'",
+        "'The arrangement, since it is your first: deaths are appointments. Tonight you had one.' He says it the way a man reads weather. Then he looks at the column beside it, where the posting line is, and where the name of whoever posted the appointment goes.",
+        "It is blank. He does not remark on it. He writes nothing in it, either.",
+        "'Arrive dead WITHOUT an appointment and you will be refused at this desk — we are a court, not a revolving door.'",
         {
           "text": "A true death — the kind you will always see coming — costs a life. After the first, it also costs the Toll: a quarter of the shine banked at home. Any other defeat is REFUSED: no life spent, a small filing fee. Either way the satchel stays where you dropped it, and nothing else is ever lost — not your kit, not your case, not what you have worked out.",
           "rule": true

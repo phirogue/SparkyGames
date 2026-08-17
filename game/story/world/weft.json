@@ -49,6 +49,7 @@
       "blurb": "The blue one. Elspeth's unfinished magic, which Ash spends but cannot yet make.",
       "nature": "The moon is the world's needle's-eye and moonlight is thread that has not been used yet. Thread that has not been used can still become any stitch — which is exactly why Moonlight can be spent in place of any other humour.",
       "teaches": "prologue — the cold parlor",
+      "it_does_not_refill": "In the fiction this is HERS, put into Ash out of her own evenings, and it is finite. What a cat has of his own comes back with meat and sleep; the pale does not. He feels it go when he spends it and there is less of it every time. Narration describes it as a cold weight under the ribs that goes out of him and is not replaced — never as a resource he is managing.",
       "data_id_warning": "The DATA id is `mysticism` and always will be (old saves name it). The player is only ever shown `Moonlight`. UI goes through Catalog.humour_name()."
     }
   },

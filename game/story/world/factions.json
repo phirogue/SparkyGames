@@ -13,7 +13,13 @@
     "",
     "Standing is not a grind: it is paid ONCE per quest even for repeatable",
     "ones, because a farmable reputation meter would make every `requires.",
-    "standing` gate meaningless."
+    "standing` gate meaningless.",
+    "",
+    "NOT HERE, deliberately: the WITCHES' CIRCUIT and the COURT OF WHISKERS.",
+    "Both are canon and both appear in content, but neither is a guild the",
+    "player banks standing with, and a faction entry with no guild behind it",
+    "is exactly what Catalog.validate() rejects. The Circuit's structure --",
+    "nine seats, one rope, eight now -- lives in index.json canon_anchors."
   ],
 
   "factions": {

@@ -33,7 +33,15 @@
     "_notes": [
       "The handful of facts that everything else has to bend around. They are",
       "here rather than in a doc because they have all been contradicted at",
-      "least once by content written later."
+      "least once by content written later.",
+      "",
+      "UPSTREAM SOURCE, since 2026-08-16: novel/story-bible/ is now the",
+      "authoritative canon for story, character and timeline -- the novel got a",
+      "full bible (spine, character sheets, conflicts, an hour-by-hour timeline",
+      "with who-knows-what-when, and the line rules) and the game follows it.",
+      "Where a game file and the bible disagree, the bible is right and the game",
+      "file is a bug. novel/story-bible/03-timeline.md settles any question of",
+      "who knew what and when."
     ],
     "the_hush": "The seam between the day-side and the night-side, sewn by generations of witches. Not a wall — a seam. Loosening since Elspeth's murder.",
     "who_sees": "Cats, children, drunks, and the recently bereaved see both sides. Cats are the seam's unpaid inspectors, by ancient arrangement.",
@@ -41,6 +49,15 @@
     "costs_are_real": "Thread pulled must come from somewhere: memory, warmth, years, luck. Any magic shown in-game must have a visible cost.",
     "the_dead": "Ghosts are stitches that were never tied off. The Hollow Court exists to do the tying.",
     "ash_wears_one_thing": "A cat cannot dress himself and would not choose to. Everything carried rides in the nine shadow-pockets Elspeth sewed; the collar is the one thing he wears.",
-    "neckerchief": "Ash has NO red neckerchief before `sc_collar`, the last beat before the title card. Art set earlier must show him bare-necked."
+    "neckerchief": "Ash has NO red neckerchief before `sc_collar`, the last beat before the title card. Art set earlier must show him bare-necked.",
+
+    "ash_is_old": "Ash is FIFTEEN, and fifteen is old for a cat. Before the murder he had privately retired: stiff on cold mornings, thinking before he jumps where he used to simply jump, employed to be somewhere warm at the correct time. The case is the last thing he will ever do and every physical act in it costs him. Do not write him feeble — write him economical, unhurried, and quietly aware he is not what he was. His nine lives are a retirement he is spending, not an allowance.",
+    "the_circuit": "The Witches' Circuit is NINE SEATS holding one binding between them: one rope, nine pairs of hands. When a seat goes out the load comes onto the rest and the others feel it in their wrists. Cardew felt Elspeth go at dusk, in her own kitchen, with a pan in her hand — this is how the witches knew to come, and they came at FIRST LIGHT rather than at once because you do not walk Needle Lane in the dark while something is still unpicking it. Eight seats now, and seven of those are working themselves hollow holding what one woman held.",
+    "the_shutters": "Elspeth never closed her shutters. Old green ones that fold back against the brick, folded back every evening of Ash's life. On the last evening she closed them, set out a beeswax candle she had kept forty years, and put the kettle on for two. Ash notes the closed shutters in the prologue as a fact he cannot file, and reads them in Chapter 1 as the intruder shutting the lane out — which is why an hour of candlelight on an inhabited lane went unseen, and which is wrong. She closed them. She was expecting someone she did not want seen.",
+    "the_tithe_and_the_ninth_bell": "Hollowmere was built on the Mere because the Mere was the wealth, and the city paid the water a tithe: the first of everything. Nine bells; the ninth rung slow on mornings after the water had collected, one stroke for each thing taken. About a hundred years ago, in a plague season, the city pawned the ninth bell to the Hollow Court as collateral and never redeemed it. The docket stays open. Since that night the city's nights run one hour short, nobody in Hollowmere has dreamed a dream to the end, and nobody finds it strange.",
+    "the_mere_is_a_creditor": "The Mere is NOT a monster. It is a creditor. The city ran up a bill over generations and stopped paying it, and the Mere keeps accounts the way the sea keeps tides. It does not hate — hate would be safer. It hopes.",
+    "guest_right": "Nobody collects off a lit candle. Take a house's light, its salt or its fire, and you take nothing else under that roof that night: not a debt, not a favor, not a mouse. Older than the Hollow Court and older than the desk they keep in it. Bodkin gives Ash this rule unasked in `creditors`, and it is the rule he himself broke in the parlor.",
+    "nobody_investigates": "There is no office in Hollowmere whose job this is, and that absence is the whole reason the story happens. The day-side sees an old woman dead in a chair behind a door locked from the inside, with nothing taken, and writes 'heart, most like, at her age'. The night-side has no constabulary: the Circuit mends, the Court of Whiskers serves papers, the Hollow Court files the dead and says so, the Magpie sells what it knows. None of them owns a killing. Never write an institution stepping in.",
+    "the_pale_does_not_refill": "The Moonlight in Ash is hers, put into him out of her own evenings. What a cat has of his own comes back with meat and sleep; that does not. He feels it leave when he spends it, there is less of it every time, and nothing he can do makes any more."
   }
 }

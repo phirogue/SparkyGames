@@ -54,9 +54,9 @@
       "environment": "parlor_cold",
       "when_outcome": "defeat",
       "lines": [
-        "Something comes back on before I do. Hearing, I think.",
-        "Floorboards under one cheek. The smell of cold hearth. Four paws — count them. Four.",
-        "Whatever was standing in the doorway is not standing in the doorway. Get up, Ash."
+        "Hearing came back first.",
+        "Floorboards under one cheek. The smell of cold hearth. Four paws — count them — four.",
+        "Whatever had been standing in the doorway is not standing in the doorway. Get up, Ash."
       ]
     },
     {
@@ -74,9 +74,9 @@
       "environment": "parlor_cold",
       "portrait": "sc_kettle",
       "lines": [
-        "The kettle is still screaming. It has been screaming this whole time, and I did not hear it until now.",
+        "The kettle was still screaming. It had been screaming this whole time, and I did not hear it until now.",
         "She hates it when it does that.",
-        "I took it off the fire. One paw. It took three tries. Nobody will ever know."
+        "I took it off the fire. One paw, on the handle, the way I had watched her do it ten thousand times from the hearthrug. It took three tries. Nobody will ever know."
       ]
     },
     {
@@ -84,8 +84,9 @@
       "environment": "parlor_cold",
       "portrait": "sc_elspeth_still",
       "lines": [
-        "And then the house is quiet, and there is nothing else to take off any fire.",
-        "I get up on the arm of the chair, which I am not allowed to do, and nobody tells me to get down.",
+        "And then the house was quiet, and there was nothing else to take off any fire.",
+        "I got up on the arm of her chair, which I am not allowed to do, and nobody told me to get down. Her hands were folded in her lap. Her face was not frightened, and not surprised, and not anything.",
+        "Between a kettle boiling and a kettle screaming is no time at all. Whoever did this did it in that, in her own parlor, in her own light. Faster than any needle honestly goes.",
         [
           "Fifteen years.",
           "Every evening.",
@@ -100,10 +101,12 @@
       "environment": "parlor_cold",
       "portrait": "sc_collar",
       "lines": [
-        "Her red kerchief, folded on the sewing table. I put my head through it. Nobody ties it. It stays.",
-        "The thread at my chest — the one that was always hers — cut.",
-        "Not quite. One strand left. Thin as spite. Running out under the window, into the city.",
-        "Then that is where we are going."
+        "I stayed on the arm of the chair a long time, and I will not tell you how long, because I do not know. The shutters stayed shut.",
+        "At some point I found myself looking at the sewing table. Her red kerchief lay on it, folded, washed that morning, waiting to go back around her neck.",
+        "I put my head through it. Nobody tied it. It stays.",
+        "The thread at my chest, the tether every familiar wears, hers, cut like everything else in this house.",
+        "Not quite. One strand left. Thin as spite. Running out from under the window, over the sill where her geraniums used to argue with the slugs, down into the fog.",
+        "Outside, eight bells rang somewhere, and no ninth. Then that is where we are going."
       ]
     },
     {

@@ -15,7 +15,8 @@
   "city": {
     "name": "Hollowmere",
     "blurb": "A fog-buttoned city wrapped around a black lake, with chimney forests, canals, too many stairs and exactly the right number of rooftops.",
-    "truth": "Built on seven older cities the way a cat sits on yesterday's newspaper — deliberately and without apology. The Mere is the black lake at its centre, and since Elspeth's murder the Mere has begun to hope, which is worse than it sounds."
+    "truth": "Built on seven older cities the way a cat sits on yesterday's newspaper — deliberately and without apology. Built on the Mere because the Mere was the wealth: deeper water than any coast for a hundred miles, ships up the fog, quays rich before they were safe.",
+    "the_mere": "The black lake at the centre, and the city's oldest creditor. Generations paid it a tithe — the first of everything — and then stopped, and the bill stayed open. It is not a monster and must never be written as one: it keeps accounts the way the sea keeps tides, it does not hate, and since Elspeth's murder it has begun to hope, which is worse than it sounds."
   },
 
   "districts": {

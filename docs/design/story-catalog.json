@@ -142,7 +142,7 @@
   },
   "scenes": {
     "prologue.00": {
-      "synopsis": "Dusk over Hollowmere. Ash sets out the evening's arrangement: she puts the kettle on when the lamps go up, and tonight calls for a gift.",
+      "synopsis": "Dusk over Hollowmere and the lamps going up. The arrangement: she puts the kettle on, he is punctual, she is predictable. Fifteen years of it, which is a long time in a cat — he is stiff in the mornings and privately retired, employed now to be somewhere warm at the correct time. Tonight calls for a gift.",
       "characters": [
         "ash"
       ],
@@ -150,7 +150,7 @@
       "notes": "Establishes the routine the whole prologue exists to destroy."
     },
     "prologue.01": {
-      "synopsis": "He finds the vole under a chimney pot and goes low. 'Tonight the world is simple, and the world is RED.'",
+      "synopsis": "The vole under the chimney pot. He goes low on day-warm tiles with the wind wrong for it. The red feeling at the bottom of a cat is the one part of him that has not aged — so he waits longer than he once needed to, because waiting is cheap and the other thing is not.",
       "characters": [
         "ash",
         "the_vole"
@@ -176,7 +176,7 @@
       "notes": "Deck is ordered and shuffle is off so the coach can promise what it teaches (law 17)."
     },
     "prologue.04": {
-      "synopsis": "Victory: the vole is acquired, thoughtfully dead. She will say 'not on the table' and mean 'thank you'.",
+      "synopsis": "Victory: acquired, thoughtfully dead, arranged neatly and carried gently. He sits afterward longer than the work deserved and does not mention it to anybody. She will say 'not on the table' and mean thank you.",
       "characters": [
         "ash",
         "the_vole"
@@ -185,7 +185,7 @@
       "notes": null
     },
     "prologue.05": {
-      "synopsis": "Retreat: the vole declines to be a gift. She will have to make do with his company.",
+      "synopsis": "Retreat: the vole declines to be a gift and he declines to argue the point at his age. He sits a while first, putting his coat back in order.",
       "characters": [
         "ash",
         "the_vole"
@@ -194,14 +194,23 @@
       "notes": null
     },
     "prologue.06": {
-      "synopsis": "Above the Shambles he counts eight bells, notes there is no ninth any more, and sees a silver thread between the chimneys that belongs to nobody he knows. He declines to chase it.",
+      "synopsis": "The rooftop road home. At the gap over the alley at Cooper's — a jump he used to take without consulting himself — he counts her four seconds and goes round by the wall instead. He spends the hour thinking about a sunbeam he remembers from March, and asks the record to note that he was happy.",
+      "characters": [
+        "ash",
+        "elspeth"
+      ],
+      "story_time": "dusk",
+      "notes": "Ash's age, planted as competence rather than frailty, and the last happy beat he gets. The four-seconds rule is hers and pays off at the counting-house keeper."
+    },
+    "prologue.07": {
+      "synopsis": "Above the Shambles: eight bells, the whole count, dropped into the fog like coins into a well. There used to be a ninth and nobody finds its absence strange. Between two chimneys, a silver thread that is nobody's he knows. He does not chase it, and the lie he tells himself about not wanting to weighs almost nothing.",
       "characters": [
         "ash"
       ],
       "story_time": "night",
       "notes": "Carries the art defect: the beat is written for night and shows sc_shambles_day. Also plants the missing ninth bell, which the Grey Boss claims to remember."
     },
-    "prologue.07": {
+    "prologue.08": {
       "synopsis": "Street level in the fog. A gutter-wisp climbs out to collect on the small lie he just told about not wanting to chase the thread.",
       "characters": [
         "ash",
@@ -210,7 +219,7 @@
       "story_time": "night",
       "notes": "The wisp's motive is the previous scene's line — a nice tight causal join."
     },
-    "prologue.08": {
+    "prologue.09": {
       "synopsis": "Shadow is named as the black energy; it hides and wards, and costs one less in this fog. Grants SLINK.",
       "characters": [
         "ash"
@@ -218,7 +227,7 @@
       "story_time": "night",
       "notes": null
     },
-    "prologue.09": {
+    "prologue.10": {
       "synopsis": "Fight: prologue_wisp",
       "characters": [
         "ash",
@@ -227,17 +236,8 @@
       "story_time": "night",
       "notes": null
     },
-    "prologue.10": {
-      "synopsis": "Victory: the wisp reconsiders its position on his honesty.",
-      "characters": [
-        "ash",
-        "gutter_wisp"
-      ],
-      "story_time": "night",
-      "notes": null
-    },
     "prologue.11": {
-      "synopsis": "Retreat: he lets it keep its opinions; the night is too strange to argue with weather made of appetite.",
+      "synopsis": "Victory: a cat and a lit appetite disagree in a foggy gutter, the fog is on his side, and the wisp goes back down the drain dimmer. He sits longer than he meant to afterward.",
       "characters": [
         "ash",
         "gutter_wisp"
@@ -246,15 +246,24 @@
       "notes": null
     },
     "prologue.12": {
-      "synopsis": "Something is wrong and it is not the wisp: no pigeons. Quiet is against their religion.",
+      "synopsis": "Retreat: he lets it keep its opinions and its drain. He sits longer than he meant to afterward, putting his coat back in order.",
+      "characters": [
+        "ash",
+        "gutter_wisp"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "prologue.13": {
+      "synopsis": "The quiet. No pigeons — and the roosts over Needle Lane have kept up a session of complaint and scandal every night of his life. The roofline sits against the sky, empty as a shelf.",
       "characters": [
         "ash"
       ],
       "story_time": "night",
       "notes": "The silenced pigeons are set up here and paid off two chapters later in the_pigeon_ballot."
     },
-    "prologue.13": {
-      "synopsis": "The lamps are lit in the wrong order, the Lamplighters have missed, the dog at Number Twelve is awake and silent — and the fog halfway down has sleeves. Every cut thread on the street runs toward it.",
+    "prologue.14": {
+      "synopsis": "The lamps are lit in the wrong order: third, then first, then the one by the pump is the sequence, and tonight the lane reads dark-bright-dark-dark-bright — a signature forged by someone who has only ever seen it written. The dog at Number Twelve is awake and does not bark. Halfway down, the fog has sleeves.",
       "characters": [
         "ash",
         "rag_wraith"
@@ -262,7 +271,7 @@
       "story_time": "night",
       "notes": null
     },
-    "prologue.14": {
+    "prologue.15": {
       "synopsis": "Guile and Moonlight are named; Moonlight is hers, and is wild. Grants LOAF and PURR.",
       "characters": [
         "ash"
@@ -270,7 +279,7 @@
       "story_time": "night",
       "notes": "Moonlight is the player-facing name; the data id is mysticism."
     },
-    "prologue.15": {
+    "prologue.16": {
       "synopsis": "Fight: prologue_wraith",
       "characters": [
         "ash",
@@ -279,8 +288,8 @@
       "story_time": "night",
       "notes": "The lesson is that declining a fight is allowed."
     },
-    "prologue.16": {
-      "synopsis": "Retreat: three streets before his legs stop. Nothing followed. And it was not hunting him — it was WORKING.",
+    "prologue.17": {
+      "synopsis": "Retreat: he goes in with everything he has and then with the pale cold weight under his ribs that is hers, and feels it go out of him and do nothing. Three streets before he stops, and he stops because his legs decide it. It was not hunting him. It was working.",
       "characters": [
         "ash",
         "rag_wraith"
@@ -288,8 +297,8 @@
       "story_time": "night",
       "notes": "The stronger of the two outcomes thematically; the wraith's indifference is the point."
     },
-    "prologue.17": {
-      "synopsis": "Victory: it comes apart in the road and the threads it was pulling go slack. He does not feel clever about it.",
+    "prologue.18": {
+      "synopsis": "Victory: it comes apart in the road and the threads go slack. It was above his weight and both of them knew it; he does not feel clever. It was not hunting him — it was working, and he does not yet know at what.",
       "characters": [
         "ash",
         "rag_wraith"
@@ -297,40 +306,32 @@
       "story_time": "night",
       "notes": null
     },
-    "prologue.18": {
-      "synopsis": "Her window is ahead. Dark. Her window is never dark.",
+    "prologue.19": {
+      "synopsis": "THE SHUTTERS. Her window is ahead and the shutters are closed — old green ones that fold back against the brick, folded back every evening of his life, in rain, in frost, in the week the chimney caught. She did not close them for weather or for company. Something in him tries to file it and cannot find the drawer, so he tells himself she is out.",
       "characters": [
         "ash"
       ],
       "story_time": "night",
-      "notes": "Three lines, one of them blank — the prologue's shortest beat and its turn."
+      "notes": "Closes the candle-logistics hole and is the prologue's deepest plant: she closed them herself, for a guest she owed. Ash mis-reads them in the_carrying and is pleased with the deduction."
     },
-    "prologue.19": {
-      "synopsis": "THE PROLOGUE'S ONE CHOICE: the long way past the Lamplighters' hall, or over the fences and home now. Sets prologue_route.",
+    "prologue.20": {
+      "synopsis": "THE PROLOGUE'S ONE CHOICE: the long way past the Lamplighters' hall, eleven minutes, or over the fences, which are a young cat's road.",
       "characters": [
         "ash"
       ],
       "story_time": "night",
       "notes": "Route 0 pays a card and a clue; route 1 pays speed. The branch is honoured at 20-22."
     },
-    "prologue.20": {
-      "synopsis": "Long way: the hall stands open and empty, kettle cold, and a thread of HER silver is caught on a lamp-hook. She was here tonight. Grants Her Stitching (Moonlight 2).",
+    "prologue.21": {
+      "synopsis": "Long way: three reasons he took it — the wrongness at the head of the route, her voice saying look before you leap, and a breath already taken off him once tonight. All three true; he has never decided which he was obeying. The hall stands open, ladders racked, kettle cold, nobody in it, and HER silver thread snagged on a lamp-hook.",
       "characters": [
         "ash"
       ],
       "story_time": "night",
       "notes": "The only card in the game the player can miss permanently by taking the other route."
     },
-    "prologue.21": {
-      "synopsis": "Long way: eleven streets home and he remembers three of them. Her street, her gate, her drainpipe.",
-      "characters": [
-        "ash"
-      ],
-      "story_time": "night",
-      "notes": null
-    },
     "prologue.22": {
-      "synopsis": "Fast way: over the fences, under the gate, up the drainpipe. The hall goes by dark on his left — later, if there is a later.",
+      "synopsis": "Long way: eleven streets home and he remembers three of them. Her street, her gate, her drainpipe — and up it slower than the nine hundred times before, his back legs arguing the whole way.",
       "characters": [
         "ash"
       ],
@@ -338,6 +339,14 @@
       "notes": null
     },
     "prologue.23": {
+      "synopsis": "Fast way: over the fences, and he pays for every one of them. The hall goes by dark on his left — later, if there is a later. Fast enough that something inside is still busy.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": null
+    },
+    "prologue.24": {
       "synopsis": "In through the workroom window. The house is doing the wrong thing with sound: a kettle screaming and nobody going to it.",
       "characters": [
         "ash"
@@ -345,15 +354,15 @@
       "story_time": "night",
       "notes": "The kettle starts screaming here and is not silenced until beat 30 — a seven-beat sustained note."
     },
-    "prologue.24": {
-      "synopsis": "Every thread on the walls is cut, all at the same height, as if by someone tidying. Forty years of her work. He stops at the parlor door and looks before going in.",
+    "prologue.25": {
+      "synopsis": "The workroom is wrong: forty years of her work hung like a garden and cut, every thread snipped at the same height as if by someone tidying. The parlor door stands open and he does not go through it. He stops at the threshold, low, and looks.",
       "characters": [
         "ash"
       ],
       "story_time": "night",
       "notes": null
     },
-    "prologue.25": {
+    "prologue.26": {
       "synopsis": "Something person-shaped stands in the doorway wearing the room's own threads. It looks at him, decides he is not an interruption, and goes back to work.",
       "characters": [
         "ash",
@@ -362,7 +371,7 @@
       "story_time": "night",
       "notes": "Uses the enemy portrait en_the_unpicked as story art rather than a bespoke scene."
     },
-    "prologue.26": {
+    "prologue.27": {
       "synopsis": "Fight: prologue_parlor",
       "characters": [
         "ash",
@@ -371,7 +380,7 @@
       "story_time": "night",
       "notes": "The fight that cannot be won. Losing is the canonical path."
     },
-    "prologue.27": {
+    "prologue.28": {
       "synopsis": "If he died in the fight above, the Hollow Court interlude runs here",
       "characters": [
         "ash",
@@ -380,15 +389,15 @@
       "story_time": "timeless",
       "notes": "The hook that makes the first death a scripted scene rather than a failure state."
     },
-    "prologue.28": {
-      "synopsis": "Defeat: hearing comes back first. Floorboards, cold hearth, four paws — count them. The thing is gone.",
+    "prologue.29": {
+      "synopsis": "Defeat: hearing comes back first. Floorboards, cold hearth, four paws — count them — four. Whatever stood in the doorway is not standing in the doorway.",
       "characters": [
         "ash"
       ],
       "story_time": "night",
       "notes": null
     },
-    "prologue.29": {
+    "prologue.30": {
       "synopsis": "Elspeth in her chair, the light gone out of her hands. The beat ends on an ellipsis and nothing else.",
       "characters": [
         "ash",
@@ -397,16 +406,16 @@
       "story_time": "night",
       "notes": null
     },
-    "prologue.30": {
-      "synopsis": "The kettle is still screaming and he only now hears it. He takes it off the fire — one paw, three tries, nobody will ever know.",
+    "prologue.31": {
+      "synopsis": "The kettle is still screaming and he only now hears it. He takes it off the fire with one paw, the way he watched her do it ten thousand times from the hearthrug. It takes three tries. Nobody will ever know.",
       "characters": [
         "ash"
       ],
       "story_time": "night",
       "notes": "Carries the collar defect: sc_kettle shows him already wearing the kerchief he does not take until beat 32."
     },
-    "prologue.31": {
-      "synopsis": "The house goes quiet. He gets up on the arm of the chair, which he is not allowed to do, and nobody tells him to get down. Fifteen years, every evening, she always came to the window.",
+    "prologue.32": {
+      "synopsis": "The house goes quiet. He gets up on the arm of her chair, which he is not allowed to do, and nobody tells him to get down. Her face is not frightened and not surprised. Between a kettle boiling and a kettle screaming is no time at all: whoever did this did it in that, faster than any needle honestly goes.",
       "characters": [
         "ash",
         "elspeth"
@@ -414,15 +423,15 @@
       "story_time": "night",
       "notes": "Reuses sc_elspeth_still, its second of two beats."
     },
-    "prologue.32": {
-      "synopsis": "THE COLLAR. Her red kerchief folded on the sewing table; he puts his head through it and nobody ties it. The thread at his chest is cut — all but one strand, running out under the window into the city.",
+    "prologue.33": {
+      "synopsis": "THE COLLAR. He stays on the chair arm a long time and the shutters stay shut. Her red kerchief lies folded on the sewing table, washed that morning, waiting to go back around her neck; he puts his head through it and nobody ties it. The tether at his chest is cut — not quite. One strand runs out under the window, over the sill where her geraniums used to argue with the slugs. Eight bells ring somewhere, and no ninth.",
       "characters": [
         "ash"
       ],
       "story_time": "night",
       "notes": "The canon hinge. Every image at or after this beat wears the kerchief; nothing before it does. tools/art_catalog.py dates the whole library from here."
     },
-    "prologue.33": {
+    "prologue.34": {
       "synopsis": "Title card.",
       "characters": [
         "ash"
@@ -813,17 +822,28 @@
       "notes": null
     },
     "quest.the_carrying.0": {
-      "synopsis": "Three witches at first light. They do not knock — witches do not knock at a house where a witch has died. They have brought undyed linen, the only clean thing in the room.",
+      "synopsis": "Three witches at first light, and nobody sent for them. Cardew explains: nine seats, one rope between them, and when a seat goes out the weight comes onto the rest and you feel it in your wrists. She felt it at dusk with a pan in her hand, and would not walk Needle Lane in the dark while something was still — . They do not knock; a knock asks a question, and the house has already answered it.",
       "characters": [
         "ash",
         "cardew",
         "young_witches"
       ],
       "story_time": "dawn",
-      "notes": "The first daylight scene in the game."
+      "notes": "Closes the hole where witches arrived at a death nobody reported. novel/story-bible/03-timeline.md."
     },
     "quest.the_carrying.1": {
-      "synopsis": "They lift her the way you lift someone who might wake. Cardew stops in the doorway, looks at the cut threads, and says 'Who did this to the room' — not a question, because burglars take things.",
+      "synopsis": "Mother Cardew, eldest of the Circuit, and it is eight seats now though nobody has said so aloud. Small and grey and folded, like something kept a long time in a drawer. Her eyes go round the parlor once at working speed and Ash watches her see everything. He has been on the arm of the chair all night and does not get down.",
+      "characters": [
+        "ash",
+        "cardew",
+        "young_witches",
+        "elspeth"
+      ],
+      "story_time": "dawn",
+      "notes": "Cardew's physical description is fixed here: small, not enormous."
+    },
+    "quest.the_carrying.2": {
+      "synopsis": "They lift her the way you lift someone who might wake, and the young one carrying her own breath lets it go in the doorway in a small ragged sound. Cardew stops and looks back at forty years of workings cut dead at one tidy height. 'Who did this to the room' — not a question. Burglars take things, and nothing here was taken.",
       "characters": [
         "ash",
         "cardew",
@@ -833,8 +853,8 @@
       "story_time": "dawn",
       "notes": null
     },
-    "quest.the_carrying.2": {
-      "synopsis": "CHOICE: Cardew is looking at him and everyone else is looking at the floor. One chance to be taken seriously. Tell it, say nothing, or ask what unpicks a witch's own stitching. Sets carrying_answer.",
+    "quest.the_carrying.3": {
+      "synopsis": "CHOICE: Cardew looks straight at him, colleague to colleague, while everyone else looks at the floor. One chance to be taken seriously — a cat who yowls is comforted, a cat who performs is petted. Tell it, say nothing, or ask what unpicks a witch's own stitching. Sets carrying_answer.",
       "characters": [
         "ash",
         "cardew"
@@ -842,8 +862,8 @@
       "story_time": "dawn",
       "notes": "All three branches pay real information; none is a trap."
     },
-    "quest.the_carrying.3": {
-      "synopsis": "Told it all in order. 'A shape wearing her work.' And then, quieter, to nobody: 'Again.' She puts the word down like something she had not meant to be holding.",
+    "quest.the_carrying.4": {
+      "synopsis": "Told it all in order, as she taught him anything worth saying should go. Cardew listens the whole way through without moving, then says quietly, to nobody: 'Again.' She puts the word down like something she had not meant to be holding. AGAIN means BEFORE, and a thing with habits can be found.",
       "characters": [
         "ash",
         "cardew",
@@ -852,8 +872,8 @@
       "story_time": "dawn",
       "notes": null
     },
-    "quest.the_carrying.4": {
-      "synopsis": "Said nothing. She waits him out, which nobody does, then gives up first, which nobody does either. At the door: 'It has happened before. Twice that I will admit to.'",
+    "quest.the_carrying.5": {
+      "synopsis": "Said nothing. She waits him out, which nobody does, then gives up first, which nobody does either. At the door: 'It has happened before. Twice that I will admit to. Mind the room, cat. Rooms hold a while. After that — ' She does not finish it; the end of that sentence wore off her years ago.",
       "characters": [
         "ash",
         "cardew"
@@ -861,7 +881,7 @@
       "story_time": "dawn",
       "notes": null
     },
-    "quest.the_carrying.5": {
+    "quest.the_carrying.6": {
       "synopsis": "Asked the question. The room gets colder in a way the room is not responsible for. 'Something that learned it from her. Or from one of us.' She looks at her two frightened girls and does not look at them for quite long enough.",
       "characters": [
         "ash",
@@ -871,19 +891,29 @@
       "story_time": "dawn",
       "notes": "The most incriminating of the three answers, and it points at the craft itself."
     },
-    "quest.the_carrying.6": {
-      "synopsis": "Alone, he goes over the room the way she went over a hem. Under the window: a beeswax candle stub stamped with the Chandlers' bee. She burned tallow her whole life. Somebody else's light was in this room.",
+    "quest.the_carrying.7": {
+      "synopsis": "The day-side comes at nine: two constables, not unkind, who try the window catch and see an old woman dead in a chair behind a door locked from the inside. 'Heart, most like. At her age.' The younger writes it down, steps twice over a thing under the window Ash has not yet found, and they are gone in ten minutes. Nor does the night-side have an office for this — the Circuit mends, the Court of Whiskers serves papers, the Hollow Court files the dead, the Magpie sells what it knows. None of them owns a killing.",
       "characters": [
         "ash"
       ],
-      "story_time": "dawn",
+      "story_time": "day",
+      "notes": "WHY NOBODY INVESTIGATES, stated once and never softened. The missing court is the same absence that produced the murder. novel/story-bible/05-why-nobody-investigates.md."
+    },
+    "quest.the_carrying.8": {
+      "synopsis": "He minds the room, going over it the way she went over a hem: slowly, twice, against the nap. Under everything, pond-bottom and old rope and patient water — the Mere does not come up to Thimblefield and it has been in this room. And under the window, the thing the constable stepped over: a beeswax stub burned an inch down, pinched out, stamped with the bee. She burned tallow her whole life and called beeswax the rich man's smell.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "day",
       "notes": "First hard evidence. Opens the Case Board."
     },
-    "quest.the_carrying.7": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
+    "quest.the_carrying.9": {
+      "synopsis": "And out of that inch of wax he builds the man who left it, and says plainly that this is a thing he built rather than a thing he found. An inch is an hour; an hour of lit window on an inhabited lane should have been seen — and then he remembers the shutters and thinks: of course, he closed them. He was pleased with that.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "day",
+      "notes": "The deduction is complete, competent and wrong. SHE closed the shutters. Ch12 of the novel detonates it; do not let any later game line concede the point early."
     },
     "quest.what_i_saw.0": {
       "synopsis": "Nobody asked him to do this. He walks last night again in order — roof, market, lane, lamps — not for anybody, for the order of it. There is another wisp in the gutter. There is always another one.",
@@ -1068,15 +1098,16 @@
       "notes": null
     },
     "quest.the_wake.0": {
-      "synopsis": "They give a witch to the tide at the turn, because the tide is the only thing in Hollowmere that has never been bribed. The Lamplighters send four — everyone the hall has left. The Chandlers send one, early, standing where he can be seen being sorry.",
+      "synopsis": "The rite, told because no one day-side troubles to know it: no grave, no fire, because a witch's work is thread and thread must be tied off. They sew the shroud shut in her own stitch and give her to the water at slack tide. The Lamplighters send four — everyone the hall has left — with lamps at half-wick, which is their mourning; the Magpie sends a bird with one respectful button laid on the stones; the Chandlers send one man, early, standing where he can be seen being sorry.",
       "characters": [
         "ash",
         "cardew",
         "lamplighters",
-        "guild_delegates"
+        "guild_delegates",
+        "brindle"
       ],
       "story_time": "dusk",
-      "notes": null
+      "notes": "The 'tide nobody bribes' aphorism is CUT (story bible, voice defect #1). The custom explains itself instead."
     },
     "quest.the_wake.1": {
       "synopsis": "The rite is the seam: you sew the shroud shut in the dead woman's own pattern. Cardew gets four stitches in, stops, and holds the linen up with unsteady hands. 'I don't know her hand. Sixty years, and I don't know her hand.'",
@@ -1128,16 +1159,25 @@
       "notes": null
     },
     "quest.the_wake.7": {
-      "synopsis": "'It has happened twice before. Both times a stitcher. Both times nobody looked. I am too old and too watched. You are neither.'",
+      "synopsis": "Walking him back up the quay, low, for his ears alone: 'It has happened twice before. Both times a stitcher. The Tatterstage's lead player, forty years gone — one of ours, though the playbills never knew it. And Widow Sarn of Hemlock Row, three winters after. Her terrier sat out two winters on her step.' Nobody looked either time. The Circuit closed the files; she signed the closing.",
       "characters": [
         "ash",
         "cardew"
       ],
       "story_time": "dusk",
-      "notes": "Converts a personal loss into a case, and hands Ash the job on the page."
+      "notes": "The priors are NAMED now, which is what makes 'again' cost something."
     },
     "quest.the_wake.8": {
-      "synopsis": "Home to a house with nobody in it. The kettle is where he left it, off the fire, which is the wrongest thing in the room. 'My whole job used to be: be somewhere warm at the correct time. All right, then. New job.'",
+      "synopsis": "He asks who will look now. 'Seven of us, holding what she held — and there's a thing under this town that wants a hand on it every hour of the night. There's no spare hand in this city to go asking who. So nobody will look.' Then, at the sea-wall: 'You are neither. You were her ninth, you know. She'd never say what she meant by the count.' He files NINTH next to AGAIN.",
+      "characters": [
+        "ash",
+        "cardew"
+      ],
+      "story_time": "dusk",
+      "notes": "Ash learns he is the ninth from Cardew, not from the Clerk. Motive groundwork: the count is the eight who did not stay, and behind them the eight that were spent."
+    },
+    "quest.the_wake.9": {
+      "synopsis": "Home to a house with nobody in it, two lamps dark along her street. The kettle sits where he left it, off the fire on the cold hearthstone, and of everything in the room it is the wrongest thing — a kettle off the fire is a kettle finished, and nothing here is finished. His whole job used to be to be somewhere warm at the correct time. New job.",
       "characters": [
         "ash"
       ],
@@ -1145,16 +1185,16 @@
       "notes": "Closes the loop opened at prologue.23 with the same kettle."
     },
     "quest.creditors.0": {
-      "synopsis": "Brindle reads the docket — paper is her native language — and stops half a second at the cart-slot seal. 'Counting-house paper. The originals live under the ledgers, second yard off Wick Row. Mind the night shift, pet.'",
+      "synopsis": "Brindle first, because paper is her native language and his only by adoption. She reads the flimsy head cocked, one eye at a time — watermark, fold-grease, ink that was wet in fog — and at the cart-slot seal she stops. Half a second, no longer. Then she goes on as though the seal were weather, and he is too new to ask what she has just decided not to say. 'The originals live under the ledgers, second yard off Wick Row.'",
       "characters": [
         "ash",
         "brindle"
       ],
       "story_time": "night",
-      "notes": "'Cats collect half-seconds' — the detective voice at its most economical."
+      "notes": "Brindle's half-second: she fenced the blank the seal was forged from, years ago, for a client she never met. Reads differently in hindsight; never lies."
     },
     "quest.creditors.1": {
-      "synopsis": "Wickrow: every doorway wears a little flame and every flame is a warded bee. A district that sells light to people frightened of the dark, and he has never once seen it dark.",
+      "synopsis": "Wickrow after dark is the best-lit district in the city: every doorway a warded bee burning in its own wax and billed by the quarter. Other streets buy locks; Wickrow buys light. The night shift is a counting-house hound, off its chain, and the yard is a box that is his — he does not have to catch you, he only has to stand between you and the one hole.",
       "characters": [
         "ash"
       ],
@@ -1168,60 +1208,69 @@
       "notes": null
     },
     "quest.creditors.3": {
-      "synopsis": "A paw hooks his scruff and hauls him into a doorway as the watch walks past. A grey tom with one eye and half an ear. 'You fight like a housecat.' — 'I was one.' — 'Were,' he agrees, and does not say sorry.",
+      "synopsis": "Whatever settled that yard was not speed — he has none to bring to a hound and has not had for years. What a dog built like that cannot do is change his mind inside his own length, so Ash makes him commit and goes under his head on the side he has to swing his whole body to answer. But it costs the quiet: keys stop counting, a lantern comes round, and he comes off the wall into a blind alley-mouth.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night",
+      "notes": "The hound is beaten by geometry, not athletics. Ash's age doing work."
+    },
+    "quest.creditors.4": {
+      "synopsis": "A paw hooks his scruff and holds him in a doorway's dead shadow while the watch goes past. A grey tom: old, big-boned, one eye, half an ear, and the stillness of a creature long practised at being exactly as visible as it chooses. 'You fight like a housecat.' — 'I was one.' — 'Were,' he agrees, and does not say sorry. Something in Ash that has walked on three legs since the kettle went quiet puts its fourth foot down.",
       "characters": [
         "ash",
         "bodkin"
       ],
       "story_time": "night",
-      "notes": "BODKIN'S FIRST APPEARANCE. He has no portrait anywhere in assets/library."
-    },
-    "quest.creditors.4": {
-      "synopsis": "Bodkin's lesson: watch the paws, not the claws — claws are a rumor, paws are an appointment. He points at the wax door in the second yard, says Wick's paper is worth the reading, gives his name and goes. 'I knew your witch to look at. Everyone did.'",
-      "characters": [
-        "ash",
-        "bodkin",
-        "elspeth"
-      ],
-      "story_time": "night",
-      "notes": "Teaches the intent telegraph a second time, in a mentor's voice."
+      "notes": "BODKIN ENTERS. Every line literally true. docs/design/the-unraveler.md."
     },
     "quest.creditors.5": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
+      "synopsis": "'Watch the paws, not the claws. Claws are a rumor. Paws are an appointment. The dog told you where he would be four moves before he got there, and you were reading the teeth.' He points Ash at the wax door and Wick's paper. Asked whether he knows what Ash is looking for: 'I knew your witch to look at. Everyone did.'",
+      "characters": [
+        "ash",
+        "bodkin"
+      ],
+      "story_time": "night",
+      "notes": "True, and a deflection rather than a lie. He was her familiar for nine years."
     },
     "quest.creditors.6": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
-    },
-    "quest.creditors.7": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
+      "synopsis": "GUEST-RIGHT, given unasked, flat and worn smooth with saying: 'Nobody collects off a lit candle. You take a house's light, you take its salt, you take its fire — take any of the three and you take nothing else under that roof that night. Not a debt. Not a favor. Not a mouse.' Older than the Hollow Court and older than the desk they keep in it. Then his name, given as the old ones give it, once: 'Bodkin.' It means nothing to Ash yet.",
+      "characters": [
+        "ash",
+        "bodkin"
+      ],
+      "story_time": "night",
+      "notes": "THE PLANT. He teaches Ash the law he himself broke: she lit that candle for him and he collected anyway. Pays off at the beeswax stub already pinned to the board. Same move as giving him his name."
     },
     "quest.creditors.8": {
-      "synopsis": "The ledger under the ledgers, her name in a guildmaster's own hand: buy Vane's paper, all of it, call it due Lady's Day. Every debt she owed, bought quiet, in one week. He wanted her OUT — and you do not evict a woman you have had killed.",
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.creditors.9": {
+      "synopsis": "",
+      "characters": [],
+      "story_time": "",
+      "notes": null
+    },
+    "quest.creditors.10": {
+      "synopsis": "Under the ledgers, the originals, and in them her name. VANE, in a strong small impatient hand: the renderers' tallow debt, two winters' workroom rent, a seven-year chandlery account forgiven in name and never in law. Buy it quiet, pay the premium for quiet, call it due Lady's Day. Every debt she owed in the world, bought in seven days by one buyer. He reads it twice, because the first reading had a red wash over it. A man who does this is planning an eviction, not a murder — and you particularly do not kill the needle holding shut something you profit by.",
       "characters": [
         "ash",
         "wick",
         "elspeth"
       ],
       "story_time": "night",
-      "notes": "The quest's whole point: it makes Wick look guilty and then hands over the reason he is not."
+      "notes": "Wick's motive, and its own refutation."
     },
-    "quest.creditors.9": {
-      "synopsis": "Out over the yards with a page of a rich man's handwriting folded into his shadow. Paper says what Wick WANTED, not what he DID. For that he needs people who watch the Chandlers professionally and hate them fluently.",
+    "quest.creditors.11": {
+      "synopsis": "Out over the yards with a page of a rich man's handwriting folded into his shadow. Paper says what Wick WANTED; paper does not say what he did. For that he needs people who watch the Chandlers for a living and hate them fluently.",
       "characters": [
-        "ash",
-        "wick"
+        "ash"
       ],
       "story_time": "night",
-      "notes": "Hands off to the_lamplighters_talk."
+      "notes": "The quest's whole point: it makes Wick look guilty and then hands over the reason he is not."
     },
     "quest.the_lamplighters_talk.0": {
       "synopsis": "The hall burns lamps at its own door — a guild that cannot spare the oil making a point to the dark. Half the coats on the pegs hang over boots nobody came back for. Forty lamplighters used to walk this city; what is left fits in one cold room.",

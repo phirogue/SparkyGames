@@ -11,7 +11,9 @@
       "environment": "rooftop_dusk",
       "lines": [
         "Dusk over Hollowmere. The lamps going up, one by one, like the city buttoning its coat.",
-        "She puts the kettle on when the lamps go up. I am punctual. She is predictable. The arrangement works.",
+        "She puts the kettle on when the lamps go up. I am punctual. She is predictable. The arrangement works, and has worked for fifteen years, which is a long time in a cat.",
+        "Fifteen. It means I am stiff in the mornings until the sun gets into me. It means I retired some while ago without telling anybody, there being nobody to tell.",
+        "My employment now is to be somewhere warm at the correct time. I am extremely good at it.",
         "Tonight calls for a gift. A vole, ideally. Voles say what flowers cannot."
       ]
     },
@@ -22,7 +24,9 @@
       "art_desc": "Ash pressed low on rooftop tiles, stalking an unaware vole near a chimney pot, warm dusk light",
       "lines": [
         "There. Under the chimney pot. Fat, smug, unaware.",
-        "Tonight the world is simple, and the world is RED."
+        "I go low. The tiles are still day-warm under my belly and the wind is blowing the wrong way for the vole.",
+        "There is a red feeling that lives at the bottom of a cat, older than cities. It is the one part of me that has not aged.",
+        "I wait longer than I once needed to. Waiting is cheap. The other thing is not."
       ]
     },
     {
@@ -130,8 +134,9 @@
       "when_outcome": "victory",
       "portrait": "sc_ash_vole_gift",
       "lines": [
-        "Acquired. Thoughtfully dead.",
-        "She will say 'not on the table', and mean 'thank you'."
+        "Acquired. Thoughtfully dead. Arranged neatly, carried gently.",
+        "I sat afterward longer than the work deserved, and did not mention it to anybody.",
+        "She will say 'not on the table', and mean 'thank you'. She has said it every time. I have put it on the table every time."
       ]
     },
     {
@@ -139,8 +144,17 @@
       "environment": "rooftop_dusk",
       "when_outcome": "retreat",
       "lines": [
-        "The vole declines to be a gift tonight. Dignity intact. Mostly.",
-        "She will have to make do with my company, which is worth several voles."
+        "The vole declines to be a gift tonight, and I decline to argue the point at my age.",
+        "She will have to make do with my company. I sat with that a while before I could agree to it."
+      ]
+    },
+    {
+      "type": "story",
+      "environment": "rooftop_dusk",
+      "lines": [
+        "The rooftop road home, and the evening going purple at its edges.",
+        "There is a gap over the alley at Cooper's that I used to cross without consulting anybody, including myself. I stood at the edge of it and counted the four seconds she taught me, and went round by the wall instead.",
+        "I spent that hour thinking about a sunbeam I remember from March. I want that noted. Whatever else the record says of me, let it say I was happy."
       ]
     }
   ]
