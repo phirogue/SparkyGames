@@ -91,7 +91,7 @@ python tools/art_catalog.py show sc_kettle    # full prompt + usage
 
 | Image | Kind | What it is | Who is in it | In/Out | Place | Time | Kerchief | Used by |
 |---|---|---|---|---|---|---|---|---|
-| logo_ashcat_title | logos | The Nine Lives of Ashcat — title logo | ash | abstract | — | none | — | 1 place(s) |
+| logo_ashcat_title | logos | The Nine Lives of Ash — title logo | ash | abstract | — | none | — | 1 place(s) |
 | logo_sparkygames | logos | SparkyGames studio mark | — | abstract | — | none | — | 1 place(s) |
 
 ## mockups (6)

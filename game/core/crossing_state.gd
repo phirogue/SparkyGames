@@ -59,6 +59,7 @@ var player_hp: int = 10
 var player_max_hp: int = 10
 var deck: Array = []
 var hand: Array = []
+var hand_size: int = 3          # what the paw is dealt back up to at each point
 var spent: Array = []
 var paws: int = 3
 var paw_limit: int = 3
@@ -93,8 +94,9 @@ static func create(catalog: Catalog, seed_value: int,
 	state.deck = Array(config.get("deck", [])).duplicate()
 	if config.get("shuffle", true):
 		state.rng.shuffle(state.deck)
-	for i in mini(int(config.get("opening_hand", dials.count("combat.opening_hand"))),
-			state.deck.size()):
+	state.hand_size = int(config.get("opening_hand",
+		dials.count("combat.opening_hand")))
+	for i in mini(state.hand_size, state.deck.size()):
 		state.hand.append(state.deck.pop_back())
 	return state
 
@@ -286,10 +288,21 @@ func _cmd_go() -> Dictionary:
 		"bitten": bitten, "hurt": taken}
 
 
-## One card back into the paw at each new point, so a long crossing keeps
-## dealing and a short one does not hand out a whole second hand.
+## Deal the paw back UP TO its size at each new point (owner 2026-08-16: "the
+## card loadout is not enough to fully pay for any of the actions").
+##
+## It used to add exactly one card per point, which meant the paw withered:
+## you open on three, spend two, arrive at the second thing in the road
+## holding two, the third holding one. Against costs of 2 and 3 that made
+## every point after the first a forced gamble rather than a decision, which
+## is the opposite of what this module is for.
+##
+## Dealing back to full is not generosity — the deck IS the prowl's spool,
+## shared with the fights on either side of this road, so every card spent
+## here is a card the next fight does not have. The cost is real; it is just
+## charged somewhere the player can see it coming.
 func _draw_up() -> void:
-	if not deck.is_empty():
+	while hand.size() < hand_size and not deck.is_empty():
 		hand.append(deck.pop_back())
 
 

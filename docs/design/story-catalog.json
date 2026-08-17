@@ -892,12 +892,12 @@
       "notes": "The most incriminating of the three answers, and it points at the craft itself."
     },
     "quest.the_carrying.7": {
-      "synopsis": "The day-side comes at nine: two constables, not unkind, who try the window catch and see an old woman dead in a chair behind a door locked from the inside. 'Heart, most like. At her age.' The younger writes it down, steps twice over a thing under the window Ash has not yet found, and they are gone in ten minutes. Nor does the night-side have an office for this — the Circuit mends, the Court of Whiskers serves papers, the Hollow Court files the dead, the Magpie sells what it knows. None of them owns a killing.",
+      "synopsis": "The day-side comes at nine: two constables, not unkind, who try the window catch and see an old woman dead in a chair behind a door locked from the inside. 'Heart, most like. At her age.' The younger writes it down, steps twice over a thing under the window Ash has not yet found, and they are gone in ten minutes. He then goes through everyone whose office this might be, and reaches the end of the list twice.",
       "characters": [
         "ash"
       ],
       "story_time": "day",
-      "notes": "WHY NOBODY INVESTIGATES, stated once and never softened. The missing court is the same absence that produced the murder. novel/story-bible/05-why-nobody-investigates.md."
+      "notes": "WHY NOBODY INVESTIGATES. The night-side roster that used to be recited here was cut in the 7th-edition showing pass -- Cardew says it at the wake, at cost, which is where it costs something. What stays is the scene and Ash's arithmetic. novel/story-bible/05-why-nobody-investigates.md."
     },
     "quest.the_carrying.8": {
       "synopsis": "He minds the room, going over it the way she went over a hem: slowly, twice, against the nap. Under everything, pond-bottom and old rope and patient water — the Mere does not come up to Thimblefield and it has been in this room. And under the window, the thing the constable stepped over: a beeswax stub burned an inch down, pinched out, stamped with the bee. She burned tallow her whole life and called beeswax the rich man's smell.",
@@ -1098,7 +1098,7 @@
       "notes": null
     },
     "quest.the_wake.0": {
-      "synopsis": "The rite, told because no one day-side troubles to know it: no grave, no fire, because a witch's work is thread and thread must be tied off. They sew the shroud shut in her own stitch and give her to the water at slack tide. The Lamplighters send four — everyone the hall has left — with lamps at half-wick, which is their mourning; the Magpie sends a bird with one respectful button laid on the stones; the Chandlers send one man, early, standing where he can be seen being sorry.",
+      "synopsis": "The quay is fuller than he expected and emptier than she deserved. The Lamplighters send four, everyone the hall has left, lamps burning at half-wick; the Magpie sends a bird with one respectful button laid on the stones; the Chandlers send one man, early, standing precisely where he can be seen being sorry.",
       "characters": [
         "ash",
         "cardew",
@@ -1107,7 +1107,7 @@
         "brindle"
       ],
       "story_time": "dusk",
-      "notes": "The 'tide nobody bribes' aphorism is CUT (story bible, voice defect #1). The custom explains itself instead."
+      "notes": "The 'tide nobody bribes' aphorism is CUT (story bible, voice defect #1), and so is the rite explained before it happens (7th-edition showing pass, 2026-08-16) -- the rite then happens in full in the next two beats."
     },
     "quest.the_wake.1": {
       "synopsis": "The rite is the seam: you sew the shroud shut in the dead woman's own pattern. Cardew gets four stitches in, stops, and holds the linen up with unsteady hands. 'I don't know her hand. Sixty years, and I don't know her hand.'",

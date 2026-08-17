@@ -8,7 +8,7 @@ func _ready() -> void:
 	var catalog := DataLoader.load_catalog()
 	var problems := catalog.validate()
 	var status := "content OK" if problems.is_empty() else "CONTENT PROBLEMS:\n" + "\n".join(problems)
-	label.text = "The Nine Lives of Ashcat\nscaffold v0.1.0\n\n%d energy cards / %d skills / %d enemies / %d encounters\n%s" % [
+	label.text = "The Nine Lives of Ash\nscaffold v0.1.0\n\n%d energy cards / %d skills / %d enemies / %d encounters\n%s" % [
 		catalog.energy_cards.size(), catalog.skills.size(),
 		catalog.enemies.size(), catalog.encounters.size(), status,
 	]

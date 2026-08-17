@@ -2,16 +2,88 @@
   "lattice_counting_room": {
     "id": "lattice_counting_room",
     "name": "The Counting-Room Ward",
-    "teach_free": true,
     "error_cost": "alarm",
     "alarm_per_mistake": 1,
     "alarm_threshold": 4,
     "threads": [
-      { "id": "t_seal", "over": ["t_ledger", "t_lamp"], "path": [[0, 0], [3, 2]] },
-      { "id": "t_ledger", "over": ["t_floor"], "path": [[0, 2], [3, 0]] },
-      { "id": "t_lamp", "over": ["t_floor", "t_door"], "path": [[1, 0], [1, 3]] },
-      { "id": "t_floor", "over": [], "path": [[2, 0], [2, 3]] },
-      { "id": "t_door", "over": [], "path": [[3, 1], [0, 3]] }
+      {
+        "id": "t_seal",
+        "over": [
+          "t_ledger",
+          "t_lamp"
+        ],
+        "path": [
+          [
+            0,
+            0
+          ],
+          [
+            3,
+            2
+          ]
+        ]
+      },
+      {
+        "id": "t_ledger",
+        "over": [
+          "t_floor"
+        ],
+        "path": [
+          [
+            0,
+            2
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      },
+      {
+        "id": "t_lamp",
+        "over": [
+          "t_floor",
+          "t_door"
+        ],
+        "path": [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            3
+          ]
+        ]
+      },
+      {
+        "id": "t_floor",
+        "over": [],
+        "path": [
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      },
+      {
+        "id": "t_door",
+        "over": [],
+        "path": [
+          [
+            3,
+            1
+          ],
+          [
+            0,
+            3
+          ]
+        ]
+      }
     ],
     "elastic": [],
     "rewards": {},
@@ -28,15 +100,79 @@
     "alarm_per_mistake": 1,
     "alarm_threshold": 3,
     "threads": [
-      { "id": "g_bind", "over": ["g_left", "g_right"], "path": [[0, 0], [3, 3]] },
-      { "id": "g_left", "over": ["g_root"], "path": [[0, 3], [2, 0]] },
-      { "id": "g_right", "over": ["g_root"], "path": [[1, 0], [3, 2]] },
-      { "id": "g_root", "over": [], "path": [[2, 3], [3, 0]] }
+      {
+        "id": "g_bind",
+        "over": [
+          "g_left",
+          "g_right"
+        ],
+        "path": [
+          [
+            0,
+            0
+          ],
+          [
+            3,
+            3
+          ]
+        ]
+      },
+      {
+        "id": "g_left",
+        "over": [
+          "g_root"
+        ],
+        "path": [
+          [
+            0,
+            3
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      },
+      {
+        "id": "g_right",
+        "over": [
+          "g_root"
+        ],
+        "path": [
+          [
+            1,
+            0
+          ],
+          [
+            3,
+            2
+          ]
+        ]
+      },
+      {
+        "id": "g_root",
+        "over": [],
+        "path": [
+          [
+            2,
+            3
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      }
     ],
     "elastic": [
       {
         "when_removed": "g_bind",
-        "adds": [{ "thread": "g_right", "over": "g_left" }]
+        "adds": [
+          {
+            "thread": "g_right",
+            "over": "g_left"
+          }
+        ]
       }
     ],
     "rewards": {},
@@ -53,15 +189,78 @@
     "alarm_per_mistake": 1,
     "alarm_threshold": 3,
     "threads": [
-      { "id": "k_interest", "over": ["k_clause"], "path": [[0, 0], [2, 3]] },
-      { "id": "k_clause", "over": ["k_purr"], "path": [[0, 3], [3, 0]] },
-      { "id": "k_seal", "over": ["k_purr"], "path": [[1, 0], [3, 3]] },
-      { "id": "k_purr", "over": [], "path": [[2, 0], [0, 2]] }
+      {
+        "id": "k_interest",
+        "over": [
+          "k_clause"
+        ],
+        "path": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      },
+      {
+        "id": "k_clause",
+        "over": [
+          "k_purr"
+        ],
+        "path": [
+          [
+            0,
+            3
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      },
+      {
+        "id": "k_seal",
+        "over": [
+          "k_purr"
+        ],
+        "path": [
+          [
+            1,
+            0
+          ],
+          [
+            3,
+            3
+          ]
+        ]
+      },
+      {
+        "id": "k_purr",
+        "over": [],
+        "path": [
+          [
+            2,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      }
     ],
     "elastic": [
       {
         "when_removed": "k_interest",
-        "adds": [{ "thread": "k_seal", "over": "k_clause" }]
+        "adds": [
+          {
+            "thread": "k_seal",
+            "over": "k_clause"
+          }
+        ]
       }
     ],
     "rewards": {},
@@ -78,15 +277,76 @@
     "alarm_per_mistake": 1,
     "alarm_threshold": 3,
     "threads": [
-      { "id": "e_top", "over": ["e_mid"], "path": [[0, 0], [2, 3]] },
-      { "id": "e_mid", "over": [], "path": [[0, 3], [3, 1]] },
-      { "id": "e_hook", "over": ["e_tail"], "path": [[1, 0], [3, 3]] },
-      { "id": "e_tail", "over": [], "path": [[2, 0], [0, 2]] }
+      {
+        "id": "e_top",
+        "over": [
+          "e_mid"
+        ],
+        "path": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      },
+      {
+        "id": "e_mid",
+        "over": [],
+        "path": [
+          [
+            0,
+            3
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      },
+      {
+        "id": "e_hook",
+        "over": [
+          "e_tail"
+        ],
+        "path": [
+          [
+            1,
+            0
+          ],
+          [
+            3,
+            3
+          ]
+        ]
+      },
+      {
+        "id": "e_tail",
+        "over": [],
+        "path": [
+          [
+            2,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      }
     ],
     "elastic": [
       {
         "when_removed": "e_top",
-        "adds": [{ "thread": "e_hook", "over": "e_mid" }]
+        "adds": [
+          {
+            "thread": "e_hook",
+            "over": "e_mid"
+          }
+        ]
       }
     ],
     "rewards": {},
@@ -94,6 +354,7 @@
       "success": "It fought, and lost, and Ash notices he enjoyed that.",
       "partial": "The lattice re-crossed itself faster than he could read it.",
       "walk_away": "Ash steps back. The working settles, smug."
-    }
+    },
+    "teach_free": true
   }
 }

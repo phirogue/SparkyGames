@@ -378,6 +378,37 @@ func test_lattice_elastic_still_has_a_safe_order() -> void:
 	assert_eq(String(order[0]), "e_top", "the free thread goes first")
 
 
+## THE BUG THIS PINS (owner 2026-08-16): "do not change the color of the
+## threads once they become uncovered, at the moment the legal threads just
+## become red, making the game completely trivial."
+##
+## Colouring the pullable threads is a TEACHING aid and belongs on exactly one
+## board: the practice lattice the unpicking lesson opens. It had drifted onto
+## `lattice_counting_room`, which is a graded puzzle inside `creditors` — so
+## the first real unpicking in the game highlighted its own answers. Reading
+## the stack IS this minigame; a board that marks the legal threads has no
+## puzzle left in it.
+func test_only_the_practice_lattice_reveals_its_free_threads() -> void:
+	var lesson_board := ""
+	var lesson: Dictionary = catalog.lessons.get("unpicking", {})
+	var scene := String(lesson.get("scene", ""))
+	if scene.begins_with("lattice:"):
+		lesson_board = scene.trim_prefix("lattice:")
+	assert_true(lesson_board != "",
+		"the unpicking lesson must open a lattice, got '%s'" % scene)
+	for lattice_id in catalog.lattices:
+		var teaches: bool = bool(
+			catalog.lattices[lattice_id].get("teach_free", false))
+		if lattice_id == lesson_board:
+			assert_true(teaches,
+				"%s is the lesson board and must show what 'free' looks like"
+					% lattice_id)
+		else:
+			assert_true(not teaches,
+				"%s is a real puzzle and must not colour in its own answers"
+					% lattice_id)
+
+
 # ---------------------------------------------------- 5. The Long Way Home
 
 func test_crossings_can_be_crossed() -> void:
@@ -440,14 +471,78 @@ func test_crossing_shortfall_is_a_posted_gamble() -> void:
 		catalog.crossings["crossing_practice"],
 		{"player_hp": 10, "deck": TEST_DECK.duplicate(), "shuffle": false,
 		"opening_hand": 8})
-	state.do_command({"type": "choose", "way": "wait"})   # 4 of anything
-	assert_eq(state.shortfall(), 4, "nothing down yet")
+	state.do_command({"type": "choose", "way": "wait"})   # the any-energy way
+	# Read the price off the data rather than pinning it: the way costs were
+	# retuned on 2026-08-16 against what a paw actually holds, and a test that
+	# hardcodes them fails for the wrong reason next time they move.
+	var cost := state.cost_of("wait")
+	assert_true(cost >= 2, "the any-energy way has to cost something")
+	assert_eq(state.shortfall(), cost, "nothing down yet")
 	var bare := state.risk()
 	state.do_command({"type": "put", "card": "shadow_2"})
-	assert_eq(state.shortfall(), 2, "worth 2 down against a cost of 4")
+	assert_eq(state.shortfall(), cost - 2,
+		"worth 2 down against a cost of %d" % cost)
 	assert_true(state.risk() < bare,
 		"putting energy down must lower the risk, %f vs %f" % [state.risk(), bare])
 	assert_true(state.risk() > 0.0, "and short is never free")
+
+
+## THE BUG THIS PINS (owner 2026-08-16): "the actions are very expensive, most
+## of the time the card load out is not enough to fully pay for any of the
+## actions." Every point offered ways at 2 and 3 of a named humour and 4 of
+## anything, against an opening paw of three value-1 cards — worth 3 in total
+## and about 1 in any one colour. Nothing was ever payable, so a board built
+## to be a decision was really a slot machine with extra steps.
+##
+## The invariant: at EVERY point of EVERY crossing, a full paw dealt off the
+## shipped starting deck can pay for at least one way outright. The player may
+## still choose to go short — that is the game — but going short must never be
+## the only thing on offer.
+func test_crossing_a_full_paw_can_always_afford_a_way() -> void:
+	var start: Array = catalog.rules.list("start.deck")
+	var hand_size: int = catalog.rules.count("combat.opening_hand")
+	# A full paw of the starting deck, valued the way the board values it.
+	var paw_worth := 0
+	for i in hand_size:
+		paw_worth += int(catalog.energy_cards.get(
+			String(start[i % start.size()]), {}).get("value", 0))
+	for crossing_id in catalog.crossings:
+		var crossing: Dictionary = catalog.crossings[crossing_id]
+		for point in crossing.get("points", []):
+			var cheapest := 999
+			for way in point.get("ways", []):
+				cheapest = mini(cheapest, int(way.get("cost", 0)))
+			assert_true(cheapest <= paw_worth,
+				"%s/%s: cheapest way costs %d but a full paw is only worth %d" \
+					% [crossing_id, String(point.get("id", "?")), cheapest,
+					paw_worth])
+
+
+## The paw is dealt back UP at each point rather than topped up by one, or it
+## withers: open on three, spend two, meet the second thing in the road
+## holding two and the third holding one, at which point every remaining
+## decision is forced. The deck is the prowl's shared spool, so this is not
+## free — it just charges the player somewhere they can see it.
+func test_crossing_deals_the_paw_back_up_at_each_point() -> void:
+	var state := CrossingState.create(catalog, 7,
+		catalog.crossings["crossing_practice"],
+		{"player_hp": 40, "player_max_hp": 40, "deck": TEST_DECK.duplicate()})
+	var want: int = mini(state.hand_size, TEST_DECK.size())
+	assert_eq(state.hand.size(), want, "opens on a full paw")
+	var guard := 0
+	while not Minigame.is_over(state.outcome) and guard < 20:
+		guard += 1
+		state.do_command({"type": "choose",
+			"way": String(state.ways()[0].get("id", ""))})
+		# Spend everything that is any use on this way.
+		for card_id in state.hand.duplicate():
+			state.do_command({"type": "put", "card": card_id})
+		state.do_command({"type": "go"})
+		if Minigame.is_over(state.outcome):
+			break
+		assert_eq(state.hand.size(), mini(state.hand_size,
+			state.hand.size() + state.deck.size()),
+			"the paw is dealt back up at every point, not topped up by one")
 
 
 ## Going is never refused, however little is on the way — no board in this

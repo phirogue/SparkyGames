@@ -1,8 +1,8 @@
-# Story Direction — DECIDED: *The Nine Lives of Ashcat*
+# Story Direction — DECIDED: *The Nine Lives of Ash*
 
 Owner decision (2026-07-29): Pitch 2 from
 [story-concepts.md](../brainstorm/story-concepts.md) is the game.
-Working title: **The Nine Lives of Ashcat**.
+Working title: **The Nine Lives of Ash**.
 
 ## Premise
 

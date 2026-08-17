@@ -1,6 +1,6 @@
 # SparkyGames — Project Instructions
 
-*The Nine Lives of Ashcat.* Mobile roguelite card game (fantasy, story-driven,
+*The Nine Lives of Ash.* Mobile roguelite card game (fantasy, story-driven,
 3–5 minute runs) for iOS and Google Play. Offline-first, single player,
 standalone story.
 

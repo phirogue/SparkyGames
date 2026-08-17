@@ -348,8 +348,7 @@
           "The day-side came at nine. Two constables, not unkind. The younger one wiped his boots on the mat, which I record in his favour.",
           "They tried the window catch. They looked at the hearth. All around them hung forty years of workings cut through at one tidy height, and they stood in the middle of it and saw an old woman dead in her chair behind a door locked from the inside.",
           "'Heart, most like,' the older one said. 'At her age.' The younger one wrote that down, stepped twice over a thing under the window I had not yet found, and they were gone in ten minutes.",
-          "Nor is there anybody on the night-side whose office this is. The Circuit mends. The Court of Whiskers serves papers. The Hollow Court files the dead and says so. The Magpie sells what it knows to whoever is buying.",
-          "None of them owns a killing. I did that arithmetic twice, because I did not care for the answer."
+          "I sat where they had left me and went through everyone in this city whose office this might be, and got to the end of the list twice, because I did not care for the answer."
         ]
       },
       {
@@ -661,7 +660,7 @@
         "sharpen_the_claws"
       ]
     },
-    "board_card": "They give a witch to the tide at the turn of the evening. That is the custom. Every guild will send somebody to be seen not caring, and I am expected to be decorative. She expected better.",
+    "board_card": "They give her to the tide at the turn of the evening. Every guild will send somebody to be seen not caring, and I am expected to be decorative. She expected better.",
     "steps": [
       {
         "type": "story",
@@ -669,9 +668,7 @@
         "portrait": "sc_the_wake",
         "art_desc": "A witch's funeral at the tideline at dusk: a shrouded figure on a low bier, women in grey, guild delegates at a careful distance, a black cat on a mooring post",
         "lines": [
-          "No one day-side troubles to know the rite, so I will tell it. No grave, no fire. A witch's work is thread, and thread must be tied off, not buried.",
-          "They sew the shroud shut over her in her own stitch, worked by whoever loved or owed her most, and give her to the water at slack tide.",
-          "The quay was fuller than I expected and emptier than she deserved. The Lamplighters sent four, everyone the hall has left, with their ladders shouldered and their lamps at half-wick, which is their mourning.",
+          "The quay was fuller than I expected and emptier than she deserved. The Lamplighters sent four, everyone the hall has left, with their ladders shouldered and their lamps burning at half-wick.",
           "The Magpie Exchange sent a bird I did not yet know, watchful on a bollard, with one respectful button laid on the stones. And the Chandlers sent one man, early, in very good black, standing precisely where he could be seen being sorry."
         ]
       },
@@ -679,7 +676,7 @@
         "type": "story",
         "environment": "shambles_market",
         "lines": [
-          "Mother Cardew took the bone needle and the grey thread and began the shroud's last seam in Elspeth's own pattern. Four stitches in, she stopped.",
+          "No grave. No fire. Mother Cardew took the bone needle and the grey thread and began sewing the shroud shut over her, in Elspeth's own stitch. Four stitches in, she stopped.",
           "She stood there with the linen raised in her unsteady hands, an old woman in front of a city, and I watched her courage fail in a way I would not wish on an enemy.",
           "'I don't know her hand,' she said. Quietly. To the linen. 'Sixty years, and I don't know her hand.'",
           "Nobody moved. The tide turned underneath us — you feel it through stone, through the pads of your feet, the moment the sea changes its mind — and the seam stood open four stitches."
@@ -1790,7 +1787,7 @@
         "environment": "rooftop_dusk",
         "lines": [
           "Dawn, three days later. The shutter goes up. The scraps go down. The jury disperses into a congregation, and Pell stands in the middle of it grinning at nothing, wearing his grandmother on his coat.",
-          "'Mind the water, puss,' he says, to all of us, the way he says it every dawn. He never learns my name. He never learns any of it, and that is the point — the day-side must stay the kind of place where luck still happens.",
+          "'Mind the water, puss,' he says, to all of us, the way he says it every dawn. He never learns my name. He never learns any of it.",
           "Somebody once put a saucer down for a stray who had nothing to trade for it. The account stays open. It always will."
         ]
       }

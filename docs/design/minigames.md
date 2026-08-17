@@ -113,9 +113,19 @@ adding a puzzle must never mean touching a scene script.
 >   from a real painter's-order STACK plus the shadow the upper thread casts.
 >   Freed threads slide out; a refused pull shivers the thread and everything
 >   lying across it. The one exception is `teach_free` in a lattice's data
->   (set on `lattice_counting_room`, the first one the player meets) and any
->   board while its lesson is playing — "turning red is fine for the tutorial
->   game".
+>   and any board while its lesson is actually PLAYING — "turning red is fine
+>   for the tutorial game".
+>   **Corrected 2026-08-16** (owner: "the legal threads just become red,
+>   making the game completely trivial"). Two things were wrong. `teach_free`
+>   sat on `lattice_counting_room`, which is not a tutorial at all but the
+>   graded board inside `creditors` — the practice board the unpicking lesson
+>   opens is `lattice_elastic`, and the flag now lives there. And the
+>   "lesson is playing" gate asked `is_instance_valid(coach)`, but `Coach.
+>   _finish()` only hides itself and stops processing; it never frees. So the
+>   node stayed valid for the life of the screen and one tutorial at the top
+>   turned every later puzzle on that board into colour-matching. The gate is
+>   `coach.active()` now. `test_only_the_practice_lattice_reveals_its_free_
+>   threads` pins the data half.
 > - **The Long Way Home is played by paying.** "What does it mean for the
 >   gust to control a specific energy" was the right question, and the answer
 >   turned out to be that the gust had to go. A crossing is now a chain of
@@ -374,10 +384,34 @@ Each is a thing standing in the road, with its own picture, and two or three
 named ways past it, each priced in an energy and an amount:
 
 > **A gate, and no way under it**
-> Go over it — 3 Ferocity · Work the hinge — 2 Guile · Wait for it to open — 4 of anything
+> Go over it — 2 Ferocity · Work the hinge — 2 Guile · Wait for it to open — 3 of anything
 
 You choose a way, then **put cards on it** out of your paw. Worth counts, not
 card count, and Moonlight pays toward anything at its worth. Then **GO**.
+
+> **Priced against the paw, 2026-08-16** (owner: "the actions are very
+> expensive, most of the time the card load out is not enough to fully pay for
+> any of the actions"). The ways had been 2 and 3 of a named humour and 4 of
+> anything, against an opening paw of **three value-1 cards** — worth 3 in
+> total and about 1 in any one colour. The any-energy fallback was therefore
+> unpayable by arithmetic, and the coloured ways nearly so, which made a board
+> built to be a decision into a slot machine with extra steps. Worse, the paw
+> was topped up by exactly ONE card per point, so it withered: open on three,
+> spend two, meet the second thing in the road holding two and the third
+> holding one.
+>
+> Now: **a named humour costs 2, anything costs 3, and the paw is dealt back
+> up to full at every point.** The two coloured ways cost the same because the
+> choice between them is which colour you happen to hold, not which is
+> cheaper. So there is always at least one payable way — empty the paw and
+> wait — and about two thirds of the time a cheaper coloured one. Going short
+> stays available and stays a posted gamble; it is now a *choice* to gamble
+> rather than the only thing on the menu. Dealing back to full is not
+> generosity: the deck IS the prowl's spool, so every card spent here is a
+> card the next fight does not have.
+> Pinned by `test_crossing_a_full_paw_can_always_afford_a_way` (checks every
+> point of every crossing against a full paw off the shipped starting deck)
+> and `test_crossing_deals_the_paw_back_up_at_each_point`.
 
 - **Pay in full and you are past it clean.** The cards are spent either way,
   and stay spent into the prowl's next encounter — traversal and combat share
@@ -392,7 +426,17 @@ card count, and Moonlight pays toward anything at its worth. Then **GO**.
 - **The picture changes at every point** (the owner's ask, and the reason a
   crossing reads as a journey rather than as a progress bar). The eight
   obstacle views are `bg_way_*`; a point names one, so a new obstacle is a
-  data edit.
+  data edit. **Shown WHOLE, 2026-08-16** (owner: "adjust the layout so to show
+  the full picture of the location, at the moment its cropped"): the art is
+  drawn 3:2 and the window had been 582x250, i.e. 2.33:1, so filling it threw
+  away 36% of every picture's height — the gate read as a band of railings
+  rather than as a gate. The picture zone is 330 tall now and the art is
+  *fitted* into it rather than covering it, on a dark mount so the narrow
+  margins either side read as a frame. The name band sizes itself to the
+  fitted picture rather than to the zone. The 80px came off the way plates
+  (77 → 58, which held a glyph and two short labels) and the said-line (which
+  was budgeted for two lines it never uses); zone heights still sum to the
+  board height exactly, per law 6.
 - **Read Ahead** (1 paw) shows what is round the next corner, so something can
   be kept back for it. **Turn Back** abandons the crossing (walk-away, or
   partial once he is past the first point).

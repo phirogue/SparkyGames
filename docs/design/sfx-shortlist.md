@@ -68,7 +68,7 @@ soundboard and play through it once.
 
 ## The frame: this game is a book
 
-The strongest thing in these packs for *Ashcat* specifically is that
+The strongest thing in these packs for *Ash* specifically is that
 `kenney_rpg-audio` contains real book foley — and the entire UI is a book with
 dashed stitching down the page. Page turns are not a metaphor here; they are
 the interaction.

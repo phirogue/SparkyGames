@@ -1,4 +1,4 @@
-# SparkyGames — *The Nine Lives of Ashcat*
+# SparkyGames — *The Nine Lives of Ash*
 
 A brand-new mobile roguelite card game for iOS (App Store) and Android
 (Google Play). You are Ash, a murdered witch's cat familiar, spending your

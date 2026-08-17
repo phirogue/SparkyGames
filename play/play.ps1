@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-  Launch one part of The Nine Lives of Ashcat without playing to it.
+  Launch one part of The Nine Lives of Ash without playing to it.
 
 .DESCRIPTION
   Every part runs through the game's component runner (--scene <spec>),
@@ -125,7 +125,7 @@ if ($Part) {
 
 # No argument: pick from a numbered menu.
 Write-Host ''
-Write-Host '  The Nine Lives of Ashcat - try a part' -ForegroundColor Yellow
+Write-Host '  The Nine Lives of Ash - try a part' -ForegroundColor Yellow
 $group = ''
 for ($i = 0; $i -lt $parts.Count; $i++) {
     if ($parts[$i].group -ne $group) {

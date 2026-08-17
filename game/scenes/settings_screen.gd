@@ -151,7 +151,7 @@ func _build_footer(column: VBoxContainer) -> void:
 		Strings.line("settings.ai_disclosure"),
 		22, UITheme.CONTENT_WIDTH, UITheme.italic_font(), UITheme.INK_SOFT))
 	var version := UITheme.measured_label(
-		"The Nine Lives of Ashcat — Chapter One", 22, UITheme.CONTENT_WIDTH,
+		"The Nine Lives of Ash — Chapter One", 22, UITheme.CONTENT_WIDTH,
 		UITheme.body_font(), UITheme.INK_FADED)
 	holder.add_child(version)
 	var back := UITheme.amber_button("Back to the night", 30)

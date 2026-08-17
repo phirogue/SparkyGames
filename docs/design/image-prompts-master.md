@@ -27,7 +27,7 @@ Generate at the largest size offered — I downscale on import.
 
 **1. `logo_ashcat_title`** — REGENERATE (current art reads "The Nine Lives
 of of Ashcat"). Prompt in section A below; append: *exactly the words
-"The Nine Lives of Ashcat", check the spelling carefully.* Until this
+"The Nine Lives of Ash", check the spelling carefully.* Until this
 lands the title screen shows a typeset stand-in.
 
 **2. `bg_mantel`** — the hub's home backdrop (the Mantel screen is plain
@@ -87,13 +87,13 @@ screen face; merchant gating quest coming):
 **`logo_ashcat_title`** — ⚠️ REGENERATE: the 2026-08-01 version reads "The
 Nine Lives of **of** Ashcat" (doubled "of") — unusable for store/title.
 Re-run the prompt below; consider adding: 'exactly the words "The Nine
-Lives of Ashcat", check spelling carefully'.
+Lives of Ash", check spelling carefully'.
 
 **`logo_sparkygames`** original prompt — the studio splash:
 > A charming hand-drawn studio logo emblem for a game studio called SparkyGames: a small ember-orange spark or flame with a curled cat tail silhouette wrapped around it, inside a simple round ink-drawn badge, warm amber and charcoal palette, storybook ink and watercolor style, clean readable silhouette that works small, centered on a plain dark background, no text. Aspect ratio: 1:1.
 
 **`logo_ashcat_title`** — the game's title treatment (for the title card and store listing; text IS wanted here, ChatGPT handles short text well):
-> A hand-lettered game logo reading "The Nine Lives of Ashcat" in elegant slightly-gothic storybook lettering, ink and watercolor style, with a small black cat silhouette curled around the letters and a thin silver thread winding through them, warm cream and charcoal with one ember-orange accent, on a plain dark background, high contrast, readable at small sizes. Aspect ratio: 16:9.
+> A hand-lettered game logo reading "The Nine Lives of Ash" in elegant slightly-gothic storybook lettering, ink and watercolor style, with a small black cat silhouette curled around the letters and a thin silver thread winding through them, warm cream and charcoal with one ember-orange accent, on a plain dark background, high contrast, readable at small sizes. Aspect ratio: 16:9.
 
 ## B. Prologue content gaps (black boxes in the current build)
 

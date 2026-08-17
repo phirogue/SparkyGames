@@ -30,14 +30,32 @@ extends Control
 signal closed
 
 ## Board geometry (the shell's 720-tall board, 582 wide):
-## picture 0..250, ways 262..510, paw 522..650, said 662..720.
-const PICTURE_RECT := Rect2(0.0, 0.0, 582.0, 250.0)
-const WAYS_TOP := 262.0
-const WAYS_HEIGHT := 248.0
+## picture 0..330, ways 342..532, paw 544..662, said 674..720.
+##
+## The picture zone grew from 250 to 330 on 2026-08-16 (owner: "adjust the
+## layout so to show the full picture of the location, at the moment its
+## cropped"). The crossing backdrops are drawn 3:2; a 582x250 window is
+## 2.33:1, so filling it threw away 36% of every picture's height and the
+## gate read as a band of railings rather than as a gate. The art is now
+## fitted WHOLE inside the zone (see _refresh_picture) and the zone is deep
+## enough that the fit costs only a narrow mount either side.
+##
+## The 80px came off the other three zones, which had room: the way plates
+## were 77 tall for a glyph and two short labels, and the said-line was
+## budgeted for two lines of 26 it never uses. Zone heights must still sum
+## with their separations to the board height exactly (law 6):
+##   330 + 12 + 190 + 12 + 118 + 12 + 46 = 720.
+const PICTURE_RECT := Rect2(0.0, 0.0, 582.0, 330.0)
+const NAME_BAND_HEIGHT := 56.0
+const WAYS_TOP := 342.0
+const WAYS_HEIGHT := 190.0
 const WAY_SEPARATION := 8.0
-const PAW_BAND := Vector2(522.0, 650.0)
-const SAID_TOP := 662.0
-const CARD_SIZE := Vector2(104.0, 128.0)
+const PAW_BAND := Vector2(544.0, 662.0)
+const SAID_TOP := 674.0
+const CARD_SIZE := Vector2(96.0, 118.0)
+## The mount the fitted picture sits on, so the margins either side of a
+## 3:2 picture in a wider window read as a deliberate frame, not a gap.
+const MOUNT := Color(0.10, 0.09, 0.08, 1.0)
 
 ## Colours and glyphs come from MinigameShell.HUMOUR_* — the battle screen's
 ## own vocabulary, shared verbatim so a card is the same card everywhere.
@@ -68,6 +86,7 @@ var _chips: Dictionary = {}        # key -> value Label
 var _picture: Control
 var _picture_art: Control
 var _picture_shown := ""           # which point the picture is of
+var _name_band: ColorRect
 var _name_plate: Label
 var _ways_box: VBoxContainer
 var _paw_layer: Control
@@ -177,6 +196,14 @@ func _divider(parent: Container) -> void:
 func _build_board() -> void:
 	# The thing in the road, full width and unframed: a place is not a
 	# portrait (owner: "the location card here doesn't need a border").
+	# The mount fills the whole zone; the picture is fitted onto it whole.
+	var mount := ColorRect.new()
+	mount.color = MOUNT
+	mount.position = PICTURE_RECT.position
+	mount.size = PICTURE_RECT.size
+	mount.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_board.add_child(mount)
+
 	_picture = Control.new()
 	_picture.position = PICTURE_RECT.position
 	_picture.size = PICTURE_RECT.size
@@ -184,20 +211,19 @@ func _build_board() -> void:
 	_picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_board.add_child(_picture)
 	# Its name sits ON the picture, on a dark band, the way the battle names
-	# its opponent — the thing in the road IS the opponent here.
-	var band := ColorRect.new()
-	band.color = Color(0.08, 0.07, 0.06, 0.66)
-	band.position = Vector2(0.0, PICTURE_RECT.size.y - 62.0)
-	band.size = Vector2(PICTURE_RECT.size.x, 62.0)
-	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_picture.add_child(band)
+	# its opponent — the thing in the road IS the opponent here. The band is
+	# resized to the fitted picture's width in _fit_picture, so it never runs
+	# out over the mount.
+	_name_band = ColorRect.new()
+	_name_band.color = Color(0.08, 0.07, 0.06, 0.72)
+	_name_band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_picture.add_child(_name_band)
 	_name_plate = UITheme.measured_label("", 32, PICTURE_RECT.size.x - 28.0,
 		UITheme.display_font(), PARCHMENT)
 	_name_plate.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_name_plate.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_name_plate.position = Vector2(14.0, 0.0)
-	_name_plate.size = Vector2(PICTURE_RECT.size.x - 28.0, 62.0)
-	band.add_child(_name_plate)
+	_name_band.add_child(_name_plate)
+	_fit_picture(PICTURE_RECT.size)
 
 	_ways_box = VBoxContainer.new()
 	_ways_box.position = Vector2(0.0, WAYS_TOP)
@@ -344,6 +370,28 @@ func _refresh_go() -> void:
 	button.text = Strings.line("minigames.crossing.go_short." + band, [short])
 
 
+## Lay the picture holder out for a picture of this shape: the WHOLE image,
+## scaled to fit inside the zone and centred on the mount, with the name band
+## across the bottom of the picture itself rather than of the zone.
+##
+## The default art helper covers its box (crops to fill), which is right for
+## a backdrop that has to reach the page edges and wrong for this: the thing
+## in the road is a picture OF somewhere, and half a gate is not a gate.
+func _fit_picture(art_size: Vector2) -> void:
+	var fitted := PICTURE_RECT.size
+	if art_size.x > 0.0 and art_size.y > 0.0:
+		var scale: float = minf(PICTURE_RECT.size.x / art_size.x,
+			PICTURE_RECT.size.y / art_size.y)
+		fitted = (art_size * scale).floor()
+	_picture.position = PICTURE_RECT.position \
+		+ ((PICTURE_RECT.size - fitted) * 0.5).floor()
+	_picture.size = fitted
+	_name_band.position = Vector2(0.0, fitted.y - NAME_BAND_HEIGHT)
+	_name_band.size = Vector2(fitted.x, NAME_BAND_HEIGHT)
+	_name_plate.position = Vector2(14.0, 0.0)
+	_name_plate.size = Vector2(maxf(fitted.x - 28.0, 1.0), NAME_BAND_HEIGHT)
+
+
 ## The picture changes at every point (owner 2026-08-13). It cross-fades
 ## rather than cutting, so arriving somewhere new reads as travel.
 func _refresh_picture() -> void:
@@ -353,8 +401,16 @@ func _refresh_picture() -> void:
 		return
 	_picture_shown = point_id
 	var previous := _picture_art
-	var art := UITheme.art_or_placeholder(String(point.get("image", "")),
+	var image_id := String(point.get("image", ""))
+	var texture := UITheme.tex(image_id)
+	_fit_picture(Vector2(texture.get_size()) if texture != null \
+		else PICTURE_RECT.size)
+	var art := UITheme.art_or_placeholder(image_id,
 		String(point.get("name", "the road")))
+	# The holder is already the picture's own shape, so the art fills it and
+	# nothing is thrown away.
+	if art is TextureRect:
+		art.stretch_mode = TextureRect.STRETCH_SCALE
 	art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_picture.add_child(art)
 	_picture.move_child(art, 0)

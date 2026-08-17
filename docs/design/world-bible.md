@@ -217,6 +217,52 @@ failure modes, all of which shipped at least once and have now been cut:
 When he is moved he gets **shorter**, not more ornate. "It took three tries.
 Nobody will ever know."
 
+### Show it; do not also explain it (novel 7th edition, 2026-08-16)
+
+The owner's next note on the novel — *"a tendency of telling things, rather
+than showing them, a lot of exposition dumps"* — applies to the game's prose
+word for word, and the game had the same habit for the same reason. The
+diagnosis is not "too much summary" in the abstract. It is **redundancy**: the
+scene that would replace the dump is usually already on the page a beat later,
+and the summary in front of it spends the surprise before the scene can earn
+it. The edit is nearly always a deletion, not a rewrite.
+
+The test: **does a scene elsewhere already do this work?** If yes, the summary
+goes. If no, it stays and earns its place. Five shapes to hunt:
+
+- **The definition before the experience.** A thing named and glossed before
+  the reader has met it, and then the meeting summarised. Detection: a colon
+  introducing an apposition; "they have a name"; anything that would sit
+  comfortably in a glossary. Let the thing act first.
+- **Tell, then show the same thing.** A paragraph of assertions followed by
+  the scene that proves them. Look at the paragraph immediately *before* any
+  good concrete beat — the dump is usually sitting right on top of it.
+- **The curriculum vitae.** A character introduced by résumé instead of
+  behaviour. Name, and one action; the rest waits for a scene that needs it.
+- **The scene that announces itself.** Telling the player what a beat is about
+  to accomplish. Also a future-telling breach.
+- **The gloss on a landed image.** One figure, then a clause explaining how to
+  take it.
+
+Applied to the game 2026-08-16: the prologue's "Fifteen. It means…" paragraph
+(the vole hunt, the gap at Cooper's and the sitting-afterward already
+dramatise all three claims), the Weft systematics (now personal — *she
+stitches with it; I have only ever been able to look*), the gutter-wisp
+glossary, the night-side institutional roster in `the_carrying` (Cardew says
+it at the wake, at cost), and the tide-rite explained in `the_wake` before the
+rite then happens in full.
+
+**What this does NOT touch.** Ash is a detective keeping a file, and summary
+is his voice, not a defect in it: him weighing, judging or refusing to decide;
+case-status reasoning where the reasoning *is* the action; the Clerk. And it
+does not touch the game's own teaching surfaces — notice cards, coach steps,
+`rule: true` cards and `lessons.json` exist precisely so that the rules get
+stated somewhere that is not the narration. A rule in a lesson is in its right
+home; the same rule in a story line is a dump.
+
+`python tools/prose_telling.py` ranks the novel's paragraphs for a human to
+judge. It is a heuristic, not a verdict.
+
 ## Consistency rules for all content
 
 1. Magic is sewing; costs are visible; nothing is "just magical."

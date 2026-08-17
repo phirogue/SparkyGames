@@ -258,12 +258,20 @@ func twang() -> float:
 
 
 ## Whether the board may say out loud which threads are free. True only on
-## the lattice the player meets first (`teach_free` in its data) and while a
-## lesson is actually running — everywhere else, reading the stack is the
-## game and colouring the answer in would be playing it for them.
+## the practice lattice (`teach_free` in its data) and while a lesson is
+## actually RUNNING — everywhere else, reading the stack is the game and
+## colouring the answer in would be playing it for them.
+##
+## Owner 2026-08-16: "the legal threads just become red, making the game
+## completely trivial." The gate was `is_instance_valid(coach)`, and Coach
+## ._finish() hides itself and stops processing but never frees — so the node
+## stayed valid for the life of the screen and the reveal never switched off.
+## One tutorial at the top of a board turned every later puzzle on that board
+## into a colour-matching exercise. `coach.active()` is the question that was
+## meant all along: is a lesson on screen right now.
 func revealing_free() -> bool:
 	return bool(lattice.get("teach_free", false)) \
-		or (coach != null and is_instance_valid(coach))
+		or (coach != null and is_instance_valid(coach) and coach.active())
 
 
 func _refresh() -> void:

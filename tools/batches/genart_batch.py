@@ -21,18 +21,20 @@ from genart import STYLE, RATIO_TO_SIZE, generate, load_key, next_free_path
 JOBS = [
     # --- Fixes ---
     dict(
+        # The id keeps the old spelling on purpose -- ids are stable, display
+        # names are free to change. The GAME is "The Nine Lives of Ash".
         id="logo_ashcat_title",
         ratio="9:16",
         style=False,
         prompt=(
             "A hand-lettered game logo reading exactly \"The Nine Lives of "
-            "Ashcat\" in elegant slightly-gothic storybook lettering, ink and "
+            "Ash\" in elegant slightly-gothic storybook lettering, ink and "
             "watercolor style, with a small black cat silhouette curled around "
             "the letters and a thin silver thread winding through them, warm "
             "cream and charcoal with one ember-orange accent, on a plain dark "
             "background, high contrast, readable at small sizes. Spell it "
-            "carefully: The Nine Lives of Ashcat -- the word \"of\" appears "
-            "exactly once."
+            "carefully: The Nine Lives of Ash -- the word \"of\" appears "
+            "exactly once, and the last word is \"Ash\", not \"Ashcat\"."
         ),
     ),
     dict(

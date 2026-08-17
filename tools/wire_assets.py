@@ -84,6 +84,16 @@ UI_KEYED = {
     "ui_hoop": 720,
     "ui_cloth_linen": 720,
     "ui_ribbon_band": 768,
+    # The opponent's frame (owner 2026-08-16: use the library master). The
+    # game/assets copy had been hand-passed on 2026-08-09 and then the master
+    # was redrawn on the 10th, so the battle screen had been drawing the old,
+    # smaller, speckled frame ever since. Verified against this list's rule
+    # before adding: opaque bbox == canvas, and the aperture is a real hole
+    # (alpha 0, 64% of the canvas) rather than an opaque fill -- which matters,
+    # because battle.gd draws the frame OVER the portrait and an opaque centre
+    # would have hidden the enemy completely (law 22). Drawn at 396x410 in
+    # battle and in Testimony, so 512 on the long edge is plenty.
+    "ui_frame_portrait": 512,
 }
 
 

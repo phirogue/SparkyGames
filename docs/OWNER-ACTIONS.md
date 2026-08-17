@@ -75,7 +75,7 @@ do everything else.
 ## 3. Trademark + brand (cheap now, painful later)
 
 - [ ] Decide the public developer name (SparkyGames vs something else) and
-      check **"The Nine Lives of Ashcat"** for conflicts (quick USPTO TESS
+      check **"The Nine Lives of Ash"** for conflicts (quick USPTO TESS
       search + app-store search). A US trademark filing is ~$250–350/class
       DIY. Since the art itself can't be copyrighted, the *name* is the moat.
 - [ ] Register a domain for the game (needed anyway for the privacy policy
