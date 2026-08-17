@@ -230,6 +230,10 @@ def check_generated_docs_declare_themselves() -> None:
             "godot --headless --path game -s tests/bestiary.gd",
         "docs/design/art-audit-report.md":
             "godot --headless --path game -s tests/art_audit.gd",
+        "docs/design/art-catalog.md":
+            "python tools/art_catalog.py build",
+        "docs/design/story-catalog.md":
+            "python tools/story_catalog.py build",
     }
     bad = []
     for rel, command in generated.items():

@@ -15,7 +15,7 @@ python tools/art_catalog.py query --place parlor
 python tools/art_catalog.py show sc_kettle    # full prompt + usage
 ```
 
-## backdrops (14)
+## backdrops (22)
 
 | Image | Kind | What it is | Who is in it | In/Out | Place | Time | Kerchief | Used by |
 |---|---|---|---|---|---|---|---|---|
@@ -32,6 +32,14 @@ python tools/art_catalog.py show sc_kettle    # full prompt + usage
 | bg_parlor_warm | backdrops | The Parlor, Before | ash | interior | parlor_warm | night | — | 1 place(s) |
 | bg_rooftop_dusk | backdrops | The rooftops at sunset | — | exterior | rooftop_dusk | dusk | — | 1 place(s) |
 | bg_shambles | backdrops | The Shambles, after hours | — | exterior | shambles_market | night | — | 1 place(s) |
+| bg_way_arch | backdrops | A warded arch | — | exterior | — | night | — | 1 place(s) |
+| bg_way_crowd | backdrops | A crowd, from underneath | — | exterior | — | night | — | 1 place(s) |
+| bg_way_dog | backdrops | A chained dog, awake | — | exterior | — | night | — | 1 place(s) |
+| bg_way_gap | backdrops | A gap between roofs | — | exterior | — | night | — | 1 place(s) |
+| bg_way_gate | backdrops | A gate, and no way under it | — | exterior | — | night | — | 1 place(s) |
+| bg_way_lityard | backdrops | A courtyard with nowhere to hide | — | exterior | — | night | — | 1 place(s) |
+| bg_way_watch | backdrops | A watchman with a lantern | — | exterior | — | night | — | 1 place(s) |
+| bg_way_water | backdrops | A plank over black water | — | exterior | — | night | — | 1 place(s) |
 | bg_wickrow | backdrops | Wickrow under ward-light | — | exterior | wickrow_night | night | — | 1 place(s) |
 
 ## characters (13)

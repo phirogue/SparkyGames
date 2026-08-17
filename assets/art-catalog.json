@@ -1,0 +1,3412 @@
+{
+  "_what_this_is": [
+    "Every image in assets/library/, and what is actually IN it -- who appears,",
+    "indoors or out, what time of day, whether Ash is wearing the neckerchief.",
+    "",
+    "Read tools/art_catalog.py for the commands. The short version:",
+    "  python tools/art_catalog.py check    -- the canon checks. Run this.",
+    "  python tools/art_catalog.py query --character ash --time night",
+    "  python tools/art_catalog.py show sc_kettle",
+    "",
+    "HAND-WRITTEN fields (a person looked at the image): title, description,",
+    "characters, setting, place, time_of_day, light, ash_neckerchief, notes,",
+    "cast_defect, verified.",
+    "",
+    "DERIVED fields, rewritten by `build` -- never hand-edit: prompt,",
+    "prompt_source, used_by, prologue_beats, wired.",
+    "",
+    "`verified` says how the hand-written fields were filled in:",
+    "  \"read\"   -- the image was opened and looked at. Trust these.",
+    "  \"prompt\" -- filled in from the generation prompt and filename only.",
+    "              Interface chrome, where nothing in it can contradict story",
+    "              canon. Promote to \"read\" when somebody looks.",
+    "",
+    "time_of_day: dawn | day | dusk | night | timeless | none",
+    "  timeless -- an interior or otherworld with no external time cue at all",
+    "              (the Hollow Court has never had a sky).",
+    "  none     -- not a place. Skill cards, evidence studies, icons.",
+    "setting: interior | exterior | plain | abstract",
+    "  plain    -- the subject on bare paper, no environment (art rule 5).",
+    "ash_neckerchief: true | false | null. null means Ash is either absent or",
+    "  turned so his throat is not in frame -- nothing to contradict."
+  ],
+  "schema_version": 1,
+  "characters": {
+    "ash": {
+      "name": "Ash",
+      "what": "The player. A lean solid-black cat with amber-orange eyes. Wears a frayed red neckerchief from sc_collar onward and never before it.",
+      "ref": "ref_ash",
+      "ref_prologue": "ref_ash_prologue"
+    },
+    "elspeth": {
+      "name": "Elspeth",
+      "what": "The witch. Elderly, silver hair in a bun, round spectacles, grey shawl embroidered with moons and stars.",
+      "ref": "ref_elspeth"
+    },
+    "the_unpicked": {
+      "name": "The Unpicked",
+      "what": "A human silhouette woven from glowing silver thread, ends trailing loose."
+    },
+    "clerk": {
+      "name": "The Clerk",
+      "what": "The Hollow Court's ghost registrar. Translucent grey, pince-nez, rubber stamp."
+    },
+    "wick": {
+      "name": "Wick",
+      "what": "A chandler. Bearded, brocade waistcoat, genial. Dead as of Chapter 1."
+    },
+    "brindle": {
+      "name": "Brindle",
+      "what": "A magpie. Proprietor of the Magpie Exchange."
+    },
+    "rat_boss": {
+      "name": "The Rat Boss",
+      "what": "A portly rat in a patchwork waistcoat, throned on a cotton reel."
+    },
+    "gentleman": {
+      "name": "The Gentleman",
+      "what": "A man in a bowler hat and long coat, face never quite shown."
+    },
+    "guild_delegates": {
+      "name": "Guild delegates",
+      "what": "Men in good dark coats, present at the wake but not mourning."
+    },
+    "lamplighters": {
+      "name": "Lamplighters",
+      "what": "The guild's working crew, unnamed."
+    },
+    "unknown_cat": {
+      "name": "An unidentified cat",
+      "what": "A cat that is not Ash and is not a named character. Its presence in a scene is usually a defect."
+    },
+    "the_vole": {
+      "name": "The Vole",
+      "what": "The prologue's first opponent."
+    },
+    "gutter_wisp": {
+      "name": "Gutter wisp",
+      "what": "A bottle-sized spirit of pale blue flame with hungry eyes."
+    },
+    "rag_wraith": {
+      "name": "Rag wraith",
+      "what": "Empty clothes worn by nobody."
+    },
+    "chained_dog": {
+      "name": "The chained dog",
+      "what": "A yard dog at the end of a taut chain."
+    },
+    "garden_watch": {
+      "name": "The Garden Watch",
+      "what": "A goose. Self-important."
+    },
+    "candle_golem": {
+      "name": "Candle golem",
+      "what": "A body built from lit and melted candles."
+    },
+    "tallowman": {
+      "name": "The Tallowman",
+      "what": "A tall figure of poured tallow."
+    },
+    "the_drowned": {
+      "name": "The Drowned",
+      "what": "What the Mere gives back."
+    },
+    "merrow": {
+      "name": "The Shift Boss",
+      "what": "A brown tabby cat with green eyes and a brass whistle on a cord. NOT Ash."
+    },
+    "postmaster": {
+      "name": "The Postmaster",
+      "what": "A rumpled city pigeon in a leather message satchel."
+    },
+    "cardew": {
+      "name": "Mother Cardew",
+      "what": "The eldest witch. Named at the wake."
+    },
+    "young_witches": {
+      "name": "The two young witches",
+      "what": "Cardew's juniors."
+    },
+    "bodkin": {
+      "name": "Bodkin",
+      "what": "A battered grey street tom. One eye scarred shut, one ear torn to half length, whiskers like bent wire."
+    },
+    "tansy": {
+      "name": "Tansy",
+      "what": "A ginger tabby kitten, absurdly small, one white sock. Ash's self-appointed apprentice."
+    },
+    "fish_giver": {
+      "name": "The Fish-Giver",
+      "what": "A weathered fishmonger in a canvas apron who feeds Thimblefield's strays every dawn."
+    }
+  },
+  "places": {
+    "rooftop_dusk": {
+      "name": "The Rooftops, Dusk",
+      "time_of_day": "dusk",
+      "also_reads_as": [
+        "day"
+      ]
+    },
+    "rooftops": {
+      "name": "The rooftops (generic)",
+      "time_of_day": "night",
+      "also_reads_as": [
+        "dusk",
+        "dawn"
+      ]
+    },
+    "needle_lane": {
+      "name": "Needle Lane, Night",
+      "time_of_day": "night",
+      "also_reads_as": []
+    },
+    "needle_lane_wrong": {
+      "name": "Needle Lane, lamps out",
+      "time_of_day": "night",
+      "also_reads_as": []
+    },
+    "parlor": {
+      "name": "The Parlor (either state)",
+      "time_of_day": "night",
+      "also_reads_as": [
+        "dawn",
+        "day"
+      ]
+    },
+    "parlor_warm": {
+      "name": "The Parlor, Before",
+      "time_of_day": "night",
+      "also_reads_as": []
+    },
+    "parlor_cold": {
+      "name": "The Parlor, after",
+      "time_of_day": "night",
+      "also_reads_as": []
+    },
+    "hollow_court": {
+      "name": "The Hollow Court",
+      "time_of_day": "timeless",
+      "also_reads_as": []
+    },
+    "back_gardens": {
+      "name": "The Back Gardens",
+      "time_of_day": "night",
+      "also_reads_as": []
+    },
+    "wickrow_night": {
+      "name": "Wickrow, Under Ward-Light",
+      "time_of_day": "night",
+      "also_reads_as": []
+    },
+    "counting_house": {
+      "name": "The Counting-House",
+      "time_of_day": "night",
+      "also_reads_as": [
+        "timeless"
+      ]
+    },
+    "mereside_edge": {
+      "name": "The Mereside, Fog",
+      "time_of_day": "night",
+      "also_reads_as": [
+        "dusk"
+      ]
+    },
+    "guildhall": {
+      "name": "The Chandlers' Guildhall",
+      "time_of_day": "timeless",
+      "also_reads_as": [
+        "night"
+      ]
+    },
+    "wickhouse": {
+      "name": "The Wickhouse",
+      "time_of_day": "night",
+      "also_reads_as": []
+    },
+    "shambles_market": {
+      "name": "The Shambles, After Hours",
+      "time_of_day": "night",
+      "also_reads_as": []
+    },
+    "lamplighters_hall": {
+      "name": "The Lamplighters' Hall",
+      "time_of_day": "night",
+      "also_reads_as": []
+    },
+    "tideline": {
+      "name": "The tideline",
+      "time_of_day": "dusk",
+      "also_reads_as": [
+        "dawn"
+      ]
+    },
+    "magpie_stall": {
+      "name": "The Magpie Exchange",
+      "time_of_day": "night",
+      "also_reads_as": []
+    },
+    "under_the_floor": {
+      "name": "Under the floorboards",
+      "time_of_day": "timeless",
+      "also_reads_as": [
+        "night"
+      ]
+    },
+    "chandlery": {
+      "name": "A chandler's shop",
+      "time_of_day": "timeless",
+      "also_reads_as": [
+        "night"
+      ]
+    },
+    "city": {
+      "name": "Hollowmere, unspecified",
+      "time_of_day": "night",
+      "also_reads_as": [
+        "dawn",
+        "dusk",
+        "day"
+      ]
+    }
+  },
+  "assets": [
+    {
+      "id": "bg_gardens",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "The back gardens",
+      "description": "Walled kitchen gardens behind a terrace: vegetable beds, canes, a glasshouse, laundry on the line, a tall dark hedge, full moon in broken cloud, and exactly one lit upstairs window.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "back_gardens",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "The one lit window is the stealth premise made visible -- somebody is awake.",
+      "prompt": "Moonlit walled back gardens behind row houses: vegetable beds, a small greenhouse, laundry lines, clipped hedges casting deep soft shadows, a sleeping house beyond a fence with ONE warm amber lit window. Draw only the near hedge and beds in detail; let the far garden dissolve into loose blue-grey wash and bare paper.",
+      "prompt_source": "tools/batches/genart_fixes.py",
+      "used_by": [
+        "data/environments.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_guildhall",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "The Chandlers' Guildhall",
+      "description": "A vaulted hall whose walls are banked floor to ceiling with thousands of burning candles, wax running down in sheets, a stone stair climbing away between them. Blinding warm amber throughout.",
+      "characters": [],
+      "setting": "interior",
+      "place": "guildhall",
+      "time_of_day": "timeless",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": "No windows, so no time of day. 'Every candle in it is a small law, lit.'",
+      "prompt": "The interior of a candle-makers' guildhall at night, built like a chapel to flame: banked tiers of thousands of lit votive candles rising up both sides, wax run down the tiers in pale frozen falls, the air bright with massed candlelight and a faint heat-shimmer. A broad stone stair climbing at the back toward an unseen upper office. Polished dark floor holding golden reflections. Overwhelming warm amber and honey light with deep brown-grey shadow at the edges. The hall is EMPTY: no people, no animals, no figures of any kind.",
+      "prompt_source": "tools/batches/genart_wave2.py",
+      "used_by": [
+        "data/environments.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_hollow_court",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "The Hollow Court",
+      "description": "A cathedral-sized archive: shelves of ledgers climbing out of sight into black, gantries and ladders, and one small wooden desk under a single green-shaded lamp at the bottom of it all.",
+      "characters": [],
+      "setting": "interior",
+      "place": "hollow_court",
+      "time_of_day": "timeless",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "No sky, no window, no clock -- deliberately outside time. The scale gag (one desk, infinite shelves) is the joke the Court runs on.",
+      "prompt": "A vast dim underground archive of towering bookshelves fading into darkness, one small wooden desk lit by a single green desk lamp in the center, dust in the lamplight, solemn and endless, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [
+        "data/environments.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_mantel",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "The mantel (earlier take, unwired)",
+      "description": "A warmer, busier corner version of the same fireplace: fire lit, armchair and side lamp, mantel dressed with a brass bell, a key and a sealed letter, full moon and PINE FOREST through the window.",
+      "characters": [],
+      "setting": "interior",
+      "place": "parlor",
+      "time_of_day": "night",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": "Deliberately unwired (listed in wire_assets.UNWIRED): the lit fire and dressed mantel fight the hub's own runtime content, and bg_mantel_scene's bare wall is what the screen needs. Also carries the conifer-forest window -- see the continuity note on sc_the_carrying.",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/hub_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": false
+    },
+    {
+      "id": "bg_mantel_scene",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "The mantel (hub backdrop)",
+      "description": "A stone fireplace seen square on: wide mantelpiece with two lit oil lamps at its ends, cold dead hearth below, moon in a window to the right, bookshelf to the left. The wall above the mantel is intentionally BARE.",
+      "characters": [],
+      "setting": "interior",
+      "place": "parlor",
+      "time_of_day": "night",
+      "light": "mixed",
+      "ash_neckerchief": null,
+      "notes": "The bare wall is load-bearing: the hub pins notes there at runtime. Do not fill it with art.",
+      "prompt": "A stone fireplace wall in a witch's parlor at night: a wide stone mantelpiece with two lit oil lamps, a cold hearth below, wall space above the mantel completely bare, moody blue shadows with warm lamplight pools. No papers or notes anywhere, no people, no cat, no text.",
+      "prompt_source": "tools/batches/genart_batch.py",
+      "used_by": [
+        "scenes/hub_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_mereside",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "The Mereside in fog",
+      "description": "A stone quay along still black water, houses standing straight out of the mere, fog swallowing the far end, cobwebs strung on the near wall, one lit upstairs window.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "mereside_edge",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "The waterline is deliberately vague about where it is -- 'the shore does not entirely agree where it is'.",
+      "prompt": "A drowned waterfront street at night: stone terraces and house fronts stepping down INTO flat black lake water, the lowest windows half-submerged and dark. Thick fog rolling off the water up the street. To one side, the flank of a great brick warehouse with a faint silver thread-like shimmer stitched along its footing, as if the wall were hemmed with cobweb light. Wet cobbles in the foreground holding pale reflections. Cold blue-green and grey throughout, one distant warm window high up. The street is EMPTY: no people, no animals, no figures of any kind, nothing standing in the water.",
+      "prompt_source": "tools/batches/genart_wave2.py",
+      "used_by": [
+        "data/environments.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_needle_lane",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "Needle Lane, lamps lit",
+      "description": "A crooked cobbled lane running away from the viewer, gas lamps LIT and haloed in fog, moon behind cloud, warm windows either side. Wet stone.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "needle_lane",
+      "time_of_day": "night",
+      "light": "mixed",
+      "ash_neckerchief": null,
+      "notes": "The 'right' state of the lane. bg_needle_lane_wrong is the same painting with the lamps put out -- provably the same street.",
+      "prompt": "A narrow foggy cobblestone street at night with crooked gaslamps and leaning old row houses, warm lamplight glowing through blue-grey fog, empty and quiet, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [
+        "data/environments.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_needle_lane_wrong",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "Needle Lane, lamps out",
+      "description": "The identical lane and camera as bg_needle_lane, but every near lamp is dark and cold; one small amber lamp survives far down the street. Colour drained to blue-grey.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "needle_lane_wrong",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "An edit of bg_needle_lane, not a fresh generation -- which is why the street matches shutter for shutter. This is the pattern for all same-place variants (art rule 9).",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "data/environments.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_parlor",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "The witch's parlor (early take)",
+      "description": "A dense cluttered cottage room: patchwork armchair with a black cat asleep in it, iron stove lit, copper kettle, witch's hat, broom, herbs, sewing table with spools and scissors in the foreground.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "interior",
+      "place": "parlor",
+      "time_of_day": "night",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": "The pre-STRICT_STYLE take: edge-to-edge detail, no deckle, heavier saturation than everything shipped since. Superseded in practice by bg_parlor_warm. Ash is curled tight, throat not in frame.",
+      "prompt": "A cozy cluttered witch's cottage room with a worn armchair, a small iron stove with a copper kettle, spools of thread and hanging herbs, warm golden lamplight, lived-in and loved, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_parlor_cold",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "The Parlor, after",
+      "description": "The identical corner as bg_parlor_warm with everything taken out of it: chair EMPTY, lamp unlit, stove dead, kettle cold, moon in the window, and dozens of cut threads hanging down the wall.",
+      "characters": [],
+      "setting": "interior",
+      "place": "parlor_cold",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "An edit of bg_parlor_warm. The empty chair against the warm version is the whole prologue in two images.",
+      "prompt": "A cozy cluttered witch's parlor at night, but tonight everything is wrong: a worn armchair, a small iron stove gone COLD and dark, the lamp out, spools of thread and hanging herbs, and thin blue moonlight through the window as the only light. Every thin thread hanging on the walls has been cut and dangles loose. Melancholy and still. Keep it a WATERCOLOUR: the darks must stay transparent washes with paper showing through, never solid black.",
+      "prompt_source": "tools/batches/genart_fixes.py",
+      "used_by": [
+        "data/environments.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_parlor_warm",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "The Parlor, Before",
+      "description": "The armchair corner: oil lamp lit, candle on the shelf, stove burning, copper kettle on, embroidery hoops on the wall, spools ranked on a rack. A black cat asleep in the chair.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "interior",
+      "place": "parlor_warm",
+      "time_of_day": "night",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": "Ash is curled asleep; his throat is not in frame. This is the 'before' room -- pre-collar, so a bare neck is correct here in any case.",
+      "prompt": "A cozy cluttered witch's parlor interior: a worn armchair beside a small iron stove with a copper kettle gently steaming, walls hung with embroidery hoops and spools of faintly glowing silver thread, herbs drying from the beams, a saucer of milk by the hearth. Warm golden lamplight, lived-in and loved. Leave the corners of the room loose and unfinished so the paper shows through.",
+      "prompt_source": "tools/batches/genart_fixes2.py",
+      "used_by": [
+        "data/environments.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_rooftop_dusk",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "The rooftops at sunset",
+      "description": "Slate roofs and chimney pots in the near half, the mere and low hills beyond, sun going down in banded amber. Upper third deliberately empty for UI.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "rooftop_dusk",
+      "time_of_day": "dusk",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": "Battle backdrop for the prologue's opening. Lake on the horizon reads as the Mere, which is where the city's name comes from.",
+      "prompt": "Crooked slate rooftops and chimney pots at golden dusk, a fairytale city sloping down toward a dark lake, warm amber light and long blue shadows, empty sky in the upper third, no people, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [
+        "data/environments.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_shambles",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "The Shambles, after hours",
+      "description": "A sleeping market: leaning timber shopfronts, stalls shut under canvas awnings, produce crates left out, a hanging shop sign, one lit lantern, everything else dissolving into blue fog.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "shambles_market",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "This is what the Shambles is supposed to look like in the prologue -- compare sc_shambles_day, which is the one the story actually shows.",
+      "prompt": "A night view over a sleeping market district: crooked timber shopfronts, market stalls under canvas covers, hanging shop signs, one lit lantern glowing warm amber down the lane, blue-grey fog pooling between the buildings. Keep the darks light and transparent so the paper still shows through; let the far end of the lane dissolve into bare paper.",
+      "prompt_source": "tools/batches/genart_fixes.py",
+      "used_by": [
+        "data/environments.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_way_arch",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "A warded arch",
+      "description": "A stone archway with a ward strung across it: waxed thread laid corner to corner in a taut web, chalk marks on the voussoirs around it. Through the web, a foggy lane with one lamp and a wet gold reflection on the stones.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "",
+      "time_of_day": "night",
+      "light": "mixed",
+      "ash_neckerchief": null,
+      "notes": "The only obstacle in the set that is somebody's work rather than a thing or a person — which is why it prices in Moonlight.",
+      "prompt": "A stone archway with a ward drawn across it: waxed thread strung corner to corner and chalk marks on the stones, taut and deliberate, still humming with the hand that tied it. Seen from a cat's eye level, low to the wet cobbles. The obstacle fills the frame and the street behind it dissolves into loose wash. Night, unless otherwise said, with warm amber lamplight used sparingly against blue-grey shadow. No animals and no people unless the description names them.",
+      "prompt_source": "tools/batches/genart_crossing_ways.py",
+      "used_by": [
+        "data/crossings.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_way_crowd",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "A crowd, from underneath",
+      "description": "A packed lane seen as a forest of boots, coat-hems and walking sticks, with two lanterns swinging overhead. No faces anywhere — the people are legs and shadow, because that is all a cat can see of them. Lamplight runs in gold streaks down the wet cobbles between the boots.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "",
+      "time_of_day": "night",
+      "light": "mixed",
+      "ash_neckerchief": null,
+      "notes": "The best argument in the set for shooting at cat height.",
+      "prompt": "A crowd packed across a lane at night, seen as a forest of boots, coat-hems, walking sticks and lantern-light overhead. No faces — the people are legs and shadow, because that is all a cat can see of them. Seen from a cat's eye level, low to the wet cobbles. The obstacle fills the frame and the street behind it dissolves into loose wash. Night, unless otherwise said, with warm amber lamplight used sparingly against blue-grey shadow. No animals and no people unless the description names them.",
+      "prompt_source": "tools/batches/genart_crossing_ways.py",
+      "used_by": [
+        "data/crossings.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_way_dog",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "A chained dog, awake",
+      "description": "A big shaggy yard-dog stood square in a wet lane, amber eyes open and level, chain running taut from its collar to a ring in the wall at the right. A lamp on the left wall throws gold across the cobbles; the street dissolves into blue-grey wash behind.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "",
+      "time_of_day": "night",
+      "light": "mixed",
+      "ash_neckerchief": null,
+      "notes": "The one obstacle that looks back at you. Chain is visible and taut, so the narrow dark strip on the left reads as the way past.",
+      "prompt": "A big chained yard-dog, awake and watchful, its chain running taut to a ring in the wall. It fills the right of the frame; the only way past is the narrow strip of dark along the left-hand wall. Seen from a cat's eye level, low to the wet cobbles. The obstacle fills the frame and the street behind it dissolves into loose wash. Night, unless otherwise said, with warm amber lamplight used sparingly against blue-grey shadow. No animals and no people unless the description names them.",
+      "prompt_source": "tools/batches/genart_crossing_ways.py",
+      "used_by": [
+        "data/crossings.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_way_gap",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "A gap between roofs",
+      "description": "Two wet slate rooftops with chimney stacks, and the black drop of the street between them. A lamp on the left roof lays a gold streak down the slates; far below, a few lit windows in the dark. Cold grey sky, the far city dissolving into wash.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "",
+      "time_of_day": "night",
+      "light": "mixed",
+      "ash_neckerchief": null,
+      "notes": "The only daylight-free way that is about height rather than about being seen.",
+      "prompt": "A gap between two rooftops, too wide to walk, with the black drop of the street far below between them. Wet slate on both sides, chimney stacks against a cold sky. Seen from a cat's eye level, low to the wet cobbles. The obstacle fills the frame and the street behind it dissolves into loose wash. Night, unless otherwise said, with warm amber lamplight used sparingly against blue-grey shadow. No animals and no people unless the description names them.",
+      "prompt_source": "tools/batches/genart_crossing_ways.py",
+      "used_by": [
+        "data/crossings.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_way_gate",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "A gate, and no way under it",
+      "description": "A tall iron gate shut across a narrow lane, bars running the full height of the frame with a scrolled band along the bottom and no gap beneath. Wet cobbles in the foreground catching one lamp; beyond the bars the lane carries on into fog with a lit lamp bracketed to the right-hand wall.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "",
+      "time_of_day": "night",
+      "light": "mixed",
+      "ash_neckerchief": null,
+      "notes": "Cat's-eye level. The bars reach the top of the frame — the read is 'over, or not at all'.",
+      "prompt": "A tall iron gate shut across a narrow lane, its bars running floor to top of frame, no gap beneath it and none at the hinge. Beyond the bars the lane carries on into fog and one distant lamp. Seen from a cat's eye level, low to the wet cobbles. The obstacle fills the frame and the street behind it dissolves into loose wash. Night, unless otherwise said, with warm amber lamplight used sparingly against blue-grey shadow. No animals and no people unless the description names them.",
+      "prompt_source": "tools/batches/genart_crossing_ways.py",
+      "used_by": [
+        "data/crossings.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_way_lityard",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "A courtyard with nowhere to hide",
+      "description": "A completely empty courtyard at night, lit wall to wall by lamps on every side, pale cobbles running unbroken from edge to edge. A far arched doorway across it. Not one patch of shadow the whole way, and nothing in the foreground to get behind.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "",
+      "time_of_day": "night",
+      "light": "mixed",
+      "ash_neckerchief": null,
+      "notes": "Second take: the first read 'the obstacle fills the frame' and invented a giant barrel to be it. Here the obstacle IS the light and the emptiness is the point, so the prompt forbids a foreground prop outright. Bright, but night — it is lamplight, not day.",
+      "prompt": "A completely EMPTY courtyard at night, lit wall to wall by lamps on every side. Pale bare cobbles running unbroken from edge to edge with NO object anywhere in the foreground — no barrels, no crates, no carts, no barrows, nothing to hide behind. The emptiness and the open light ARE the subject. A far doorway a long way off across it, and not one patch of shadow the whole way. Seen from a cat's eye level, low to the wet cobbles. The obstacle fills the frame and the street behind it dissolves into loose wash. Night, unless otherwise said, with warm amber lamplight used sparingly against blue-grey shadow. No animals and no people unless the description names them.",
+      "prompt_source": "tools/batches/genart_crossing_ways.py",
+      "used_by": [
+        "data/crossings.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_way_watch",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "A watchman with a lantern",
+      "description": "A watchman on a corner seen from behind and below — boots, coat-hem, greatcoat, hat, one arm raised with a lit lantern. His long shadow is thrown toward the viewer across wet cobbles, and the pool of light he holds covers the crossing. Lit windows far off in the wash.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "",
+      "time_of_day": "night",
+      "light": "mixed",
+      "ash_neckerchief": null,
+      "notes": "Seen from behind: he is an obstacle, not a character, and the book never gives him a face.",
+      "prompt": "A watchman standing on a street corner with a raised lantern, seen from behind and below — boots, coat-hem, the long thrown shadow, and the pool of light he is holding over the crossing. Seen from a cat's eye level, low to the wet cobbles. The obstacle fills the frame and the street behind it dissolves into loose wash. Night, unless otherwise said, with warm amber lamplight used sparingly against blue-grey shadow. No animals and no people unless the description names them.",
+      "prompt_source": "tools/batches/genart_crossing_ways.py",
+      "used_by": [
+        "data/crossings.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_way_water",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "A plank over black water",
+      "description": "Black canal water between two stone wharves with a single narrow plank laid across it, wet and slightly bowed. One lamp on the far quay gives back a broken gold reflection in the water. Fog closing the far bank.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "",
+      "time_of_day": "night",
+      "light": "mixed",
+      "ash_neckerchief": null,
+      "notes": "Mereside. The water is the creditor's own, which is worth remembering when writing any line set on it.",
+      "prompt": "Black canal water between two stone wharves, with a single narrow plank laid across it. The plank is wet and slightly bowed; the water gives back one broken reflection of a lamp. Seen from a cat's eye level, low to the wet cobbles. The obstacle fills the frame and the street behind it dissolves into loose wash. Night, unless otherwise said, with warm amber lamplight used sparingly against blue-grey shadow. No animals and no people unless the description names them.",
+      "prompt_source": "tools/batches/genart_crossing_ways.py",
+      "used_by": [
+        "data/crossings.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "bg_wickrow",
+      "kind": "backdrops",
+      "verified": "read",
+      "title": "Wickrow under ward-light",
+      "description": "A chandlers' street lit end to end by wall lanterns, wet cobbles throwing the light back, hanging trade signs painted with a candle and a bee.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "wickrow_night",
+      "time_of_day": "night",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": "The only street in the game that is brighter than the cat would like -- which is the mechanical point of the environment.",
+      "prompt": "A narrow gaslamp-era shopping street at night in the chandlers' district: crooked timber shopfronts leaning over wet cobbles, and in EVERY doorway a small brass lantern holding one steady warded flame, dozens of them receding down the street like a rosary of little fires. Hanging shop signs with candle and bee shapes (shapes only — no readable lettering). Warm amber flame-light pooling in each doorway against deep blue-grey night, faint fog high between the eaves. The street is EMPTY: no people, no animals, no figures of any kind — a stage awaiting its actor.",
+      "prompt_source": "tools/batches/genart_wave2.py",
+      "used_by": [
+        "data/environments.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "npc_bodkin",
+      "kind": "characters",
+      "verified": "read",
+      "title": "Bodkin",
+      "description": "A big battered grey tomcat sitting squarely in a dark doorway on a wet lamplit street, chest out. One eye is scarred shut, the other is yellow and level and unimpressed. One ear torn to half its length, whiskers bent like old wire, coat thick and scarred. Foggy street and one gas lamp behind, dissolving into wash.",
+      "characters": [
+        "bodkin"
+      ],
+      "setting": "exterior",
+      "place": "wickrow_night",
+      "time_of_day": "night",
+      "light": "mixed",
+      "ash_neckerchief": null,
+      "notes": "Generated 2026-08-12. He had appeared in four scenes across two quests with no image anywhere -- an art rule 4 gap the story catalog found. THIS FILE IS NOW HIS REFERENCE: pass it to --ref for any future Bodkin.",
+      "prompt": "A battered old grey tomcat sitting in a dark doorway on a wet lamplit street. He has ONE eye -- the other socket is closed and scarred over -- and the remaining eye is bright and level and entirely unimpressed. One ear is torn away to half its length. His whiskers are bent like old wire, his coat is thick and scarred and the grey of wet slate, and he sits squarely with his chest out like somebody who has never once left a fight early. Behind him the street dissolves into blue-grey wash with one warm lantern. Street-wise, weathered, watchful. No collar, nothing round his neck.",
+      "prompt_source": "tools/batches/genart_catalog_fixes.py",
+      "used_by": [
+        "data/quests.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "npc_brindle_magpie",
+      "kind": "characters",
+      "verified": "read",
+      "title": "Brindle",
+      "description": "A magpie head-tilted on a heaped counter of buttons, keys, lockets and one open pocket-watch, under a lit stall lantern with the night market and rooftops behind.",
+      "characters": [
+        "brindle"
+      ],
+      "setting": "exterior",
+      "place": "magpie_stall",
+      "time_of_day": "night",
+      "light": "mixed",
+      "ash_neckerchief": null,
+      "notes": "The shop face. The pocket-watch reading a real time is a nice accident; nothing depends on it.",
+      "prompt": "A sly, charming magpie perched on a heap of buttons, keys, rings and one pocket-watch, head tilted appraisingly, one eye catching lantern light, inside a cluttered night-market stall, cozy-gothic, no text.",
+      "prompt_source": "tools/batches/genart_batch.py",
+      "used_by": [
+        "data/quests.json:portrait",
+        "scenes/exchange_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "npc_clerk",
+      "kind": "characters",
+      "verified": "read",
+      "title": "The Clerk",
+      "description": "A translucent grey ghost in waistcoat, tie and watch-chain, pince-nez down his nose, raising a rubber stamp with an expression of settled professional disapproval. Green banker's lamp, inkwell, pigeonholes of paper.",
+      "characters": [
+        "clerk"
+      ],
+      "setting": "interior",
+      "place": "hollow_court",
+      "time_of_day": "timeless",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "The face of every death. Law 15 (repeated content must vary) bears on how often this one portrait carries the Hollow Court.",
+      "prompt": "A prim translucent grey ghost clerk in an old-fashioned suit and pince-nez spectacles, seated at a wooden desk holding a rubber stamp, expression of fussy professional disapproval, lit by a green desk lamp, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [
+        "scenes/game.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "npc_fish_giver",
+      "kind": "characters",
+      "verified": "read",
+      "title": "The Fish-Giver",
+      "description": "A weathered middle-aged fishmonger in a canvas apron crouched in the alley behind his shuttered stall, setting down a tin plate of fish scraps on wet cobbles. He is looking away from the plate with the patient, faintly embarrassed face of a man doing something he would rather not be seen doing. Three cats wait at the frame's edge. Grey dawn, one warm window.",
+      "characters": [
+        "fish_giver"
+      ],
+      "setting": "exterior",
+      "place": "shambles_market",
+      "time_of_day": "dawn",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "Generated 2026-08-12 to close an art rule 4 gap (4 scenes, no image). THIS FILE IS NOW HIS REFERENCE. One of only two dawn images in the library, which suits the quest -- the whole of the_fish_giver runs on the day side.",
+      "prompt": "A weathered middle-aged fishmonger in a canvas apron crouched in the alley behind his shuttered market stall at first light, setting down a battered tin plate of fish scraps on the cobbles. He is not looking at the plate; he is looking off to one side with the patient, slightly embarrassed face of a man doing something he does every single morning and would rather not be seen doing. Two or three cats wait at the edge of the frame, dissolving into wash. Grey dawn light, one warm window. Kind, tired, unremarkable.",
+      "prompt_source": "tools/batches/genart_catalog_fixes.py",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "npc_gentleman",
+      "kind": "characters",
+      "verified": "read",
+      "title": "The Gentleman",
+      "description": "A man in a bowler hat and long coat standing in a foggy street with his hands folded, face turned away and barely drawn. One gas lamp behind him; the city dissolves into wash.",
+      "characters": [
+        "gentleman"
+      ],
+      "setting": "exterior",
+      "place": "city",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "The blankness is the character. Do not regenerate this one 'better' -- a clear face would cost the whole effect.",
+      "prompt": "Portrait of a man called only the Quiet Gentleman: a middle-aged gaslamp-era human of entirely average build, seen from the waist up, standing patiently in the fog at the mouth of a narrow lane at night. THE POINT OF HIM IS THAT HE IS FORGETTABLE -- a plain grey coat of no particular cut, a plain hat, unremarkable features arranged in a pleasant, mild, unmemorable expression. Nothing striking, no scar, no distinguishing mark, no flourish, nothing an eye would catch on. His face is turned slightly away and half-lost in the fog, so a viewer could not describe him afterwards. Gloved hands folded. Behind him, dissolving almost entirely into wash: wet cobbles, a gaslamp's far halo. Cold blue-grey throughout with one small warm amber note in the distant lamp. One man alone -- no other figures, no animals.",
+      "prompt_source": "tools/batches/genart_case_board.py",
+      "used_by": [
+        "data/case.json:art"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "npc_pigeon_postmaster",
+      "kind": "characters",
+      "verified": "read",
+      "title": "The Postmaster",
+      "description": "A rumpled pigeon in a small leather satchel standing to attention on a chimney stack at sunrise, one anxious eye, four fat pigeons asleep around its feet. Domes and spires in dawn fog behind.",
+      "characters": [
+        "postmaster"
+      ],
+      "setting": "exterior",
+      "place": "rooftops",
+      "time_of_day": "dawn",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": "The only dawn image in the library. If it is ever shown in a night scene, the time check will say so.",
+      "prompt": "A rumpled city pigeon wearing a tiny leather message-satchel, standing at attention on a rooftop ledge post among sleeping pigeons, dawn fog, one nervous eye, no text.",
+      "prompt_source": "tools/batches/genart_batch.py",
+      "used_by": [
+        "data/testimonies.json:art"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "npc_rat_boss",
+      "kind": "characters",
+      "verified": "read",
+      "title": "The Rat Boss",
+      "description": "A portly grey rat in a patchwork waistcoat and bow tie, sprawled on a cotton-reel throne under the floor joists, holding an ear of wheat like a sceptre. Candle, pincushion, thimble, spools; a lantern-lit tunnel behind.",
+      "characters": [
+        "rat_boss"
+      ],
+      "setting": "interior",
+      "place": "under_the_floor",
+      "time_of_day": "timeless",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": "Wry rather than sinister, as specified. The furniture is all sewing kit -- the parlor's leavings, one floor down.",
+      "prompt": "A portly, dignified old rat in a waistcoat made of stitched scraps, seated on a cotton-reel throne under the floorboards, candle-lit, holding a grain of wheat like a scepter, wry not sinister, no text.",
+      "prompt_source": "tools/batches/genart_batch.py",
+      "used_by": [
+        "data/quests.json:portrait",
+        "data/testimonies.json:art"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "npc_shift_boss",
+      "kind": "characters",
+      "verified": "read",
+      "title": "The Shift Boss",
+      "description": "A heavy brown TABBY cat with green eyes and a notched ear, sitting on a lamplighters' work platform wearing a brass whistle on a cord. Rack of keys, tally board, ladders, lit gas lamp behind.",
+      "characters": [
+        "merrow"
+      ],
+      "setting": "exterior",
+      "place": "lamplighters_hall",
+      "time_of_day": "night",
+      "light": "mixed",
+      "ash_neckerchief": null,
+      "notes": "A cat who is NOT Ash -- brown tabby, green eyes, cord not kerchief. Filed under its own character id so 'find every image with a cat' does not silently mean 'find every image with Ash'.",
+      "prompt": "Portrait of Shift-Boss Merrow, a CAT -- an ordinary,  battle-worn working tomcat, not a person and not anthropomorphic. Broad-headed brindled brown tabby with a torn ear and a scarred nose, sitting upright and square on a lamplighters' equipment bench at night, meeting the viewer's eye with the flat patient stare of somebody who keeps records out of spite and keeps them honestly. A short length of lamplighter's cord knotted loosely round his neck as a working badge -- NOT a red neckerchief. Behind him, dissolving into loose wash: racked lamplighters' ladders, a row of brass lamp-keys on hooks, a chalked slat. Warm amber lamplight against blue-grey night. One cat alone -- no humans, no other animals.",
+      "prompt_source": "tools/batches/genart_case_board.py",
+      "used_by": [
+        "data/quests.json:portrait",
+        "data/testimonies.json:art"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "npc_tansy",
+      "kind": "characters",
+      "verified": "read",
+      "title": "Tansy",
+      "description": "A very small ginger tabby kitten sitting upright on a stack of old papers, tail curled round her feet, one white sock. Enormous round eyes, ears too big for her head, mouth open mid-purr. Warm lantern light, dim storeroom behind.",
+      "characters": [
+        "tansy"
+      ],
+      "setting": "interior",
+      "place": "shambles_market",
+      "time_of_day": "night",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": "Generated 2026-08-12 to close an art rule 4 gap (5 scenes, no image). THIS FILE IS NOW HER REFERENCE. STYLE NOTE: the weakest style match of the batch -- the eyes are glossier and rounder than the house ink-and-wash, reading a little more animated-feature than storybook. Within tolerance, but if the set is ever tightened this is the one to redo.",
+      "prompt": "A very small ginger tabby kitten, absurdly small, sitting upright on a stack of old papers on a shelf with her tail wrapped round her feet. Enormous round eyes, ears slightly too big for her head, one white sock. Her mouth is a little open and her whole body is blurred very slightly as if vibrating, because she is purring at a volume her size does not justify. Delighted and completely without shame. Warm lamplight against a dim storeroom dissolving into wash. Nothing round her neck.",
+      "prompt_source": "tools/batches/genart_catalog_fixes.py",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "npc_wick",
+      "kind": "characters",
+      "verified": "read",
+      "title": "Wick",
+      "description": "A bearded, broad, cheerful chandler in a brocade waistcoat and dark coat, hands on an open ledger, ranks of pale candles on the shelves behind, one candle burning at his elbow.",
+      "characters": [
+        "wick"
+      ],
+      "setting": "interior",
+      "place": "chandlery",
+      "time_of_day": "timeless",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": "Warm and likeable on purpose. He is dead by Chapter 1, so this portrait's job is to make that land.",
+      "prompt": "Portrait of Guildmaster Ellery Wick, master of the Chandlers' Guild: a prosperous gaslamp-era human man in his late fifties, seen from the waist up behind a broad desk in a warm candle-maker's counting room. Heavy good coat, silk waistcoat, a watch chain, well-kept side-whiskers going silver. He is smiling -- an open, genuinely warm, entirely believable smile, the smile of a man who has just done you a favour and would like to do you another. HE MUST NOT LOOK VILLAINOUS: no sneer, no shadowed eyes, no menace, nothing theatrical. Behind him, dissolving into loose wash: racks of pale beeswax tapers, a ledger closed on the desk, a squat iron strongbox. Warm amber candlelight from the left against blue-grey shadow. One man alone -- no other figures, no animals.",
+      "prompt_source": "tools/batches/genart_case_board.py",
+      "used_by": [
+        "data/case.json:art",
+        "data/quests.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ref_ash",
+      "kind": "characters",
+      "verified": "read",
+      "title": "Ash — canon reference (with neckerchief)",
+      "description": "Front-on studio portrait on bare cream paper: lean solid-black cat, tall ears, amber-orange eyes, tail curled round the forepaws, wearing a frayed red neckerchief.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": "THE anchor. Every post-collar Ash is generated with --ref against this file (art rule 4). Words drift; this file does not.",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ref_ash_prologue",
+      "kind": "characters",
+      "verified": "read",
+      "title": "Ash — canon reference (bare neck, prologue)",
+      "description": "The same pose, breed, eyes and paper as ref_ash with the neckerchief removed. Bare throat.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": false,
+      "intentionally_unused": true,
+      "notes": "The reference for anything set before sc_collar. Unwired on purpose -- nothing draws it; it exists to be passed to --ref.",
+      "prompt": "Reproduce this exact cat portrait with ONE change: REMOVE the red neckerchief entirely so the cat's throat and chest are bare black fur. Everything else identical -- same cat, same lean short-haired build, same wedge head, same amber-orange eyes, same upright pose, same ink-and-watercolour style, same pale background. No collar, no scarf, no ribbon, nothing at the neck.",
+      "prompt_source": "tools/batches/genart_round3.py",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": false
+    },
+    {
+      "id": "ref_elspeth",
+      "kind": "characters",
+      "verified": "read",
+      "title": "Elspeth — canon reference",
+      "description": "An elderly woman alive and smiling in her armchair, silver hair in a loose bun, round spectacles, grey shawl embroidered with moons and stars, stitching a starry cloth. Oil lamp, teacup, sewing basket. A black cat asleep against her leg.",
+      "characters": [
+        "elspeth",
+        "ash"
+      ],
+      "setting": "interior",
+      "place": "parlor",
+      "time_of_day": "night",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": "The anchor for Elspeth. Also the only image of her alive -- everything else in the game is after. Ash is asleep, throat not in frame.",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "en_candle_golem",
+      "kind": "enemies",
+      "verified": "read",
+      "title": "Candle golem",
+      "description": "A lurching body built from bundled lit candles and run wax, flames along its shoulders, wax sheeting off its arms.",
+      "characters": [
+        "candle_golem"
+      ],
+      "setting": "interior",
+      "place": "guildhall",
+      "time_of_day": "timeless",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A candle-golem: a man-shaped figure poured from votive beeswax, standing square in a counting-house doorway at night. Its body is smooth-run candle wax the colour of old cream, drips frozen down its shoulders and forearms like slow epaulettes, seams where it was poured in sections. Where a head would think, one short lit WICK burns with a small steady flame, faintly lighting its own chest and the door frame. Its face is a gentle blank suggestion in the wax — calm, on shift, not angry, not monstrous. Posture upright and patient, arms loose. The doorway and shelves behind it dissolve into loose blue-grey wash. One figure alone — no humans, no animals, no second creature.",
+      "prompt_source": "tools/batches/genart_wave2.py",
+      "used_by": [
+        "data/enemies.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "en_chained_dog",
+      "kind": "enemies",
+      "verified": "read",
+      "title": "The chained dog",
+      "description": "A big scruffy yard dog lunging and barking at the end of a taut chain, huge chest, wild eyes, the yard behind it dropping away into loose wash.",
+      "characters": [
+        "chained_dog"
+      ],
+      "setting": "exterior",
+      "place": "back_gardens",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "CLAUDE.md names this the framing reference for enemy vignettes: subject dominant, setting dissolving.",
+      "prompt": "A big scruffy guard dog barking at the end of a taut chain, huge chest and wild eyes, slightly comic, night yard behind it, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [
+        "data/enemies.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "en_garden_watch",
+      "kind": "enemies",
+      "verified": "read",
+      "title": "The Garden Watch",
+      "description": "A large white goose on guard in a moonlit garden, chest out, wings half raised, radiating self-importance.",
+      "characters": [
+        "garden_watch"
+      ],
+      "setting": "exterior",
+      "place": "back_gardens",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A large white goose standing guard in a moonlit walled garden, chest puffed, wings slightly raised, radiating self-importance and menace, slightly comic. The goose is the clear subject; let the garden behind it dissolve into loose blue-grey wash and bare paper. Suggest the feathers with a few loose strokes -- do not render every feather.",
+      "prompt_source": "tools/batches/genart_fixes2.py",
+      "used_by": [
+        "data/enemies.json:image",
+        "data/testimonies.json:art"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "en_garden_watch_captain",
+      "kind": "enemies",
+      "verified": "read",
+      "title": "The Watch Captain",
+      "description": "The same goose promoted: a small ceremonial chain of office round its neck, standing on a garden wall reviewing troops that are not there.",
+      "characters": [
+        "garden_watch"
+      ],
+      "setting": "exterior",
+      "place": "back_gardens",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "The elite variant of en_garden_watch -- same creature, one prop. This is the cheap way to do a tier and it reads instantly.",
+      "prompt": "A large imperious white goose wearing a tiny ceremonial chain of office around its neck, standing on a garden wall at night like a commander reviewing troops, menacing and absurd. The goose is the clear subject; the garden and house behind dissolve into loose wash and bare paper. Suggest the feathers with a few loose strokes -- do not render every feather. No photographic moon.",
+      "prompt_source": "tools/batches/genart_fixes2.py",
+      "used_by": [
+        "data/enemies.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "en_gutter_wisp",
+      "kind": "enemies",
+      "verified": "read",
+      "title": "Gutter wisp",
+      "description": "A bottle-sized knot of pale blue flame with two small hungry eyes, hovering above wet cobbles, throwing a cold blue pool of light under itself.",
+      "characters": [
+        "gutter_wisp"
+      ],
+      "setting": "exterior",
+      "place": "needle_lane",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A small mischievous spirit made of pale blue flame with two hungry little eyes, the size of a bottle, hovering above wet cobblestones at night, faint blue glow beneath it, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [
+        "data/enemies.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "en_rag_wraith",
+      "kind": "enemies",
+      "verified": "read",
+      "title": "Rag wraith",
+      "description": "A long coat, scarf and gloves moving as though worn, hood empty, drifting above cobbles in fog.",
+      "characters": [
+        "rag_wraith"
+      ],
+      "setting": "exterior",
+      "place": "needle_lane_wrong",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A ghost made of empty floating clothes, a long coat and scarf and gloves moving as if worn by an invisible person, hollow hood with no face, drifting in fog above cobblestones, eerie, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [
+        "data/enemies.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "en_the_drowned",
+      "kind": "enemies",
+      "verified": "read",
+      "title": "The Drowned",
+      "description": "A waterlogged figure rising out of still fogged water, weed and cloth hanging off it, the mere going flat and white behind.",
+      "characters": [
+        "the_drowned"
+      ],
+      "setting": "exterior",
+      "place": "mereside_edge",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "One of the Drowned: a human-shaped figure standing perfectly still on wet night cobbles, waterlogged gaslamp-era clothes hanging heavy and calm as if just lifted from a lake, lake-weed dark at the hem, skin pale grey-green where it shows. Its face is downcast and indistinct in shadow — quiet, patient, almost polite, with NO gore, no wounds, no skeleton, no horror-film theatrics; the wrongness is only the stillness. Around its bare feet the wet street is DRY in a small ring — dry-footed on a wet street. Fog and a drowned terrace behind it dissolve into cold blue-green wash. One figure alone — no other people, no animals.",
+      "prompt_source": "tools/batches/genart_wave2.py",
+      "used_by": [
+        "data/enemies.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "en_the_tallowman",
+      "kind": "enemies",
+      "verified": "read",
+      "title": "The Tallowman",
+      "description": "A tall gaunt figure poured out of tallow, features half melted and re-set, standing over its own puddle.",
+      "characters": [
+        "tallowman"
+      ],
+      "setting": "interior",
+      "place": "guildhall",
+      "time_of_day": "timeless",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": "The Chandlers' boss shape. Reads as en_candle_golem's senior, which is intended.",
+      "prompt": "The Tallowman: an enormous gentle figure poured from a hundred years of votive tallow and beeswax, filling a guildhall floor, twice the height of the doorway behind it. A soft rounded mountain of cream and honey-coloured wax with a kind, patient, almost apologetic face suggested in its surface, broad hands held open like warming pans, and a dozen small votive flames guttering in the wax of its shoulders and back like candles on a shrine. It must read KINDLY and enormous — no fangs, no claws, no snarl, nothing monstrous; the unsettling part is its patience. Banked votive candlelight behind it dissolves into warm amber wash. One figure alone — no humans, no animals.",
+      "prompt_source": "tools/batches/genart_wave2.py",
+      "used_by": [
+        "data/enemies.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "en_the_unpicked",
+      "kind": "enemies",
+      "verified": "read",
+      "title": "The Unpicked",
+      "description": "A tall human silhouette woven out of glowing silver thread, loose ends trailing off it, standing in a dark doorway. Beautiful and wrong.",
+      "characters": [
+        "the_unpicked"
+      ],
+      "setting": "interior",
+      "place": "parlor_cold",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "Used as a story portrait at the end of the prologue as well as an encounter.",
+      "prompt": "A tall looming figure woven entirely from glowing silver threads, a vaguely human silhouette with long loose thread-ends trailing away, standing alone in a dark doorway. Beautiful and wrong. IMPORTANT: the thread figure is COMPLETELY ALONE in the picture -- no people, no children, no bystanders, no animals, nobody watching it. One warm amber lamp somewhere in the room for contrast.",
+      "prompt_source": "tools/batches/genart_fixes2.py",
+      "used_by": [
+        "data/case.json:art",
+        "data/enemies.json:image",
+        "story/prologue/04_the_way_home.json:portrait"
+      ],
+      "prologue_beats": [
+        26
+      ],
+      "wired": true
+    },
+    {
+      "id": "en_the_vole",
+      "kind": "enemies",
+      "verified": "read",
+      "title": "The Vole",
+      "description": "A small fat vole standing upright by a chimney pot on rooftop tiles, entirely unaware, in warm last light.",
+      "characters": [
+        "the_vole"
+      ],
+      "setting": "exterior",
+      "place": "rooftop_dusk",
+      "time_of_day": "dusk",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": "The tutorial opponent. Full-bleed edges rather than the deckle border -- an early take, style-wise.",
+      "prompt": "A small fat smug vole standing by a chimney pot on rooftop tiles at dusk, utterly unaware it is being hunted, slightly comic, warm last light, storybook ink and watercolor character portrait. Aspect ratio: 3:4.",
+      "prompt_source": "docs/design/image-prompts-master.md",
+      "used_by": [
+        "data/enemies.json:image"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "en_wisp_pair",
+      "kind": "enemies",
+      "verified": "read",
+      "title": "Wisp pair",
+      "description": "Two blue flame-wisps hovering shoulder to shoulder over cobbles, four eyes, visibly conspiring.",
+      "characters": [
+        "gutter_wisp"
+      ],
+      "setting": "exterior",
+      "place": "needle_lane",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "Darker and flatter than the rest of the set; full-bleed, no paper edge.",
+      "prompt": "Two small mischievous spirits made of pale blue flame hovering shoulder to shoulder over wet cobblestones, clearly conspiring, four hungry little eyes, faint blue glow beneath them. Aspect ratio: 3:4.",
+      "prompt_source": "docs/design/image-prompts-master.md",
+      "used_by": [
+        "data/enemies.json:image",
+        "data/quests.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "energy_claw",
+      "kind": "energy",
+      "verified": "read",
+      "title": "Ferocity glyph",
+      "description": "A single curved cat claw inked as an emblem, ember red-orange wash.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "GEOMETRY HAZARD: sits on an opaque grey field, not transparency. Anything drawing this needs to key or crop it (art rule 22).",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/battle.gd",
+        "scenes/exchange_screen.gd",
+        "scenes/loadout_screen.gd",
+        "scenes/minigames/minigame_shell.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "energy_eye",
+      "kind": "energy",
+      "verified": "read",
+      "title": "Guile glyph",
+      "description": "A half-closed knowing cat eye, moss green wash.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Opaque grey field, as energy_claw.",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/battle.gd",
+        "scenes/exchange_screen.gd",
+        "scenes/loadout_screen.gd",
+        "scenes/minigames/minigame_shell.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "energy_moon",
+      "kind": "energy",
+      "verified": "read",
+      "title": "Moonlight glyph",
+      "description": "A crescent moon threaded through the eye of a needle, pale silver-blue.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "The player-facing name is Moonlight; the data id everywhere else is `mysticism` (owner standing decision). Opaque grey field.",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/battle.gd",
+        "scenes/exchange_screen.gd",
+        "scenes/loadout_screen.gd",
+        "scenes/minigames/minigame_shell.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "energy_shade",
+      "kind": "energy",
+      "verified": "read",
+      "title": "Shadow glyph",
+      "description": "A cat silhouette dissolving upward into smoke, charcoal black.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Opaque grey field, as energy_claw.",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/battle.gd",
+        "scenes/exchange_screen.gd",
+        "scenes/loadout_screen.gd",
+        "scenes/minigames/minigame_shell.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ev_candle_stub",
+      "kind": "evidence",
+      "verified": "read",
+      "title": "The candle stub",
+      "description": "A short honey-coloured beeswax candle end burnt down low, blackened wick, a run of wax down one flank, and a small round guild seal pressed into the soft wax.",
+      "characters": [],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "The pressed seal is what ties it to the Chandlers.",
+      "prompt": "A single object lying on plain undyed parchment, nothing else in the picture, no background scene and no table: a short stubby beeswax candle end, honey-coloured, burnt down low with a blackened wick and a run of melted wax down one side. Pressed into the soft wax on its flank is a small round guild seal. Painted as a careful study of one object, warm against the cream paper.",
+      "prompt_source": "tools/batches/genart_ch1_arc.py",
+      "used_by": [
+        "data/case.json:art",
+        "data/quests.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ev_docket",
+      "kind": "evidence",
+      "verified": "read",
+      "title": "The docket",
+      "description": "A small grubby cart-delivery docket creased from one fold, thumbed and stained at a corner, faint ruled lines and blocks of illegible hand, one line near the bottom heavily scratched out in ink.",
+      "characters": [],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "The scratched-out line is the clue; it needs to survive any downscale.",
+      "prompt": "A single object lying on plain undyed parchment, nothing else in the picture, no background scene and no table: a small grubby paper cart delivery docket, creased from being folded once, thumbed and stained at one corner. It carries faint ruled lines and blocks of illegible handwriting, and one line near the bottom has been heavily scratched out with ink. Painted as a careful study of one object.",
+      "prompt_source": "tools/batches/genart_ch1_arc.py",
+      "used_by": [
+        "data/case.json:art",
+        "data/quests.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ev_ledger",
+      "kind": "evidence",
+      "verified": "read",
+      "title": "The ledger",
+      "description": "A single object study on plain parchment: a thick bound ledger lying open, ruled columns of illegible entries, a worn leather cover.",
+      "characters": [],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A single torn half-page from a guild ledger, lying alone on bare cream paper with a soft cast shadow. Heavy laid paper, one edge ripped raggedly across, ruled columns in faded red, rows of figures and dates written in iron-gall ink in a confident copperplate hand. THE HANDWRITING MUST BE ILLEGIBLE -- the shape and rhythm of copperplate script and columns of numerals, with no readable words or letters anywhere. A thumbprint of candle grease at one corner. Nothing else in the frame: no desk, no room, no hands.",
+      "prompt_source": "tools/batches/genart_case_board.py",
+      "used_by": [
+        "core/chronicle.gd",
+        "data/case.json:art",
+        "data/quests.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ev_seam",
+      "kind": "evidence",
+      "verified": "read",
+      "title": "The seam",
+      "description": "A length of cloth with a worked seam running through it, thread ends left loose at one end, laid on bare paper.",
+      "characters": [],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A single hand's length of dark waxed thread, lying alone and coiled loosely on bare cream paper with a soft cast shadow. It has been UNPICKED from a seam: one end still holds three or four intact stitches in a neat blanket-stitch, and the rest has been pulled loose into slack crimped loops that remember the shape they were sewn in. The intact stitches lean the WRONG WAY -- mirror-handed, as if sewn left-handed by someone copying a right-handed hand. A faint blue-grey shimmer clings to the unpicked length, like light caught in cobweb. Nothing else in the frame: no cloth, no needle, no hands.",
+      "prompt_source": "tools/batches/genart_case_board.py",
+      "used_by": [
+        "data/case.json:art",
+        "data/quests.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ev_tally",
+      "kind": "evidence",
+      "verified": "read",
+      "title": "The tally",
+      "description": "A tally stick / counted board with scored marks in groups, worn and handled.",
+      "characters": [],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A single weathered oak slat the length of a forearm, lying alone on bare cream paper with a soft cast shadow -- a lamplighters' shift-tally board. Chalk marks scored across it in groups of five, some smudged by a thumb, a few scrubbed out and re-marked. A leather thong through a hole at one end. Grain raised and grey from weather, one end darkened by handling. Marks and scratches ONLY -- no letters, no words, no numerals. Nothing else in the frame: no wall, no hook, no hands.",
+      "prompt_source": "tools/batches/genart_case_board.py",
+      "used_by": [
+        "data/case.json:art"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "logo_ashcat_title",
+      "kind": "logos",
+      "verified": "read",
+      "title": "The Nine Lives of Ash — title logo",
+      "description": "Hand-lettered slightly-gothic title lettering in cream on near-black, a small black cat curled around the words, a thin silver thread winding through them, one ember accent.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Asset id keeps the old 'ashcat' spelling on purpose: ids are stable and display names are free to change (the same rule that keeps `mysticism` in the save while the player reads 'Moonlight'). The GAME is titled 'The Nine Lives of Ash' as of 2026-08-16. An earlier take read 'The Nine Lives of of Ashcat' -- read the words, not the vibe, whenever this one changes.",
+      "prompt": "A hand-lettered game logo reading exactly \"The Nine Lives of Ash\" in elegant slightly-gothic storybook lettering, ink and watercolor style, with a small black cat silhouette curled around the letters and a thin silver thread winding through them, warm cream and charcoal with one ember-orange accent, on a plain dark background, high contrast, readable at small sizes. Spell it carefully: The Nine Lives of Ash -- the word \"of\" appears exactly once, and the last word is \"Ash\", not \"Ashcat\".",
+      "prompt_source": "tools/batches/genart_batch.py",
+      "used_by": [
+        "scenes/game.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "logo_sparkygames",
+      "kind": "logos",
+      "verified": "read",
+      "title": "SparkyGames studio mark",
+      "description": "A round ink badge: an ember-orange spark with a curled cat tail wrapped round it, amber and charcoal, on dark ground.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Splash screen.",
+      "prompt": "A charming hand-drawn studio logo emblem for a game studio called SparkyGames: a small ember-orange spark or flame with a curled cat tail silhouette wrapped around it, inside a simple round ink-drawn badge, warm amber and charcoal palette, storybook ink and watercolor style, clean readable silhouette that works small, centered on a plain dark background, no text. Aspect ratio: 1:1.",
+      "prompt_source": "docs/design/image-prompts-master.md",
+      "used_by": [
+        "scenes/splash_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "mock_achievements",
+      "kind": "mockups",
+      "verified": "prompt",
+      "title": "Achievements screen mock",
+      "description": "Rows of round bronze medallions on parchment, some polished, some faded and unearned, scroll ribbon header, stitched border.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Design reference, rebuilt in code.",
+      "prompt": "A mobile game achievements screen mockup, portrait, storybook style: rows of round bronze medallions on parchment, some polished and colorful, some faded grey and unearned, each with a short label space beside it, a scroll ribbon header, stitched border. Aspect ratio: 9:16.",
+      "prompt_source": "docs/design/image-prompts-master.md",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": false
+    },
+    {
+      "id": "mock_chapter_select",
+      "kind": "mockups",
+      "verified": "prompt",
+      "title": "Chapter select mock",
+      "description": "A drawer of case files from above: folders with wax seals and handwritten labels, the first open with a progress stamp, later ones tied shut with red thread.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Design reference, rebuilt in code.",
+      "prompt": "A mobile game chapter select mockup, portrait, storybook style: a wooden drawer of case files seen from above, manila folders with wax seals and short handwritten labels, the first folder open showing a small illustration and a progress stamp, later folders tied shut with red thread, stitched parchment border.",
+      "prompt_source": "tools/batches/genart_batch.py",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": false
+    },
+    {
+      "id": "mock_journal",
+      "kind": "mockups",
+      "verified": "prompt",
+      "title": "Casebook screen mock",
+      "description": "Look-and-feel reference for the journal: leather-cornered casebook page, handwritten entries with small ink icons, leather bookmark tabs, stitched border.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Design reference, rebuilt in code. Gibberish text in it is fine.",
+      "prompt": "A mobile game journal screen mockup, portrait, storybook parchment style: an open leather-cornered casebook page titled like a detective's journal, left-aligned handwritten-style entries with small ink icons (a paw print, a wax seal, a thread), tabs at the top shaped like leather bookmarks labeled for deeds and knowledge, a small back arrow in a parchment square top-left, stitched border around the page.",
+      "prompt_source": "tools/batches/genart_batch.py",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": false
+    },
+    {
+      "id": "mock_loadout",
+      "kind": "mockups",
+      "verified": "prompt",
+      "title": "Loadout screen mock",
+      "description": "Sewing table from above with the kit laid out: four framed skill cards, energy cards stacked by colour, needle and thread, amber confirm button.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Design reference, rebuilt in code.",
+      "prompt": "A mobile game loadout screen mockup, portrait, storybook parchment style: a sewing table seen from above with the cat's kit laid out — a row of four skill cards in ornate frames at top, below them energy cards arranged by color in four small stacks (red, green, black, silver-blue) with counts, a needle and thread beside them, an amber confirm button at the bottom, stitched border. Aspect ratio: 9:16.",
+      "prompt_source": "docs/design/image-prompts-master.md",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": false
+    },
+    {
+      "id": "mock_settings",
+      "kind": "mockups",
+      "verified": "prompt",
+      "title": "Settings screen mock",
+      "description": "Hand-inked option rows with small icons (bell, music note, candle, letter), each with a thread-and-toggle switch drawn as a button sewn on or off.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Design reference, rebuilt in code.",
+      "prompt": "A mobile game settings screen mockup, portrait, storybook parchment style: a short list of options as hand-inked rows with small icons (a bell for sound, a music note, a candle for brightness, a letter for language), each with a thread-and-toggle switch drawn as a button sewn on or off, stitched border, small back arrow top-left.",
+      "prompt_source": "tools/batches/genart_batch.py",
+      "used_by": [
+        "scenes/settings_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": false
+    },
+    {
+      "id": "ui_objective",
+      "kind": "mockups",
+      "verified": "read",
+      "title": "The UI objective mock",
+      "description": "The battle screen as it is supposed to look: stitched parchment page, opponent large in the upper half, thread health bar, skill cards fanned along the bottom, energy pips.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "The comparison target named in CLAUDE.md law 1. Not shipped art -- a reference to build against.",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/battle.gd"
+      ],
+      "prologue_beats": [],
+      "wired": false
+    },
+    {
+      "id": "sc_ash_vole_gift",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The gift",
+      "description": "Ash trotting the ridge of a roof with the kill in his mouth, tail straight up, extremely pleased with himself, city and sunset behind.",
+      "characters": [
+        "ash",
+        "the_vole"
+      ],
+      "setting": "exterior",
+      "place": "rooftop_dusk",
+      "time_of_day": "dusk",
+      "light": "warm",
+      "ash_neckerchief": false,
+      "notes": "Bare neck, correct for the prologue.",
+      "prompt": "A lean black cat with orange eyes and a red collar trotting proudly along a rooftop ridge at dusk carrying a small vole in its mouth, tail high, very pleased with itself, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [
+        "story/prologue/01_the_gift.json:portrait"
+      ],
+      "prologue_beats": [
+        4
+      ],
+      "wired": true
+    },
+    {
+      "id": "sc_collar",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The collar",
+      "description": "Still life on the sewing table under thin moonlight: a small frayed red neckerchief folded neatly, a pincushion stuck with pins, a spool of silver thread. Nobody in frame.",
+      "characters": [],
+      "setting": "interior",
+      "place": "parlor_cold",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "THE hinge of the whole canon: the last beat before the title card, and the moment Ash takes the kerchief. Everything at or after this beat wears it; everything before it does not. tools/art_catalog.py reads the prologue order to find this beat rather than hardcoding a number.",
+      "prompt": "A small frayed red neckerchief neatly folded on a wooden sewing table beside a pincushion and a spool of silver thread, thin moonlight, quiet still life, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [
+        "story/prologue/05_the_parlor.json:portrait"
+      ],
+      "prologue_beats": [
+        33
+      ],
+      "wired": true
+    },
+    {
+      "id": "sc_elspeth_still",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "Elspeth, still",
+      "description": "Elspeth sitting quite still in the armchair, head fallen, eyes closed, spectacles askew, her sewing dropped on the floor beside her. Cold moonlight through the window, one lamp still burning low.",
+      "characters": [
+        "elspeth"
+      ],
+      "setting": "interior",
+      "place": "parlor_cold",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "Carries two separate prologue beats (29 and 31) with the kettle beat between them.",
+      "prompt": "An elderly witch with silver hair and round spectacles sitting very still in an armchair in a cold moonlit room, eyes closed, sewing fallen to the floor beside her, quiet and sorrowful, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [
+        "story/prologue/05_the_parlor.json:portrait"
+      ],
+      "prologue_beats": [
+        30,
+        32
+      ],
+      "wired": true
+    },
+    {
+      "id": "sc_hollow_court_chair",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The Hollow Court chair",
+      "description": "The same desk, same camera, same Clerk as sc_hollow_court_desk, with a cat-sized chair drawn in on the near side of the desk.",
+      "characters": [
+        "clerk"
+      ],
+      "setting": "interior",
+      "place": "hollow_court",
+      "time_of_day": "timeless",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "REPETITION RISK. This and sc_hollow_court_desk differ by one prop at the same angle, so as death variants they read as one photograph with different captions (law 15/16). A genuinely different VIEW of the Court would do more than a third near-copy.",
+      "prompt": "Keep this exact scene — the same translucent clerk at the same lamplit desk, same filing shelves, same palette, same composition — and add ONE new thing: beside the full-size chair facing the desk, a second chair, exactly cat-sized, neat and plainly made, as if it had always been there and nobody will mention it. Change nothing else. No cat appears.",
+      "prompt_source": "tools/batches/genart_wave2.py",
+      "used_by": [
+        "story/prologue/interludes.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sc_hollow_court_desk",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The Hollow Court desk",
+      "description": "The Clerk seated behind his desk in the vast archive, lamp lit, ledger open, a single small chair set opposite him. Shelves climbing away into dark on all sides.",
+      "characters": [
+        "clerk"
+      ],
+      "setting": "interior",
+      "place": "hollow_court",
+      "time_of_day": "timeless",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "One of three near-identical Hollow Court views. See sc_hollow_court_chair.",
+      "prompt": "A vast dim underground records office: towering bookshelves fading up into darkness, one small wooden desk with a brass lamp, and seated behind it a PRIM TRANSLUCENT GREY GHOST CLERK IN AN OLD-FASHIONED SUIT AND PINCE-NEZ SPECTACLES, with an expression of fussy professional disapproval. The ghost is a neatly dressed gentleman, NOT a floating bedsheet. A single empty cat-sized chair stands opposite the desk. NO CAT anywhere in the picture, no animals. Dust drifting in the lamplight.",
+      "prompt_source": "tools/batches/genart_fixes.py",
+      "used_by": [
+        "story/prologue/interludes.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sc_hollow_court_lamp",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The Hollow Court lamp",
+      "description": "The desk lamp close in, pool of green-gold light on the ledger and the stamped papers, shelves receding into black beyond it.",
+      "characters": [],
+      "setting": "interior",
+      "place": "hollow_court",
+      "time_of_day": "timeless",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "The tightest of the three Court views, and the one that varies most from the other two.",
+      "prompt": "Keep this exact scene — the same translucent clerk at the same desk, same filing shelves, same composition — with ONE change: the desk lamp has been turned UP, throwing a wider, warmer, brighter pool of light across the desk and the clerk, pushing the shadows further back, and one single paper file lies out OPEN on the desk instead of filed away. Change nothing else. No cat appears.",
+      "prompt_source": "tools/batches/genart_wave2.py",
+      "used_by": [
+        "story/prologue/interludes.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sc_hollow_court_queue",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The queue of ghosts",
+      "description": "A line of translucent grey ghosts -- ordinary city people in hats and coats -- receding down a vast hall of filing shelves. The nearest have turned and are gesturing Ash forward to the front. The Clerk works at his lamplit desk to the right, not looking up.",
+      "characters": [
+        "ash",
+        "clerk"
+      ],
+      "setting": "interior",
+      "place": "hollow_court",
+      "time_of_day": "timeless",
+      "light": "cold",
+      "ash_neckerchief": true,
+      "notes": "Generated 2026-08-12 from ref_ash for hollow_court_refused.3, whose line 'the ghosts wave me forward, which I find polite and insulting in equal parts' had no image. Kerchief is correct: refused deaths only happen post-collar.",
+      "prompt": "A queue of translucent pale grey ghosts standing in line at a small wooden desk at the bottom of an enormous dark hall of filing shelves. The ghosts are ordinary city people, indistinct, patient. They have turned to look down at a small black cat with a frayed red neckerchief at the back of the queue, and the nearest ones are gesturing him forward to the front of the line. A grey ghost clerk waits at the desk under a single green-shaded lamp. Vast, quiet, administrative. Cold grey-green, one warm lamp.",
+      "prompt_source": "tools/batches/genart_catalog_fixes.py",
+      "used_by": [
+        "story/prologue/interludes.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sc_hollow_court_stamp",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The stamp comes down",
+      "description": "Extreme close at desk height: a translucent grey hand bringing a wooden rubber stamp down on a sheet of paper. The impression already made beside it is a single inked cat paw print, slightly smudged. Ink pad, scattered forms, the base of a green lamp.",
+      "characters": [
+        "clerk"
+      ],
+      "setting": "interior",
+      "place": "hollow_court",
+      "time_of_day": "timeless",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "Generated 2026-08-12 for hollow_court_refused.0 and hollow_court_repeat.1. The tightest framing in the Court set, which is what makes it break the repetition run. No text in it -- the only mark on the paper is the paw print, exactly as the prose says.",
+      "prompt": "Extreme close view, from low down at desk height: a translucent grey hand bringing a wooden rubber stamp down hard onto a sheet of paper on a dark desk. The impression already made on the paper beside it is a single inked CAT PAW PRINT, dark and slightly smudged. An ink pad, a scatter of forms, the base of a green-shaded lamp. No letters, no words, no readable writing anywhere -- the only mark on the paper is the paw print. Cold grey-green with one warm lamplight edge.",
+      "prompt_source": "tools/batches/genart_catalog_fixes.py",
+      "used_by": [
+        "story/prologue/interludes.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sc_hollow_court_thread",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The knot that is not one of ours",
+      "description": "The Clerk close in, spectacles down, holding a length of fine silver thread up between both hands with a small knot visible in it. Below on the open ledger the same thread lies along a ruled line that is plainly too short for it. Green-shaded lamp, inkwell.",
+      "characters": [
+        "clerk"
+      ],
+      "setting": "interior",
+      "place": "hollow_court",
+      "time_of_day": "timeless",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "Generated 2026-08-12 for hollow_court_refused.2 and .4 -- the CLERICAL ERROR and the foreign knot, the biggest plot seed in the interludes and previously unillustrated. MINOR DRIFT: generated without a ref, so the Clerk's hair is wilder and his spectacles rounder than in npc_clerk. Same character, slightly different hand. Pass npc_clerk as --ref if this is ever regenerated.",
+      "prompt": "Close study of a desk in a dim records office. A translucent grey ghost clerk in a waistcoat, spectacles pushed down his nose, holds a length of fine silver thread up and runs it slowly through his fingers. On the open ledger below, the same thread is laid out flat along a ruled line, and the ruled line is plainly shorter than the thread. One small tight knot is visible in the thread. Green-shaded lamp, inkwell, blotter. His whole attention is on the knot. No text, no readable writing. Cold, with one warm pool of lamplight.",
+      "prompt_source": "tools/batches/genart_catalog_fixes.py",
+      "used_by": [
+        "story/prologue/interludes.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sc_hollow_stairs",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The stairs out",
+      "description": "A narrow stone stair climbing out of the dark filing-hall toward one small warm doorway a very long way above. Ash small at the bottom of the frame, seen from behind, starting up.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "interior",
+      "place": "hollow_court",
+      "time_of_day": "timeless",
+      "light": "mixed",
+      "ash_neckerchief": null,
+      "notes": "Written to be tiring rather than frightening. Ash is a small back-view silhouette; throat not in frame.",
+      "prompt": "A narrow stone stair climbing up out of an enormous dark hall of filing shelves towards one small warm doorway very far above. The shelves and ledgers fall away into blue-grey wash below and to either side; the stair is the only lit thing, and the light on it comes from the doorway at the top. This same black cat with the red neckerchief is small at the bottom of the frame, seen from behind, starting up. Vast, quiet, administrative. Not frightening — tiring.",
+      "prompt_source": "tools/genart_owner_pass.py",
+      "used_by": [
+        "story/prologue/interludes.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sc_kettle",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The kettle",
+      "description": "Ash up on his hind legs against a dead cold stove, both forepaws shoving a steaming copper kettle off the heat, face set with effort. Moonlit kitchen, firebox dark.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "interior",
+      "place": "parlor_cold",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": false,
+      "notes": "Regenerated 2026-08-12 from the previous take plus ref_ash_prologue, because the shipped version had Ash wearing the kerchief at prologue beat 30 -- two beats BEFORE sc_collar, where he takes it. The edit kept the room, the pose and the moonlight and took the red band off the throat; the stove also went out, which suits 'the smell of cold hearth' better than the lit firebox did. Previous take archived as sc_kettle__2.",
+      "prompt": "Keep this exact kitchen, this exact camera, this exact pose and this exact cold moonlit light. Change ONE thing: the cat's neck. $BARERemove any red neckerchief, red band or red marking at the throat entirely and paint plain black fur there. Everything else -- the black cat up on his hind legs shoving the steaming copper kettle off the stove with both forepaws, his expression of effort, the shelves, the window, the moonlight -- stays exactly as it is.",
+      "prompt_source": "tools/batches/genart_catalog_fixes.py",
+      "used_by": [
+        "story/prologue/05_the_parlor.json:portrait"
+      ],
+      "prologue_beats": [
+        31
+      ],
+      "wired": true,
+      "cast_defect": null
+    },
+    {
+      "id": "sc_lamplighters_hall",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The lamplighters' hall, empty",
+      "description": "A guild workroom abandoned mid-shift: ladders racked, lighting-poles in their stands, a kettle on a small stove, a lit lamp on the bench, one silver thread caught glinting on a brass hook in the foreground. Nobody there.",
+      "characters": [],
+      "setting": "interior",
+      "place": "lamplighters_hall",
+      "time_of_day": "night",
+      "light": "warm",
+      "ash_neckerchief": null,
+      "notes": "The prompt asked for a kettle gone cold and a hall gone dark; the image has the stove and a lamp still burning. It still reads as 'they left in a hurry', which is the point.",
+      "prompt": "The interior of a lamplighters' guild hall at night, abandoned mid-shift: ladders racked on the wall, long lighting-poles in their stands, a kettle gone cold on a small stove, and one silver thread caught glinting on a brass lamp-hook in the foreground. Nobody there. Warm amber lamplight against blue-grey shadow. No signage or lettering of any kind on the walls.",
+      "prompt_source": "tools/batches/genart_fixes2.py",
+      "used_by": [
+        "story/prologue/04_the_way_home.json:portrait"
+      ],
+      "prologue_beats": [
+        21
+      ],
+      "wired": true
+    },
+    {
+      "id": "sc_lamplighters_hall_watch",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The lamplighters' hall, occupied",
+      "description": "The same hall with four lamplighters sat round a table under a hanging lamp, mid-conversation. Ash in the near foreground seen from behind, wearing the red neckerchief, watching them.",
+      "characters": [
+        "ash",
+        "lamplighters"
+      ],
+      "setting": "interior",
+      "place": "lamplighters_hall",
+      "time_of_day": "night",
+      "light": "warm",
+      "ash_neckerchief": true,
+      "notes": "The occupied counterpart to sc_lamplighters_hall. Post-collar only -- the empty version is the one the prologue may use.",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "data/quests.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sc_needle_lane_deep",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "Deep in the wrong lane",
+      "description": "Looking down a narrow foggy alley whose lamps are all dark and cold, fog standing in it like water, a dead lamp in the near foreground with a ladder still leaning on it and nobody on the ladder. One small amber window very far off.",
+      "characters": [],
+      "setting": "exterior",
+      "place": "needle_lane_wrong",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "Generated to break a four-beat repetition run on the single lane image (law 16). The abandoned ladder does the story work.",
+      "prompt": "Deep in a narrow foggy alley at night, looking along it. The street lamps down its length are all dark, unlit, their glass cold. Fog off an estuary has come up past the doorsteps and sits in the lane like standing water. Wet cobbles, shuttered windows, a dead lamp in the near foreground with its ladder still leaning against it and nobody on the ladder. No people, no cat. Blue-grey, and one small amber window very far away that only makes the rest colder.",
+      "prompt_source": "tools/genart_owner_pass.py",
+      "used_by": [
+        "story/prologue/04_the_way_home.json:portrait"
+      ],
+      "prologue_beats": [
+        20
+      ],
+      "wired": true
+    },
+    {
+      "id": "sc_over_the_fences",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "Over the fences",
+      "description": "Ash at full stretch in mid-leap between fence tops and garden walls, fog blurring behind him, rooftops and one dark window ahead, crescent moon.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "exterior",
+      "place": "back_gardens",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": false,
+      "notes": "The prompt asked for the neckerchief and the image came back without one. That is the RIGHT answer for a prologue beat -- and the reason this catalogue records what is in the picture rather than what was asked for.",
+      "prompt": "A lean black cat with glowing orange eyes and a frayed RED NECKERCHIEF in full sprint, leaping between fence tops and garden walls at night, rooftops and one dark window ahead, urgency and grace. Warm amber lamplight somewhere in the scene against the blue-grey night. Let the fog be bare paper, not grey paint.",
+      "prompt_source": "tools/batches/genart_fixes.py",
+      "used_by": [
+        "story/prologue/04_the_way_home.json:portrait"
+      ],
+      "prologue_beats": [
+        23
+      ],
+      "wired": true
+    },
+    {
+      "id": "sc_parlor_doorway",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The parlor doorway",
+      "description": "The workroom door seen from inside at first light, cut threads hanging down the frame and the walls to either side all snipped at one height, work table with scissors and pinned patterns, chair pushed back. Nobody in frame. Cold blue morning light, no fire.",
+      "characters": [],
+      "setting": "interior",
+      "place": "parlor_cold",
+      "time_of_day": "day",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "One of only two daylight interiors in the library (with sc_the_carrying). Both belong to the morning after, not the night of -- do not show either during the prologue's night.",
+      "prompt": "The doorway of a witch's workroom seen from inside the room at dawn, looking out into a dim hallway. Dozens of cut threads hang down the door frame and the walls to either side, all snipped at the same height, ends loose. A grey unlit lamp, a work table with scissors and pinned patterns, an empty chair pushed back. Nobody in the picture. Cold blue morning light from the left, no fire lit. The room after something has happened in it.",
+      "prompt_source": "tools/genart_owner_pass.py",
+      "used_by": [
+        "data/quests.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sc_shambles_after_hours",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The Shambles, after hours",
+      "description": "The night market shut: stalls under canvas, crates stacked, one stall still lit by a hanging lantern with a magpie on its counter. Ash sits in the foreground seen from behind, wearing the red neckerchief. Stars overhead.",
+      "characters": [
+        "ash",
+        "brindle"
+      ],
+      "setting": "exterior",
+      "place": "shambles_market",
+      "time_of_day": "night",
+      "light": "mixed",
+      "ash_neckerchief": true,
+      "notes": "Post-collar by construction -- Ash is wearing the kerchief. Correct for Chapter 1, wrong for anything in the prologue.",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "data/quests.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sc_shambles_day",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The Shambles in daylight",
+      "description": "A busy market street in flat grey DAYLIGHT: stalls open and trading, townspeople walking between them, awnings up, produce out. A black cat with a WHITE CHEST PATCH and white paws sits on a barrel in the foreground.",
+      "characters": [
+        "unknown_cat"
+      ],
+      "setting": "exterior",
+      "place": "shambles_market",
+      "time_of_day": "day",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "cast_defect": "the foreground cat is a white-bibbed tuxedo cat with white paws, not Ash (solid black, amber eyes). Whoever it is, the beat it illustrates is narrated by Ash.",
+      "notes": "SUPERSEDED IN PLACE 2026-08-12 by sc_shambles_night; prologue beat 6 no longer points here. Kept in the library rather than archived because it is the only daylight view of the Shambles we own and the day-side quest the_fish_giver may want one -- but the cat in it is still not Ash, so it cannot be used as-is.",
+      "prompt": "The same crooked timber market street by day, but overcast and quiet rather than sunny: leaning timber-framed shopfronts, a few market stalls under faded canvas, hanging shop signs, crates of vegetables, thin grey daylight through high fog, only two or three distant muted figures glimpsed at the far end. Cozy-gothic and subdued -- muted ochre and blue-grey, NOT a bright blue sky, NOT a crowd, NOT cheerful. Seen low, from a cat's height.",
+      "prompt_source": "tools/batches/genart_fixes.py",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sc_shambles_night",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The Shambles from the roofs",
+      "description": "Looking down from a rooftop ridge into the sleeping night market: stalls shut under canvas, produce crates left out, one lit street lantern, fog and rooftops dissolving behind. Ash sits on the ridge in the near foreground seen from directly behind. Strung between two chimney stacks above him, a single thread of silver light with one bright point on it.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "exterior",
+      "place": "shambles_market",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "Generated 2026-08-12 from ref_ash_prologue to replace sc_shambles_day at prologue beat 6, which was broad daylight with a stranger cat in a scene that says 'Eight bells from the tower'. Seen from behind, so his bare throat is not in frame either way. Illustrates the beat's actual subject -- the silver thread between the chimneys -- which no image did before.",
+      "prompt": "Looking down into a sleeping night market from a rooftop above it. Below: crooked timber shopfronts, market stalls shut under canvas covers, produce crates left out, a hanging shop sign, one lit lantern far down the lane, fog pooling between the buildings. Nobody is out; the market has gone to bed. This same lean black cat sits on the roof ridge in the near foreground, seen from behind and slightly to one side, looking down at the street. $BAREStretched taut between two chimney stacks in the middle distance, a single thread of silver light, thin as a hair, faintly glowing -- the only bright thing in the picture besides the one lantern. Night. Blue-grey and cold, one small amber accent.",
+      "prompt_source": "tools/batches/genart_catalog_fixes.py",
+      "used_by": [
+        "story/prologue/02_into_the_city.json:portrait"
+      ],
+      "prologue_beats": [
+        7
+      ],
+      "wired": true
+    },
+    {
+      "id": "sc_the_carrying",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The carrying",
+      "description": "Grey dawn in the parlor. Three women in grey homespun lift a linen-wrapped body out of the high-backed chair; the eldest has stopped in the doorway to look at the cut threads on the walls. Ash sits on the mantelpiece above the dead hearth, wearing the red neckerchief, completely still, watching.",
+      "characters": [
+        "ash",
+        "cardew",
+        "young_witches",
+        "elspeth"
+      ],
+      "setting": "interior",
+      "place": "parlor_cold",
+      "time_of_day": "dawn",
+      "light": "cold",
+      "ash_neckerchief": true,
+      "notes": "Post-collar, so the kerchief is right. Continuity thread worth knowing: the window here shows conifer forest, as do bg_mantel and ref_elspeth -- but Needle Lane is a dense city street. Nothing enforces this; it is recorded so somebody decides once whether the parlor is in the city or on its edge.",
+      "prompt": "A cold witch's parlor at first light. Three women in grey homespun lift a body wrapped in undyed linen out of a high-backed armchair. The eldest is huge and heavy-shouldered and has stopped in the doorway to look at the walls, where dozens of cut threads hang down like torn hems. The two younger women are doing the lifting and are frightened of it. This same black cat with the red neckerchief sits on the mantelpiece above the dead hearth, absolutely still, watching. Grey dawn through a tall window, one guttered candle. Quiet, formal grief held at arm's length — nobody is weeping and nobody is looking at anybody.",
+      "prompt_source": "tools/batches/genart_ch1_arc.py",
+      "used_by": [
+        "data/quests.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sc_the_wake",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The wake",
+      "description": "A shrouded figure on a low bier at the tideline at dusk. Women in grey stand close around it; a knot of guild men in good dark coats stands well apart, further up the beach. Ash is up on a tarred mooring post, alone, apart from both, facing the water, wearing the red neckerchief.",
+      "characters": [
+        "ash",
+        "cardew",
+        "young_witches",
+        "guild_delegates",
+        "elspeth"
+      ],
+      "setting": "exterior",
+      "place": "tideline",
+      "time_of_day": "dusk",
+      "light": "mixed",
+      "ash_neckerchief": true,
+      "notes": "The blocking is the point: three groups, none of them touching. Post-collar.",
+      "prompt": "A funeral at the tideline at dusk. A shrouded figure lies on a low wooden bier at the edge of a wide flat grey estuary, wet sand around it. Women in grey stand close in around the bier; a small group of guild delegates in good dark coats and hats stand well apart from them, further up the beach, present but not mourning. This same black cat with the red neckerchief is up on a tarred mooring post, alone, apart from both groups, facing the water. Low amber light off the wet sand against a cold blue-grey sky and a far shoreline dissolving into wash.",
+      "prompt_source": "tools/batches/genart_ch1_arc.py",
+      "used_by": [
+        "data/quests.json:portrait"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sc_threads_cut",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The threads, cut",
+      "description": "The workroom wall hung with dozens of cut threads and empty embroidery hoops, scissors and spools on the dresser, one lantern lit. Ash small in the foreground seen from directly behind, looking at the open door. The doorway is EMPTY -- a dark hall and a crescent moon beyond it.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "interior",
+      "place": "parlor_cold",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": null,
+      "notes": "Regenerated 2026-08-12. The previous take had the Unpicked already standing in the doorway, which spoiled prologue beat 25's reveal one beat early -- beat 24 is Ash deliberately NOT going through that door yet. Doorway emptied, room otherwise unchanged. Previous take archived as sc_threads_cut__2.",
+      "prompt": "Interior of a dark workroom at night from a cat's low viewpoint: walls of embroidery hoops and pinned threads where every thread has been freshly cut, loose ends hanging and drifting. Thin blue moonlight. Through a doorway at the far end, a tall shape woven of glowing silver threads stands with its back turned, mid-work. Quiet dread. Suggest the cut threads with a FEW dozen confident ink strokes, not thousands of fine strands -- this must stay readable at phone size. Keep one small warm amber accent.",
+      "prompt_source": "tools/batches/genart_fixes2.py",
+      "used_by": [
+        "story/prologue/04_the_way_home.json:portrait"
+      ],
+      "prologue_beats": [
+        25
+      ],
+      "wired": true
+    },
+    {
+      "id": "sc_title",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "Title card",
+      "description": "Ash on a moonlit rooftop ridge in silhouette-and-wash, wearing the red neckerchief, looking out over a foggy gaslamp city with a single silver thread trailing from his chest away over the roofs. Upper third left empty.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "exterior",
+      "place": "rooftops",
+      "time_of_day": "night",
+      "light": "cold",
+      "ash_neckerchief": true,
+      "notes": "The empty upper third is where logo_ashcat_title sits. Do not crop it out.",
+      "prompt": "A black cat with glowing orange eyes and a red collar standing on a moonlit rooftop looking over a foggy gaslamp city, a single thin silver thread trailing from its chest out over the rooftops, lonely and brave, empty space in the upper third, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [
+        "scenes/game.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sc_vole_stalk",
+      "kind": "scenes",
+      "verified": "read",
+      "title": "The stalk",
+      "description": "Ash pressed flat along rooftop tiles, pupils wide, hindquarters gathered, a small unaware rodent by a chimney pot a few feet off. Amber sunset behind the chimneys.",
+      "characters": [
+        "ash",
+        "the_vole"
+      ],
+      "setting": "exterior",
+      "place": "rooftop_dusk",
+      "time_of_day": "dusk",
+      "light": "warm",
+      "ash_neckerchief": false,
+      "notes": "Bare neck, correct for the prologue. The prey reads more mouse than vole, which nobody has minded.",
+      "prompt": "A lean black cat with glowing orange eyes and a frayed RED NECKERCHIEF pressed low against rooftop tiles at dusk, pupils wide, hindquarters raised in the pre-pounce wiggle, stalking a small unaware vole near a chimney pot a short distance away. Warm last light. Keep the sky a single loose wash -- no banded or neon colours.",
+      "prompt_source": "tools/batches/genart_fixes.py",
+      "used_by": [
+        "story/prologue/01_the_gift.json:portrait"
+      ],
+      "prologue_beats": [
+        1
+      ],
+      "wired": true
+    },
+    {
+      "id": "sk_loaf",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Loaf",
+      "description": "Ash in a perfect loaf, all paws tucked under, eyes half shut, faint silver shimmer around him. Serene and immovable.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": null,
+      "prompt": "A black cat in a perfect bread loaf pose with all paws tucked under its body, eyes half closed, serene and immovable, faint silver shimmer around it, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sk_pounce",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Pounce",
+      "description": "Ash mid-leap, claws out, body extended, on bare parchment.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": null,
+      "prompt": "ASH: a LEAN, ANGULAR, SHORT-HAIRED black cat with a narrow wedge-shaped head, slim build, glowing amber-orange slit eyes, and a frayed RED NECKERCHIEF at his throat. The neckerchief must read clearly as a TIED PIECE OF RED CLOTH knotted at the neck with frayed ends -- not a stripe, not a streak, not a wound. Scene: Ash leaping through the air with claws out, dynamic pose, night rooftop behind him dissolving into loose wash. Keep his coat smooth and sleek, not shaggy.",
+      "prompt_source": "tools/batches/genart_fixes2.py",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sk_purr",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Purr",
+      "description": "Ash curled in a neat sleeping circle with fine silver threads of light rising off his fur.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": null,
+      "prompt": "A black cat curled in a neat sleeping circle with gentle silver threads of light rising from its fur, warm and peaceful, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sk_scratch",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Scratch",
+      "description": "A black cat's paw striking, three thin ink slashes hanging in the air after it. Bare parchment, no environment.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": "Cards are atemporal: they sit in the tray from the prologue onward, so the kerchief on them is not dated the way a story scene is. The checks only date story portraits.",
+      "prompt": "A black cat's paw swiping quickly with three thin ink slash marks in the air, simple composition with lots of empty paper, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sk_shelf_justice",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Shelf Justice",
+      "description": "Ash on a high shelf easing a porcelain jug over the edge with one paw while looking straight at the viewer. The jug is falling.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": null,
+      "prompt": "A black cat on a high shelf pushing a porcelain jug over the edge with one paw while looking directly at the viewer, the jug falling, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sk_slink",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Slink",
+      "description": "Ash dissolving into a pool of shadow, only the amber eyes and the red kerchief still readable in the dark shape.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": null,
+      "prompt": "ASH: a LEAN, ANGULAR, SHORT-HAIRED black cat with a narrow wedge-shaped head, slim build, glowing amber-orange slit eyes, and a frayed RED NECKERCHIEF of visible cloth at his throat. He is NOT a longhair, NOT round-faced, NOT fluffy, and has no thick ruff. Scene: Ash melting into a pool of shadow under a gaslamp, only his orange eyes and red neckerchief visible in the dark shape. Keep the eyes flat ink-and-wash, not glossy.",
+      "prompt_source": "tools/batches/genart_fixes2.py",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sk_swat",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Swat",
+      "description": "Ash sitting composed and still while one forepaw strikes out in a blur of motion. Bare parchment.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": null,
+      "prompt": "A calm black cat sitting still while one front paw strikes out in a blur of motion, composed face, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
+      "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_arrow_back",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Back arrow",
+      "description": "The back arrow, drawn to sit in a parchment square top-left.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/case_board_screen.gd",
+        "scenes/exchange_screen.gd",
+        "scenes/journal_screen.gd",
+        "scenes/loadout_screen.gd",
+        "scenes/minigames/minigame_shell.gd",
+        "scenes/settings_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_ash_head",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Ash emblem",
+      "description": "A tiny front-view emblem of Ash's face with the red neckerchief, bold enough to read at 32px.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": "Interface chrome, not a story image — the kerchief here is not dated.",
+      "prompt": "A tiny emblem of a black cat's face with a red neckerchief, front view, simple bold shapes readable at 32 pixels, ink and watercolor, centered on a plain background. Aspect ratio: 1:1.",
+      "prompt_source": "docs/design/image-prompts-master.md",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_btn_amber",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Amber button",
+      "description": "The confirm/primary button face in amber.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Textured button styleboxes rendered smaller than their buttons once; UITheme uses DRAWN styleboxes instead (art rule 22).",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_btn_dark",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Dark button",
+      "description": "The secondary button face in charcoal.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_btn_parchment",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Parchment button",
+      "description": "The neutral button face in parchment.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_button_pile",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Button pile",
+      "description": "A heap of assorted sewing buttons — the Magpie Exchange's currency motif.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/exchange_screen.gd",
+        "scenes/hub_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_case_board",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Case board",
+      "description": "A corkboard page inside a leather casebook: three empty portrait spaces at top joined by red thread and brass pins, smaller empty note spaces below, aged parchment.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Deliberately empty of faces and readable text — the game pins real content into it.",
+      "prompt": "An old corkboard page inside a leather casebook: three empty rectangular portrait spaces at top connected by red thread and brass pins, smaller empty note spaces below, ink annotations too small to read, aged parchment, hand-drawn storybook ink and watercolor style, no faces, no readable text.",
+      "prompt_source": "tools/batches/genart_batch.py",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": false
+    },
+    {
+      "id": "ui_cloth_linen",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Linen cloth",
+      "description": "A linen ground for the Stitch minigame.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A square swatch of plain woven linen cloth in warm cream, seen flat from above, edges slightly frayed with a few loose thread ends, subtle woven texture, nothing embroidered on it. Hand-drawn storybook ink and watercolour. No text.$WHITE_BG",
+      "prompt_source": "tools/genart_minigames.py",
+      "used_by": [
+        "scenes/minigames/lattice_screen.gd",
+        "scenes/minigames/ward_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_frame_card_black",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Card frame — Shadow",
+      "description": "Energy card frame in charcoal.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/battle.gd",
+        "scenes/minigames/crossing_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_frame_card_blue",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Card frame — Moonlight",
+      "description": "Energy card frame in silver-blue.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Player-facing name is Moonlight; data id is `mysticism`.",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/battle.gd",
+        "scenes/minigames/crossing_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_frame_card_green",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Card frame — Guile",
+      "description": "Energy card frame in moss green.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/battle.gd",
+        "scenes/minigames/crossing_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_frame_card_red",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Card frame — Ferocity",
+      "description": "Energy card frame in ember red.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/battle.gd",
+        "scenes/minigames/crossing_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_frame_portrait",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Portrait frame",
+      "description": "An ornate frame for character and enemy portraits.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/battle.gd",
+        "scenes/minigames/testimony_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_frame_skill",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Skill card frame",
+      "description": "The frame a skill card's art sits inside.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_gust_swirl",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Gust swirl",
+      "description": "A swirl of moving air, for the Ward/Crossing minigames.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A small glyph of a gust of wind: two or three curling storm swirl lines with a few flecks of rain caught in them, hand-drawn storybook ink in deep blue-grey watercolour, flat and readable at thumbnail size. No text.$WHITE_BG",
+      "prompt_source": "tools/genart_crossing.py",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_heart_empty",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Life, remaining",
+      "description": "An empty heart pip for the nine-lives counter.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_heart_full",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Life, spent",
+      "description": "A filled heart pip for the nine-lives counter.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/battle.gd",
+        "scenes/hub_screen.gd",
+        "scenes/minigames/crossing_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_hoop",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Embroidery hoop",
+      "description": "A wooden embroidery hoop — the Stitch minigame's frame.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A round wooden embroidery hoop seen exactly from above, plain warm wood with a small brass tightening screw at the top, holding a stretched piece of plain cream linen cloth that completely fills the inside of the hoop with subtle woven texture, nothing embroidered on it. Hand-drawn storybook ink and watercolour. No text.$WHITE_BG",
+      "prompt_source": "tools/genart_minigames.py",
+      "used_by": [
+        "scenes/minigames/stitch_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_icon_brightness",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Brightness icon",
+      "description": "A candle, for the brightness setting row.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A small icon of a lit candle in a shallow tin dish, warm amber flame with three short ink rays around it, hand-drawn storybook ink and watercolour, simple and readable at 48 pixels. No text.",
+      "prompt_source": "tools/batches/genart_round3.py",
+      "used_by": [
+        "scenes/settings_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_icon_home_lamp",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Home icon",
+      "description": "A lamp, for the route home.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A small glyph of a warmly lit cottage window at night: a simple four-pane window with amber light glowing through it and a little sill, hand-drawn storybook ink and watercolour, flat and readable at thumbnail size like a map marker. No text.$WHITE_BG",
+      "prompt_source": "tools/genart_crossing.py",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_icon_intent_attack",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Intent — attack",
+      "description": "The glyph telegraphing an incoming attack.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_icon_intent_hand",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Intent — hand",
+      "description": "The glyph telegraphing a hand-affecting move.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_icon_intent_skills",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Intent — skills",
+      "description": "The glyph telegraphing a skill-affecting move.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_icon_language",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Language icon",
+      "description": "A letter, for the language setting row.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A small icon of a sealed cream envelope seen face-on with a round red wax seal in the centre, hand-drawn storybook ink and watercolour, simple and readable at 48 pixels. No text.",
+      "prompt_source": "tools/batches/genart_round3.py",
+      "used_by": [
+        "scenes/settings_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_icon_menu",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Menu icon",
+      "description": "The menu glyph.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A small round hand-drawn icon of three short horizontal stitched lines like sewn seams, dark walnut ink on a small parchment circle, storybook ink and watercolor style, reads clearly at 32 pixels, plain background, no text.",
+      "prompt_source": "tools/batches/genart_batch.py",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": false
+    },
+    {
+      "id": "ui_icon_music",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Music icon",
+      "description": "A music note, for the music setting row.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A small icon of a single beamed pair of music notes in dark walnut ink with a soft blue-grey wash, two tiny ink stars beside them, hand-drawn storybook ink and watercolour, simple and readable at 48 pixels. No text.",
+      "prompt_source": "tools/batches/genart_round3.py",
+      "used_by": [
+        "scenes/settings_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_icon_sound",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Sound icon",
+      "description": "A bell, for the sound setting row.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A small brass hand-bell icon tilted as if ringing, with two tiny ink motion ticks beside it, hand-drawn storybook ink and watercolour, warm brass and walnut ink, simple and readable at 48 pixels. No text.",
+      "prompt_source": "tools/batches/genart_round3.py",
+      "used_by": [
+        "scenes/settings_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_medallions",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Medallions",
+      "description": "Round bronze achievement medallions, earned and unearned.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/hub_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_needle_pin",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Needle pin",
+      "description": "A pin/needle marker.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/hub_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_page",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "The page",
+      "description": "The parchment page plate every screen is built inside, with the dashed stitching border.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "UITheme.PAGE_MARGIN_* (68/40/70/136) are calibrated against THIS image's stitching. Re-run the calibration if it ever changes (law 4).",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "ui/ui_theme.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_panel",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Panel plate",
+      "description": "A parchment sub-panel plate for grouped content.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "ui/ui_theme.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_paw_empty",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Paw pip, empty",
+      "description": "An empty paw pip.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/settings_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_paw_full",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Paw pip, filled",
+      "description": "A filled paw pip.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/hub_screen.gd",
+        "scenes/minigames/crossing_screen.gd",
+        "scenes/settings_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_paw_solid",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Paw, solid",
+      "description": "A cat paw print in solid dark walnut ink, hand-pressed edges, on white.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Regenerated because the first paw came back outline-only and unreadable small.",
+      "prompt": "A single cat paw print icon, SOLID dark walnut-brown ink fill like a real inked paw stamp, slightly rough hand-pressed edges, on a plain white background, simple and readable at small sizes, no outline-only areas, no text.",
+      "prompt_source": "tools/batches/genart_batch.py",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": false
+    },
+    {
+      "id": "ui_paw_stamp",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Paw stamp",
+      "description": "A paw print stamped in dark ink on aged parchment, smudged at one edge as if the paw lifted quickly.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Ash 'signs' casebook deeds with this.",
+      "prompt": "A black cat's paw print stamped in dark ink on aged parchment, slightly smudged at one edge as if the paw lifted quickly, hand-drawn storybook ink and watercolor style, no text.",
+      "prompt_source": "tools/batches/genart_batch.py",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": false
+    },
+    {
+      "id": "ui_ribbon",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Ribbon",
+      "description": "A scroll ribbon header.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/minigames/testimony_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_ribbon_band",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Ribbon band",
+      "description": "A plain ribbon band for headers and labels.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A single long horizontal band of cream fabric ribbon with a fine dark stitched running-seam border just inside its edges and slightly frayed short ends, empty in the middle with nothing written on it, subtle woven texture. Hand-drawn storybook ink and watercolour. No text.$WHITE_BG",
+      "prompt_source": "tools/genart_minigames.py",
+      "used_by": [
+        "scenes/minigames/testimony_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_seal_blue",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Wax seal, blue",
+      "description": "A blue wax seal.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "core/rules.gd",
+        "scenes/hub_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_seal_gold",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Wax seal, gold",
+      "description": "A gold wax seal.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "core/rules.gd",
+        "scenes/hub_screen.gd",
+        "scenes/settings_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_seal_red",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Wax seal, red",
+      "description": "A red wax seal.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "core/rules.gd",
+        "scenes/hub_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_settings_row",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Settings row",
+      "description": "The hand-inked row plate a settings option sits on.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A single horizontal settings row plaque: a torn-edged strip of aged parchment with a fine dark-brown stitched border running around it and a small sprig of ink leaves in each corner, empty in the middle with nothing written on it. Hand-drawn storybook ink and watercolour. No text, no icons, no toggle.",
+      "prompt_source": "tools/batches/genart_round3.py",
+      "used_by": [
+        "ui/ui_theme.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_shield",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Guard glyph",
+      "description": "The shield/guard indicator.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/battle.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_spool",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Spool",
+      "description": "A spool of thread.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "Master is generated on an olive field; the shipped copy was keyed and trimmed by hand. Never re-copy this one raw (see wire_assets).",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "scenes/battle.gd",
+        "scenes/exchange_screen.gd",
+        "scenes/hub_screen.gd",
+        "scenes/loadout_screen.gd",
+        "scenes/minigames/crossing_screen.gd",
+        "scenes/minigames/ward_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_strip",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Strip plate",
+      "description": "A narrow horizontal parchment strip, for rows and banners.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "ui/ui_theme.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_thread_fray",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Thread fray",
+      "description": "The frayed end cap of the thread health bar.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "ui/thread_bar.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_thread_segment",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Thread bar segment",
+      "description": "One opaque band of the rope/thread health bar.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": "GEOMETRY HAZARD: the rope master was ~15% rope and 85% transparent canvas. ThreadBar._content_region does opaque-band detection before region-drawing it (art rule 22).",
+      "prompt": null,
+      "prompt_source": null,
+      "used_by": [
+        "ui/thread_bar.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_toggle_off",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Toggle, off",
+      "description": "A button sewn OFF — the settings switch in its disabled state.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A small toggle switch drawn as a sewn fabric pill: a rounded muted GREY-VIOLET felt track with a dashed stitch line around it, and a cream bone button sewn with a dark cross-stitch sitting at the LEFT end of the track. Hand-drawn storybook ink and watercolour. No text.",
+      "prompt_source": "tools/batches/genart_round3.py",
+      "used_by": [
+        "scenes/settings_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_toggle_on",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Toggle, on",
+      "description": "A button sewn ON — the settings switch in its enabled state.",
+      "characters": [],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A small toggle switch drawn as a sewn fabric pill: a rounded MOSS-GREEN felt track with a dashed stitch line around it, and a cream bone button sewn with a dark cross-stitch sitting at the RIGHT end of the track. Hand-drawn storybook ink and watercolour. No text.",
+      "prompt_source": "tools/batches/genart_round3.py",
+      "used_by": [
+        "scenes/settings_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "ui_token_ash",
+      "kind": "ui",
+      "verified": "prompt",
+      "title": "Ash token",
+      "description": "A small round token bearing Ash's silhouette.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "abstract",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": null,
+      "notes": null,
+      "prompt": "A small game-piece mark of a slim black cat mid-stride, seen in full side profile walking to the right, wearing a tiny ragged red kerchief at the throat, tail up. Hand-drawn storybook ink and watercolour, loose ink line, flat and readable at thumbnail size like a map token. No text.$WHITE_BG",
+      "prompt_source": "tools/genart_crossing.py",
+      "used_by": [
+        "scenes/minigames/crossing_screen.gd"
+      ],
+      "prologue_beats": [],
+      "wired": true
+    }
+  ]
+}

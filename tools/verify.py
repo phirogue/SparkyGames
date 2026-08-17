@@ -72,6 +72,15 @@ STEPS = {
         [sys.executable, "tools/art_repetition.py"],
         "no illustration carries more than 3 consecutive beats (law 19)",
     ),
+    "art-canon": (
+        [sys.executable, "tools/art_catalog.py", "check"],
+        "no daylight art in a night scene, no kerchief before sc_collar (art rule 6)",
+    ),
+    "story-canon": (
+        [sys.executable, "tools/story_catalog.py", "check"],
+        "every scene written up; art matches the hour the scene happens; "
+        "recurring characters have reference art (art rule 4)",
+    ),
     "tour": (
         [sys.executable, "tools/tour_all.py"],
         "every quest photographed, nothing off the page (laws 1 and 17)",
