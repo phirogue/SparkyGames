@@ -70,6 +70,45 @@ Delete as systems, keep as sensation. See spine doc. Specifically:
   feels go, and that there is less of each time. Never a stat.
 - the red feeling survives as instinct. Never one of four categories.
 
+### D5. The exposition dump
+
+> Fifteen. It means I am stiff in the mornings until the sun gets into me, it
+> means I take the stairs and not the banister, and it means I retired some
+> while ago without telling anybody.
+
+Every claim in it is dramatised within two pages: the waiting on the roof, the
+gap at Cooper's gone round, the sitting longer than the work deserved. The
+summary is placed *in front of* its own evidence, so the scene has nothing left
+to earn.
+
+The book's version of this defect is almost always **redundancy, not
+ignorance** — the scene that would replace the dump is usually already written,
+a paragraph or two later. So the edit is nearly always a deletion.
+
+Five shapes, all seen in the manuscript:
+
+1. **Definition before experience.** "A gutter-wisp: a swallowed lantern of a
+   thing" — creature glossed at length, then the fight waved off in a clause.
+   Worst case: "It has the shape of a person who is not in it" followed by
+   "Rag-wraiths: clothes whose owners are missing," which is the same sentence
+   with the poetry removed.
+2. **Tell, then show.** As above.
+3. **The curriculum vitae.** A character introduced by résumé. Elspeth got six
+   facts and a magic system before she had done one thing.
+4. **The chapter that announces itself.** "A suspect enters the file in this
+   chapter" — also a future-telling breach.
+5. **The charter recital.** An institution's rules read out, when a member of
+   it says the same thing better elsewhere (the Circuit's charter in ch8, when
+   Cardew gives it in ch1 as "one rope between the nine of us").
+
+**Detection:** `python tools/prose_telling.py` ranks candidates and flags frame
+breaks. It is a heuristic, not a verdict.
+
+**The one test:** *does a scene elsewhere already do this work?* If yes, the
+summary goes. If no, it stays and earns its place. Summary is not the defect —
+this is a noir, and Ash keeps a file. Reasoning, weighing and refusing to
+decide all stay.
+
 ---
 
 ## Standing prohibitions
