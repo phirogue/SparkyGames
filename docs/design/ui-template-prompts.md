@@ -60,8 +60,13 @@ UI kit matching the mockups in `reference/`.
 
 ## Group C — Frames (transparent centers!)
 
-**`ui_frame_portrait`** (enemy portraits):
-> A rectangular picture frame of dark wood with worn brass corner caps, hand-inked with watercolor shading, in portrait orientation about 3:4 — the center of the frame must be fully transparent and empty. Perfectly rectangular and symmetric.
+**`ui_frame_portrait_thin`** (enemy portraits, and witnesses in Testimony) —
+*supersedes `ui_frame_portrait`, 2026-08-17; the thick one is archived:*
+> A rectangular picture frame of dark wood with worn brass corner caps, hand-inked with watercolor shading, in portrait orientation about 2:3 — NARROW rails, no more than a twentieth of the image wide, so the opening takes up almost the whole frame. The center of the frame must be fully transparent and empty. Perfectly rectangular and symmetric.
+
+*Say "narrow rails" and give the fraction.* The first frame came back with rails
+thick enough to eat a third of the portrait, and the opponent is meant to be the
+biggest thing on the page.
 
 **`ui_frame_card`** (energy cards — generate 4 border colors):
 > A blank playing card template in portrait orientation about 3:4: soft cream card face with gently rounded corners, a double-line hand-inked border inset from the edge in deep red, the large center area plain and empty for a glyph, a small empty name band across the bottom. Perfectly symmetric.

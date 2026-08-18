@@ -111,7 +111,11 @@ resolution."* Save as `assets/library/ui/<id>.png`.
   (quest types, confirmations)
 
 **Group C — Frames:**
-- `ui_frame_portrait` — wood-and-gilt corner frame for enemy portraits
+- `ui_frame_portrait_thin` — narrow wood frame with brass corner brackets, for
+  enemy portraits (battle) and witnesses (Testimony). Replaced the thicker
+  `ui_frame_portrait` on 2026-08-17 at the owner's request; the thick one is in
+  `assets/archive/superseded/`. Thin rails leave more of the portrait, which
+  is the point — the opponent is the biggest thing on the page.
 - `ui_frame_card` — white energy-card face with plain border (engine tints
   the border per humour)
 - `ui_frame_skill` — ornate small square frame for skill buttons

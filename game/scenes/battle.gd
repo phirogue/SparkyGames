@@ -1300,7 +1300,7 @@ func _framed_portrait(image_id: String, description: String) -> Control:
 	holder.custom_minimum_size = PORTRAIT_SIZE
 	var art := UITheme.art_or_placeholder(image_id, description)
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	var frame := UITheme.tex("ui/ui_frame_portrait")
+	var frame := UITheme.tex("ui/ui_frame_portrait_thin")
 	if frame != null:
 		# The frame texture floats in transparent padding (a whole empty band
 		# below the drawn wood), so stretched raw it ended two finger-widths
@@ -1309,8 +1309,8 @@ func _framed_portrait(image_id: String, description: String) -> Control:
 		# frame is drawn CROPPED to its opaque bounds so the visible wood
 		# fills the holder exactly, and the art window comes from the
 		# MEASURED aperture inside it, tucked a few px under the border.
-		var opaque := UITheme.content_region(frame, "ui/ui_frame_portrait")
-		var aperture := UITheme.frame_aperture("ui/ui_frame_portrait")
+		var opaque := UITheme.content_region(frame, "ui/ui_frame_portrait_thin")
+		var aperture := UITheme.frame_aperture("ui/ui_frame_portrait_thin")
 		var sx := PORTRAIT_SIZE.x / opaque.size.x
 		var sy := PORTRAIT_SIZE.y / opaque.size.y
 		var tuck := 6.0
@@ -1329,7 +1329,7 @@ func _framed_portrait(image_id: String, description: String) -> Control:
 	holder.add_child(art)
 	if frame != null:
 		var frame_rect := TextureRect.new()
-		frame_rect.texture = UITheme.cropped_tex("ui/ui_frame_portrait")
+		frame_rect.texture = UITheme.cropped_tex("ui/ui_frame_portrait_thin")
 		frame_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		frame_rect.stretch_mode = TextureRect.STRETCH_SCALE
 		frame_rect.set_anchors_preset(Control.PRESET_FULL_RECT)

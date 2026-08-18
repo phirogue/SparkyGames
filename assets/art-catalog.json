@@ -2636,20 +2636,20 @@
       "wired": true
     },
     {
-      "id": "ui_frame_portrait",
+      "id": "ui_frame_portrait_thin",
       "kind": "ui",
-      "verified": "prompt",
-      "title": "Portrait frame",
-      "description": "An ornate frame for character and enemy portraits.",
+      "verified": "read",
+      "title": "The opponent's frame, thin",
+      "description": "A narrow wooden picture frame with a fine bead moulding and a brass bracket screwed across each of the four corners. Rails about a twentieth of the canvas wide, so the aperture takes almost the whole frame. The aperture is a real hole, 86% of the canvas, with a soft warm halo bleeding in from the wood along the inside edge.",
       "characters": [],
       "setting": "abstract",
       "place": null,
       "time_of_day": "none",
       "light": "none",
       "ash_neckerchief": null,
-      "notes": null,
-      "prompt": null,
-      "prompt_source": null,
+      "notes": "Replaced the thick ui_frame_portrait everywhere on 2026-08-17 (owner: 'use ui_frame_portrait_thin everywhere applicable') -- the battle screen and Testimony are the two places that frame a portrait. The thick one is in assets/archive/superseded/. Drawn 2:3 and stretched to a squarer box, so the side rails read a little wider than the top and bottom; that is the draw code's EXPAND_IGNORE_SIZE and it was true of the thick frame too.",
+      "prompt": "",
+      "prompt_source": "",
       "used_by": [
         "scenes/battle.gd",
         "scenes/minigames/testimony_screen.gd"

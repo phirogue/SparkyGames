@@ -12,6 +12,14 @@ both stay. Every other transparent/semi pixel is a hole in the wood and gets
 its alpha restored (RGB is inpainted from opaque neighbours when the keyed
 pixel's colour was destroyed). Deterministic, free, and the frame the layout
 was calibrated against does not change shape.
+
+SPENT, 2026-08-17. The frame this repairs was replaced by
+`ui_frame_portrait_thin` and archived, so LIBRARY below no longer resolves and
+running this does nothing useful. Kept because the technique is the reusable
+part: any white-keyed master can come back with pinholes in it, and the
+flood-fill-from-the-border/flood-fill-from-the-centre trick is how you tell a
+hole in the art from the art's real outside and its real aperture. Point
+LIBRARY at the master that needs it.
 """
 from pathlib import Path
 

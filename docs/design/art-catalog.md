@@ -170,7 +170,7 @@ python tools/art_catalog.py show sc_kettle    # full prompt + usage
 | ui_frame_card_blue | ui | Card frame — Moonlight | — | abstract | — | none | — | 2 place(s) |
 | ui_frame_card_green | ui | Card frame — Guile | — | abstract | — | none | — | 2 place(s) |
 | ui_frame_card_red | ui | Card frame — Ferocity | — | abstract | — | none | — | 2 place(s) |
-| ui_frame_portrait | ui | Portrait frame | — | abstract | — | none | — | 2 place(s) |
+| ui_frame_portrait_thin | ui | The opponent's frame, thin | — | abstract | — | none | — | 2 place(s) |
 | ui_frame_skill | ui | Skill card frame | — | abstract | — | none | — | — |
 | ui_gust_swirl | ui | Gust swirl | — | abstract | — | none | — | — |
 | ui_heart_empty | ui | Life, remaining | — | abstract | — | none | — | — |
