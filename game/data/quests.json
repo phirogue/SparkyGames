@@ -48,8 +48,7 @@
         "when_attempt": "first",
         "lines": [
           "The strand under the window, still running, still hers. Every other thread in this house was cut clean — nobody cut THIS one.",
-          "Magic is needlework. Her words, said at the table like a recipe: witches stitch the world, and cats are among the few things that can see the seam. The WEFT, she called it — every thread of everything, crossing.",
-          "Follow it, then. Paw on the line, like tracking a fly across a window."
+          "Magic is needlework: her words, said at the table like a recipe. Witches stitch the world, cats can see the seam. Follow it, then. Paw on the line, like tracking a fly across a window."
         ]
       },
       {
@@ -65,9 +64,8 @@
         "type": "story",
         "environment": "rooftop_dusk",
         "lines": [
-          "It runs the rooftops the way I do — the clean route, chimney to chimney, never crossing an open street. Whoever it belongs to knows this city the way the city hopes nobody does.",
-          "And where it crosses the gutter-line, something has found it first: a wisp, drinking the hum off it the way moths drink a lamp.",
-          "It is on HER thread. That is not trespass. That is grave-robbing."
+          "It runs the rooftops the way I do — chimney to chimney, never crossing an open street. Whoever it belongs to knows this city the way the city hopes nobody does.",
+          "And where it crosses the gutter-line something has found it first, drinking the hum off it the way moths drink a lamp. That is not trespass. That is grave-robbing."
         ]
       },
       {
@@ -101,17 +99,15 @@
         "environment": "mereside_edge",
         "lines": [
           "At the Mere-edge the thread runs out over the sea-wall and stops. Mid-air. Above the water.",
-          "Not frayed. Not worn through. CUT — one clean bite, the same as the threads on her walls, by something that could SEE it. Almost nothing can see them.",
-          "Whoever ended this trail knew exactly what a cat would try first, and closed that door in my face."
+          "Not frayed, not worn through. CUT — one clean bite, the same as the threads on her walls, by something that could SEE it. Almost nothing can."
         ]
       },
       {
         "type": "story",
         "environment": "mereside_edge",
         "lines": [
-          "So the thread is not a road. It is an answer of its own: the one who did this reads the Weft, cuts clean, and did not want to be followed home across the water.",
-          "A trail closed on purpose has to be bought open, and the Shambles keeps a fence who knows everyone worth asking.",
-          "The long way round, then. Nobody said the obvious thing would be the quick one."
+          "So the thread is not a road. It is an answer of its own: whoever did this reads the Weft, cuts clean, and did not want to be followed home across the water.",
+          "A trail closed on purpose has to be bought open, and the Shambles keeps a fence who knows everyone worth asking. The long way round, then."
         ]
       }
     ],
@@ -181,7 +177,7 @@
         "when_attempt": "first",
         "lines": [
           "I arrive at the stall with the thimble still in my teeth and my dignity somewhere behind me on the cobbles.",
-          "Brindle is on her perch above the shutters, black and white with that oil-slick green in the wing, doing the thing magpies do that looks like idleness and is inventory. She watches me the length of the lane and speaks before I have set the thimble down.",
+          "Brindle is on her perch above the shutters, black and white with that oil-slick green in the wing, doing the thing magpies do that looks like idleness and is inventory. She speaks before I have set the thimble down.",
           "'You are the witch's cat.' — 'Was,' I say. She does not say sorry, and I like her enormously for it. Sorry is what people say instead of anything useful."
         ]
       },
@@ -254,20 +250,17 @@
         "type": "story",
         "environment": "parlor_cold",
         "lines": [
-          "Three witches came at first light. Nobody sent for them. I asked, later, how they knew.",
-          "'Nine seats,' Cardew said. 'One rope between the nine of us. A seat goes out, the weight comes onto the rest, and you feel it in your wrists whether you're minding or not.'",
-          "She had felt it at dusk, in her own kitchen, with a pan in her hand. I asked why she waited for morning. 'You don't walk Needle Lane in the dark. Not while something is still —'",
-          "They do not knock. Witches do not knock at a house where a witch has died; a knock asks a question, and the house has already answered it."
+          "Three witches came at first light, and nobody sent for them. I asked, later, how they knew.",
+          "'Nine seats,' Cardew said. 'One rope between the nine of us. A seat goes out, the weight comes onto the rest, and you feel it in your wrists whether you're minding or not.' She had felt it at dusk, with a pan in her hand.",
+          "I asked why she waited for morning. 'You don't walk Needle Lane in the dark. Not while something is still —'"
         ]
       },
       {
         "type": "story",
         "environment": "parlor_cold",
         "lines": [
-          "Mother Cardew is the eldest of the Circuit, and it was eight seats now, though nobody had said so aloud yet in that room.",
-          "She is small and grey and folded, like something kept a long time in a drawer. Her eyes went around the parlor once, at working speed, and I watched her see everything. The cut threads. The cold kettle off the fire, which nobody could account for and nobody asked about. Elspeth.",
-          "Behind her, two young ones I did not know: one carrying folded linen, undyed, and one carrying nothing but her own held breath.",
-          "I was on the arm of the chair. I had been on the arm of the chair all night. I did not get down."
+          "They do not knock. Witches do not knock at a house where a witch has died; a knock asks a question, and the house has already answered it.",
+          "Mother Cardew is the eldest of the Circuit, and it was eight seats now. She is small and grey and folded, like something kept a long time in a drawer, and her eyes went round the parlor once at working speed."
         ]
       },
       {
@@ -277,9 +270,7 @@
         "art_desc": "Three witches in grey lifting a shrouded body from a chair in a cold parlor at dawn, a black cat watching from the mantel",
         "lines": [
           "They lifted her the way you lift someone who might wake. That is the thing I will allow them, all three, forever.",
-          "The young one who had been carrying her own breath let it go in the doorway, once, in a small ragged sound she will be embarrassed about for years. It was the correct sound.",
-          "Cardew stopped at the door and looked back at the walls. Forty years of workings hanging cut and dead at one tidy height.",
-          "'Who did this to the room,' she says. Not a question. Burglars take things, and nothing here was taken: not the thimbles, not the bolt of moon-colored cloth worth a bargeman's year, not the rings on the hand of the woman in the chair."
+          "Cardew stopped at the door and looked back at forty years of workings hanging cut at one tidy height. 'Who did this to the room,' she says. Not a question — burglars take things, and nothing here was taken."
         ]
       },
       {
@@ -287,8 +278,7 @@
         "environment": "parlor_cold",
         "flag": "carrying_answer",
         "lines": [
-          "And then Cardew was looking at me. Everyone else was looking at the floor — that is what people do around a dead witch's cat.",
-          "She looked straight at me, colleague to colleague, and waited.",
+          "And then Cardew was looking at me, colleague to colleague, while everyone else looked at the floor.",
           "One chance to be taken seriously. A cat who yowls is comforted. A cat who performs is petted."
         ],
         "choices": [
@@ -307,10 +297,8 @@
           "value": 0
         },
         "lines": [
-          "I told it, all of it, in order, as she taught me anything worth saying should go: the lamps, the pigeons, the emptied hall, her thread on the lamp-hook, the fog with sleeves. The shape in the doorway that decided I was not an interruption.",
-          "Cats can speak to those who trouble to listen, and most people do not trouble. Cardew listened the whole way through without moving.",
-          "Then she said, quieter, to nobody: 'Again.'",
-          "She put the word down like something she had not meant to be holding. I filed it. AGAIN means BEFORE, and a thing that has done this before has habits, and habits can be found."
+          "I told it, all of it, in order, as she taught me anything worth saying should go. Cardew listened the whole way through without moving.",
+          "Then she said, quieter, to nobody: 'Again.' She put the word down like something she had not meant to be holding. AGAIN means BEFORE, and a thing with habits can be found."
         ]
       },
       {
@@ -321,10 +309,8 @@
           "value": 1
         },
         "lines": [
-          "I say nothing. Cats are good at nothing; it is most of what we do.",
-          "She waits me out, which nobody does, and then gives up first, which nobody does either.",
-          "'Suit yourself.' At the door she stops. 'It has happened before. Twice that I will admit to.' A pause. 'Mind the room, cat. Rooms hold a while. After that —'",
-          "She did not finish it. I think the end of that sentence had worn off her a long time ago and she had stopped missing it."
+          "I say nothing. Cats are good at nothing; it is most of what we do. She waits me out, which nobody does, then gives up first, which nobody does either.",
+          "'It has happened before. Twice that I will admit to.' At the door: 'Mind the room, cat. Rooms hold a while. After that —' She did not finish it."
         ]
       },
       {
@@ -335,8 +321,7 @@
           "value": 2
         },
         "lines": [
-          "'What unpicks a witch's own stitching?' I ask.",
-          "The room gets colder in a way the room is not responsible for.",
+          "'What unpicks a witch's own stitching?' I ask. The room gets colder in a way the room is not responsible for.",
           "'Something that learned it from her,' says Cardew. 'Or from one of us.' She looks at her two frightened girls, and does not look at them for quite long enough."
         ]
       },
@@ -345,10 +330,8 @@
         "environment": "parlor_cold",
         "portrait": "sc_parlor_doorway",
         "lines": [
-          "The day-side came at nine. Two constables, not unkind. The younger one wiped his boots on the mat, which I record in his favour.",
-          "They tried the window catch. They looked at the hearth. All around them hung forty years of workings cut through at one tidy height, and they stood in the middle of it and saw an old woman dead in her chair behind a door locked from the inside.",
-          "'Heart, most like,' the older one said. 'At her age.' The younger one wrote that down, stepped twice over a thing under the window I had not yet found, and they were gone in ten minutes.",
-          "I sat where they had left me and went through everyone in this city whose office this might be, and got to the end of the list twice, because I did not care for the answer."
+          "The day-side came at nine. Two constables, not unkind, who tried the window catch and saw an old woman dead in a chair behind a door locked from the inside. 'Heart, most like,' the older one said. 'At her age.'",
+          "The younger wrote it down, stepped twice over a thing under the window I had not yet found, and they were gone in ten minutes. I went through everyone whose office this might be, and reached the end twice."
         ]
       },
       {
@@ -359,11 +342,8 @@
         ],
         "lead": "l1",
         "lines": [
-          "So I minded the room. I went over it the way she went over a hem: slowly, twice, against the nap.",
-          "Under everything, faint, something that did not belong: pond-bottom. Old rope. Patient water. The Mere has a smell, and the Mere does not come up to Thimblefield, and it had been in this room.",
-          "And under the window, where the curtain hem brushes the boards, the thing the constable stepped over twice. A candle stub. Beeswax, burned an inch down and pinched out, stamped near the base with the bee.",
-          "She burned tallow her whole life. Good witch-made tallow, smoky and stubborn like her. She called beeswax the rich man's smell and would not have it in the house.",
-          "Somebody else's light had been in this parlor."
+          "So I minded the room, the way she went over a hem: slowly, twice, against the nap. Under everything, faint, pond-bottom and old rope and patient water — and the Mere does not come up to Thimblefield.",
+          "And under the window, the thing the constable stepped over twice: a beeswax stub, burned an inch down, pinched out, stamped with the bee. She burned tallow her whole life and called beeswax the rich man's smell."
         ],
         "portrait": "ev_candle_stub"
       },
@@ -371,11 +351,8 @@
         "type": "story",
         "environment": "parlor_cold",
         "lines": [
-          "And out of that inch of wax I built the man who left it. What follows is a thing I built, not a thing I found, and I am setting it down the way I had it.",
-          "An inch of beeswax is about an hour. Somebody sat in this parlor an hour before she died, with a light of his own, brought in his own pocket. He did not mean to sit in the dark and he did not mean to use hers. Then he pinched the wick out with his fingers and did not trouble to take the stub away.",
-          "An hour of lit window on Needle Lane, with forty neighbours who have nothing better to do than notice. It should have been seen.",
-          "Then I remembered the shutters, closed for the first time in fifteen years, and thought: of course. He closed them. He shut the lane out, lit his own candle, and settled down to wait for her.",
-          "I was pleased with that."
+          "Out of that inch of wax I built the man who left it, and what follows is a thing I built, not a thing I found. An inch is an hour, and an hour of lit window on Needle Lane should have been seen.",
+          "Then I remembered the shutters, closed for the first time in fifteen years, and thought: of course. He closed them. I was pleased with that."
         ]
       },
       {
@@ -668,27 +645,24 @@
         "portrait": "sc_the_wake",
         "art_desc": "A witch's funeral at the tideline at dusk: a shrouded figure on a low bier, women in grey, guild delegates at a careful distance, a black cat on a mooring post",
         "lines": [
-          "The quay was fuller than I expected and emptier than she deserved. The Lamplighters sent four, everyone the hall has left, with their ladders shouldered and their lamps burning at half-wick.",
-          "The Magpie Exchange sent a bird I did not yet know, watchful on a bollard, with one respectful button laid on the stones. And the Chandlers sent one man, early, in very good black, standing precisely where he could be seen being sorry."
+          "The quay was fuller than I expected and emptier than she deserved. The Lamplighters sent four, everyone the hall has left, lamps burning at half-wick. The Magpie sent a bird with one respectful button laid on the stones.",
+          "The Chandlers sent one man, early, standing precisely where he could be seen being sorry."
         ]
       },
       {
         "type": "story",
         "environment": "shambles_market",
         "lines": [
-          "No grave. No fire. Mother Cardew took the bone needle and the grey thread and began sewing the shroud shut over her, in Elspeth's own stitch. Four stitches in, she stopped.",
-          "She stood there with the linen raised in her unsteady hands, an old woman in front of a city, and I watched her courage fail in a way I would not wish on an enemy.",
-          "'I don't know her hand,' she said. Quietly. To the linen. 'Sixty years, and I don't know her hand.'",
-          "Nobody moved. The tide turned underneath us — you feel it through stone, through the pads of your feet, the moment the sea changes its mind — and the seam stood open four stitches."
+          "No grave. No fire. Cardew took the bone needle and began sewing the shroud shut in Elspeth's own stitch. Four stitches in, she stopped.",
+          "'I don't know her hand,' she said. Quietly. To the linen. 'Sixty years, and I don't know her hand.' Nobody moved, and the seam stood open four stitches."
         ]
       },
       {
         "type": "story",
         "environment": "shambles_market",
         "lines": [
-          "I have watched those hands from a windowsill every evening of my life. Through fog, through frost-flowers, through my own reflection: the needle down, the thread drawn, the little tug at the end of each stitch like a word ending.",
-          "I know the hand better than I know my own name, which she also gave me, so it comes to the same thing.",
-          "I got up onto the bier. Somebody started forward to stop me, some notion of decency, and Cardew said 'Let him,' in a voice that ended the subject for a generation."
+          "I have watched those hands from a windowsill every evening of my life. I know the hand better than I know my own name, which she also gave me.",
+          "I got up onto the bier. Somebody started forward to stop me, and Cardew said 'Let him,' in a voice that ended the subject for a generation."
         ]
       },
       {
@@ -725,18 +699,16 @@
         "type": "story",
         "environment": "shambles_market",
         "lines": [
-          "Then, walking me back up the quay while the crowd made itself busy elsewhere, low, for my ears alone:",
-          "'It has happened twice before. Both times a stitcher. The Tatterstage's lead player, forty years gone — one of ours, though the playbills never knew it. And Widow Sarn of Hemlock Row, three winters after. She sewed sails. She taught half the quay to mend nets. Her terrier sat out two winters on her step, waiting to be let in.'",
-          "'Nobody looked, either time. The Circuit closed the files. I signed the closing.' She did not finish that thought out loud. 'I'm too old to open them again. Too watched, as well.'"
+          "Walking me back up the quay, low, for my ears alone: 'It has happened twice before. Both times a stitcher. The Tatterstage's lead player, forty years gone. And Widow Sarn of Hemlock Row, three winters after.'",
+          "'Nobody looked, either time. The Circuit closed the files. I signed the closing.' A pause. 'I'm too old to open them again. Too watched, as well.'"
         ]
       },
       {
         "type": "story",
         "environment": "shambles_market",
         "lines": [
-          "I asked who would look now.",
-          "'Seven of us,' she said, 'holding what she held. Ten years of her work, and there's a thing under this town that wants a hand on it every hour of the night.' She turned her own hand over and looked at it. 'There's no spare hand in this city to go asking who. So nobody will look.'",
-          "She stopped at the sea-wall and looked at the water a while. 'You are neither.' A pause. 'You were her ninth, you know. She'd never say what she meant by the count.' Another. 'Find who did this, cat. I'll hold what doors I have left.'",
+          "I asked who would look now. 'Seven of us, holding what she held, and a thing under this town that wants a hand on it every hour of the night. There's no spare hand in this city to go asking who.'",
+          "At the sea-wall: 'You are neither.' A pause. 'You were her ninth, you know. She'd never say what she meant by the count. Find who did this, cat.'",
           "Ninth. I filed the word next to AGAIN, in the drawer of things said to me that were heavier than the sayer knew."
         ]
       },
@@ -744,10 +716,8 @@
         "type": "story",
         "environment": "parlor_cold",
         "lines": [
-          "Home, then, to a house with nobody in it. The lamps went up along her street. Most of them. Two dark.",
-          "The kettle sat where I left it, off the fire, on the cold hearthstone, and of everything in that room it was the wrongest thing — because a kettle off the fire is a kettle finished, and nothing here is finished. Nothing here has even begun.",
-          "My whole job used to be: be somewhere warm at the correct time.",
-          "All right, then. New job."
+          "Home, to a house with nobody in it. The kettle sat where I left it, off the fire on the cold hearthstone, and it was the wrongest thing in the room — a kettle off the fire is a kettle finished.",
+          "My whole job used to be: be somewhere warm at the correct time. All right, then. New job."
         ]
       }
     ],
@@ -774,21 +744,17 @@
         "environment": "shambles_market",
         "portrait": "npc_brindle_magpie",
         "lines": [
-          "Brindle first. I bring her the docket, because paper is her native language and mine only by adoption.",
-          "She reads it head cocked, one eye at a time: the watermark, the fold-grease, the ink that had been wet in fog. 'Counting-house paper. Chandlers'. This is the flimsy, the copy that rides with the cart.'",
-          "Then she flicks the scrap flat with one black claw to take the corner, and stops. Half a second, no longer. Her working eye sits on the cart-slot seal and does not travel, and her cocked head comes level while it sits there.",
-          "Then she goes on as though the seal were weather. If I had been less new to all this I would have asked her what she had just decided not to say. I was new. I filed it instead.",
-          "'The originals live under the ledgers, second yard off Wick Row. Mind the night shift, pet.'"
+          "Brindle first, because paper is her native language and mine only by adoption. She reads the flimsy head cocked, one eye at a time: watermark, fold-grease, ink that had been wet in fog.",
+          "Then she flicks it flat to take the corner, and stops. Half a second, her working eye on the cart-slot seal. Then she goes on as though the seal were weather, and I was too new to ask what she had not said.",
+          "'Counting-house paper. The originals live under the ledgers, second yard off Wick Row. Mind the night shift, pet.'"
         ]
       },
       {
         "type": "story",
         "environment": "wickrow_night",
         "lines": [
-          "Wickrow after dark is the best-lit district in the city. Every doorway wears a little flame: a lamp over the door, a burning stub in the window above it, candle-boxes along the sills.",
-          "Every flame is a warded bee, burning in its own wax and billed to the tenants by the quarter. Other streets buy locks. Wickrow buys light. That is stock control.",
-          "I go in over the roofs and drop to the yards where the roofs run out, and meet the night shift. The night shift is a hound: not the honest kind that discusses territory from the end of a chain, but a counting-house hound, off its chain, walked yard to yard and turned loose in each one.",
-          "The yard is a box and the box is his. Wall on three sides, tarred smooth, nothing in it a claw could use. The gate stands open at his back, which is the whole art of a yard dog — he does not have to catch you, he only has to go on standing between you and the one hole."
+          "Wickrow after dark is the best-lit district in the city: every doorway a warded bee, burning in its own wax and billed to the tenants by the quarter. Other streets buy locks. Wickrow buys light.",
+          "The night shift is a counting-house hound, off its chain. The yard is a box and the box is his — he does not have to catch you, he only has to go on standing between you and the one hole."
         ]
       },
       {
@@ -799,9 +765,7 @@
         "type": "story",
         "environment": "wickrow_night",
         "lines": [
-          "Whatever settled that yard, it was not speed. I have none to bring to a hound and have not had for years. What a dog built like that cannot do is change his mind inside his own length.",
-          "So I made him commit and went under his head on the side he had to swing his whole body to answer. I record it that way because that is how it went.",
-          "But it cost me the quiet. Somewhere across the yards the keys stopped counting, and the lantern came around, and boots — more than one pair — and I came off the wall low and fast into an alley-mouth that was blind."
+          "Whatever settled that yard, it was not speed; I have none to bring to a hound and have not had for years. But it cost me the quiet — the lantern came round, and I came off the wall into a blind alley-mouth."
         ]
       },
       {
@@ -809,10 +773,8 @@
         "environment": "wickrow_night",
         "portrait": "npc_bodkin",
         "lines": [
-          "A paw hooked my scruff and hauled me sideways through a gap I had not seen, and held me in a doorway's dead shadow while the watch went past close enough to smell the supper on them.",
-          "A grey tom, considering me from the dark. Old, big-boned under a coat that has seen weather. One eye, half of one ear, and the stillness of a creature that has spent a long time being exactly as visible as it chooses.",
-          "'You fight like a housecat,' he says. — 'I was one.' — 'Were,' he agrees, and does not say sorry, which makes two of them now I like for it.",
-          "He was the first creature since the parlor to put a paw on me, and the paw was sure, and something in me that had been walking on three legs since the kettle went quiet put its fourth foot down."
+          "A paw hooked my scruff and hauled me through a gap I had not seen, and held me in a doorway's dead shadow while the watch went past.",
+          "A grey tom. Old, big-boned, one eye, half an ear, and the stillness of a creature long practised at being exactly as visible as it chooses."
         ]
       },
       {
@@ -820,9 +782,8 @@
         "environment": "wickrow_night",
         "portrait": "npc_bodkin",
         "lines": [
-          "'Watch the paws, not the claws,' he says. 'Claws are a rumor. Paws are an appointment. The dog told you where he would be four moves before he got there, and you were reading the teeth.'",
-          "'Wax door, far side, under the loading beam. The counting room is behind it, and Wick's paper is worth the reading.'",
-          "'You know what I am looking for,' I said. It was not a question and he did not treat it as one. 'I knew your witch to look at,' he says. 'Everyone did.'"
+          "'Watch the paws, not the claws. Claws are a rumor. Paws are an appointment. The dog told you where he would be four moves before he got there, and you were reading the teeth.'",
+          "'Wax door, far side. Wick's paper is worth the reading.' — You know what I am looking for, I said. 'I knew your witch to look at,' he says. 'Everyone did.'"
         ]
       },
       {
@@ -831,9 +792,8 @@
         "portrait": "npc_bodkin",
         "lines": [
           "Then he gave me one more thing I had not asked for, flat, and worn smooth with saying.",
-          "'You will be under other people's roofs all season, so have this one. Nobody collects off a lit candle. You take a house's light, you take its salt, you take its fire: take any of the three and you take nothing else under that roof that night. Not a debt. Not a favor. Not a mouse.'",
-          "The one eye came around at me. 'It is not manners. Manners you can decline. It is older than the Hollow Court and older than the desk they keep in it, and it was old before anybody thought of writing things down.'",
-          "'Bodkin,' he says at the gap in the fence, his name, given as the old ones give it, once, take it or leave it. Gone over with no more noise than a thought. The name meant nothing to me then."
+          "'Nobody collects off a lit candle. You take a house's light, you take its salt, you take its fire: take any of the three and you take nothing else under that roof that night. Not a debt. Not a favor. Not a mouse.'",
+          "'It is not manners. Manners you can decline. It is older than the Hollow Court and older than the desk they keep in it.' — 'Bodkin,' he says at the fence, his name given once. It meant nothing to me then."
         ]
       },
       {
@@ -863,21 +823,17 @@
         ],
         "lead": "l2",
         "lines": [
-          "Under the ledgers, exactly where the flimsy's watermark said they would be, the originals. And in the originals, her name.",
-          "VANE, in a strong small impatient hand. Instruction after instruction, dated inside one single week of this spring. The tallow debt to the renderers' yard. Two winters' rent on the workroom before the good years. The chandlery account, seven years old, forgiven-in-name and never in law.",
-          "'Buy it quiet, pay the premium for quiet, and call it due Lady's Day.' Every debt my witch owed in the world, bought up in seven days, by one buyer.",
-          "I made myself read it twice, because the first reading had a red wash over it and red is not a reading light.",
-          "A man who buys every debt you owe and calls them due on one date is not planning your murder. He is planning your EVICTION. You do not go to the expense of killing a woman you have spent a premium to lawfully destroy.",
-          "And you particularly do not kill her if her needlework holds shut something you profit by. A dead seamstress mends nothing. So whose light was burning in her parlor?"
+          "Under the ledgers, the originals, and in them her name. VANE, in a strong small impatient hand: the renderers' tallow debt, two winters' workroom rent, a seven-year chandlery account forgiven in name and never in law.",
+          "'Buy it quiet, pay the premium for quiet, and call it due Lady's Day.' Every debt she owed in the world, bought in seven days by one buyer. I made myself read it twice, because the first reading had a red wash over it.",
+          "A man who does this is planning an eviction, not a murder. And you particularly do not kill the needle holding shut something you profit by. A dead seamstress mends nothing."
         ]
       },
       {
         "type": "story",
         "environment": "wickrow_night",
         "lines": [
-          "Over the yards and out, with a page of a rich man's handwriting folded into my shadow.",
-          "Paper says what Wick WANTED. Paper does not say what he DID. For that you need people who watch the Chandlers professionally, and hate them fluently.",
-          "The Lamplighters' hall keeps a light burning at the door these days. Time it answered some questions."
+          "Out over the yards with a page of a rich man's handwriting folded into my shadow. Paper says what Wick WANTED; paper does not say what he DID.",
+          "For that I need people who watch the Chandlers for a living and hate them fluently."
         ]
       }
     ],
@@ -917,7 +873,7 @@
         "portrait": "npc_shift_boss",
         "lines": [
           "They knew me the moment I came in. THE WITCH'S CAT went around the room the way words go around a room full of people not saying them, and the room braced.",
-          "The one to convince is obvious. Torn ear. Chalk on her paws — hands; I keep the ledger in my own tongue. A shift-boss's way of standing, facing the door, near the lamp, where the next bad news would have to go through her first.",
+          "The one to convince is obvious. Torn ear, chalk on her paws, and a shift-boss's way of standing: facing the door, near the lamp, where the next bad news has to go through her first.",
           "Merrow."
         ],
         "choices": [
@@ -934,8 +890,7 @@
           "value": 0
         },
         "lines": [
-          "The page goes down on the boards. Paper first is an auditor's manners, and the room reads it as such.",
-          "Merrow reads Wick's hand upside down, which tells me she has read it before. Other pages. Other nights.",
+          "The page goes down on the boards. Merrow reads Wick's hand upside down, which tells me she has read it before. Other pages. Other nights.",
           "'Paper,' she says. 'The Chandlers are made of it. Walk my round with me, cat. Rounds first. Paper after.'"
         ]
       },
@@ -947,10 +902,9 @@
           "value": 1
         },
         "lines": [
-          "I do the thing I have been carrying since the doorway, which has the advantage of being true: I look at the coats over the boots, and I ask after their missing.",
-          "The room stops bracing.",
-          "'Not dead,' says Merrow. Flat, fast, a door long since slammed on that word. 'The Court said not dead. Our filings came back MARKED: no appointments under those names. Eleven names. I file them again every week and they come back marked.'",
-          "'The day-side says contract work up the coast. Good money, no notice given. There is no paper in the world that says where a man is not.' She looks at the pegs. 'Their rounds are still walked. I walk two of them myself. Rounds first. Come.'"
+          "I look at the coats over the boots and ask after their missing, which has the advantage of being true. The room stops bracing.",
+          "'Not dead,' says Merrow. Flat, fast, a door long since slammed on that word. 'The Court said not dead. Our filings come back MARKED: no appointments under those names. Eleven names, filed again every week.'",
+          "'The day-side says contract work up the coast. There is no paper in the world that says where a man is not.' She looks at the pegs. 'Rounds first. Come.'"
         ]
       },
       {
@@ -961,8 +915,7 @@
           "value": 2
         },
         "lines": [
-          "I sit. I am prepared to be furniture for an hour; furniture usually wins.",
-          "It takes four minutes. I am the first party to come into that hall and not open with the murder, and it settles something.",
+          "I sit. I am prepared to be furniture for an hour; furniture usually wins. It takes four minutes — I am the first party to come into that hall and not open with the murder.",
           "'Fine,' says Merrow, taking up her pole. 'You do manners. Walk my round with me and we will see what else you do.'"
         ]
       },
@@ -971,10 +924,8 @@
         "environment": "wickrow_night",
         "portrait": "en_wisp_pair",
         "lines": [
-          "Her round is forty-one lamps, and something is walking it ahead of us. We both see it by the fifth: lamps lit at the round's head, dark again behind us.",
-          "Not blown. Not failed. DRUNK — wicks wet and whole, the little warded bees drained to grease. And the order of the darkening is the sequence her guild has walked so long it has worn a groove in the evening.",
-          "At the fifteenth we double back quiet and catch them at it. A pair of wisps, fat as lamp-oil themselves, working her lamps in sequence, one keeping watch while the other drinks.",
-          "Wisps do not do that. A wisp is appetite in a bottle. Appetite does not read route-maps, and it does not skip a bright lamp to keep a schedule.",
+          "Her round is forty-one lamps, and something is walking it ahead of us: lamps lit at the head of the round, dark again behind us. Not blown, not failed. DRUNK — wicks wet and whole, the warded bees drained to grease.",
+          "At the fifteenth we double back and catch them at it. A pair of wisps working her lamps in sequence, one keeping watch while the other drinks. Appetite does not read route-maps, and it does not keep a schedule.",
           "Merrow plants the pole. 'Get them off my round, cat, and I will believe every next thing you say.'"
         ]
       },
@@ -1011,10 +962,8 @@
         "environment": "wickrow_night",
         "when_minigame": "success",
         "lines": [
-          "I did not ask who killed her, nor what happened to her missing. I asked what work Elspeth Vane did in Wickrow that nobody paid for.",
-          "Merrow looked at me the way you look at a colleague who has just found the fault you had walked past. Then she took down the shift-book, opened it to a page her thumb knew, and laid it where I could read.",
-          "'That is Wick's hand,' she says, tapping the requisition. 'And that is the night nobody signed.'",
-          "Two facing pages: for two years, at the turn of every season and after every hard blow off the Mere, ward-shifts at the Wickhouse, logged, walked, witnessed, and paid to nobody. The escort-lamplighter's fee stood in the book every time. The stitcher's fee stood blank every time.",
+          "I did not ask who killed her, nor what happened to her missing. I asked what work Elspeth Vane did in Wickrow that nobody paid for. Merrow looked at me like a colleague who has found the fault you walked past.",
+          "'That is Wick's hand,' she says, tapping the requisition. 'And that is the night nobody signed.' Two facing pages: two years of Wickhouse ward-shifts, logged, walked, witnessed, and paid to nobody.",
           "Nobody sews free. She least of anyone — I have watched her price a churn-blessing to the ha'penny and then chase the ha'penny."
         ]
       },
@@ -1031,10 +980,8 @@
         "type": "story",
         "environment": "wickrow_night",
         "lines": [
-          "Behind the meeting-board their own ward hangs torn: the hall's hem, ripped the night of the missing and left that way, because the one who always mended it is one of the coats.",
-          "They have been living inside a torn ward every night since, sooner than let anyone else touch her seam.",
-          "Merrow sees me looking. The whole room sees Merrow seeing. Cats inspect seams, by ancient arrangement.",
-          "Getting up on the meeting-board takes me two tries with that flank, and the whole room watches me take them."
+          "Behind the meeting-board their own ward hangs torn — ripped the night of the missing and left that way, because the one who always mended it is one of the coats. They have been living inside a torn ward every night since.",
+          "Merrow sees me looking. The whole room sees Merrow seeing. Cats inspect seams, by ancient arrangement, and getting up onto the meeting-board takes me two tries with that flank."
         ]
       },
       {
@@ -1187,9 +1134,9 @@
         ],
         "lead": "l4",
         "lines": [
-          "A hand's length of her thread comes away with the reading — the piece the unpicker lifted and left hanging. Evidence now. Hers, then mine.",
-          "The ward did not fail. It was UNPICKED: her exact stitch, mirror-handed, faster than any needle honestly goes. Perfect technique — and Elspeth taught exactly nobody.",
-          "Cardew said it: something that learned it from her. Nobody was TAUGHT. So somebody learned without teaching, which is a different crime, with a shorter list of suspects. I do not like how short."
+          "A hand's length of her thread comes away with the reading — the piece the unpicker lifted and left hanging. Hers, then mine.",
+          "The ward did not fail. It was UNPICKED: her exact stitch, mirror-handed, faster than any needle honestly goes. Perfect technique, and Elspeth taught exactly nobody.",
+          "Cardew said it — something that learned it from her. Nobody was TAUGHT. So somebody learned without teaching, which is a different crime with a shorter list of suspects. I do not like how short."
         ]
       },
       {
@@ -1197,8 +1144,7 @@
         "environment": "mereside_edge",
         "lines": [
           "Out by the wax door. Bodkin is gone from the sea-wall; the fog holds his shape for a second, and then does not.",
-          "The wax feeds a thing the guild will not name. Her ward holds it. She held the ward, unpaid — and the man who profits from the holding bought her debts.",
-          "That is not a coincidence. Coincidence is what mice call carelessness. Wick will see me now; he just does not know it yet."
+          "The wax feeds a thing the guild will not name, her ward holds it, she held the ward unpaid — and the man who profits from the holding bought her debts. Coincidence is what mice call carelessness."
         ]
       }
     ],
@@ -1229,8 +1175,7 @@
         "environment": "parlor_cold",
         "lines": [
           "A candle arrives at my door. Beeswax, bee seal, wick trimmed to burn exactly one hour: a Chandlers' invitation. You light it and start walking, and if it dies before you arrive, so does the appointment.",
-          "The first free Chandlers' light this house has ever seen, offered to the cat. Somebody up the hill has finally done his arithmetic.",
-          "I carry it lit through the streets in my teeth, like a comet with dignity problems. Wickrow makes way. Wickrow is suddenly VERY polite."
+          "The first free Chandlers' light this house has ever seen, offered to the cat. I carry it lit through the streets in my teeth, like a comet with dignity problems, and Wickrow is suddenly VERY polite."
         ]
       },
       {
@@ -1238,8 +1183,7 @@
         "environment": "guildhall",
         "lines": [
           "The Guildhall is a chapel to the bee: ten thousand votives, all lit, the heat of them standing in the room like a body.",
-          "Between me and the stairs, the votives' keeper unfolds — a tower of poured wax with a gentle face and hands like warming pans.",
-          "'The Guildmaster will see you,' it says, kindly, 'presently.' It takes up the entire floor. Presently is doing a great deal of work in that sentence."
+          "Between me and the stairs the votives' keeper unfolds — a tower of poured wax with a gentle face and hands like warming pans. 'The Guildmaster will see you,' it says kindly, 'presently.'"
         ]
       },
       {
@@ -1252,7 +1196,6 @@
         "portrait": "npc_wick",
         "lines": [
           "Up the stairs, past the puddle with opinions, into the office: Ellery Wick, small behind a desk built to make everything else smaller, already talking.",
-          "'The ward-cat! The seam-mender! Sit — no, not there, the good chair.' He is warm the way his hall is warm: by the burning of something.",
           "'You have questions. Everyone has questions. Ask me anything — you will find I have nothing at all to hide.' Which is what that sentence is always for."
         ]
       },
@@ -1261,8 +1204,8 @@
         "environment": "guildhall",
         "lines": [
           "So I put it all on his desk. The stub. The ledger page. The tally. The length of unpicked thread. Item by item, in the order a case is told.",
-          "He talks fast, and the books come out, and the books are TRUE, which is the awful part: he bought her debts to buy her BUILDING. The Wickhouse thing is dying; the wax is its last diet; her free wardwork was ruining the price of being afraid of the dark.",
-          "'I wanted her EVICTED,' he says, and his voice does its first honest thing all evening: it shakes. 'Evicted, and gone, and alive somewhere cheaper. You do not kill the one needle holding your roof shut. So who ELSE knew the ward was hers?'"
+          "The books come out and the books are TRUE, which is the awful part: he bought her debts to buy her BUILDING. The Wickhouse thing is dying, the wax is its last diet, and her free wardwork was ruining the price of fear.",
+          "'I wanted her EVICTED,' he says, and his voice does its first honest thing all evening: it shakes. 'Evicted, and alive somewhere cheaper. So who ELSE knew the ward was hers?'"
         ]
       },
       {
@@ -1273,9 +1216,8 @@
           "wick_counterfoil"
         ],
         "lines": [
-          "Then he shows me the thing he has been sitting on since the night: the counterfoil for his own cart-slot, signed out for Needle Lane — against FAVOR-paper. A debt the Chandlers owed, called in blind. No name asked.",
-          "'It came through the usual quiet channels,' he says, quieter himself now. 'Everything in this city comes through the usual quiet channels. One does not ask. The not-asking is what the quiet costs.'",
-          "Wick is guilty of everything except the murder. Cross him off. Keep the rest."
+          "Then he shows me the thing he has been sitting on since the night: the counterfoil for his own cart-slot, signed out for Needle Lane against FAVOR-paper. A debt the Chandlers owed, called in blind. No name asked.",
+          "'It came through the usual quiet channels. One does not ask. The not-asking is what the quiet costs.' Wick is guilty of everything except the murder. Cross him off."
         ]
       },
       {
@@ -1303,8 +1245,7 @@
           "lamplighters": 2
         },
         "lines": [
-          "By eight bells the Lamplighters have his books, and by nine the criers do. Wickrow's little flames gutter with embarrassment. The terror margin dies on the counting-room floor.",
-          "Merrow reads the ward-shift page aloud on the hall steps. Twice. The second time slower.",
+          "By eight bells the Lamplighters have his books and by nine the criers do. Merrow reads the ward-shift page aloud on the hall steps. Twice. The second time slower.",
           "Wick keeps his desk, barely, and hates me with the pure focus of a man who now NEEDS me. Useful, hate like that. It files things."
         ]
       },
@@ -1320,17 +1261,15 @@
           "chandlers": 3
         },
         "lines": [
-          "'Once,' he says, when he sees what I want instead. A knot goes into my thread — a Guildmaster's knot, tied by a man who has never visibly owed anyone anything, hating every loop of it.",
-          "Overnight, the Chandlers become exquisitely civil to one particular cat. Civility, from a guild, is an invoice. We will see who ends up paying whom.",
-          "The Lamplighters will hear what I did not do with those books. Merrow will say nothing. She will just re-chalk the tally, one stroke shorter."
+          "'Once,' he says, when he sees what I want instead. A Guildmaster's knot goes into my thread, tied by a man who has never visibly owed anyone anything, hating every loop of it.",
+          "Overnight the Chandlers become exquisitely civil to one particular cat. Civility, from a guild, is an invoice."
         ]
       },
       {
         "type": "story",
         "environment": "parlor_cold",
         "lines": [
-          "Home. The board gets its last pin of the season: a counterfoil, and a thread running from it to a gentleman nobody meets.",
-          "Favor-paper drains toward Gravamen — where the carts change hands, and the Court keeps ledgers of everything owed. The quiet channels have an address now.",
+          "Home. The board gets its last pin of the season: a counterfoil, and a thread running from it to a gentleman nobody meets. Favor-paper drains toward Gravamen, where the carts change hands.",
           "One suspect off the board. One name-that-is-not-a-name waiting on it. The kettle stays quiet, and so, tonight, do I."
         ]
       }
@@ -1545,16 +1484,14 @@
         "environment": "rooftop_dusk",
         "lines": [
           "The Court of Whiskers convenes on the ropewalk roof at the wrong hour, on purpose, so that attending is itself a sacrifice.",
-          "The docket tonight is small, orange, and asleep on the evidence: Tansy, of the canal litter, who sold her purr to the Quiet Gentleman for the favor that fished her brothers out.",
-          "Contract's legal, says the Clowder. Purr's gone. And if the precedent stands, by spring he will hold a MARKET in them."
+          "The docket tonight is small, orange, and asleep on the evidence: Tansy, of the canal litter, who sold her purr to the Quiet Gentleman for the favor that fished her brothers out. Contract's legal. Purr's gone."
         ]
       },
       {
         "type": "story",
         "environment": "rooftop_dusk",
         "lines": [
-          "The kitten wakes up, locates me, and announces to the Court that her counsel has arrived.",
-          "I have issued no such appointment. The Court minutes it anyway. Cats have a genius for making your dignity load-bearing.",
+          "The kitten wakes up, locates me, and announces to the Court that her counsel has arrived. I have issued no such appointment. The Court minutes it anyway.",
           "'He never signs anything that can be settled,' warns the Clowder-mother. 'Read it before you touch it.' Sound advice for contracts, and for him."
         ]
       },
@@ -1562,9 +1499,8 @@
         "type": "story",
         "environment": "shambles_market",
         "lines": [
-          "The contract lodges where his paper always lodges: a strongroom under the Shambles that smells of sealing-wax and of absolutely nothing else. No guards. His paper guards itself.",
-          "There it is. Her purr, in escrow: a knot of thread on a shelf, purring faintly to itself — the saddest sound I have heard in a week of funerals.",
-          "And the knot has grown a loop nobody tied. INTEREST. A purr accrues — and a debt owed to itself has its own loose end. Which makes it my kind of paper."
+          "His paper lodges where it always lodges: a strongroom under the Shambles that smells of sealing-wax and of absolutely nothing else. No guards. His paper guards itself.",
+          "There it is. Her purr, in escrow: a knot of thread on a shelf, purring faintly to itself. And the knot has grown a loop nobody tied. INTEREST — and a debt owed to itself has its own loose end, which makes it my kind of paper."
         ]
       },
       {
@@ -1586,8 +1522,7 @@
         "environment": "shambles_market",
         "when_minigame": "success",
         "lines": [
-          "The purr comes loose like a cork and goes home the way purrs do: all at once, at volume, from somewhere behind the ribs.",
-          "Tansy vibrates so hard she falls off the shelf. The Court of Whiskers will call it precedent. She will call it Tuesday.",
+          "The purr comes loose like a cork and goes home the way purrs do: all at once, at volume, from somewhere behind the ribs. Tansy vibrates so hard she falls off the shelf.",
           "On the shelf where the knot sat: a calling card. Blank, and smelling faintly of fog. It was not there when I started. Noted, with interest."
         ]
       },
@@ -1596,8 +1531,7 @@
         "environment": "shambles_market",
         "when_minigame": "loss",
         "lines": [
-          "I come back the next night, and the next. The loop keeps its slack for me — interest, it turns out, is patient on both sides.",
-          "On the third night the knot gives: cork, purr, kitten, volume. Some jobs are won by arithmetic and stubbornness. Most jobs, honestly.",
+          "I come back the next night, and the next. On the third the knot gives: cork, purr, kitten, volume. Some jobs are won by arithmetic and stubbornness. Most jobs, honestly.",
           "On the shelf where the knot sat: a calling card. Blank, and smelling faintly of fog. It was not there on the first night. Noted, with interest."
         ]
       },
@@ -1605,8 +1539,7 @@
         "type": "story",
         "environment": "parlor_cold",
         "lines": [
-          "Tansy follows me home. I explain that I live alone. She agrees enthusiastically, and moves in.",
-          "She has decided she is my apprentice. I have issued no such appointment. She is asleep on my paws as I think this, purring like a small wrong engine, which rather settles the docket.",
+          "Tansy follows me home. I explain that I live alone. She agrees enthusiastically, and moves in. She has decided she is my apprentice; I have issued no such appointment.",
           "The Gentleman never signs anything that can be settled. Somewhere tonight a page of his is one line lighter — and I intend to be a great deal more expensive before he and I are done."
         ]
       }
@@ -1635,9 +1568,8 @@
         "type": "story",
         "environment": "rooftop_dusk",
         "lines": [
-          "The Pigeon Post is electing a Postmaster, which happens twice a century and is decided by hat: you perch on the brim of the candidate you back, and the hat that bows lowest wins.",
-          "A slick young cock called Toby is winning on cleaner ledges and unlimited seed. The seed is real, and pigeons do not ask where seed comes from.",
-          "Here is why it is my problem: the night my witch died, every pigeon in Hollowmere went quiet at once. And quiet, I have lately learned, is a thing that can be BOUGHT."
+          "The Pigeon Post is electing a Postmaster, which happens twice a century and is decided by hat: you perch on the brim of your candidate, and the hat that bows lowest wins.",
+          "A slick young cock called Toby is winning on cleaner ledges and unlimited seed. The seed is real, and pigeons do not ask where seed comes from."
         ]
       },
       {
@@ -1690,7 +1622,6 @@
         "when_minigame": "success",
         "lines": [
           "'We voted with our beaks full, and we called the quiet weather.' From a Postmaster, before the whole Perch, that is not gossip. That is a confession with plumage.",
-          "Toby attempts a dignified molt into the crowd and is sat on by his own electors. The hat is impounded pending honesty.",
           "So the murder night had a QUARTERMASTER: somebody fed the city's gossip until it slept, days ahead, with human hands and quiet money. The board's thin gentleman just grew a supply line."
         ]
       },
@@ -1699,8 +1630,7 @@
         "environment": "rooftop_dusk",
         "when_minigame": "loss",
         "lines": [
-          "No confession tonight. But I watched the old bird's chest deflate when the docket touched the rail, and a Perch cannot un-see what its Postmaster saw.",
-          "The seed came before the night. Scattered wide, from above, by hands. Whoever quieted the pigeons planned my witch's murder the way a clerk plans a shipment.",
+          "No confession tonight. But the seed came before the night — scattered wide, from above, by hands. Whoever quieted the pigeons planned my witch's murder the way a clerk plans a shipment.",
           "The Perch will finish this without me. Pride is slower than evidence, but it files the same report in the end."
         ]
       },
@@ -1708,7 +1638,6 @@
         "type": "story",
         "environment": "rooftop_dusk",
         "lines": [
-          "Elections resume next moon, with fresh hats and a seed audit. Democracy, among pigeons, is self-cleaning if you kick it.",
           "Below, a lamplighter relights Needle Lane, and the first pigeon in a month settles over her old window and says something rude about me. Good. The city is talking again.",
           "Quiet can be bought. Noted, priced, filed. The next time a street goes silent around me, I will know I am standing in somebody's purchase."
         ]
@@ -1735,19 +1664,16 @@
         "type": "story",
         "environment": "rooftop_dusk",
         "lines": [
-          "Every dawn for eleven years, Pell has set out scraps behind his stall for half the strays in Thimblefield. He calls all of us puss. He has never learned one name and never needed to.",
-          "He has now missed two dawns, and the half is assembling on his roof like a jury.",
-          "Cats do not worry. I am not worried. I am investigating, which is different, and has better posture.",
-          "The stall is shuttered. The man is inside, in the dark, doing day-side arithmetic with his head in his hands."
+          "Every dawn for eleven years, Pell has set out scraps behind his stall for half the strays in Thimblefield. He calls all of us puss and has never learned one name.",
+          "He has now missed two dawns, and the half is assembling on his roof like a jury. Cats do not worry. I am investigating, which is different, and has better posture."
         ]
       },
       {
         "type": "story",
         "environment": "shambles_market",
         "lines": [
-          "The trouble is on his door, in paper: rent behind, lease called, seven days. The lease runs through a bank, and the bank — I read the seal twice to be sure — banks for the Chandlers.",
-          "Paper again. This city bleeds by paper. Nobody is going to knife the Fish-Giver in his parlor; they are going to FILE him out of it.",
-          "He cannot fight paper. Neither can I. But the day-side can be moved by other things, if you know what a street is actually worth."
+          "The trouble is on his door, in paper: rent behind, lease called, seven days. The lease runs through a bank, and the bank — I read the seal twice — banks for the Chandlers.",
+          "Nobody is going to knife Pell in his parlor. They are going to FILE him out of it. He cannot fight paper and neither can I, but the day-side can be moved by other things."
         ]
       },
       {
@@ -1768,18 +1694,16 @@
         "type": "story",
         "environment": "shambles_market",
         "lines": [
-          "First asset: the drainpipe behind his stall, and the thing he lost down it nine years ago — his grandmother's brooch, the one he still tells customers about when the fish is slow.",
-          "No hand fits that pipe. A paw does. It costs me a wet shoulder, a spider's whole opinion of me, and one bent whisker.",
-          "I leave it on his counting-slab where he cannot miss it. Day-side arithmetic changes fast when a dead woman's silver joins in."
+          "First asset: the drainpipe behind his stall, and the thing he lost down it nine years ago — his grandmother's brooch, the one he still tells customers about when the fish is slow. No hand fits that pipe. A paw does.",
+          "It costs me a wet shoulder, a spider's whole opinion of me, and one bent whisker. I leave it on his counting-slab where he cannot miss it."
         ]
       },
       {
         "type": "story",
         "environment": "rooftop_dusk",
         "lines": [
-          "Second asset: the pigeons, who owe this street and know where everyone drinks. The landlord's man takes his evenings at the Bent Anchor, and takes them loudly, and has a magistrate for a sister.",
-          "Third asset: the magistrate keeps a cat. The cat owes me — a matter of a terrier, never discussed. I sit on her windowsill at dusk and pay the slow blink, and the debt moves.",
-          "By morning the magistrate has remembered, for reasons she will never quite place, that eviction schedules have rules, and that her brother's employer has been careless with them."
+          "Second asset: the pigeons, who owe this street and know where everyone drinks. The landlord's man takes his evenings at the Bent Anchor, loudly, and has a magistrate for a sister.",
+          "Third asset: the magistrate keeps a cat, and the cat owes me — a matter of a terrier, never discussed. I sit on her windowsill at dusk and pay the slow blink, and the debt moves."
         ]
       },
       {
@@ -1787,8 +1711,7 @@
         "environment": "rooftop_dusk",
         "lines": [
           "Dawn, three days later. The shutter goes up. The scraps go down. The jury disperses into a congregation, and Pell stands in the middle of it grinning at nothing, wearing his grandmother on his coat.",
-          "'Mind the water, puss,' he says, to all of us, the way he says it every dawn. He never learns my name. He never learns any of it.",
-          "Somebody once put a saucer down for a stray who had nothing to trade for it. The account stays open. It always will."
+          "'Mind the water, puss,' he says, to all of us, the way he says it every dawn. Somebody once put a saucer down for a stray who had nothing to trade for it. The account stays open."
         ]
       }
     ],

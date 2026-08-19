@@ -4,6 +4,34 @@ Owner direction 2026-08-01. This is the layout of the whole game's story.
 Scene scripts stay under the text laws (≤3 tap-lines per screen, 8–14
 words a line); this doc is the map, not the prose.
 
+## The four-card rule (owner 2026-08-18)
+
+> "The game now has a bit too much text in the scenarios. Four text pieces
+> max and then it should continue to the minigame. You can go more where
+> absolutely necessary, but otherwise do a compression round."
+
+**A player should tap through no more than four cards before the game gives
+them something to do again.** Count what one playthrough actually sees between
+two pieces of interaction — a fight, a minigame, a lesson, a notice, or a
+choice, all of which reset the count. Branch variants (`when_flag`,
+`when_outcome`, `when_attempt`, `when_minigame`) are mutually exclusive, so
+only the branch that plays counts.
+
+The 2026-08-18 compression round took the shipped content from 423 cards to
+308, a 27% cut, and from 27 over-long runs to 18. What is left long is left
+long on purpose, and the list is short: the prologue's death and its aftermath
+(the kettle, the chair, the collar — the passage the whole game is built to
+earn), Bodkin's introduction and his guest-right speech in `creditors`, and
+Cardew at the wake. Anything else drifting over four is a bug.
+
+**Compressing merges lines, which trades card count for card density — and
+that is its own defect.** A single line that is too tall to fit the page
+cannot be helped by `StoryScreen._retire_overflow()`, which always keeps one
+line visible; it draws straight through the bottom of the page. A 258-character
+card did exactly that and shipped, and was caught by reading a screenshot.
+`tests/unit/test_story_cards_fit.gd` now measures every card and fails on any
+that cannot fit alone.
+
 ## The spine: the game IS the case
 
 The entire game is an investigation — Clue/Guess-Who by way of a cat.

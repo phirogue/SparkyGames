@@ -12,22 +12,16 @@
       "portrait": "sc_shambles_night",
       "art_desc": "Looking down from the roofs into the sleeping Shambles at night: stalls shut under canvas, one lit lantern, and a thread of silver light stretched between two chimneys. Ash on the ridge, bare-necked — this is before the collar.",
       "lines": [
-        "Below: the Shambles, shut for the night, stalls sleeping under canvas.",
-        "Eight bells from the tower, the whole count, one to eight, dropped into the fog like coins into a well. There used to be a ninth. Nobody remembers when that changed, and nobody finds it strange.",
-        "And between two chimneys, strung across the dark like a hair caught in a comb: a thread of silver light. Humming.",
-        "Threads run out of windows and along gutters, wound around wrists and doorposts and gateposts. She stitches with them. I have only ever been able to look.",
-        "Hers I know by heart: silver, with a particular twist to it, like handwriting. This one is silver too, and it is nobody's I know.",
-        "I did not chase it. A cat of my age, carrying a gift, does not go haring off after every unexplained glimmer.",
-        "The lie I told myself about not wanting to chase it weighed nothing at all. Almost nothing."
+        "Below: the Shambles, shut for the night. Eight bells from the tower — the whole count, one to eight. There used to be a ninth, and nobody finds its absence strange.",
+        "Between two chimneys, strung across the dark like a hair caught in a comb: a thread of silver light. Humming. Everything alive trails one, if you have the eyes; she stitches with them and I have only ever been able to look.",
+        "Hers I know by heart, and this one is nobody's I know. I did not chase it, and the lie I told myself about not wanting to weighed almost nothing."
       ]
     },
     {
       "type": "story",
       "environment": "needle_lane",
       "lines": [
-        "Street level, Needle Lane, and the fog rolls up from the Mere to meet me. The shadows deepen, deep enough to wear, if you know how. I have been a rumor most of my life.",
-        "Something small and hungry climbs out of the gutter, all glow and appetite, and comes straight for my mouth — where the lie is.",
-        "It heard me say I did not want to chase that thread. It has come to collect."
+        "Street level, Needle Lane, and the fog rolls up from the Mere. Something small and hungry climbs out of the gutter, all glow and appetite. It heard the lie, and it has come to collect."
       ]
     },
     {
@@ -102,8 +96,7 @@
       "environment": "needle_lane",
       "when_outcome": "victory",
       "lines": [
-        "A cat and a lit appetite had a disagreement in a foggy gutter. The fog was on my side. The wisp went back down the drain, dimmer.",
-        "I sat longer than I meant to afterward, putting my coat back in order."
+        "A cat and a lit appetite had a disagreement in a foggy gutter. The fog was on my side; the wisp went back down the drain, dimmer."
       ]
     },
     {
@@ -111,8 +104,7 @@
       "environment": "needle_lane",
       "when_outcome": "retreat",
       "lines": [
-        "I let it keep its opinions and its drain. There is no arguing with weather made of appetite.",
-        "I sat longer than I meant to afterward, and told myself I was being thorough."
+        "I let it keep its opinions and its drain. There is no arguing with weather made of appetite."
       ]
     }
   ]

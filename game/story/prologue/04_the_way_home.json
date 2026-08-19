@@ -15,9 +15,8 @@
           "",
           "The shutters are closed."
         ],
-        "Old green shutters that fold back against the brick, and they have been folded back every evening of my life: in rain, in frost, in the week the chimney caught.",
-        "She did not close them for weather. She did not close them for company. She did not close them.",
-        "Something in me tried to file that and could not find the drawer. So I did what anybody does with a fact that will not sit down. I told myself she was out."
+        "Old green shutters that fold back against the brick, folded back every evening of my life: in rain, in frost, in the week the chimney caught. She did not close them for weather. She did not close them.",
+        "Something in me tried to file that and could not find the drawer. So I told myself she was out."
       ]
     },
     {
@@ -25,8 +24,7 @@
       "environment": "needle_lane_wrong",
       "flag": "prologue_route",
       "lines": [
-        "Two ways home from here.",
-        "The long way passes the Lamplighters' hall — whatever silenced the lamps went wrong there first. Eleven minutes, perhaps twelve.",
+        "Two ways home. The long way passes the Lamplighters' hall, where whatever silenced the lamps went wrong first — eleven minutes, perhaps twelve.",
         "The fast way is over the fences, and the fences are a young cat's road."
       ],
       "choices": [
@@ -47,11 +45,9 @@
       "portrait": "sc_lamplighters_hall",
       "art_desc": "Lamplighters' guild hall interior, abandoned mid-shift: racked ladders, cold kettle, one silver thread glinting on a lamp-hook",
       "lines": [
-        "I took the long way, and I have had a long time to decide why. Because the route had a wrongness at the head of it. Because her voice said look before you leap, Ash. Because the fences would have cost me a breath I had already had taken off me once tonight.",
-        "All three are true. I have not decided.",
-        "The hall stood open. Door wide, ladders racked, coats on their pegs. The kettle on the little stove was cold, and a guild hall's kettle is never cold.",
-        "Forty men and women walk out of this room every evening and light a city. Nobody was in it.",
-        "Caught on a lamp-hook by the door, glinting where it had snagged: a thread of silver. HER stitching. I would know it under floodwater. Why was she HERE?"
+        "I took the long way, and I have had a long time to decide why. The wrongness at the head of the route. Her voice saying look before you leap. A breath already taken off me once tonight. All three are true; I have not decided.",
+        "The hall stood open, ladders racked, coats on their pegs, and the kettle on the little stove cold — and a guild hall's kettle is never cold. Forty men and women walk out of this room every evening and light a city. Nobody was in it.",
+        "Caught on a lamp-hook by the door: a thread of silver. HER stitching. I would know it under floodwater. Why was she HERE?"
       ],
       "notes": [
         "❋ Her Stitching joins your deck — a Moonlight 2, and the only card of its kind you own."
@@ -66,7 +62,6 @@
       },
       "lines": [
         "Out of the hall and eleven streets home, and I do not remember eight of them.",
-        "The fog thinning near the Mere. Ordinary houses, ordinary gates, a cat crossing an ordinary city at a speed that was going to cost him.",
         "Her street. Her gate. Her drainpipe, the one I have used nine hundred times, and up — slower than nine hundred times, my back legs arguing the whole way."
       ]
     },
@@ -80,17 +75,15 @@
       "portrait": "sc_over_the_fences",
       "art_desc": "Ash in full sprint leaping between fence tops at night, fog blurred with speed, a dark window ahead",
       "lines": [
-        "Over the fences, which are a young cat's road, and I pay for every one of them.",
-        "The Lamplighters' hall goes by dark on my left. Later. If there is a later.",
-        "Under the gate, up the drainpipe I have used nine hundred times, and in. Fast enough that something inside is still busy."
+        "Over the fences, which are a young cat's road, and I pay for every one of them. The hall goes by dark on my left. Later, if there is a later.",
+        "Up the drainpipe I have used nine hundred times, and in. Fast enough that something inside is still busy."
       ]
     },
     {
       "type": "story",
       "environment": "parlor_cold",
       "lines": [
-        "In through the workroom window. A door has never once been an obstacle. It is, however, always an insult.",
-        "The house is doing the wrong thing with sound. A kettle screaming and nobody going to it."
+        "In through the workroom window. The house is doing the wrong thing with sound: a kettle screaming, and nobody going to it."
       ]
     },
     {
@@ -98,9 +91,8 @@
       "environment": "parlor_cold",
       "portrait": "sc_threads_cut",
       "lines": [
-        "The workroom first, and the workroom is wrong. The threads on the walls, forty years of her work hung like a garden, cut.",
-        "Every one of them snipped at the same height, cleanly, as if by someone tidying.",
-        "The parlor door stands open, and I do not go through it. Not yet. I stop at the threshold, low, and I look."
+        "The workroom is wrong. Forty years of her work hung like a garden on the walls, cut — every thread snipped at the same height, cleanly, as if by someone tidying.",
+        "The parlor door stands open and I do not go through it. Not yet. I stop at the threshold, low, and I look."
       ]
     },
     {
@@ -109,10 +101,8 @@
       "portrait": "en_the_unpicked",
       "art_desc": "The Unpicked: a person-shaped absence woven from the room's own unravelled threads, standing in a doorway",
       "lines": [
-        "Something is standing in the parlor doorway, wearing the room.",
-        "It is person-shaped the way a coat on a hook is person-shaped, and it is made of her threads — it has been pulling them out of the walls and putting them ON.",
-        "It is still working. It does not stop when it sees me. That is the part I will keep: it looked at me, decided I was not an interruption, and went back to it.",
-        "Every hair I have is standing up. Good. Let them."
+        "Something is standing in the parlor doorway, wearing the room. It is person-shaped the way a coat on a hook is person-shaped, and it is made of HER threads — pulled out of the walls and put ON.",
+        "It looked at me, decided I was not an interruption, and went back to its work. That is the part I will keep. Every hair I have is standing up. Good. Let them."
       ]
     }
   ]
