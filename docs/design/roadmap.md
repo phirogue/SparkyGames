@@ -70,8 +70,10 @@ Build these as reusable helpers (`game/ui/fx.gd`, upcoming):
 ## Soundtrack integration (when tracks arrive)
 
 - Tracks land in `assets/incoming/music/` per
-  [music-prompts.md](music-prompts.md); I trim/loop/normalize → OGG →
-  `game/assets/music/`.
+  [music-prompts.md](music-prompts.md); `python tools/wire_music.py` folds
+  each take into a loop, normalizes it (−18 LUFS beds, −14 stings, −3 dBTP)
+  and encodes 48 kHz Ogg into `assets/library/music/`; `--wire` copies to
+  `game/assets/music/` and runs the import pass.
 - `MusicService` autoload: crossfade per screen/environment (mantel, prowl,
   combat, stealth, court, boss), stings on victory/defeat/achievement,
   volume settings persisted. Priority order if credits are limited: combat →

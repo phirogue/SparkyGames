@@ -16,7 +16,7 @@ a doc — a procedure, kept where the model will actually read it.
 | [art-catalog.md](art-catalog.md) | **GENERATED.** What is IN every image — cast, indoor/outdoor, time of day, whether Ash has the kerchief. Query it with `python tools/art_catalog.py query`; `check` enforces the collar rule and time-of-day agreement. Source of truth is `assets/art-catalog.json`. |
 | [art-manifest.md](art-manifest.md) | Every asset id, its framing and aspect ratio. The naming authority. |
 | [ui-template-prompts.md](ui-template-prompts.md) | Prompts for the reusable UI furniture (frames, plates, seals). |
-| [music-prompts.md](music-prompts.md) | Soundtrack identity and generation prompts. Nothing generated yet. |
+| [music-prompts.md](music-prompts.md) | Soundtrack identity, the 15 track prompts + 6 stings for iLoveSong, and the delivery format. Conversion is `python tools/wire_music.py`. Nothing generated yet. |
 
 ## History — read, do not follow
 
