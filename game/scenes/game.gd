@@ -67,6 +67,10 @@ var settings_layer: CanvasLayer
 var settings_overlay: Control    # the settings page itself; toggle .visible
 var lamp_layer: CanvasLayer
 var lamp_dim: ColorRect
+## The score. Every screen tells it what room the player is in; it drops a
+## repeat on the floor, so asking on every swap costs nothing.
+var music: MusicService
+var _music_log := false   # --music-log: print every track change
 
 
 ## Drawn hamburger glyph for the always-available settings button (no
@@ -124,6 +128,20 @@ func _ready() -> void:
 		_fatal("This copy of the game is missing its story.\n(story/prologue/)")
 		return
 	_build_settings_layer()
+	# AFTER the settings layer, which is what creates the Music bus the
+	# players route through — a player built before its bus lands on Master
+	# and the Music toggle silences nothing.
+	music = MusicService.new()
+	music.name = "MusicService"
+	music.fade_seconds = catalog.rules.num("presentation.music_fade")
+	music.fallback_track = catalog.music_for_environment("")   # defaults.story
+	# The tour photographs two thousand screens with nobody listening, and it
+	# swaps screens faster than a crossfade can finish — unless it was asked
+	# to report the score, which is the only way to walk EVERY quest and see
+	# what each one sounds like (law 2, for the system with no screenshots).
+	_music_log = OS.get_cmdline_user_args().has("--music-log")
+	music.enabled = not tour_mode or _music_log
+	add_child(music)
 	# The tour node attaches BEFORE the first screen is swapped in, and
 	# regardless of how the game is launched: `--tour --scene scenario:<name>`
 	# photographs a scenario's screens, which is the only way to get shots of
@@ -354,10 +372,32 @@ func _swap(screen: Control) -> void:
 	screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
+## Tell the score what room this is. "" means silence; asking for the track
+## already playing does nothing, which is why every _show_* below can call
+## this unconditionally. A screen that should keep whatever is playing — a
+## notice, a lesson page — simply does not call.
+func _play_music(track_id: String) -> void:
+	if music == null:
+		return
+	# The score is the one system a screenshot cannot check (law 1 has no
+	# equivalent for sound), so it says what it is doing on request:
+	#   godot --headless --path game --quit-after 240 -- --scene hub --music-log
+	# prints every track change, which is how a room with the wrong bed gets
+	# caught without anyone listening to fifteen tracks.
+	if _music_log and track_id != music.current_track():
+		print("[music] %s -> %s" % [
+			music.current_track() if not music.current_track().is_empty() else "(silence)",
+			track_id if not track_id.is_empty() else "(silence)"])
+	music.play(track_id, catalog.music_loops(track_id))
+
+
 func _story_config(environment_id: String, lines: Array) -> Dictionary:
 	var environment: Dictionary = catalog.environments.get(environment_id, {})
 	var config := {
 		"lines": lines,
+		# Carried so _show_story knows what room this beat happens in. The
+		# story screen ignores the key; the score does not.
+		"environment": environment_id,
 		"color": environment.get("color", "#22242a"),
 		"accent": environment.get("accent", "#d8ccb4"),
 		"heading": environment.get("name", ""),
@@ -454,6 +494,11 @@ func _apply_settings() -> void:
 		var index := AudioServer.get_bus_index(String(entry[0]))
 		if index >= 0:
 			AudioServer.set_bus_mute(index, not bool(settings.get(entry[1], true)))
+	# The bus mute silences the score instantly; this stops it decoding at all.
+	# Both, because the bus is what makes the switch feel immediate and the
+	# stop is what stops spending battery on audio nobody asked for.
+	if music != null:
+		music.set_muted(not bool(settings.get("music", true)))
 	if lamp_dim != null:
 		lamp_dim.visible = bool(settings.get("lamps_low", false))
 
@@ -516,6 +561,7 @@ func _show_title(on_continue: Callable) -> void:
 	var tween := screen.create_tween().set_loops()
 	tween.tween_property(hint, "modulate:a", 0.4, 1.0).set_trans(Tween.TRANS_SINE)
 	tween.tween_property(hint, "modulate:a", 1.0, 1.0).set_trans(Tween.TRANS_SINE)
+	_play_music(catalog.music_for_screen("title"))
 	_swap(screen)
 
 
@@ -530,6 +576,8 @@ func _show_story(config: Dictionary, on_done: Callable) -> void:
 	var screen: Control = StoryScreen.new()
 	screen.setup(config)
 	screen.finished.connect(on_done)
+	if config.has("environment"):
+		_play_music(catalog.music_for_environment(String(config["environment"])))
 	_swap(screen)
 
 
@@ -671,6 +719,7 @@ func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {
 	var screen: Control = BattleScreen.new()
 	screen.setup(catalog, config, encounter_id, hints, coach)
 	screen.encounter_finished.connect(on_done)
+	_play_music(catalog.music_for_encounter(encounter_id))
 	_swap(screen)
 
 
@@ -1174,6 +1223,7 @@ func _show_hub() -> void:
 		carryover = {}
 		last_outcome = CombatState.Outcome.ONGOING
 		_run_prologue_scene(0))
+	_play_music(catalog.music_for_screen("hub"))
 	_swap(screen)
 
 
@@ -1187,6 +1237,7 @@ func _show_journal(tab := "deeds") -> void:
 	# walked through the parlor nor dropped back on Deeds each time.
 	screen.replay_lesson.connect(func(lesson_id: String) -> void:
 		_play_lesson(lesson_id, func() -> void: _show_journal("lessons")))
+	_play_music(catalog.music_for_screen("journal"))
 	_swap(screen)
 
 
@@ -1195,6 +1246,7 @@ func _show_exchange() -> void:
 	screen.setup(catalog, profile)
 	screen.profile_changed.connect(_save)
 	screen.closed.connect(_show_hub)
+	_play_music(catalog.music_for_screen("exchange"))
 	_swap(screen)
 
 
@@ -1206,6 +1258,7 @@ func _show_loadout() -> void:
 	screen.closed.connect(func() -> void:
 		_save()
 		_show_hub())
+	_play_music(catalog.music_for_screen("loadout"))
 	_swap(screen)
 
 
@@ -1249,6 +1302,7 @@ func _show_stitch(chart_id: String, on_done := Callable()) -> void:
 	_teach_module(screen, "stitch_mirror" if bool(chart.get("mirrored", false))
 		else "stitch")
 	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
+	_play_music(catalog.music_for_minigame("stitch"))
 	_swap(screen)
 
 
@@ -1266,6 +1320,7 @@ func _show_testimony(testimony_id: String, on_done := Callable()) -> void:
 	screen.setup(catalog, catalog.testimonies[testimony_id], held)
 	_teach_module(screen, "testimony")
 	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
+	_play_music(catalog.music_for_minigame("testimony"))
 	_swap(screen)
 
 
@@ -1278,6 +1333,7 @@ func _show_ward(ward_id: String, on_done := Callable()) -> void:
 		carryover.get("deck", profile["deck"]))
 	_teach_module(screen, "ward")
 	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
+	_play_music(catalog.music_for_minigame("ward"))
 	_swap(screen)
 
 
@@ -1289,6 +1345,7 @@ func _show_lattice(lattice_id: String, on_done := Callable()) -> void:
 	screen.setup(catalog.lattices[lattice_id])
 	_teach_module(screen, "lattice")
 	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
+	_play_music(catalog.music_for_minigame("lattice"))
 	_swap(screen)
 
 
@@ -1305,6 +1362,7 @@ func _show_crossing(crossing_id: String, on_done := Callable()) -> void:
 		})
 	_teach_module(screen, "crossing")
 	screen.closed.connect(_module_closed(screen, on_done), CONNECT_ONE_SHOT)
+	_play_music(catalog.music_for_minigame("crossing"))
 	_swap(screen)
 
 
@@ -1316,6 +1374,7 @@ func _show_dev_menu() -> void:
 	var screen: Control = DevMenuScreen.new()
 	screen.setup(catalog, story)
 	screen.jump.connect(func(spec: String) -> void: _dev_launch(spec))
+	_play_music(catalog.music_for_screen("dev"))
 	_swap(screen)
 
 
@@ -1323,6 +1382,7 @@ func _show_case_board() -> void:
 	var screen: Control = CaseBoardScreen.new()
 	screen.setup(catalog, profile)
 	screen.closed.connect(_show_hub)
+	_play_music(catalog.music_for_screen("case_board"))
 	_swap(screen)
 
 

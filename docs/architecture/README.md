@@ -25,9 +25,12 @@ game/
               determinism is for US.
 
   services/   THE ONLY LAYER THAT TOUCHES THE DISK.
-              DataLoader  content JSON -> Catalog
-              SaveService the player's profile, versioned, temp-write + backup
-              Strings     interface prose from story/interface.json
+              DataLoader   content JSON -> Catalog
+              SaveService  the player's profile, versioned, temp-write + backup
+              Strings      interface prose from story/interface.json
+              MusicService the score: two players, one crossfade, and the rule
+                           that asking for the track already playing does
+                           nothing (a story beat swaps screens every page)
 
   scenes/     UI. Screens subscribe to core state and never mutate it.
               game.gd is the flow orchestrator: the one file that decides
@@ -38,7 +41,8 @@ game/
   data/       CONTENT + TUNING, keyed by stable string ids.
   story/      PROSE. Scene scripts, and the game's own voice.
   tests/      Unit tests, plus the harnesses that are the real safety net.
-  assets/     The shipped images, wired from assets/library by a script.
+  assets/     The shipped images and music, wired from assets/library by a
+              script (tools/wire_assets.py, tools/wire_music.py).
 ```
 
 ### Which file owns a number
@@ -67,6 +71,26 @@ is a string no content tool can validate, translate or review.
 | a quest beat | `data/quests.json` |
 | a teaching page | `data/lessons.json` |
 | a rule card, a name, a blurb | the content record in `data/*.json` |
+
+### Which file owns a sound
+
+A **place** owns its music, not a screen: `environments.json` carries `music`
+beside `image`, so the Hollow Court sounds like the Hollow Court whether the
+player arrived by dying, by a story beat or from the dev menu.
+
+| The track is for… | It is named in |
+|---|---|
+| a place | `data/environments.json` → `music` |
+| a screen (title, hub, journal, exchange…) | `data/music.json` → `screens` |
+| a mission module | `data/music.json` → `minigames` |
+| a fight the story treats as more than a fight | `data/encounters.json` → `music` |
+| every other fight | `data/music.json` → `defaults.battle` |
+
+Silence is only ever deliberate — a key mapped to `""`. A key that is simply
+MISSING falls back to the bed rather than going quiet, because a room that
+suddenly plays nothing reads as a broken game and nobody files it as a bug.
+`godot --path game -- --tour --music-log` prints what every screen plays;
+it is the only way to inspect a system screenshots cannot see.
 
 ---
 

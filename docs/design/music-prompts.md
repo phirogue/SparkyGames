@@ -57,7 +57,7 @@ out fastest of all).
 | **1** | `mus_prowl` | rooftops and streets: `rooftop_dusk`, `needle_lane`, travel beats |
 | **1** | `mus_mantel` | the hub, `parlor_cold` — her house, after |
 | **1** | `mus_hollow_court` | `hollow_court`, after every death |
-| **1** | `mus_title` | splash and title card |
+| **1** | `mus_title` | the title card (the splash is silent on purpose) |
 | **2** | `mus_stealth` | `back_gardens`, the Unpicking heists |
 | **2** | `mus_needlework` | Seam & Stitch, Patch the Ward, the lattice |
 | **2** | `mus_elspeth` | `parlor_warm`, flashbacks, the wake |
@@ -66,12 +66,13 @@ out fastest of all).
 | **3** | `mus_testimony` | Testimony scenes and the case board |
 | **3** | `mus_shambles` | `shambles_market`, the Exchange, guild dealings |
 | **3** | `mus_mereside` | `mereside_edge`, the Drowned |
-| **3** | `mus_chase` | chases and escorts (non-combat scenarios) |
+| **3** | `mus_chase` | The Long Way Round, and chases and escorts when they land |
 | **3** | `mus_ending` | the case presented; the nine-deaths ending |
 | **2** | stings ×6 | victory, retreat, a life spent, a clue, an achievement, a sunbeam |
 
-The Long Way Round (the crossing minigame) reuses `mus_prowl`. Journal and
-settings play whatever the screen behind them was playing.
+The Journal and the Case Board share `mus_testimony` — both are the same act,
+looking at what you know. The settings page is an overlay and never changes the
+music, by design: it can be opened mid-battle.
 
 ---
 
@@ -288,17 +289,58 @@ hidden.
 
 ---
 
-## Integration notes
+## Integration notes — the state as of 2026-08-30
 
-- Nothing plays audio yet. `settings_screen.gd` already has the **Music** and
-  **Sound Effects** toggles and a five-step volume slider, and the profile
-  already stores `music`, `sfx` and `volume` — the wiring reads those.
-- `--wire` copies the accepted tracks into `game/assets/music/` and runs the
-  Godot import pass, which is law 23: a file the engine never imported shows up
-  as nothing at all.
-- Looping is set on the stream in code (`AudioStreamOggVorbis.loop = true`),
-  not in the `.import` — one place, next to the fade-between-tracks logic, when
-  that lands.
-- Track-to-screen mapping belongs in data, not in scene scripts (law 11), so
-  the environment table above becomes a field on `environments.json` rather
-  than a `match` statement.
+**All 15 beds are generated, converted, wired and playing.** The six stings
+are not generated yet; four of them may come free from the Kenney Pizzicato
+jingles instead (see [sfx-shortlist.md](sfx-shortlist.md)).
+
+What the game does with them:
+
+- A **place** owns its music. `data/environments.json` carries `music` beside
+  `image`, so the Hollow Court sounds like the Hollow Court however the player
+  got there. Screens, mission modules and the two fights that are more than
+  fights are mapped in [`game/data/music.json`](../../game/data/music.json).
+- `MusicService` (services layer) runs two players and one crossfade, and
+  **drops a repeat ask on the floor** — a story beat swaps the whole screen on
+  every page turn, and restarting the bed there would stutter once a sentence.
+  Every call site in `game.gd` is therefore one unconditional line.
+- **Silence is only ever deliberate** — the splash and the dev menu map to
+  `""`. A screen, place or module nobody remembered to score falls back to the
+  bed instead of going quiet, and so does a track whose file is missing. A room
+  that suddenly plays nothing reads as a broken game, and nobody files it.
+- The **Music switch** on the settings page (which already existed) now stops
+  playback rather than only muting the bus: a muted bus still decodes the
+  stream, which is battery spent on audio the player asked not to hear. The
+  room is remembered, so switching music back on plays where the player IS.
+- Crossfade length is a dial: `data/rules.json` → `presentation.music_fade`.
+
+### Seeing a system that has no screenshots
+
+Law 1 says look at it before calling it done, and there is nothing to look at.
+The substitute:
+
+```powershell
+godot --path game -- --tour --music-log                    # the prologue's score
+godot --path game -- --tour --scene quest:<id> --music-log # any quest's
+godot --headless --path game --quit-after 120 -- --scene hub --music-log
+```
+
+It prints every track change (`[music] mus_prowl -> mus_combat`), which is how
+a room with the wrong bed gets caught without anyone sitting through fifteen
+tracks. `python tools/kb_check.py` proves every place, screen and module has a
+track and every track has an imported file; `tests/unit/test_music.gd` proves
+nothing can fall silent by accident.
+
+### What still wants ears
+
+The converter measures; it does not listen. Two things only a person can judge:
+
+1. **The loop folds.** Each bed's tail was crossfaded back over its head. The
+   seam is level-continuous (see `assets/library/music/MANIFEST.md`) but a fold
+   that lands mid-phrase is audible and only ears hear it. The suspects, by
+   seam gap: `mus_prowl` (8.9 dB), `mus_stealth` (5.9), `mus_combat` (5.5),
+   `mus_hollow_court` (5.1). Fix a bad one with
+   `python tools/wire_music.py --only <id> --loop <seconds>`.
+2. **Whether each track is the room.** The prompts asked for a place; only a
+   listener can say the take arrived there.

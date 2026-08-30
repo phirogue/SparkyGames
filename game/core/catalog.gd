@@ -79,6 +79,13 @@ var minigame_tutorials: Dictionary = {}   # module -> {id, name, steps}
 ## Teachable concepts — taught once at the moment they first matter, and
 ## replayable from the Casebook forever after (owner rule 2026-08-04).
 var lessons: Dictionary = {}        # id -> {id, name, blurb, kind, order, pages, scene}
+## The score (data/music.json): the track list, what each screen and each
+## mission module sounds like, and the fallbacks under both. A PLACE owns its
+## music — environments.json carries `music` beside `image` — because the
+## Hollow Court has to sound like the Hollow Court however the player got
+## there. Reached through the music_for_* helpers below; MusicService plays
+## what they return and knows nothing about content.
+var music: Dictionary = {}          # {tracks, screens, minigames, defaults}
 ## The tuning dials (data/rules.json). Everything the game BALANCES on —
 ## costs, caps, limits, rates, prices, the starting kit — reached through
 ## `rules.count("combat.hand_limit")` and friends. Never null: an absent file
@@ -109,6 +116,7 @@ func _init(data: Dictionary = {}) -> void:
 	crossings = data.get("crossings", {})
 	minigame_tutorials = data.get("minigame_tutorials", {})
 	lessons = data.get("lessons", {})
+	music = data.get("music", {})
 	rules = Rules.new(data.get("rules", {}))
 	world = data.get("world", {})
 
@@ -121,6 +129,78 @@ func evidence_ids() -> Dictionary:
 		for entry in cases[case_id].get("evidence", []):
 			ids[String(entry.get("id", ""))] = true
 	return ids
+
+
+# ------------------------------------------------------------------- the score
+#
+# Every one of these answers with a TRACK ID, or "" for silence. Nothing here
+# decides when to change the music — game.gd asks at each screen change and
+# MusicService drops a repeat ask on the floor, which is what lets a story beat
+# turn pages without restarting its own bed.
+
+func music_tracks() -> Dictionary:
+	return music.get("tracks", {})
+
+
+func music_track(track_id: String) -> Dictionary:
+	return music_tracks().get(track_id, {})
+
+
+## Whether a track repeats. Only the ending theme does not.
+func music_loops(track_id: String) -> bool:
+	return bool(music_track(track_id).get("loop", true))
+
+
+## What a screen sounds like: "title", "hub", "journal", "case_board",
+## "exchange", "loadout", "splash", "dev", "ending".
+##
+## SILENCE IS ONLY EVER DELIBERATE. A key that IS in music.json and maps to ""
+## means somebody chose quiet (the splash lasts a second and a half; the dev
+## menu is not the game). A key that is MISSING means somebody forgot, and a
+## forgotten screen gets the fallback bed rather than going quiet — a screen
+## that suddenly plays nothing reads as a bug in the sound, not as a decision.
+func music_for_screen(key: String) -> String:
+	var screens: Dictionary = music.get("screens", {})
+	if screens.has(key):
+		return String(screens[key])
+	return _music_default("story")
+
+
+## What a mission module sounds like, keyed by module id. Same rule: an
+## unmapped module falls back rather than falling silent.
+func music_for_minigame(module: String) -> String:
+	var mapped := String(music.get("minigames", {}).get(module, ""))
+	return mapped if not mapped.is_empty() else _music_default("story")
+
+
+## What a place sounds like. The environment owns this, so a beat, a death and
+## a dev launch into the same place all sound alike. A place added without a
+## `music` field still sounds like somewhere.
+func music_for_environment(environment_id: String) -> String:
+	var track := String(environments.get(environment_id, {}).get("music", ""))
+	return track if not track.is_empty() else _music_default("story")
+
+
+## What a fight sounds like: combat, unless the encounter names its own track.
+## A fight sounds like a FIGHT rather than like the alley it happens in — the
+## exceptions are the ones the story treats as more than a fight (the Unpicked,
+## the Tallowman, the Drowned).
+func music_for_encounter(encounter_id: String) -> String:
+	var encounter: Dictionary = encounters.get(encounter_id, {})
+	if encounter.has("music"):
+		return String(encounter["music"])
+	return _music_default("battle")
+
+
+## The floor under every lookup above. Falls back to the fallback: if even
+## data/music.json is missing or malformed, any track that exists beats
+## silence, because silence is the failure nobody reports.
+func _music_default(key: String) -> String:
+	var fallback := String(music.get("defaults", {}).get(key, ""))
+	if not fallback.is_empty():
+		return fallback
+	var tracks := music_tracks()
+	return String(tracks.keys()[0]) if not tracks.is_empty() else ""
 
 
 func _lead_exists(lead_id: String) -> bool:
@@ -223,6 +303,51 @@ func validate() -> Array[String]:
 	problems.append_array(rules.validate())
 	problems.append_array(_validate_rule_references())
 	problems.append_array(_validate_world())
+	problems.append_array(_validate_music())
+	return problems
+
+
+## The score is content, so it is checked like content. A track id that
+## resolves to nothing is silence — survivable, and therefore exactly the kind
+## of defect that ships: nobody files a bug against a room being quiet.
+func _validate_music() -> Array[String]:
+	var problems: Array[String] = []
+	if music.is_empty():
+		return problems  # a Catalog built for a unit test, not the real one
+	var tracks := music_tracks()
+	if tracks.is_empty():
+		problems.append("music.json names no tracks")
+		return problems
+	for track_id in tracks:
+		if String(tracks[track_id].get("id", "")) != String(track_id):
+			problems.append("music track '%s' disagrees with its own id" % track_id)
+		if String(tracks[track_id].get("name", "")).is_empty():
+			problems.append("music track '%s' has no name" % track_id)
+	for section in ["screens", "minigames", "defaults"]:
+		var mapping: Dictionary = music.get(section, {})
+		for key in mapping:
+			if String(key).begins_with("_"):
+				continue  # a note to whoever edits the file next
+			var track_id := String(mapping[key])
+			if not track_id.is_empty() and not tracks.has(track_id):
+				problems.append("music %s '%s' names unknown track '%s'" % [
+					section, key, track_id])
+	# Silence in a mission module is not a decision anyone made on purpose.
+	for module in MINIGAME_MODULES:
+		if not music.get("minigames", {}).has(module):
+			problems.append("minigame '%s' has no music" % module)
+	for id in environments:
+		var track_id := String(environments[id].get("music", ""))
+		if track_id.is_empty():
+			problems.append("place '%s' has no music" % id)
+		elif not tracks.has(track_id):
+			problems.append("place '%s' names unknown track '%s'" % [id, track_id])
+	for id in encounters:
+		if not encounters[id].has("music"):
+			continue
+		var track_id := String(encounters[id]["music"])
+		if not tracks.has(track_id):
+			problems.append("encounter '%s' names unknown track '%s'" % [id, track_id])
 	return problems
 
 

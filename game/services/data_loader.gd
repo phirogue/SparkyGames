@@ -26,6 +26,9 @@ static func load_catalog(data_dir: String = DATA_DIR) -> Catalog:
 		"lattices": _load_json(data_dir + "/lattices.json"),
 		"crossings": _load_json(data_dir + "/crossings.json"),
 		"minigame_tutorials": _load_json(data_dir + "/minigame_tutorials.json"),
+		# The score: track list plus what each screen, module and place plays.
+		# Places carry their own `music` in environments.json, beside `image`.
+		"music": _load_json(data_dir + "/music.json"),
 		"lessons": _load_json(data_dir + "/lessons.json").get("lessons", {}),
 		# The tuning dials. Unlike the content files this one is a nested
 		# config rather than an id->record map, and every key has a shipped

@@ -74,3 +74,18 @@ novel/main.toc
 #   ear without churning git, and so 31 MB of candidates never enters history
 #   the way the tour screenshots once did.
 assets/incoming/
+
+# MUSIC — the accepted tracks exist BYTE-IDENTICALLY in two places: the
+#   audition copy in assets/library/music/ and the wired copy in
+#   game/assets/music/ that the game actually loads. Unlike the sound effects
+#   (whose wiring step applies a loudness pass, so the two copies differ),
+#   `wire_music.py --wire` only copies — so committing both would put 17 MB of
+#   identical Ogg into history twice, and again on every regeneration. That is
+#   the tour-screenshot mistake in a smaller hat.
+#
+#   The WIRED copy is the tracked one; the library copy is rebuilt by
+#   `python tools/wire_music.py` from the incoming takes, or simply copied back
+#   from game/assets/music/. The generated MANIFEST stays tracked, because what
+#   each track was made from, folded by, and normalised to is the part worth
+#   keeping.
+assets/library/music/*.ogg

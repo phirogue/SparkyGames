@@ -67,17 +67,22 @@ Build these as reusable helpers (`game/ui/fx.gd`, upcoming):
   60, bottom 48); multi-ratio tour runs (`window_width_override` matrix:
   960×1280, 720×1600, 720×1680) with screenshots per ratio.
 
-## Soundtrack integration (when tracks arrive)
+## Soundtrack integration — DONE 2026-08-30 (beds), stings outstanding
 
 - Tracks land in `assets/incoming/music/` per
   [music-prompts.md](music-prompts.md); `python tools/wire_music.py` folds
   each take into a loop, normalizes it (−18 LUFS beds, −14 stings, −3 dBTP)
   and encodes 48 kHz Ogg into `assets/library/music/`; `--wire` copies to
   `game/assets/music/` and runs the import pass.
-- `MusicService` autoload: crossfade per screen/environment (mantel, prowl,
-  combat, stealth, court, boss), stings on victory/defeat/achievement,
-  volume settings persisted. Priority order if credits are limited: combat →
-  mantel → prowl → stings.
+- `MusicService` (a child of game.gd, not an autoload — it needs the Music
+  bus, which the settings layer creates): crossfades per screen, place,
+  module and fight; the settings Music switch stops it decoding rather than
+  only muting its bus; settings persist as before.
+- **Still to do:** the six stings (`sting_victory`, `sting_retreat`,
+  `sting_life_spent`, `sting_clue`, `sting_achievement`, `sting_sunbeam`) —
+  the Kenney Pizzicato jingles may cover four of them for free
+  ([sfx-shortlist.md](sfx-shortlist.md)). `mus_ending` is generated and wired
+  but nothing plays it until Chapter 3's "case presented" beat exists.
 
 ## Prose pass (from text/psychology research — writing law now)
 

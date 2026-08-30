@@ -130,6 +130,7 @@
       "Remembered Day uses, so memory reads the same everywhere."
     ],
     "recap_line_max": 70,
+    "music_fade": 1.2,
     "flashback_tint": "#d9b689"
   }
 }

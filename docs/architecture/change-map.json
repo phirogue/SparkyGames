@@ -83,7 +83,7 @@
       "touch": [
         { "path": "game/data/quests.json", "why": "the script itself -- steps, gating, rewards, board card" },
         { "path": "game/data/encounters.json", "why": "any new fight it names" },
-        { "path": "game/data/environments.json", "why": "any new place it visits" },
+        { "path": "game/data/environments.json", "why": "any new place it visits -- and its `music`, which sits beside `image` because a PLACE owns its sound" },
         { "path": "play/parts.json", "why": "a launcher so the quest can be reached without a playthrough" },
         { "path": "play/play.ps1", "why": "regenerate the shims -- never hand-write a .cmd", "command": "play/play.ps1 -Install" },
         { "path": "tools/tour_all.py", "why": "nothing to do: it reads quests.json directly", "auto": true },
@@ -105,7 +105,8 @@
         { "path": "game/scenes/game.gd", "why": "a _show_<screen>() and a route into it -- an unreferenced screen cannot be reached or photographed" },
         { "path": "game/scenes/dev_menu_screen.gd", "why": "a jump spec, so the screen can be opened directly", "optional": true },
         { "path": "game/tests/calibrate.gd", "why": "a zone map for the new screen type", "optional": true },
-        { "path": "play/parts.json", "why": "a launcher if the owner will want to open it on a whim", "optional": true }
+        { "path": "play/parts.json", "why": "a launcher if the owner will want to open it on a whim", "optional": true },
+        { "path": "game/data/music.json", "why": "a `screens` entry -- an unmapped screen falls back to the default bed forever and nobody ever files it" }
       ],
       "verify": [
         "godot --path game -- --scene <spec>",
@@ -127,7 +128,8 @@
         { "path": "game/scenes/game.gd", "why": "_show_<module>() plus a case in _launch_minigame and _dev_launch" },
         { "path": "game/tests/minigame_bots.gd", "why": "a bot that proves it is playable and unbreakable" },
         { "path": "tools/kb_check.py", "why": "add the module to MODULES so the five-piece check covers it" },
-        { "path": "docs/design/minigames.md", "why": "the spec" }
+        { "path": "docs/design/minigames.md", "why": "the spec" },
+        { "path": "game/data/music.json", "why": "a `minigames` entry -- Catalog.validate() refuses a module with no music" }
       ],
       "verify": [
         "godot --headless --path game -s tests/run_tests.gd",
@@ -182,6 +184,27 @@
         "godot --path game -- --tour"
       ],
       "laws": [1, 3, 11, 19]
+    },
+
+    "add-or-change-music": {
+      "summary": "A new track, or a change to what a room sounds like.",
+      "touch": [
+        { "path": "docs/design/music-prompts.md", "why": "the prompt and the track id -- prompts are content, not chat history" },
+        { "path": "assets/incoming/music", "why": "the raw generator take, named for its track id (gitignored staging)" },
+        { "path": "tools/wire_music.py", "why": "run it -- trims the dead air, folds the loop, normalises, encodes; never hand-convert", "command": "python tools/wire_music.py" },
+        { "path": "game/assets/music", "why": "wired AND imported, or the track is a file the engine cannot see (law 23)", "command": "python tools/wire_music.py --wire" },
+        { "path": "game/data/music.json", "why": "the track record, and what screen or module plays it" },
+        { "path": "game/data/environments.json", "why": "a PLACE owns its music -- the field sits beside `image`", "optional": true },
+        { "path": "game/data/encounters.json", "why": "only for a fight the story treats as more than a fight; everything else takes the combat bed", "optional": true },
+        { "path": "game/tests/unit/test_music.gd", "why": "every track has a file, every room has a track, nothing falls silent" }
+      ],
+      "verify": [
+        "python tools/wire_music.py --measure",
+        "godot --headless --path game -s tests/run_tests.gd",
+        "godot --path game -- --tour --music-log",
+        "python tools/kb_check.py"
+      ],
+      "laws": [11, 15, 23]
     },
 
     "change-player-facing-prose": {

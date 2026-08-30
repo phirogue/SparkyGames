@@ -138,6 +138,69 @@ def check_art_references_resolve() -> None:
         ok("art references resolve", f"{len(referenced)} ids, all present and imported")
 
 
+def check_music_reaches_every_room() -> None:
+    """Every place, screen and module the game asks about has a track, and every track has a file.
+
+    Silence is the defect nobody files. A room with no music does not crash,
+    does not render wrong and does not fail a screenshot — it just quietly
+    stops being a game with a soundtrack, one forgotten `music` field at a
+    time. The engine falls back to the bed rather than to quiet (Catalog's
+    music_for_* helpers), so this check is what keeps the fallback from
+    becoming the score by accident.
+    """
+    music = read_json(DATA / "music.json")
+    tracks = {k: v for k, v in music.get("tracks", {}).items() if not k.startswith("_")}
+    if not tracks:
+        fail("music reaches every room", "data/music.json names no tracks")
+        return
+    problems: list[str] = []
+
+    for track_id in sorted(tracks):
+        ogg = ASSETS / "music" / f"{track_id}.ogg"
+        if not ogg.exists():
+            problems.append(f"track '{track_id}' has no file "
+                            f"(convert with `python tools/wire_music.py`)")
+        elif not ogg.with_suffix(".ogg.import").exists():
+            problems.append(f"track '{track_id}' was never imported (law 23 — run "
+                            f"`godot --headless --path game --import`)")
+
+    for env_id, place in read_json(DATA / "environments.json").items():
+        if env_id.startswith("_"):
+            continue
+        track_id = place.get("music", "")
+        if not track_id:
+            problems.append(f"place '{env_id}' has no music")
+        elif track_id not in tracks:
+            problems.append(f"place '{env_id}' names unknown track '{track_id}'")
+
+    for enc_id, encounter in read_json(DATA / "encounters.json").items():
+        if enc_id.startswith("_") or "music" not in encounter:
+            continue
+        if encounter["music"] not in tracks:
+            problems.append(f"encounter '{enc_id}' names unknown track "
+                            f"'{encounter['music']}'")
+
+    # The other direction, and the one that actually catches a new screen: what
+    # does game.gd ASK for? Every key it passes must exist in music.json, or
+    # that screen silently inherits the fallback bed forever.
+    flow = (GAME / "scenes" / "game.gd").read_text(encoding="utf-8")
+    for section, pattern in (("screens", r'music_for_screen\("([a-z_]+)"\)'),
+                             ("minigames", r'music_for_minigame\("([a-z_]+)"\)')):
+        mapping = music.get(section, {})
+        for key in sorted(set(re.findall(pattern, flow))):
+            if key not in mapping:
+                problems.append(f"game.gd asks for {section} '{key}', "
+                                f"which music.json does not map")
+
+    if problems:
+        fail("music reaches every room",
+             f"{len(problems)} problem(s): " + "; ".join(problems[:6])
+             + ("..." if len(problems) > 6 else ""))
+    else:
+        ok("music reaches every room",
+           f"{len(tracks)} tracks, all present, imported and mapped")
+
+
 def check_every_data_file_is_loaded() -> None:
     """A data file DataLoader never opens is content nobody can reach."""
     loader = (GAME / "services/data_loader.gd").read_text(encoding="utf-8")
@@ -296,6 +359,7 @@ def check_tools_referenced_by_docs_exist() -> None:
 
 CHECKS = [
     check_art_references_resolve,
+    check_music_reaches_every_room,
     check_every_data_file_is_loaded,
     check_minigame_modules_are_complete,
     check_every_screen_is_reachable,

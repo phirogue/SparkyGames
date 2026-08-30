@@ -35,6 +35,7 @@
     "enemies": [
       "the_unpicked"
     ],
+    "music": "mus_unpicked",
     "environment": "parlor_cold",
     "no_retreat": true,
     "no_retreat_text": "Slip away where? It is wearing the room. The door, the window, the space under her chair — all of it is the thing you are looking at.",
@@ -151,6 +152,7 @@
     "enemies": [
       "the_drowned"
     ],
+    "music": "mus_mereside",
     "environment": "mereside_edge"
   },
   "q_wax_tallowman": {
@@ -159,6 +161,7 @@
     "enemies": [
       "the_tallowman"
     ],
+    "music": "mus_tallowman",
     "environment": "guildhall"
   },
   "q_saw_gutter": {

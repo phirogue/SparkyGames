@@ -1,0 +1,73 @@
+{
+  "_notes": [
+    "The score, as data. Prompts and the delivery pipeline live in",
+    "docs/design/music-prompts.md; the files themselves are wired into",
+    "game/assets/music/ by tools/wire_music.py.",
+    "",
+    "Two rules make this a score rather than a playlist:",
+    "  1. A place owns its music, not a screen. environments.json carries a",
+    "     `music` field beside its `image` for exactly that reason -- the",
+    "     Hollow Court sounds like the Hollow Court whether the player got",
+    "     there by dying, by a story beat, or from the dev menu.",
+    "  2. Asking for the track that is already playing does nothing. Story",
+    "     beats swap screens on every page turn; restarting the bed there",
+    "     would be a stutter once a sentence.",
+    "",
+    "A mapping of \"\" means SILENCE (the splash is a second and a half; music",
+    "would be a smear). A screen with no entry at all means LEAVE WHAT IS",
+    "PLAYING -- which is what a lesson page or a notice overlay wants.",
+    "",
+    "`loop: false` marks the one track allowed to end."
+  ],
+
+  "tracks": {
+    "mus_title": { "id": "mus_title", "name": "The Nine Lives of Ash", "loop": true },
+    "mus_mantel": { "id": "mus_mantel", "name": "The Mantel", "loop": true },
+    "mus_prowl": { "id": "mus_prowl", "name": "Over the Roofs", "loop": true },
+    "mus_combat": { "id": "mus_combat", "name": "Cat and Mouse", "loop": true },
+    "mus_chase": { "id": "mus_chase", "name": "The Long Way Round", "loop": true },
+    "mus_stealth": { "id": "mus_stealth", "name": "Held Breath", "loop": true },
+    "mus_hollow_court": { "id": "mus_hollow_court", "name": "The Hollow Court", "loop": true },
+    "mus_elspeth": { "id": "mus_elspeth", "name": "A Remembered Day", "loop": true },
+    "mus_unpicked": { "id": "mus_unpicked", "name": "The Unpicked", "loop": true },
+    "mus_tallowman": { "id": "mus_tallowman", "name": "Wax and Wick", "loop": true },
+    "mus_needlework": { "id": "mus_needlework", "name": "Fine Work", "loop": true },
+    "mus_testimony": { "id": "mus_testimony", "name": "What the Witness Says", "loop": true },
+    "mus_shambles": { "id": "mus_shambles", "name": "The Shambles, After Hours", "loop": true },
+    "mus_mereside": { "id": "mus_mereside", "name": "Fog on the Mere", "loop": true },
+    "mus_ending": { "id": "mus_ending", "name": "The Case Presented", "loop": false }
+  },
+
+  "screens": {
+    "splash": "",
+    "title": "mus_title",
+    "hub": "mus_mantel",
+    "loadout": "mus_mantel",
+    "journal": "mus_testimony",
+    "case_board": "mus_testimony",
+    "exchange": "mus_shambles",
+    "ending": "mus_ending",
+    "dev": ""
+  },
+
+  "minigames": {
+    "stitch": "mus_needlework",
+    "stitch_mirror": "mus_needlework",
+    "ward": "mus_needlework",
+    "lattice": "mus_needlework",
+    "testimony": "mus_testimony",
+    "crossing": "mus_chase"
+  },
+
+  "defaults": {
+    "_why": [
+      "A fight sounds like a fight, not like the alley it happens in -- so",
+      "battle takes `combat` unless the encounter names its own track (the",
+      "Unpicked, the Tallowman, the Drowned do). A story beat takes its",
+      "environment's track, and `story` is only the floor under an",
+      "environment nobody has scored yet."
+    ],
+    "battle": "mus_combat",
+    "story": "mus_prowl"
+  }
+}
