@@ -140,7 +140,7 @@
     "name": "The Wickhouse",
     "color": "#33302c",
     "accent": "#b8c4d4",
-    "image": "bg_needle_lane_wrong",
+    "image": "bg_mereside",
     "sunbeam_turns": [],
     "cost_mod": { "mysticism": -1 },
     "rule_text": "Her stitching holds these walls: Moonlight costs 1 less."

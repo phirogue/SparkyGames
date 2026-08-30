@@ -56,9 +56,11 @@ would have failed the build otherwise). Verdicts:
 
 Story-only reuse (still no gap): `ev_docket` doubles as the strongbox
 counterfoil, `en_chained_dog` as the tallow hound (the render-yards' dog IS
-a yard dog), `bg_hollow_court` as the counting-house interior and
-`bg_needle_lane_wrong` as the Wickhouse interior — neither of the last two
-is ever rendered behind a battle.
+a yard dog), and `bg_hollow_court` as the counting-house interior — never
+rendered behind a battle. 2026-08-30: the Wickhouse moved off
+`bg_needle_lane_wrong` (a street exterior under a card saying "wax to the
+rafters") onto `bg_mereside`, whose warehouse-at-the-waterline is the right
+building from outside. Both stand-ins want real plates — see Open work.
 
 Also drawn 2026-08-07: `sc_hollow_stairs`, for the new Hollow Court beat ("The
 stairs up are longer than the fall down"). Ash is a bare silhouette from
@@ -190,6 +192,12 @@ archived as `__accidental`. Total spend this pass ≈ $1.52 of the owner's $4.
    `ref_elspeth` exist and `ref_ash_prologue` is new. The three Chapter 1 NPC
    portraits currently double as their own references — fine for now, but any
    second appearance must be generated with `--ref` against them.
+6. **Two interior plates are stand-ins** (story-critic, 2026-08-30):
+   `bg_counting_house` (ledgers, locked drawers, lamplight — the heist and
+   lattice board currently render on `bg_hollow_court`, which a player who has
+   died recognizes as the death court) and `bg_wickhouse` (wax to the rafters,
+   white hills of it, her seam along the water wall — currently `bg_mereside`,
+   the right building but the outside of it).
 
 ## Chapter 1 and beyond
 

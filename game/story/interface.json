@@ -36,7 +36,7 @@
     ],
     "retreat_dropped": "%d gleam went over the wall without me. You cannot run and hold.",
     "retreat_tail": "The quest keeps. Quests do. It is one of their few virtues.",
-    "journal_withdrew": "Withdrew from %s. The quest keeps.",
+    "journal_withdrew": "Withdrew from %s. Unfinished, not abandoned.",
     "journal_done": "%s: done. %d gleam banked.",
     "toll": "The Toll: %d gleam. The satchel stays wherever you dropped it.",
     "refusal_fee": "The filing fee: %d gleam. The satchel stays wherever you dropped it. No life spent — the death was not on the docket.",
@@ -122,7 +122,7 @@
     "choice_made": "I chose %s. I would choose it again, probably.",
     "quest_done": "Finished %s. Came home %d gleam heavier.",
     "quest_done_quiet": "Finished %s. Nobody paid me. Some work keeps its own ledger.",
-    "quest_withdrawn": "I walked away from %s. It will keep. Work always keeps.",
+    "quest_withdrawn": "I walked away from %s. Wiser cats than me have died of finishing things.",
     "skill_gained": "I know %s now. My body learned it before I did.",
     "favor_tied": "Tied a knot in the thread: %s owes me, and everyone can see it."
   },

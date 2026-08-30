@@ -822,7 +822,7 @@
       "notes": null
     },
     "quest.the_carrying.0": {
-      "synopsis": "Three witches at first light, and nobody sent for them. Cardew explains: nine seats, one rope between them, and when a seat goes out the weight comes onto the rest and you feel it in your wrists. She felt it at dusk with a pan in her hand, and would not walk Needle Lane in the dark while something was still — . They do not knock; a knock asks a question, and the house has already answered it.",
+      "synopsis": "Three witches at first light, and nobody sent for them. They do not knock — a knock asks a question, and the house has already answered it. Mother Cardew, eldest of the Circuit, folded like something long kept in the workbasket, eyes round the parlor once at working speed.",
       "characters": [
         "ash",
         "cardew",
@@ -832,12 +832,10 @@
       "notes": "Closes the hole where witches arrived at a death nobody reported. novel/story-bible/03-timeline.md."
     },
     "quest.the_carrying.1": {
-      "synopsis": "Mother Cardew, eldest of the Circuit, and it is eight seats now though nobody has said so aloud. Small and grey and folded, like something kept a long time in a drawer. Her eyes go round the parlor once at working speed and Ash watches her see everything. He has been on the arm of the chair all night and does not get down.",
+      "synopsis": "He asks how they knew: nine seats, one rope between the nine, and when a seat goes out the rest feel it in their wrists — Cardew felt it at dusk, with a pan in her hand. Eight seats, now. And why morning: you don't walk Needle Lane in the dark while something is still —",
       "characters": [
         "ash",
-        "cardew",
-        "young_witches",
-        "elspeth"
+        "cardew"
       ],
       "story_time": "dawn",
       "notes": "Cardew's physical description is fixed here: small, not enormous."
@@ -977,12 +975,15 @@
       "notes": "'A goose cannot be bribed, and has never once liked a cat' — the funniest justification for a tutorial fight in the game."
     },
     "quest.ask_the_rats.1": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
+      "synopsis": "RETRY: under the fish market again in the hour the ice melts. The protocol holds, and so does the doorman. The goose remembers him; the feeling is mutual.",
+      "characters": [
+        "ash",
+        "garden_watch"
+      ],
+      "story_time": "night"
     },
-    "quest.ask_the_rats.2": {
+    "quest.ask_the_rats.2": {},
+    "quest.ask_the_rats.3": {
       "synopsis": "The Grey Boss is grey to the point of transparency and will tell you he remembers the ninth bell. 'The witch's cat. We had a lively night. Everyone had a lively night.'",
       "characters": [
         "ash",
@@ -991,19 +992,9 @@
       "story_time": "night",
       "notes": "The ninth bell was flagged as missing back in prologue.06."
     },
-    "quest.ask_the_rats.3": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
-    },
-    "quest.ask_the_rats.4": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
-    },
-    "quest.ask_the_rats.5": {
+    "quest.ask_the_rats.4": {},
+    "quest.ask_the_rats.5": {},
+    "quest.ask_the_rats.6": {
       "synopsis": "Success: a cart with no chandler on it and a gentleman behind it going nowhere in particular. 'You cannot clear out of an empty street.' By morning the Chandlers will know a cat was asking.",
       "characters": [
         "ash",
@@ -1013,7 +1004,7 @@
       "story_time": "night",
       "notes": "First direct sighting of the Quiet Gentleman in testimony."
     },
-    "quest.ask_the_rats.6": {
+    "quest.ask_the_rats.7": {
       "synopsis": "Failure: a rat's silence is a price list. He called it a lively night on a lane he swears was empty — empty lanes are not lively. He will come back armed.",
       "characters": [
         "ash",
@@ -1194,6 +1185,14 @@
       "notes": "Brindle's half-second: she fenced the blank the seal was forged from, years ago, for a client she never met. Reads differently in hindsight; never lies."
     },
     "quest.creditors.1": {
+      "synopsis": "RETRY: Brindle again, shorter. 'Second yard off Wick Row, pet, same as it was. The night shift will remember you. Walk like you don't.'",
+      "characters": [
+        "ash",
+        "brindle"
+      ],
+      "story_time": "night"
+    },
+    "quest.creditors.2": {
       "synopsis": "Wickrow after dark is the best-lit district in the city: every doorway a warded bee burning in its own wax and billed by the quarter. Other streets buy locks; Wickrow buys light. The night shift is a counting-house hound, off its chain, and the yard is a box that is his — he does not have to catch you, he only has to stand between you and the one hole.",
       "characters": [
         "ash"
@@ -1201,13 +1200,8 @@
       "story_time": "night",
       "notes": "States the Chandlers' business model as an observation rather than exposition."
     },
-    "quest.creditors.2": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
-    },
-    "quest.creditors.3": {
+    "quest.creditors.3": {},
+    "quest.creditors.4": {
       "synopsis": "Whatever settled that yard was not speed — he has none to bring to a hound and has not had for years. What a dog built like that cannot do is change his mind inside his own length, so Ash makes him commit and goes under his head on the side he has to swing his whole body to answer. But it costs the quiet: keys stop counting, a lantern comes round, and he comes off the wall into a blind alley-mouth.",
       "characters": [
         "ash"
@@ -1215,7 +1209,7 @@
       "story_time": "night",
       "notes": "The hound is beaten by geometry, not athletics. Ash's age doing work."
     },
-    "quest.creditors.4": {
+    "quest.creditors.5": {
       "synopsis": "A paw hooks his scruff and holds him in a doorway's dead shadow while the watch goes past. A grey tom: old, big-boned, one eye, half an ear, and the stillness of a creature long practised at being exactly as visible as it chooses. 'You fight like a housecat.' — 'I was one.' — 'Were,' he agrees, and does not say sorry. Something in Ash that has walked on three legs since the kettle went quiet puts its fourth foot down.",
       "characters": [
         "ash",
@@ -1224,7 +1218,7 @@
       "story_time": "night",
       "notes": "BODKIN ENTERS. Every line literally true. docs/design/the-unraveler.md."
     },
-    "quest.creditors.5": {
+    "quest.creditors.6": {
       "synopsis": "'Watch the paws, not the claws. Claws are a rumor. Paws are an appointment. The dog told you where he would be four moves before he got there, and you were reading the teeth.' He points Ash at the wax door and Wick's paper. Asked whether he knows what Ash is looking for: 'I knew your witch to look at. Everyone did.'",
       "characters": [
         "ash",
@@ -1233,7 +1227,7 @@
       "story_time": "night",
       "notes": "True, and a deflection rather than a lie. He was her familiar for nine years."
     },
-    "quest.creditors.6": {
+    "quest.creditors.7": {
       "synopsis": "GUEST-RIGHT, given unasked, flat and worn smooth with saying: 'Nobody collects off a lit candle. You take a house's light, you take its salt, you take its fire — take any of the three and you take nothing else under that roof that night. Not a debt. Not a favor. Not a mouse.' Older than the Hollow Court and older than the desk they keep in it. Then his name, given as the old ones give it, once: 'Bodkin.' It means nothing to Ash yet.",
       "characters": [
         "ash",
@@ -1243,18 +1237,16 @@
       "notes": "THE PLANT. He teaches Ash the law he himself broke: she lit that candle for him and he collected anyway. Pays off at the beeswax stub already pinned to the board. Same move as giving him his name."
     },
     "quest.creditors.8": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
+      "synopsis": "The wax door keeps its own porter: one of the Chandlers' night staff, poured and lit, a votive that took the job seriously. It does not challenge him. It simply fails to move.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night"
     },
-    "quest.creditors.9": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
-    },
-    "quest.creditors.10": {
+    "quest.creditors.9": {},
+    "quest.creditors.10": {},
+    "quest.creditors.11": {},
+    "quest.creditors.12": {
       "synopsis": "Under the ledgers, the originals, and in them her name. VANE, in a strong small impatient hand: the renderers' tallow debt, two winters' workroom rent, a seven-year chandlery account forgiven in name and never in law. Buy it quiet, pay the premium for quiet, call it due Lady's Day. Every debt she owed in the world, bought in seven days by one buyer. He reads it twice, because the first reading had a red wash over it. A man who does this is planning an eviction, not a murder — and you particularly do not kill the needle holding shut something you profit by.",
       "characters": [
         "ash",
@@ -1264,7 +1256,7 @@
       "story_time": "night",
       "notes": "Wick's motive, and its own refutation."
     },
-    "quest.creditors.11": {
+    "quest.creditors.13": {
       "synopsis": "Out over the yards with a page of a rich man's handwriting folded into his shadow. Paper says what Wick WANTED; paper does not say what he did. For that he needs people who watch the Chandlers for a living and hate them fluently.",
       "characters": [
         "ash"
@@ -1282,6 +1274,14 @@
       "notes": "'They have stopped saying missing. They have not started saying anything else.'"
     },
     "quest.the_lamplighters_talk.1": {
+      "synopsis": "RETRY: the hall again. The talk thins when he comes in and does not stop — the hall's way of remembering him. One of the four moves his boots so he can pass.",
+      "characters": [
+        "ash",
+        "lamplighters"
+      ],
+      "story_time": "night"
+    },
+    "quest.the_lamplighters_talk.2": {
       "synopsis": "CHOICE: a cat in a grieving hall, wanting something. Lay the ledger page down, ask after their missing, or sit and wait to be spoken to. Shift-Boss Merrow — torn ear, chalk on her paws — is the one to convince. Sets lamp_approach.",
       "characters": [
         "ash",
@@ -1291,7 +1291,15 @@
       "story_time": "night",
       "notes": null
     },
-    "quest.the_lamplighters_talk.2": {
+    "quest.the_lamplighters_talk.3": {
+      "synopsis": "RETRY CHOICE: Merrow at the lamp, facing the door. She does not ask why he is back; she waits to see how he will open, this time. The same three openings.",
+      "characters": [
+        "ash",
+        "merrow"
+      ],
+      "story_time": "night"
+    },
+    "quest.the_lamplighters_talk.4": {
       "synopsis": "Paper first: Merrow reads Wick's hand upside down, which means she has read it before. Other pages, other nights. 'Walk my round with me, cat. Rounds first. Paper after.'",
       "characters": [
         "ash",
@@ -1300,7 +1308,7 @@
       "story_time": "night",
       "notes": null
     },
-    "quest.the_lamplighters_talk.3": {
+    "quest.the_lamplighters_talk.5": {
       "synopsis": "Asked about the coats: the room stops bracing. 'Not dead. The Court itself said not dead. So they are SOMEWHERE, and this hall lights lamps until they walk back in.'",
       "characters": [
         "ash",
@@ -1310,7 +1318,7 @@
       "story_time": "night",
       "notes": "Ties the missing lamplighters to the Hollow Court's own docket — they never arrived."
     },
-    "quest.the_lamplighters_talk.4": {
+    "quest.the_lamplighters_talk.6": {
       "synopsis": "Sat and waited. 'Fine. You do manners. Walk my round with me and we will see what else you do.' It takes four minutes; furniture usually wins.",
       "characters": [
         "ash",
@@ -1319,7 +1327,7 @@
       "story_time": "night",
       "notes": null
     },
-    "quest.the_lamplighters_talk.5": {
+    "quest.the_lamplighters_talk.7": {
       "synopsis": "Her round is forty-one lamps and something has been ahead of them, snuffing what she lights. A pair of wisps working her lamps IN ORDER, which wisps do not do — appetite does not read route-maps. Somebody taught it to.",
       "characters": [
         "ash",
@@ -1329,13 +1337,8 @@
       "story_time": "night",
       "notes": "The clue that turns wisps from weather into a weapon."
     },
-    "quest.the_lamplighters_talk.6": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
-    },
-    "quest.the_lamplighters_talk.7": {
+    "quest.the_lamplighters_talk.8": {},
+    "quest.the_lamplighters_talk.9": {
       "synopsis": "The round finishes lit and Merrow looks at him colleague-shaped. She chalks a fresh tally on the hall door. 'You came about the night. Ask, then. And mind: I answer exactly what is asked.'",
       "characters": [
         "ash",
@@ -1344,19 +1347,9 @@
       "story_time": "night",
       "notes": "States the Testimony minigame's rule in character before it starts."
     },
-    "quest.the_lamplighters_talk.8": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
-    },
-    "quest.the_lamplighters_talk.9": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
-    },
-    "quest.the_lamplighters_talk.10": {
+    "quest.the_lamplighters_talk.10": {},
+    "quest.the_lamplighters_talk.11": {},
+    "quest.the_lamplighters_talk.12": {
       "synopsis": "Success: 'That is Wick's hand. And that is the night nobody signed.' The tally shows two years of ward-shifts at the Wickhouse paid to nobody — she sewed a rich man's warehouse shut for free. Nobody sews free. Elspeth least of all.",
       "characters": [
         "ash",
@@ -1367,7 +1360,7 @@
       "story_time": "night",
       "notes": null
     },
-    "quest.the_lamplighters_talk.11": {
+    "quest.the_lamplighters_talk.13": {
       "synopsis": "Failure: Merrow hands over the tally anyway, because the grievance is hers and grievances want witnesses. Same conclusion, less credit.",
       "characters": [
         "ash",
@@ -1377,7 +1370,7 @@
       "story_time": "night",
       "notes": "A losing Testimony that still moves the case — the pattern this game uses everywhere."
     },
-    "quest.the_lamplighters_talk.12": {
+    "quest.the_lamplighters_talk.14": {
       "synopsis": "Behind the meeting-board the hall's own ward hangs torn, left that way because the one who always mended it is one of the coats. Merrow watches him look at it; the whole room watches Merrow. Cats inspect seams, by ancient arrangement.",
       "characters": [
         "ash",
@@ -1387,20 +1380,9 @@
       "story_time": "night",
       "notes": "Sets up the Ward minigame as a public act of respect rather than a chore."
     },
-    "quest.the_lamplighters_talk.13": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
-    },
-    "quest.the_lamplighters_talk.14": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
-    },
-    "quest.the_lamplighters_talk.15": {
-      "synopsis": "Merrow ties a lamplighter's knot into the thread at his chest, in front of everyone, where the whole Weft can read it. 'The hall owes the cat.' Quieter: 'Wisps do not learn a route unless somebody teaches them the taste. Find the teacher.'",
+    "quest.the_lamplighters_talk.15": {},
+    "quest.the_lamplighters_talk.17": {
+      "synopsis": "Merrow ties a lamplighter's knot into the thread at his chest in front of her whole guild — 'The hall owes the cat' — then, low, for him alone: 'Wisps do not learn a route. Somebody taught them the taste. Find the teacher.' The Wickhouse next.",
       "characters": [
         "ash",
         "merrow",
@@ -1522,6 +1504,13 @@
       "notes": "The first free Chandlers' light this house has ever seen — the guild's whole character in one prop."
     },
     "quest.an_audience_of_wax.1": {
+      "synopsis": "RETRY: a second candle arrives, trimmed to the hour, no note. The Chandlers do not run out of wax, or of patience. Wickrow is polite all over again.",
+      "characters": [
+        "ash"
+      ],
+      "story_time": "night"
+    },
+    "quest.an_audience_of_wax.2": {
       "synopsis": "The Guildhall is a chapel to the bee: ten thousand lit votives, the heat standing in the room like a body. The keeper unfolds between him and the stairs — a tower of poured wax with a gentle face. 'The Guildmaster will see you presently.'",
       "characters": [
         "ash",
@@ -1530,13 +1519,8 @@
       "story_time": "night",
       "notes": "'Presently is doing a great deal of work in that sentence.'"
     },
-    "quest.an_audience_of_wax.2": {
-      "synopsis": "",
-      "characters": [],
-      "story_time": "",
-      "notes": null
-    },
-    "quest.an_audience_of_wax.3": {
+    "quest.an_audience_of_wax.3": {},
+    "quest.an_audience_of_wax.4": {
       "synopsis": "Ellery Wick, small behind a desk built to make everything else smaller, already talking. 'The ward-cat! The seam-mender! Sit — no, not there, the good chair.' Warm the way his hall is warm: by the burning of something.",
       "characters": [
         "ash",
@@ -1545,7 +1529,7 @@
       "story_time": "night",
       "notes": "'You will find I have nothing at all to hide' — which is what that sentence is always for."
     },
-    "quest.an_audience_of_wax.4": {
+    "quest.an_audience_of_wax.5": {
       "synopsis": "He lays the whole case on the desk item by item. Wick's books come out and they are TRUE, which is the awful part: he bought her debts to buy her building. 'I wanted her EVICTED. You do not kill the one needle holding your roof shut. So who ELSE knew the ward was hers?'",
       "characters": [
         "ash",
@@ -1555,7 +1539,7 @@
       "story_time": "night",
       "notes": "The interrogation the whole chapter has been building to, and it clears the suspect."
     },
-    "quest.an_audience_of_wax.5": {
+    "quest.an_audience_of_wax.6": {
       "synopsis": "He produces the counterfoil for his own cart-slot, signed out for Needle Lane against FAVOR-paper: a debt the Chandlers owed, called in blind, no name asked. 'Everything in this city comes through the usual quiet channels. The not-asking is what the quiet costs.'",
       "characters": [
         "ash",
@@ -1565,7 +1549,7 @@
       "story_time": "night",
       "notes": "Wick is guilty of everything except the murder. Cross him off, keep the rest."
     },
-    "quest.an_audience_of_wax.6": {
+    "quest.an_audience_of_wax.7": {
       "synopsis": "CHOICE: expose him — the city reads his books at eight bells — or squeeze him for a guildmaster's knot tied where the Weft can see. He watches Ash decide what to do with him, which is the most honest fear in the room. Sets wick_verdict.",
       "characters": [
         "ash",
@@ -1574,7 +1558,7 @@
       "story_time": "night",
       "notes": "The chapter's one consequential moral choice, and both options are self-interested."
     },
-    "quest.an_audience_of_wax.7": {
+    "quest.an_audience_of_wax.8": {
       "synopsis": "Exposed: by eight bells the Lamplighters have his books and by nine the criers do. The terror margin dies on the counting-room floor. Merrow reads the ward-shift page aloud on the hall steps, twice, the second time slower. Wick keeps his desk, barely, and now needs the cat who ruined him.",
       "characters": [
         "ash",
@@ -1585,7 +1569,7 @@
       "story_time": "night",
       "notes": null
     },
-    "quest.an_audience_of_wax.8": {
+    "quest.an_audience_of_wax.9": {
       "synopsis": "Squeezed: a Guildmaster's knot goes into his thread, tied by a man who has never visibly owed anyone anything, hating every loop of it. The Chandlers become exquisitely civil. Civility, from a guild, is an invoice.",
       "characters": [
         "ash",
@@ -1595,7 +1579,7 @@
       "story_time": "night",
       "notes": "Merrow says nothing and re-chalks the tally one stroke shorter — the consequence lands off-screen."
     },
-    "quest.an_audience_of_wax.9": {
+    "quest.an_audience_of_wax.10": {
       "synopsis": "Home. The board gets its last pin of the season: a counterfoil and a thread running to a gentleman nobody meets. Favor-paper drains toward Gravamen, where the carts change hands. The quiet channels have an address now.",
       "characters": [
         "ash",
@@ -1605,7 +1589,7 @@
       "notes": "Chapter 1's closing beat. One suspect off the board, one name-that-is-not-a-name left on it."
     },
     "quest.night_rounds.0": {
-      "synopsis": "The lamps are short-handed and the dark has noticed. Nobody pays a cat to walk the streets that miss their light; he does it so the city stays the kind of city he can work in.",
+      "synopsis": "The lamps are short-handed and the dark has noticed. Nobody hires a cat for this — but a burst wisp spills every shine it ever drank, and the gutter does not ask for it back. First stop: the corner gutter, which is glowing.",
       "characters": [
         "ash"
       ],
