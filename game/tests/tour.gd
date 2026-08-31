@@ -50,12 +50,19 @@ func _run() -> void:
 			_story_taps = 0
 		var script_ref: Variant = screen.get_script()
 		var script_path: String = script_ref.resource_path if script_ref != null else ""
-		if screen.name == "TitleScreen" or screen.name == "NoticeScreen":
-			await _shot("title" if screen.name == "TitleScreen" else "notices")
+		if screen.name == "NoticeScreen":
+			await _shot("notices")
 			for child in screen.get_children():
 				if child is Button:
 					child.pressed.emit()
 					break
+		elif script_path.ends_with("start_screen.gd"):
+			await _tour_start(screen)
+		elif script_path.ends_with("shelf_screen.gd"):
+			await _tour_shelf(screen)
+		elif script_path.ends_with("credits_screen.gd"):
+			await _shot("credits")
+			screen.closed.emit()
 		elif script_path.ends_with("splash_screen.gd"):
 			await _shot("splash")
 			screen.finished.emit()
@@ -103,6 +110,18 @@ func _run() -> void:
 			await _wait(0.35)
 			await _shot("settings_changed")
 			game.settings_overlay._on_toggle("lamps_low")
+			# The book panel and the confirm behind it. Both are modals over a
+			# modal, which is exactly the kind of thing that photographs wrong
+			# and is never noticed — the settings page is itself an overlay.
+			var options: Control = game.settings_overlay
+			UITheme.open_modal(options._book["overlay"], options._book["panel"])
+			await _wait(0.4)
+			await _shot("settings_book")
+			options._ask("revert")
+			await _wait(0.4)
+			await _shot("settings_book_confirm")
+			options._dismiss_confirm()
+			await _wait(0.3)
 			game.settings_overlay.visible = false
 			break
 		else:
@@ -580,6 +599,64 @@ func _tour_battle(screen: Control, fresh: bool) -> void:
 			screen._on_skill_selected("scratch")
 		else:
 			screen._on_end_turn()
+
+
+## The cover, both errands off it, and then into the game.
+##
+## The tour used to tap the title card and walk on, which meant three of the
+## four doors out of the first screen a player ever sees went unphotographed
+## (law 2 — a screen nobody photographs is a screen nobody has looked at).
+## Order matters: credits and the shelf are visited FIRST, because starting a
+## new book swaps the screen and there is no coming back to the cover.
+var _did_credits := false
+var _did_shelf := false
+var _did_overwrite := false
+
+
+func _tour_start(screen: Control) -> void:
+	await _shot("start")
+	if not _did_credits:
+		_did_credits = true
+		game._show_credits()
+		return
+	if not _did_shelf:
+		_did_shelf = true
+		# The LOAD flavour of the shelf, which is the one with the disabled
+		# plates on it — the tour's shelf is deliberately empty, and an empty
+		# book has to read as unopenable rather than as a dead tap.
+		game._show_shelf("load")
+		return
+	# Then the new-book flavour, and into the prologue through it.
+	screen.chose.emit("new")
+
+
+func _tour_shelf(screen: Control) -> void:
+	await _shot("shelf_%s" % screen.mode)
+	if screen.mode == "load":
+		screen.closed.emit()
+		return
+	# Writing over an occupied book asks first — the one destructive tap in
+	# the game, and a modal, so it gets photographed (laws 2 and 13). The
+	# canonical tour starts from a wiped shelf and never sees it; the seeded
+	# `--scene shelf` run is where this shot comes from.
+	for summary: Dictionary in screen.shelf:
+		if bool(summary["used"]) and not _did_overwrite:
+			_did_overwrite = true
+			screen._on_book_pressed(int(summary["slot"]), true)
+			await _wait(0.45)
+			await _shot("shelf_overwrite")
+			screen._close_overwrite()
+			await _wait(0.3)
+			break
+	# Then into a book, and on to the first page of the prologue.
+	screen.chose.emit(_first_free_slot(screen))
+
+
+func _first_free_slot(screen: Control) -> int:
+	for summary: Dictionary in screen.shelf:
+		if not bool(summary["used"]):
+			return int(summary["slot"])
+	return 1
 
 
 func _shot(label: String) -> void:

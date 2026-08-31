@@ -14,6 +14,9 @@ const SCREENS := {
 	"res://scenes/case_board_screen.gd": "SEPARATION",
 	"res://scenes/hub_screen.gd": "SEPARATION",
 	"res://scenes/settings_screen.gd": "SEPARATION",
+	"res://scenes/start_screen.gd": "SEPARATION",
+	"res://scenes/shelf_screen.gd": "SEPARATION",
+	"res://scenes/credits_screen.gd": "SEPARATION",
 	"res://scenes/exchange_screen.gd": "SEPARATION",
 	"res://scenes/loadout_screen.gd": "SEPARATION",
 	# One template shared by all five mission minigames, so re-budgeting it
@@ -55,6 +58,9 @@ func test_calibrate_maps_match_their_screens() -> void:
 		"case": "res://scenes/case_board_screen.gd",
 		"hub": "res://scenes/hub_screen.gd",
 		"settings": "res://scenes/settings_screen.gd",
+		"start": "res://scenes/start_screen.gd",
+		"shelf": "res://scenes/shelf_screen.gd",
+		"credits": "res://scenes/credits_screen.gd",
 		"exchange": "res://scenes/exchange_screen.gd",
 		"loadout": "res://scenes/loadout_screen.gd",
 	}

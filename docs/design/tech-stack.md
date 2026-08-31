@@ -14,7 +14,12 @@ Owner approved the research recommendation
   bot simulation, replay debugging, and shareable seeded runs for free).
 - **Data:** all cards/skills/enemies/quests as JSON with stable string IDs.
 - **Saves:** versioned JSON (`schema_version`), atomic write + rolling
-  backup; three files: meta-progression / run state / settings.
+  backup. As built: **three save books**, one file each
+  (`user://book_<n>.json`), holding the whole profile — meta-progression, run
+  state and settings together, since a book is what the player picks and
+  splitting it three ways would let the parts disagree. **The player never
+  chooses when one is written**; see
+  [saves-and-the-shelf.md](saves-and-the-shelf.md).
 - **Android:** built locally on Windows (JDK 17 + Android SDK), ship AAB,
   Play App Signing.
 - **iOS:** GitHub Actions macOS runner exports, signs, and uploads to

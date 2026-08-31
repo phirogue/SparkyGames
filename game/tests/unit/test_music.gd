@@ -51,8 +51,8 @@ func test_every_screen_the_flow_asks_for_is_mapped() -> void:
 	# line in music.json would fall back to silence, which nobody would file.
 	var catalog := _catalog()
 	var screens: Dictionary = catalog.music.get("screens", {})
-	for key in ["title", "hub", "journal", "case_board", "exchange",
-			"loadout", "dev", "splash"]:
+	for key in ["title", "start", "shelf", "credits", "hub", "journal",
+			"case_board", "exchange", "loadout", "dev", "splash"]:
 		assert_true(screens.has(key), "screen '%s' has a music entry" % key)
 	for module in Catalog.MINIGAME_MODULES:
 		var track := catalog.music_for_minigame(String(module))

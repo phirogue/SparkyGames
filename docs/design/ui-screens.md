@@ -1,5 +1,8 @@
 # The other screens — Settings, the Mantel, the Exchange, the Loadout
 
+> The cover, the shelf and the credits are a later build and have their own
+> doc: [saves-and-the-shelf.md](saves-and-the-shelf.md).
+
 *2026-08-04. The battle screen and the story page were built to the mockups;
 the rest of the game was still default parchment buttons stacked in a
 ScrollContainer. This doc is the design and the layout contract for the four
@@ -44,7 +47,7 @@ Zone template (582x1104 content, 12px separation):
 | Zone | Height | Contents |
 |---|---|---|
 | header | 96 | back arrow, "Settings" in display face |
-| rows | 656 | 5 row plates (`ui_settings_row`), each icon + name + toggle |
+| rows | 656 | 6 row plates (`ui_settings_row`), each icon + name + toggle |
 | loudness | 126 | the master slider, drawn as a thread between two spools |
 | footer | 190 | AI-transparency line, version, "Back to the night" |
 
@@ -61,13 +64,20 @@ does nothing is a lie the player finds out about:
    by default; on for anyone who has fat-fingered 30 gleam once.
 5. **Language — English** — an inert *value* row, not a toggle: there is one
    language, and a fake language switch is worse than an honest dead end.
+6. **The Book** — opens the save panel: *turn back the page* and *close the
+   book*, and no save button, ever. See
+   [saves-and-the-shelf.md](saves-and-the-shelf.md) for why.
+
+The sixth row (2026-08-30) was paid for out of the **row height**, 120 -> 101,
+not out of the page: law 12 says new content goes INTO an existing zone, and
+`ZONE_ROWS` is the same 656 it has always been.
 
 Buses `Music` and `SFX` are created at boot so the toggles are wired to the
 real thing from the day audio ships, not retrofitted later.
 
-Transparency line, per [ai-transparency.md](ai-transparency.md): the credits
-are not shipped yet, and Settings is where a player looks. One plain line, no
-apology, no boast.
+Transparency line, per [ai-transparency.md](ai-transparency.md). The credits
+screen ships now and carries the whole statement, but Settings is still where
+a player looks first, so the one plain line stays — no apology, no boast.
 
 ## The Mantel — a place, not a menu
 

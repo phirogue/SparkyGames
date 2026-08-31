@@ -14,6 +14,12 @@ extends Control
 
 signal closed
 signal setting_changed(key: String, value: Variant)
+## The two things a player may do to their save. Neither is a "save" button:
+## the game writes the book at its own checkpoints, so the player can turn
+## back to the last one or close the book, and cannot stamp a save of their
+## own to roll back to (see story/interface.json "book").
+signal revert_requested
+signal close_book_requested
 
 ## FIXED zone template (law 12): heights + separations == CONTENT_HEIGHT.
 ## 96 + 656 + 126 + 190 = 1068, plus 3 x 12 separation = 1104.
@@ -23,24 +29,35 @@ const ZONE_ROWS := 656
 const ZONE_LOUDNESS := 126
 const ZONE_FOOTER := 190
 
-## 5 x 120 + 4 x 14 = 656 exactly.
-const ROW_HEIGHT := 120
-const ROW_SEPARATION := 14
+## 6 x 101 + 5 x 10 = 656 exactly. The sixth row (the book) arrived on
+## 2026-08-30 and was paid for out of the ROW HEIGHT rather than out of the
+## page: law 12 says new content goes INTO an existing zone, and ZONE_ROWS is
+## the same 656 it has always been. Everything inside a row shrank to match.
+const ROW_HEIGHT := 101
+const ROW_SEPARATION := 10
 
 ## Width budget for a row, measured rather than guessed (law 2). The plate is
 ## CONTENT_WIDTH wide; the dashed border inside the torn art eats ROW_INSET a
-## side, leaving 502. icon 72 + name 190 + toggle 132 + word 58 + 3 x 10
-## separation = 482, with 20px of slack. The first cut of these numbers came
+## side, leaving 502. icon 64 + name 190 + toggle 120 + word 58 + 3 x 10
+## separation = 462, with 40px of slack. The first cut of these numbers came
 ## to exactly 502 and the ON/OFF word was squeezed to one letter wide.
 const ROW_INSET := 40.0
-const ICON_BOX := 72.0
-const TOGGLE_SIZE := Vector2(132, 58)
+const ICON_BOX := 64.0
+const TOGGLE_SIZE := Vector2(120, 52)
 const VALUE_WIDTH := 58.0
 const NAME_WRAP := 190.0
 const ROW_ITEM_SEPARATION := 10
 
 const VOLUME_STEPS := 5
 const PAW_SIZE := 74.0
+
+## Modal geometry. UITheme.modal's panel is 560 wide by default and the
+## parchment stylebox eats 16 a side; text measured to anything wider than
+## this wraps to a width the panel never had (law 5).
+const MODAL_TEXT_WIDTH := 480.0
+## Every confirm body is written as this many lines, so the panel is the same
+## height whichever action opened it.
+const CONFIRM_BODY_LINES := 2
 
 ## The toggle rows, in the order the mockup has them. `icon` is an asset id;
 ## every one of these already existed in the library.
@@ -52,14 +69,24 @@ const TOGGLE_ROWS := [
 ]
 
 var settings: Dictionary = {}
+## Whether there is a real book behind this session. A tour or a component
+## run is a throwaway world with nothing written down, and offering to turn
+## back a page that was never written would be the page lying.
+var book_live := true
 
 var _toggle_art: Dictionary = {}   # key -> TextureRect
 var _toggle_word: Dictionary = {}  # key -> Label
 var _paws: Array[TextureRect] = []
+var _book: Dictionary = {}      # the book panel
+var _book_note: Label           # the panel's one paragraph, which changes
+var _book_actions: Array[Button] = []
+var _confirm: Dictionary = {}   # the shared "are you sure" panel
+var _pending := ""              # which action the confirm panel is asking about
 
 
-func setup(p_settings: Dictionary) -> void:
+func setup(p_settings: Dictionary, p_book_live: bool = true) -> void:
 	settings = p_settings
+	book_live = p_book_live
 
 
 func _ready() -> void:
@@ -75,6 +102,8 @@ func _ready() -> void:
 	_build_rows(column)
 	_build_loudness(column)
 	_build_footer(column)
+	_build_book_panel()
+	_build_confirm_panel()
 
 
 # ------------------------------------------------------------------- zones
@@ -112,6 +141,9 @@ func _build_rows(column: VBoxContainer) -> void:
 	# The fifth row is a VALUE, not a switch. There is exactly one language;
 	# a switch that cannot switch is a lie, so it shows what it is instead.
 	holder.add_child(_value_row("Language", "ui/ui_icon_language", "English"))
+	# The sixth is an ACTION: it opens the book panel rather than changing
+	# anything itself, because both things it offers are worth a second tap.
+	holder.add_child(_book_row())
 
 
 func _build_loudness(column: VBoxContainer) -> void:
@@ -145,8 +177,10 @@ func _build_footer(column: VBoxContainer) -> void:
 	holder.custom_minimum_size = Vector2(0, ZONE_FOOTER)
 	holder.add_theme_constant_override("separation", 8)
 	column.add_child(holder)
-	# The credits screen does not exist yet and this is where a player looks:
-	# the disclosure lives here until it does (docs/design/ai-transparency.md).
+	# The one-line version of the disclosure. The whole of it, and the roll
+	# it belongs under, is on the credits screen now — but this page is where
+	# a player looks first, and the policy says the statement is not to be
+	# buried (docs/design/ai-transparency.md).
 	holder.add_child(UITheme.measured_label(
 		Strings.line("settings.ai_disclosure"),
 		22, UITheme.CONTENT_WIDTH, UITheme.italic_font(), UITheme.INK_SOFT))
@@ -230,6 +264,149 @@ func _plate(name_text: String, icon_id: String) -> Panel:
 	body.add_child(label)
 	plate.set_meta("body", body)
 	return plate
+
+
+# -------------------------------------------------------------------- book
+
+## The book row: the Language row's shape — icon, name, one word, then the
+## gutter that holds the word clear of the plate's corner sprig — with a tap
+## layer over the whole plate. It is built FROM _value_row rather than beside
+## it so the two right-hand words cannot drift out of alignment.
+##
+## Twice-learnt, both times here: a word at the far right lands ON the sprig
+## and reads as ink over leaves (the switch is opaque felt and is the only
+## thing that can afford to sit there), and a SENTENCE in this slot wraps out
+## the bottom of a 101px plate and across the Loudness heading. One word, in
+## the gutter's lane.
+func _book_row() -> Control:
+	var plate := _value_row(Strings.line("book.heading"), "ui/ui_seal_red",
+		Strings.line("book.row_action"))
+	# The row opens the panel even with no book behind it. A dead plate tells
+	# the player nothing; the panel can say WHY there is nothing to turn back
+	# to, which is the only useful thing to say about a throwaway copy.
+	UITheme.tap_layer(plate).pressed.connect(func() -> void:
+		UITheme.open_modal(_book["overlay"], _book["panel"]))
+	return plate
+
+
+## What the player may do to their save, said plainly. There is no save
+## button here and there is not going to be one: the point of the design is
+## that the player does not choose the moment, so a night cannot be tried,
+## judged, and rolled back.
+func _build_book_panel() -> void:
+	_book = UITheme.modal(self)
+	var box: VBoxContainer = _book["box"]
+	box.add_child(UITheme.measured_label(Strings.line("book.heading"),
+		UITheme.TYPE_HEADING, MODAL_TEXT_WIDTH, UITheme.display_font()))
+	_book_note = UITheme.measured_label(Strings.line("book.kept"),
+		UITheme.TYPE_SUPPORT, MODAL_TEXT_WIDTH, UITheme.body_font(),
+		UITheme.INK_SOFT)
+	box.add_child(_book_note)
+	var revert := UITheme.amber_button(Strings.line("book.revert"),
+		UITheme.TYPE_BODY)
+	revert.pressed.connect(_ask.bind("revert"))
+	box.add_child(revert)
+	_book_actions.append(revert)
+	var close_book := UITheme.amber_button(Strings.line("book.close"),
+		UITheme.TYPE_BODY)
+	close_book.pressed.connect(_ask.bind("close"))
+	box.add_child(close_book)
+	_book_actions.append(close_book)
+	_refresh_book()
+	var stay := UITheme.dark_button(Strings.line("book.revert_cancel"),
+		UITheme.TYPE_SUPPORT)
+	stay.pressed.connect(func() -> void:
+		UITheme.close_modal(_book["overlay"], _book["panel"]))
+	box.add_child(stay)
+	UITheme.modal_escape(_book, func() -> void:
+		UITheme.close_modal(_book["overlay"], _book["panel"]))
+
+
+## One confirm panel, relabelled for whichever action asked for it. Both
+## actions throw away work in progress, and both say exactly what goes.
+func _build_confirm_panel() -> void:
+	_confirm = UITheme.modal(self)
+	var box: VBoxContainer = _confirm["box"]
+	var heading := UITheme.measured_label("", UITheme.TYPE_HEADING,
+		MODAL_TEXT_WIDTH, UITheme.display_font())
+	heading.name = "ConfirmHeading"
+	box.add_child(heading)
+	for i in CONFIRM_BODY_LINES:
+		var line := UITheme.measured_label("", UITheme.TYPE_SUPPORT,
+			MODAL_TEXT_WIDTH, UITheme.body_font(), UITheme.INK_SOFT)
+		line.name = "ConfirmBody%d" % i
+		box.add_child(line)
+	var yes := UITheme.amber_button("", UITheme.TYPE_BODY)
+	yes.name = "ConfirmYes"
+	yes.pressed.connect(_confirmed)
+	box.add_child(yes)
+	var no := UITheme.dark_button(Strings.line("book.revert_cancel"),
+		UITheme.TYPE_SUPPORT)
+	no.pressed.connect(_dismiss_confirm)
+	box.add_child(no)
+	UITheme.modal_escape(_confirm, _dismiss_confirm)
+
+
+## Whether there is a book behind this session, told from the outside.
+## game.gd knows (it owns `active_slot`); this page only draws the answer.
+## Called whenever a book is opened, started, reverted or closed.
+func set_book_live(live: bool) -> void:
+	if book_live == live:
+		return
+	book_live = live
+	_refresh_book()
+
+
+## The note is REMEASURED, not just retexted. Reserving the taller of the two
+## paragraphs kept the panel a fixed height but left a hand's width of gap
+## under the short one; the panel is a modal that pops fresh on every open, so
+## a different height between two separate openings costs nothing (law 5 is
+## about a box smaller than its text, and this is the other direction).
+func _refresh_book() -> void:
+	if _book_note == null:
+		return
+	var text := Strings.line("book.kept" if book_live else "book.unavailable")
+	_book_note.text = text
+	_book_note.custom_minimum_size = Vector2(MODAL_TEXT_WIDTH,
+		UITheme.measure_text(text, UITheme.body_font(), UITheme.TYPE_SUPPORT,
+			MODAL_TEXT_WIDTH).y)
+	for button in _book_actions:
+		button.disabled = not book_live
+
+
+func _ask(action: String) -> void:
+	_pending = action
+	UITheme.close_modal(_book["overlay"], _book["panel"])
+	var panel: Control = _confirm["panel"]
+	var heading: Label = panel.find_child("ConfirmHeading", true, false)
+	heading.text = Strings.line("book.%s_heading" % action)
+	# The body is a BLOCK of lines: what happens, then what does not unhappen.
+	# Fixed slots rather than built rows, so the panel never changes height
+	# between the two actions (law 5 -- a container that resizes under a modal
+	# is the too-small-bubble bug in another costume).
+	var body: Array = Strings.lines("book.%s_body" % action)
+	for i in CONFIRM_BODY_LINES:
+		var line: Label = panel.find_child("ConfirmBody%d" % i, true, false)
+		line.text = String(body[i]) if i < body.size() else ""
+	var yes: Button = panel.find_child("ConfirmYes", true, false)
+	yes.text = Strings.line("book.%s_confirm" % action)
+	UITheme.open_modal(_confirm["overlay"], panel)
+
+
+func _dismiss_confirm() -> void:
+	UITheme.close_modal(_confirm["overlay"], _confirm["panel"])
+
+
+func _confirmed() -> void:
+	_dismiss_confirm()
+	# The settings page closes itself on the way out: whatever happens next
+	# swaps the screen underneath, and an overlay left visible over a fresh
+	# Mantel would read as the game having ignored the tap.
+	closed.emit()
+	if _pending == "revert":
+		revert_requested.emit()
+	else:
+		close_book_requested.emit()
 
 
 # ----------------------------------------------------------------- changes

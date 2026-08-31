@@ -50,10 +50,31 @@ const ZONE_MAPS := {
 		["doors (2 x 2)", 300, Color("4a5a8a")],
 		["status (lives, spool, deeds)", 96, Color("4a7a5a")],
 	],
+	# Keep in sync with start_screen.gd's ZONE_* constants. The cover is the
+	# one screen drawn on the backdrop instead of the stitched page, so the
+	# map is the only place its budget can be looked at without launching it.
+	"start": [
+		["title poster", 602, Color("a24a3a")],
+		["menu (4 x 96, sep 18)", 438, Color("4a5a8a")],
+		["what Continue opens", 44, Color("7a6a4a")],
+	],
+	# Keep in sync with shelf_screen.gd's ZONE_* constants.
+	"shelf": [
+		["header (back + title)", 96, Color("c2884a")],
+		["blurb", 80, Color("7a6a4a")],
+		["books (3 x 252, sep 12)", 780, Color("4a5a8a")],
+		["footer (back)", 112, Color("4a7a5a")],
+	],
+	# Keep in sync with credits_screen.gd's ZONE_* constants.
+	"credits": [
+		["header (back + title)", 96, Color("c2884a")],
+		["the roll (scrolls)", 880, Color("4a5a8a")],
+		["footer (back)", 104, Color("4a7a5a")],
+	],
 	# Keep in sync with settings_screen.gd's ZONE_* constants.
 	"settings": [
 		["header (back + title)", 96, Color("c2884a")],
-		["rows (5 x 120, sep 14)", 656, Color("4a5a8a")],
+		["rows (6 x 101, sep 10)", 656, Color("4a5a8a")],
 		["loudness (5 paws)", 126, Color("4a7a5a")],
 		["footer (disclosure + back)", 190, Color("a24a3a")],
 	],

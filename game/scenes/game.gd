@@ -7,6 +7,9 @@ const StoryScreen := preload("res://scenes/story_screen.gd")
 const BattleScreen := preload("res://scenes/battle.gd")
 const HubScreen := preload("res://scenes/hub_screen.gd")
 const SplashScreen := preload("res://scenes/splash_screen.gd")
+const StartScreen := preload("res://scenes/start_screen.gd")
+const ShelfScreen := preload("res://scenes/shelf_screen.gd")
+const CreditsScreen := preload("res://scenes/credits_screen.gd")
 const JournalScreen := preload("res://scenes/journal_screen.gd")
 const CaseBoardScreen := preload("res://scenes/case_board_screen.gd")
 const DevMenuScreen := preload("res://scenes/dev_menu_screen.gd")
@@ -62,6 +65,16 @@ var last_minigame_won := false
 
 var tour_mode := false
 var dev_mode := false   # component runner / scenario: throwaway world
+## Which book on the shelf this session is writing to (SaveService.SLOT_COUNT
+## of them). -1 means "no book": a tour or a component run, where every
+## checkpoint is dropped on the floor instead of written down.
+var active_slot := -1
+
+## Where a throwaway world keeps its shelf. Tour and component runs open,
+## start and ERASE books; pointed at the real prefix, one of them would delete
+## somebody's game. Nothing writes here either (dev saves are dropped), so
+## these files stay empty unless a dev launch seeds them on purpose.
+const DEV_SHELF_PREFIX := "user://dev_book_"
 var _dev_seed := 0      # scenario-pinned battle seed (0 = clock-random)
 var settings_layer: CanvasLayer
 var settings_overlay: Control    # the settings page itself; toggle .visible
@@ -114,10 +127,36 @@ func _ready() -> void:
 		return
 	tour_mode = OS.get_cmdline_user_args().has("--tour")
 	if tour_mode:
-		# Screenshot tour: throwaway profile, never touches the real save.
-		profile = SaveService.DEFAULT_PROFILE.duplicate(true)
-	else:
-		profile = SaveService.load_profile()
+		# A THROWAWAY SHELF, WIPED. The tour walks the start screen, opens
+		# books and starts new ones — every one of those is destructive
+		# against the real shelf, and photographing a stranger's saves would
+		# be its own defect. Wiped as well as redirected, because a dev launch
+		# that seeded the throwaway shelf earlier would otherwise leave its
+		# books lying in the tour's shots of a FIRST launch (2026-08-30).
+		SaveService.shelf_prefix = DEV_SHELF_PREFIX
+		for slot in range(1, SaveService.SLOT_COUNT + 1):
+			SaveService.erase_slot(slot)
+	# The profile is a BLANK until a book is chosen at the start screen. It is
+	# built here anyway because everything from the settings layer down reads
+	# it during boot, and a null profile three lines later is a crash on a
+	# screen the player has not reached yet.
+	profile = SaveService.DEFAULT_PROFILE.duplicate(true)
+	if not tour_mode:
+		# A player who installed before the shelf existed has their game in
+		# the old single-profile file. Move it onto the shelf before anything
+		# reads the shelf, or their first sight of the new start screen is an
+		# empty one — which reads as the update having eaten their save.
+		SaveService.adopt_legacy_save()
+		# SETTINGS FOLLOW THE PLAYER, NOT THE BOOK. They live in the profile
+		# for storage, but the lamps and the loudness are a person's
+		# preference, not one save's progress — so the cover comes up with
+		# them already applied (a player who muted the music must not hear the
+		# title theme at full every launch until they press Continue), and
+		# opening any book carries whatever is currently set INTO it.
+		var latest := SaveService.latest_slot()
+		if latest > 0:
+			profile["settings"] = SaveService.load_slot(latest).get(
+				"settings", profile["settings"])
 	tracker = AchievementTracker.new(catalog)
 	tracker.from_dict(profile.get("achievements", {}))
 	# The prologue is assembled from story/prologue/ — an index naming the arcs
@@ -164,22 +203,14 @@ func _ready() -> void:
 		# piece of the game on a throwaway profile — no full playthrough
 		# needed to test one screen. See CLAUDE.md for specs.
 		dev_mode = true  # throwaway world: never write the real save
+		SaveService.shelf_prefix = DEV_SHELF_PREFIX   # ...nor the real shelf
 		profile = SaveService.DEFAULT_PROFILE.duplicate(true)
 		_dev_launch(dev_scene)
-	elif tour_mode:
-		# The tour walks the splash and title too, for screenshot coverage.
-		var tour_splash: Control = SplashScreen.new()
-		tour_splash.finished.connect(func() -> void:
-			_show_title(func() -> void: _run_prologue_scene(0)), CONNECT_ONE_SHOT)
-		_swap(tour_splash)
 	else:
+		# Splash, then the start screen. The tour takes the same route as a
+		# player — it just photographs every door instead of picking one.
 		var splash: Control = SplashScreen.new()
-		splash.finished.connect(func() -> void:
-			_show_title(func() -> void:
-				if profile["prologue_done"]:
-					_show_recap(_show_hub)
-				else:
-					_run_prologue_scene(0)), CONNECT_ONE_SHOT)
+		splash.finished.connect(_show_start, CONNECT_ONE_SHOT)
 		_swap(splash)
 
 
@@ -227,6 +258,22 @@ func _export_scenario(scenario_name: String) -> void:
 	print("  godot --path game -- --scene scenario:", scenario_name)
 
 
+## Two throwaway books so the shelf screen has something to show. A DEV
+## LAUNCH ARRIVES EQUIPPED (owner rule 2026-08-05) applies to a page whose
+## whole content is the saves on it: an empty shelf photographs as three
+## identical blank plates and proves nothing about the screen.
+func _seed_dev_shelf() -> void:
+	var mid := SaveService.DEFAULT_PROFILE.duplicate(true)
+	mid["prologue_done"] = true
+	mid["gleam"] = 46
+	mid["quests_done"] = ["night_rounds", "garden_route", "empty_coat"]
+	mid["achievements"] = {"stats": {"lives_spent": 2}, "unlocked": []}
+	SaveService.save_slot(mid, 1)
+	var early := SaveService.DEFAULT_PROFILE.duplicate(true)
+	early["prologue_index"] = 6
+	SaveService.save_slot(early, 3)
+
+
 func _cmdline_value(flag: String) -> String:
 	var args := OS.get_cmdline_user_args()
 	var index := args.find(flag)
@@ -235,7 +282,8 @@ func _cmdline_value(flag: String) -> String:
 	return ""
 
 
-## Jump straight into one component: "hub", "title", "journal", "case",
+## Jump straight into one component: "hub", "start" (a.k.a. "title"),
+## "shelf", "credits", "journal", "case",
 ## "exchange", "loadout", "settings", "recap", "story:<scene index>",
 ## "battle:<encounter_id>[:skill,skill,...]", "quest:<quest_id>", or
 ## "scenario:<name>" (full Ash setup from tests/scenarios/<name>.json — see
@@ -246,8 +294,19 @@ func _dev_launch(spec: String) -> void:
 		"hub":
 			profile["prologue_done"] = true
 			_show_hub()
-		"title":
-			_show_title(func() -> void: get_tree().quit())
+		"start", "title":
+			# "title" is kept as an alias: it is what every launcher, doc and
+			# muscle memory calls this screen, and the tour walks it by name.
+			# Seeded, so the cover shows the state a returning player sees —
+			# Continue lit, and the book it would open named underneath. The
+			# empty-shelf cover is what the full --tour photographs.
+			_seed_dev_shelf()
+			_show_start()
+		"shelf":
+			_seed_dev_shelf()
+			_show_shelf("load")
+		"credits":
+			_show_credits()
 		"journal":
 			_show_journal()
 		"exchange":
@@ -264,7 +323,13 @@ func _dev_launch(spec: String) -> void:
 			_show_loadout()
 		"settings":
 			profile["prologue_done"] = true
+			# A DEV LAUNCH ARRIVES EQUIPPED (owner rule 2026-08-05): the book
+			# panel has a live state and a throwaway state, and without a book
+			# on the dev shelf only the throwaway one could ever be looked at.
+			_seed_dev_shelf()
+			active_slot = 1
 			_show_hub()
+			_refresh_book_state()
 			_open_settings()
 		"case":
 			profile["prologue_done"] = true
@@ -439,10 +504,14 @@ func _build_settings_layer() -> void:
 	settings_layer.add_child(gear)
 
 	var page: Control = SettingsScreen.new()
-	page.setup(profile.get("settings", {}))
+	# A tour or a component run has no book behind it, so the page greys the
+	# book row out rather than offering to turn back a page nothing wrote.
+	page.setup(profile.get("settings", {}), not (tour_mode or dev_mode))
 	page.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	page.visible = false
 	page.setting_changed.connect(_on_setting_changed)
+	page.revert_requested.connect(_revert_to_checkpoint)
+	page.close_book_requested.connect(_close_book)
 	page.closed.connect(func() -> void:
 		settings_overlay.visible = false
 		_save())
@@ -503,66 +572,150 @@ func _apply_settings() -> void:
 		lamp_dim.visible = bool(settings.get("lamps_low", false))
 
 
+## Is there a book behind this session? Not merely "is a slot chosen" — a
+## tour picks a book and never writes it, so there is nothing on disk to turn
+## back to and the page would be offering a load that quietly did nothing.
+func _refresh_book_state() -> void:
+	if settings_overlay == null:
+		return
+	settings_overlay.set_book_live(
+		active_slot > 0 and SaveService.slot_exists(active_slot))
+
+
 func _open_settings() -> void:
 	settings_overlay.visible = true
 
 
-## Title card between the studio splash and the game. Uses the painted
-## title logo once it exists (regen pending: current art reads "of of");
-## until then the title is typeset live.
-func _show_title(on_continue: Callable) -> void:
-	var screen := Control.new()
-	screen.name = "TitleScreen"
-	var bg := ColorRect.new()
-	bg.color = Color("14110e")
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	screen.add_child(bg)
-	var tap := Button.new()
-	tap.flat = true
-	tap.set_anchors_preset(Control.PRESET_FULL_RECT)
-	tap.pressed.connect(func() -> void: on_continue.call(), CONNECT_ONE_SHOT)
-	screen.add_child(tap)
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	screen.add_child(center)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 24)
-	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	center.add_child(box)
-	var title_art := UITheme.tex("ui/logo_ashcat_title")
-	if title_art != null:
-		var art := TextureRect.new()
-		art.texture = title_art
-		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		# The painted title is a tall poster; give it most of the screen.
-		art.custom_minimum_size = Vector2(560, 960)
-		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		box.add_child(art)
-	else:
-		for part in [["The Nine Lives", 64], ["of ASHCAT", 88]]:
-			var line := Label.new()
-			line.text = part[0]
-			line.add_theme_font_override("font", UITheme.display_font())
-			line.add_theme_font_size_override("font_size", part[1])
-			line.add_theme_color_override("font_color", Color("e8dcc0"))
-			line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			line.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			box.add_child(line)
-	var hint := Label.new()
-	hint.text = "— tap to begin —"
-	hint.add_theme_font_override("font", UITheme.italic_font())
-	hint.add_theme_font_size_override("font_size", 30)
-	hint.add_theme_color_override("font_color", Color("8f8577"))
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_child(hint)
-	var tween := screen.create_tween().set_loops()
-	tween.tween_property(hint, "modulate:a", 0.4, 1.0).set_trans(Tween.TRANS_SINE)
-	tween.tween_property(hint, "modulate:a", 1.0, 1.0).set_trans(Tween.TRANS_SINE)
-	_play_music(catalog.music_for_screen("title"))
+# ------------------------------------------------------- the cover & shelf
+#
+# Everything between the splash and the first page of the game. The player
+# picks a book here and never thinks about slots again: from that point on the
+# game writes to `active_slot` at its own checkpoints, and the only load it
+# offers is _revert_to_checkpoint.
+
+
+## The start screen. Four ways in, and Continue names the book it would open.
+func _show_start() -> void:
+	var screen: Control = StartScreen.new()
+	screen.setup(catalog, SaveService.shelf(), SaveService.latest_slot())
+	screen.chose.connect(_on_start_chose)
+	_play_music(catalog.music_for_screen("start"))
 	_swap(screen)
+
+
+func _on_start_chose(action: String) -> void:
+	match action:
+		"continue":
+			_open_book(SaveService.latest_slot())
+		"new":
+			_show_shelf("new")
+		"load":
+			_show_shelf("load")
+		"credits":
+			_show_credits()
+
+
+func _show_shelf(mode: String) -> void:
+	var screen: Control = ShelfScreen.new()
+	screen.setup(catalog, SaveService.shelf(), mode)
+	screen.closed.connect(_show_start)
+	screen.chose.connect(func(slot: int) -> void:
+		if mode == "new":
+			_new_book(slot)
+		else:
+			_open_book(slot))
+	_play_music(catalog.music_for_screen("shelf"))
+	_swap(screen)
+
+
+func _show_credits() -> void:
+	var screen: Control = CreditsScreen.new()
+	screen.closed.connect(_show_start)
+	_play_music(catalog.music_for_screen("credits"))
+	_swap(screen)
+
+
+## Open a book and start playing it. The prologue resumes at the beat the book
+## was left on rather than at the first card — it is the longest unskippable
+## stretch in the game, and starting it over is the game forgetting an hour of
+## reading (see SaveService `prologue_index`).
+func _open_book(slot: int) -> void:
+	if slot <= 0 or not SaveService.slot_exists(slot):
+		_show_start()
+		return
+	active_slot = slot
+	# restore_checkpoint, not a bare load: it is the one place that knows
+	# settings cross from the live profile into the loaded one.
+	_adopt_profile(SaveService.restore_checkpoint(
+		SaveService.load_slot(slot), profile))
+	if profile["prologue_done"]:
+		_show_recap(_show_hub)
+	else:
+		_run_prologue_scene(int(profile.get("prologue_index", 0)))
+
+
+## Start a fresh game in a book. The shelf has already asked before writing
+## over anything, so by here the answer is yes — and the old book is erased
+## rather than merely overwritten, so no backup of it survives to be restored
+## by accident later.
+func _new_book(slot: int) -> void:
+	active_slot = slot
+	SaveService.erase_slot(slot)
+	_adopt_profile(SaveService.restore_checkpoint(
+		SaveService.DEFAULT_PROFILE.duplicate(true), profile))
+	_save()
+	_run_prologue_scene(0)
+
+
+## Take a loaded profile as the live one, and re-point everything that keeps a
+## copy of a piece of it. Missing one of these is how a loaded game ends up
+## with the previous book's achievements or the previous book's lamps.
+func _adopt_profile(loaded: Dictionary) -> void:
+	profile = loaded
+	tracker.from_dict(profile.get("achievements", {}))
+	toasts = []
+	quest = {}
+	carryover = {}
+	encounter_index = 0
+	satchel = 0
+	quest_attempt = 0
+	last_outcome = CombatState.Outcome.ONGOING
+	last_minigame_won = false
+	if settings_overlay != null:
+		settings_overlay.settings = profile.get("settings", {})
+	_refresh_book_state()
+	_apply_settings()
+
+
+## Back to the page the book is open at.
+##
+## The one load the game offers while it is being played, and the reason there
+## is no save button anywhere: the player never chooses when a book is
+## written, so this can only ever throw away the unfinished night. Everything
+## the game has already committed — a life spent, a quest attempted, a
+## purchase made — was written at the moment it happened and comes back with
+## the book. Settings are carried across rather than restored (they are not
+## progress); SaveService.restore_checkpoint owns that rule.
+func _revert_to_checkpoint() -> void:
+	if active_slot <= 0 or not SaveService.slot_exists(active_slot):
+		return
+	_adopt_profile(SaveService.restore_checkpoint(
+		SaveService.load_slot(active_slot), profile))
+	if profile["prologue_done"]:
+		_show_hub()
+	else:
+		_run_prologue_scene(int(profile.get("prologue_index", 0)))
+
+
+## Close the book and go back to the shelf. Nothing is written on the way out:
+## the last checkpoint IS the saved position, and quietly stamping a new one
+## here would turn "close the book" into the save button this design does not
+## have.
+func _close_book() -> void:
+	active_slot = -1
+	_adopt_profile(SaveService.restore_checkpoint(
+		SaveService.DEFAULT_PROFILE.duplicate(true), profile))
+	_show_start()
 
 
 func _show_story(config: Dictionary, on_done: Callable) -> void:
@@ -1013,13 +1166,21 @@ func _remember(kind: String, ids: Dictionary = {}, nums: Dictionary = {},
 	profile["chronicle"] = chronicle.to_list()
 
 
+## THE CHECKPOINT. Every call site of this is a moment the game decided is
+## worth writing down, and the player has no way to ask for one — which is the
+## whole of the save design (see settings_screen.gd's book panel).
 func _save() -> void:
 	# Tour AND component-runner/scenario worlds are throwaway — writing them
-	# would clobber the player's real profile with test state.
-	if tour_mode or dev_mode:
+	# would clobber the player's real book with test state. So is a session
+	# sitting on the start screen with no book open.
+	if tour_mode or dev_mode or active_slot <= 0:
 		return
 	profile["achievements"] = tracker.to_dict()
-	SaveService.save_profile(profile)
+	SaveService.save_slot(profile, active_slot)
+	# The first checkpoint of a new book is what makes it a book: until this
+	# runs there is nothing on disk to turn back TO, and the settings page
+	# must not offer to.
+	_refresh_book_state()
 
 
 # ------------------------------------------------------------------ prologue
@@ -1031,10 +1192,20 @@ func _run_prologue_scene(index: int) -> void:
 			profile["prologue_done"] = true
 			# Endowed progress: the Casebook opens already inscribed.
 			_remember("prologue_done")
+		# Nothing left to resume: a stale index would restart a REPLAYED
+		# prologue in the middle of itself.
+		profile["prologue_index"] = 0
 		_save()
 		_show_hub()
 		return
 	var scene: Dictionary = scenes[index]
+	# Where the book is open. Written at the top of every beat, gates and all,
+	# so closing the game mid-prologue comes back to the card being read
+	# rather than to the first one. Cheap: the profile is a few kilobytes and
+	# a beat is a page turn, not a frame.
+	if int(profile.get("prologue_index", 0)) != index:
+		profile["prologue_index"] = index
+		_save()
 	var next := func(_arg: Variant = null) -> void: _run_prologue_scene(index + 1)
 	# Branch gates: choice flags and last-battle outcomes both route scenes.
 	if scene.has("when_flag"):

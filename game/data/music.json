@@ -41,6 +41,15 @@
   "screens": {
     "splash": "",
     "title": "mus_title",
+    "_covers": [
+      "The start screen, the shelf and the credits are the covers of the",
+      "book, and they all play the title track on purpose: moving between",
+      "them asks for a track already playing, which does nothing, so the",
+      "theme runs unbroken from the splash to the first page of the game."
+    ],
+    "start": "mus_title",
+    "shelf": "mus_title",
+    "credits": "mus_title",
     "hub": "mus_mantel",
     "loadout": "mus_mantel",
     "journal": "mus_testimony",

@@ -3,13 +3,33 @@ extends RefCounted
 ## Persistent profile in user://. Versioned JSON, temp-file write with a
 ## rolling backup — per docs/design/tech-stack.md save rules.
 
+## The pre-slots save, kept as a constant because it is still READ once: a
+## player who installed before books existed has their game in this file, and
+## adopt_legacy_save() moves it into the first slot on the next launch.
 const PROFILE_PATH := "user://profile.json"
 const TEMP_PATH := "user://profile.tmp"
 const BACKUP_PATH := "user://profile.bak"
 
+## Three books on the shelf. The player picks one at the start screen and
+## never thinks about it again — the game writes to that one slot at its own
+## checkpoints, and the only load offered inside the game is "go back to the
+## page this book is open at" (see restore_checkpoint). There is deliberately
+## no save-anywhere: a player who could stamp a save, try something and roll
+## it back would be playing a different game than the one being designed.
+const SLOT_COUNT := 3
+
 const DEFAULT_PROFILE := {
-	"schema_version": 6,
+	"schema_version": 7,
 	"prologue_done": false,
+	# Which prologue beat this book is open at (v7). The prologue is the
+	# longest unskippable stretch in the game, so quitting in the middle of
+	# it and coming back to the first card would be the game forgetting an
+	# hour of reading. Meaningless once `prologue_done` is true.
+	"prologue_index": 0,
+	# When this book was last written, as unix seconds. The start screen
+	# sorts by it to decide what "Continue" continues, and the shelf shows
+	# it so two books in progress can be told apart. 0 means unrecorded.
+	"saved_at": 0,
 	"gleam": 0,
 	# Level-1 Ash (owner calibration 2026-08-01): 10 HP; growth comes as
 	# mission rewards, never as visible numbers.
@@ -80,6 +100,148 @@ const DEFAULT_PROFILE := {
 	# nothing owed.
 	"quest_attempts": {},
 }
+
+# ---------------------------------------------------------------- the shelf
+#
+# Three books, one file each. Nothing above this line knows about slots: the
+# path-parameterised load/save below are still the whole mechanism, and a slot
+# is only a naming convention for the three paths it hands them.
+
+## Where the shelf lives. A variable rather than a constant for exactly one
+## reason: the tests exercise erase_slot and latest_slot, which need real
+## files, and a test that wrote to the real shelf would delete the player's
+## game the first time somebody ran the suite on their own machine. Nothing in
+## the game ever assigns this — tests/unit/test_shelf.gd is the only writer.
+static var shelf_prefix := "user://book_"
+
+
+static func slot_path(slot: int) -> String:
+	return "%s%d.json" % [shelf_prefix, slot]
+
+
+static func slot_temp_path(slot: int) -> String:
+	return "%s%d.tmp" % [shelf_prefix, slot]
+
+
+static func slot_backup_path(slot: int) -> String:
+	return "%s%d.bak" % [shelf_prefix, slot]
+
+
+static func slot_exists(slot: int) -> bool:
+	return FileAccess.file_exists(slot_path(slot)) 		or FileAccess.file_exists(slot_backup_path(slot))
+
+
+static func load_slot(slot: int) -> Dictionary:
+	return load_profile(slot_path(slot), slot_backup_path(slot))
+
+
+## Writes a book, stamping the hour it was written. Every checkpoint in the
+## game comes through here, which is why the stamp lives here rather than at
+## the call sites — a save that forgot to record its time would make the shelf
+## lie about which book is the most recent one.
+static func save_slot(profile: Dictionary, slot: int) -> void:
+	profile["saved_at"] = int(Time.get_unix_time_from_system())
+	save_profile(profile, slot_path(slot), slot_temp_path(slot),
+		slot_backup_path(slot))
+
+
+## Burns a book so a new game can be started in its place. The backup goes
+## too: leaving it would let load_profile resurrect the erased game the next
+## time the new one failed to parse, which is the worst possible moment to
+## hand somebody a stranger's save.
+static func erase_slot(slot: int) -> void:
+	var dir := DirAccess.open("user://")
+	if dir == null:
+		return
+	for path in [slot_path(slot), slot_temp_path(slot), slot_backup_path(slot)]:
+		if FileAccess.file_exists(path):
+			dir.remove(path)
+
+
+## The pre-slots save, moved onto the shelf. Runs once at boot: a player who
+## installed before the start screen existed has a game in user://profile.json,
+## and finding an empty shelf on the next launch would read as their save being
+## deleted. The old file is left where it is rather than removed — an adoption
+## that half-worked must not be the thing that loses a game.
+static func adopt_legacy_save(slot: int = 1) -> bool:
+	if slot_exists(slot) or not FileAccess.file_exists(PROFILE_PATH):
+		return false
+	var adopted := load_profile(PROFILE_PATH, BACKUP_PATH)
+	# Its real age is on the file, which is a better answer than "now" —
+	# a book last touched in March should not claim it was written today.
+	adopted["saved_at"] = int(FileAccess.get_modified_time(PROFILE_PATH))
+	save_profile(adopted, slot_path(slot), slot_temp_path(slot),
+		slot_backup_path(slot))
+	return true
+
+
+## What the shelf shows, as FACTS. No words: the slots screen has the catalog
+## and story/interface.json, and a sentence built here would be a sentence no
+## content tool could reach (law 20). One entry per slot, always SLOT_COUNT of
+## them, so an empty shelf still draws three books.
+static func shelf() -> Array:
+	var out: Array = []
+	for slot in range(1, SLOT_COUNT + 1):
+		out.append(slot_summary(slot))
+	return out
+
+
+static func slot_summary(slot: int) -> Dictionary:
+	var summary := {
+		"slot": slot, "used": false, "saved_at": 0, "prologue_done": false,
+		"gleam": 0, "lives_spent": 0, "quests_done": 0, "evidence": 0,
+		"case": "",
+	}
+	if not slot_exists(slot):
+		return summary
+	var profile := load_slot(slot)
+	summary["used"] = true
+	summary["saved_at"] = int(profile.get("saved_at", 0))
+	summary["prologue_done"] = bool(profile.get("prologue_done", false))
+	summary["gleam"] = int(profile.get("gleam", 0))
+	summary["lives_spent"] = int(profile.get("achievements", {})
+		.get("stats", {}).get("lives_spent", 0))
+	summary["quests_done"] = Array(profile.get("quests_done", [])).size()
+	var case_state: Dictionary = profile.get("case", {})
+	summary["case"] = String(case_state.get("active", ""))
+	summary["evidence"] = Array(case_state.get("evidence", [])).size()
+	return summary
+
+
+## Which book "Continue" continues: the one written most recently. -1 when the
+## shelf is empty, which is what makes the start screen grey the button out
+## rather than offering a continue with nothing behind it.
+static func latest_slot() -> int:
+	var best := -1
+	var best_time := -1
+	for slot in range(1, SLOT_COUNT + 1):
+		if not slot_exists(slot):
+			continue
+		var stamp := int(slot_summary(slot)["saved_at"])
+		if stamp > best_time:
+			best_time = stamp
+			best = slot
+	return best
+
+
+## Going back to the page the book is open at.
+##
+## This is the ONLY load the game offers while it is being played, and it is
+## deliberately not a load in the save-scumming sense: the player cannot
+## choose when a book is written, so "revert" can only ever undo the current
+## unfinished night, never a consequence the game already wrote down. A death,
+## a spent life, a quest attempt and a purchase are all committed at the
+## moment they happen (see game.gd `_save()` call sites).
+##
+## `settings` are carried across from the LIVE profile rather than restored:
+## the lamps and the loudness are not progress, and a player who turned the
+## music off two minutes ago should not have it come back on because they
+## turned back a page.
+static func restore_checkpoint(saved: Dictionary, live: Dictionary) -> Dictionary:
+	var restored := saved.duplicate(true)
+	restored["settings"] = Dictionary(live.get("settings", {})).duplicate(true)
+	return restored
+
 
 ## Everything the prologue teaches; granted retroactively to saves that
 ## predate progressive skill unlocks.
@@ -187,6 +349,20 @@ static func _migrate(profile: Dictionary) -> Dictionary:
 	if int(profile.get("schema_version", 1)) < 6:
 		merged["card_pool"] = merged["deck"].duplicate()
 		merged["schema_version"] = 6
+	# v7 (2026-08-30): the shelf. Saves became slots, and a book learned to
+	# remember which prologue beat it is open at and when it was last written.
+	# Law 7 — what does an old save IMPLY? It was written before the game
+	# recorded a time, so `saved_at` cannot be invented: it stays 0 and the
+	# shelf says so in words rather than printing a fictional date. Its
+	# `prologue_index` is 0, which is right for a save that finished the
+	# prologue (the field is dead for it) and is the only honest answer for
+	# one that did not — the beat it stopped at was never written down.
+	if int(profile.get("schema_version", 1)) < 7:
+		merged["schema_version"] = 7
+	# A finished prologue has no beat to resume; keeping a stale index would
+	# make a replay of the prologue restart in the middle of it.
+	if merged["prologue_done"]:
+		merged["prologue_index"] = 0
 	# Repair, every load: the deck must never hold a card the collection does
 	# not (a hand-written scenario spec, or a reward that missed grant_card).
 	# Counts, not membership — decks repeat cards.
@@ -270,7 +446,11 @@ static func to_scenario(profile: Dictionary, carryover: Dictionary = {},
 	if not comment.is_empty():
 		spec["comment"] = comment
 	spec["profile"] = _difference(DEFAULT_PROFILE, profile)
-	for noise in ["schema_version", "chronicle", "journal", "achievements"]:
+	# `saved_at` is the hour the export happened, which is true of every
+	# export and tells the next reader nothing — a spec that carried it would
+	# churn its own diff every time it was regenerated.
+	for noise in ["schema_version", "chronicle", "journal", "achievements",
+			"saved_at"]:
 		spec["profile"].erase(noise)
 	if not carryover.is_empty():
 		spec["carryover"] = carryover.duplicate(true)

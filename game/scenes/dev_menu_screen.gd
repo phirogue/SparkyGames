@@ -60,7 +60,9 @@ func _build() -> void:
 	_entry("Settings", "settings")
 	_entry("The Casebook", "journal")
 	_entry("The 'previously on' recap", "recap")
-	_entry("Title card", "title")
+	_entry("Start screen (the cover)", "start")
+	_entry("The Shelf (three books)", "shelf")
+	_entry("Credits", "credits")
 
 	# Story beats, named from the scene data itself: the first line of each
 	# scene is its own best label, so the list reads like the script.

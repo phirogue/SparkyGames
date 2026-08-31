@@ -376,5 +376,140 @@
       "block": "guards itself",
       "heal": "mends itself"
     }
+  },
+  "start": {
+    "_note": "The start screen: the cover of the book. Four ways in, and a line under them that says what Continue would open.",
+    "continue": "Continue",
+    "new": "A New Book",
+    "load": "Another Book",
+    "credits": "Credits",
+    "resume": "Continue opens book %d, %s.",
+    "resume_unread": "Continue opens book %d, at the beginning.",
+    "empty_shelf": "Nothing on the shelf yet. Start a new book."
+  },
+  "shelf": {
+    "_note": [
+      "The shelf: three books, one file each. The SAME screen serves two",
+      "errands -- opening a book and choosing where to start a new one --",
+      "so every line here comes in a load flavour and a new flavour."
+    ],
+    "load_heading": "The Shelf",
+    "load_blurb": "Three books. Open one.",
+    "load_blurb_empty": "Nothing written yet. A new book is the way in.",
+    "new_heading": "A New Book",
+    "new_blurb": "Pick where it goes. A book with a game already in it gets written over.",
+    "book": "Book %d",
+    "empty": "Empty",
+    "empty_detail": "Nothing written here.",
+    "in_prologue": "The prologue, part-read",
+    "no_case": "At the Mantel, between cases",
+    "detail": "Gleam %d  ·  Nights %d  ·  Lives spent %d",
+    "saved": "Last written %s",
+    "saved_unknown": "Written before the game kept the hour",
+    "date": "%s %d, %02d:%02d",
+    "months": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ],
+    "overwrite_heading": "Write over book %d?",
+    "overwrite_body": "Everything in it goes, and there is no second copy.",
+    "overwrite_confirm": "Write over it",
+    "overwrite_cancel": "Leave it alone",
+    "back": "Back"
+  },
+  "credits": {
+    "_note": [
+      "The credits, and the disclosure the AI-transparency policy owes a",
+      "player (docs/design/ai-transparency.md). Names go in the `lines` of",
+      "each section -- the screen renders whatever is here, so adding a",
+      "collaborator is an edit to this file and nothing else."
+    ],
+    "heading": "Credits",
+    "subheading": "The Nine Lives of Ash — Chapter One",
+    "sections": [
+      {
+        "role": "Made by",
+        "lines": [
+          "SparkyGames"
+        ]
+      },
+      {
+        "role": "Story, design, and every decision about them",
+        "lines": [
+          "SparkyGames"
+        ]
+      },
+      {
+        "role": "Art",
+        "lines": [
+          "Generated with AI. Chosen, corrected and approved by hand."
+        ]
+      },
+      {
+        "role": "Music",
+        "lines": [
+          "Generated with AI. Chosen and approved by hand."
+        ]
+      },
+      {
+        "role": "Code",
+        "lines": [
+          "Written with AI assistance."
+        ]
+      },
+      {
+        "role": "Built with",
+        "lines": [
+          "Godot Engine 4"
+        ]
+      }
+    ],
+    "disclosure_heading": "About the AI",
+    "disclosure": [
+      "Art, music and code on this game were made with AI assistance.",
+      "Every line, picture and decision was chosen by a person, and anything that did not earn its place was thrown out.",
+      "Ask us directly and you will get a straight answer."
+    ],
+    "closing": "Thank you for reading to the end. Ash would not have.",
+    "back": "Back"
+  },
+  "book": {
+    "_note": [
+      "The save section on the settings page. The game writes the book at",
+      "its own checkpoints; the player's only two moves are turning back to",
+      "the last one and closing the book. There is deliberately no save",
+      "button -- a player who could stamp a save, try something, and roll it",
+      "back would be playing a different game."
+    ],
+    "heading": "The Book",
+    "kept": "The book writes itself at the end of every page. You cannot write it early.",
+    "revert": "Turn back the page",
+    "close": "Close the book",
+    "revert_heading": "Turn back the page?",
+    "revert_body": [
+      "Back to the Mantel, as the book last left you.",
+      "Tonight's satchel and tonight's ground are gone. What the city already wrote down — a life spent, a door you knocked on — stays written."
+    ],
+    "revert_confirm": "Turn it back",
+    "revert_cancel": "Keep reading",
+    "close_heading": "Close the book?",
+    "close_body": [
+      "Back to the shelf.",
+      "Your place is kept at the last page the book wrote. A night in progress is not a page."
+    ],
+    "close_confirm": "Close it",
+    "close_cancel": "Keep reading",
+    "unavailable": "This is a throwaway copy of the game — a tour, or one screen opened on its own. Nothing here is written down, so there is no page to turn back to.",
+    "row_action": "Open"
   }
 }

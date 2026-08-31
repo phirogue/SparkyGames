@@ -21,6 +21,10 @@ const INK_SOFT := Color("6b5747")
 const INK_FADED := Color("2b232080")
 const ACCENT_WARM := Color("9c5a28")
 const PARCHMENT := Color("f2e4c8")
+## The covers of the book. Sampled from the title poster's own border, which
+## is pure black: at 0d0b09 the poster rendered as a visibly lighter rectangle
+## sitting ON the cover instead of being it (caught in the tour, 2026-08-30).
+const COVER := Color("000000")
 
 ## ---- THE TYPE SCALE (owner standing order, 2026-08-09) -------------------
 ## Small text was re-flagged at every review until it became a law. The
@@ -229,8 +233,22 @@ static func page_panel(root: Control) -> Panel:
 ##   "between":       Control inserted between page and margin (tap catchers
 ##                    that must sit under the content).
 ##   "ignore_mouse":  margin lets input fall through to what's beneath.
+##   "backdrop":      Color -- a flat field INSTEAD of the stitched page, for
+##                    the covers of the book (start, shelf, credits). They are
+##                    not pages of the story and drawing stitching around them
+##                    made the title card read as one more scene. The margins
+##                    are the same either way, so the page guard still holds
+##                    the covers to the same box as everything else.
 static func page_scaffold(root: Control, opts: Dictionary = {}) -> MarginContainer:
-	page_panel(root)
+	if opts.get("backdrop") is Color:
+		var field := ColorRect.new()
+		# Named for PageGuard: a full-window field is chrome, not content.
+		field.name = "PageArtBackdrop"
+		field.color = opts["backdrop"]
+		field.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		root.add_child(field)
+	else:
+		page_panel(root)
 	if opts.get("between") is Control:
 		root.add_child(opts["between"])
 	var margin := MarginContainer.new()

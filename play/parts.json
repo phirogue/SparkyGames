@@ -3,10 +3,24 @@
   "parts": [
     {
       "name": "title",
-      "title": "Title Card",
+      "title": "Start Screen (the cover)",
       "group": "Screens",
-      "spec": "title",
-      "about": "The painted title screen. Tap to quit."
+      "spec": "start",
+      "about": "The cover of the book: Continue, a new book, the shelf, and the credits."
+    },
+    {
+      "name": "shelf",
+      "title": "The Shelf (three books)",
+      "group": "Screens",
+      "spec": "shelf",
+      "about": "Three save books and what is written in each. Throwaway world, so all three read empty."
+    },
+    {
+      "name": "credits",
+      "title": "Credits",
+      "group": "Screens",
+      "spec": "credits",
+      "about": "The roll, and the AI disclosure the transparency policy owes a player."
     },
     {
       "name": "mantel",
