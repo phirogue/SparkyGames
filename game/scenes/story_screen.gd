@@ -204,7 +204,7 @@ func _ready() -> void:
 		b.add_theme_font_size_override("font_size", 28)
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.custom_minimum_size = Vector2(0, 96)
-		b.pressed.connect(func() -> void: finished.emit(i))
+		b.pressed.connect(func() -> void: _emit_finished(i))
 		_choice_box.add_child(b)
 
 	_advance()  # reveal the first line immediately
@@ -226,7 +226,20 @@ func _advance() -> void:
 		if _revealed == _line_labels.size():
 			_on_all_revealed()
 	elif choices.is_empty():
-		finished.emit(-1)
+		_emit_finished(-1)
+
+
+## The page is done exactly once. The tap catcher stays live after the last
+## line and choice buttons stay pressable while the page animates out, so
+## the emit itself carries the guard rather than every caller remembering to.
+var _emitted := false
+
+
+func _emit_finished(choice: int) -> void:
+	if _emitted:
+		return
+	_emitted = true
+	finished.emit(choice)
 
 
 ## Retire the oldest visible narration lines until what remains MEASURES

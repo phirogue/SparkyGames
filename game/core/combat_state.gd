@@ -188,6 +188,13 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 	var charge_overrides: Dictionary = config.get("skill_charges", {})
 	var powered_overrides: Dictionary = config.get("skill_powered", {})
 	for skill_id in config.get("skills", []):
+		# Guarded like every other content lookup should be: Catalog.validate()
+		# catches a dangling id at boot, but nothing forces a hand-written
+		# scenario or test config through validate() first — and a typo there
+		# must cost one loud error and one missing skill, not the whole fight.
+		if not p_catalog.skills.has(skill_id):
+			push_error("CombatState: unknown skill '%s' skipped" % skill_id)
+			continue
 		var def: Dictionary = p_catalog.skills[skill_id]
 		state.skills.append({
 			"id": skill_id,
@@ -205,7 +212,12 @@ static func create(p_catalog: Catalog, seed_value: int, config: Dictionary) -> C
 	state.doom_turn = int(config.get("doom_turn", 0))
 	state.mortal = bool(config.get("mortal", false))
 	state.enemy_id = String(config.get("enemy", ""))
-	var enemy_def: Dictionary = p_catalog.enemies[state.enemy_id]
+	if not p_catalog.enemies.has(state.enemy_id):
+		# A fight against a phantom is broken whatever happens next; what it
+		# must not be is a crash. One hit ends the dummy and the error names
+		# the id that needs fixing.
+		push_error("CombatState: unknown enemy '%s'" % state.enemy_id)
+	var enemy_def: Dictionary = p_catalog.enemies.get(state.enemy_id, {"hp": 1})
 	state.enemy_max_hp = int(enemy_def["hp"])
 	state.enemy_hp = state.enemy_max_hp
 	state.familiarity = int(config.get("familiarity", 0))
@@ -276,7 +288,12 @@ func effective_cost(cost: Dictionary) -> Dictionary:
 ## The enemy's telegraphed next move:
 ## {target: "health"|"skills"|"hand"|"block"|"heal", amount, name}.
 func current_intent() -> Dictionary:
-	var intents: Array = catalog.enemies[enemy_id]["intents"]
+	# Guarded: validate() rejects an enemy with no intents, but this must not
+	# be the line that turns an unvalidated catalog into a modulo-by-zero.
+	var enemy_def: Dictionary = catalog.enemies.get(enemy_id, {})
+	var intents: Array = enemy_def.get("intents", [])
+	if intents.is_empty():
+		return {}
 	return intents[_intent_index % intents.size()]
 
 
@@ -438,7 +455,11 @@ func _cmd_charge_skill(skill_id: String, source: String, index: int) -> Dictiona
 		return _fail("unknown energy source '%s'" % source)
 	if index < 0 or index >= hand.size():
 		return _fail("no card at hand index %d" % index)
-	var card: Dictionary = catalog.energy_cards[hand[index]]
+	var card: Dictionary = catalog.energy_cards.get(hand[index], {})
+	if card.is_empty():
+		# A rejection, not a crash: the fuzzer's chief invariant holds even
+		# when the deck somehow carries an id the catalog does not know.
+		return _fail("unknown energy card '%s'" % hand[index])
 	var humour := String(card["humour"])
 	var remaining := remaining_cost(skill_id)
 	# A wild (mysticism) card powers whatever the skill still needs.
@@ -792,6 +813,10 @@ func _enemy_act() -> void:
 	# strike hits harder — fights END by ~turn 10, one way or the other.
 	rage_bonus += maxi(turn - 7, 0) * 2
 	var intent := current_intent()
+	if intent.is_empty():
+		# An enemy with nothing to say (unknown id, empty intent list — both
+		# already flagged loudly elsewhere) simply passes its move.
+		return
 	_intent_index += 1
 	if spotted:
 		# A spotted cat has no tricks left to fear but teeth: every intent

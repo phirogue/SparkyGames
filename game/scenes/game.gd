@@ -777,7 +777,9 @@ func _show_story(config: Dictionary, on_done: Callable) -> void:
 		return
 	var screen: Control = StoryScreen.new()
 	screen.setup(config)
-	screen.finished.connect(on_done)
+	# ONE_SHOT: a story page's tap catcher stays live after its last line, and
+	# two taps landing in one frame must advance the flow once, not twice.
+	screen.finished.connect(on_done, CONNECT_ONE_SHOT)
 	if config.has("environment"):
 		_play_music(catalog.music_for_environment(String(config["environment"])))
 	_swap(screen)
@@ -920,7 +922,9 @@ func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {
 	config.merge(extra, true)
 	var screen: Control = BattleScreen.new()
 	screen.setup(catalog, config, encounter_id, hints, coach)
-	screen.encounter_finished.connect(on_done)
+	# ONE_SHOT: the outcome overlay's continue button can be double-tapped,
+	# and a fight must be digested — rewards, chronicle, save — exactly once.
+	screen.encounter_finished.connect(on_done, CONNECT_ONE_SHOT)
 	_play_music(catalog.music_for_encounter(encounter_id))
 	_swap(screen)
 

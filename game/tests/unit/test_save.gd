@@ -134,6 +134,24 @@ func test_backup_fallback_on_corrupt_primary() -> void:
 	_cleanup()
 
 
+func test_a_failed_write_never_touches_the_good_save() -> void:
+	# Written is not saved. A temp file that cannot even be opened (the shape
+	# a full disk actually takes on a phone) must leave the existing profile
+	# alone — losing the checkpoint, never the book. The reread-verify guard
+	# in save_profile covers the subtler case of a write that opened fine and
+	# then truncated; this pins the loud end of the same promise.
+	_cleanup()
+	var profile := SaveService.DEFAULT_PROFILE.duplicate(true)
+	profile["gleam"] = 77
+	SaveService.save_profile(profile, TEST_PROFILE, TEST_TEMP, TEST_BACKUP)
+	profile["gleam"] = 99
+	SaveService.save_profile(profile, TEST_PROFILE,
+		"user://no_such_dir/impossible.tmp", TEST_BACKUP)
+	var loaded := SaveService.load_profile(TEST_PROFILE, TEST_BACKUP)
+	assert_eq(int(loaded["gleam"]), 77, "the failed save left the good one alone")
+	_cleanup()
+
+
 func test_no_save_returns_defaults() -> void:
 	_cleanup()
 	var loaded := SaveService.load_profile(TEST_PROFILE, TEST_BACKUP)

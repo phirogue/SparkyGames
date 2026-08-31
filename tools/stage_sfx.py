@@ -43,8 +43,11 @@ KENNEY = Path.home() / "assets" / "kenney-audio"
 SONNISS = Path.home() / "assets" / "sonniss-gdc2026"
 FREESOUND = Path.home() / "assets" / "freesound"
 
-FFMPEG = r"C:\Users\yurim\Packages\ffmpeg\bin\ffmpeg.exe"
-FFPROBE = r"C:\Users\yurim\Packages\ffmpeg\bin\ffprobe.exe"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from paths import ffmpeg_binary, ffprobe_binary  # noqa: E402
+
+FFMPEG = str(ffmpeg_binary())
+FFPROBE = str(ffprobe_binary())
 
 LICENCE = {
     "kenney": "CC0 (public domain, no attribution)",

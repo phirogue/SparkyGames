@@ -421,7 +421,14 @@ func _entry(text: String, faded := false) -> void:
 	label.add_theme_color_override("font_color",
 		UITheme.INK_FADED if faded else UITheme.INK)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# Law 26: an autowrap label reserves NO height inside a VBox, so a deed
+	# that wraps would overlap the row beneath it. Measured at the exact width
+	# the label is pinned to (law 5: wrap width EQUALS measured width — the
+	# same sums the lesson rows above already do).
+	var wrap := float(UITheme.CONTENT_WIDTH) - 32.0
+	var height := UITheme.measure_text(label.text,
+		UITheme.italic_font(), 30, wrap).y
+	label.custom_minimum_size = Vector2(wrap, height)
 	_list.add_child(label)
 
 

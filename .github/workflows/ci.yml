@@ -5,16 +5,22 @@ on:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   GODOT_VERSION: "4.4.1"
 
 jobs:
   # Cheap and fast: catches a broken reference or a stale manifest in seconds,
   # with no engine download. Runs first so an obvious mistake does not wait on
-  # a 4-minute Godot job.
+  # a 4-minute Godot job. (verify.py standard repeats this check — that is the
+  # point: this job is the early signal, not a different gate.)
   propagation:
     name: Propagation checks
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -23,11 +29,15 @@ jobs:
       - name: Where every change has to reach
         run: python tools/kb_check.py
 
-  tests:
-    name: Headless import + unit tests
+  verify:
+    name: verify.py standard
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
       - name: Cache Godot
         id: cache-godot
@@ -46,34 +56,22 @@ jobs:
           mv ~/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 ~/godot/godot
           chmod +x ~/godot/godot
 
-      # First pass builds the .godot cache and registers new class_name
-      # scripts. Without it a newly added class fails to parse (law 23).
-      - name: Import project
-        run: ~/godot/godot --headless --path game --import || true
-
-      - name: Run unit tests
-        run: ~/godot/godot --headless --path game -s tests/run_tests.gd
-
-      - name: Boot smoke test (screens must have real size)
-        run: ~/godot/godot --headless --path game -s tests/smoke_boot.gd
-
-      # The puzzles must be playable and unbreakable. Bots, not assertions
-      # about bots — this is the harness that proves a chart has a solution a
-      # player can actually reach.
-      - name: Minigame bots
-        run: ~/godot/godot --headless --path game -s tests/minigames.gd
-
-      # Play badly on purpose (law 19). The sensible-play sim cannot find a
-      # state the game should not be able to reach; this can.
-      - name: Chaos sweep
-        run: ~/godot/godot --headless --path game -s tests/fuzz.gd -- --seeds 60
+      # THE gate, the same one that runs locally before every commit. CI used
+      # to re-implement this pipeline step-by-step in YAML (and drifted from
+      # it in both directions, including an `--import || true` that swallowed
+      # the law-23 failure mode); tools/paths.py + GODOT_BIN is what lets one
+      # script be the single source of truth for "what must pass".
+      # standard = import, unit tests, boot smoke, propagation, minigame
+      # bots, chaos fuzz (60 seeds).
+      - name: Run the standard tier
+        run: GODOT_BIN="$HOME/godot/godot" python tools/verify.py standard
 
   # NOT RUN IN CI, on purpose — recorded here so the gap is visible rather
   # than forgotten:
   #   * the screenshot tour and the every-quest sweep need a display and take
   #     ~20 minutes; run locally with `python tools/verify.py full`
-  #   * the balance sim is long and its output wants a human comparing it to
-  #     docs/design/balance-notes.md, not a pass/fail
+  #   * the balance sim is long; its thresholds run in `full`, and the table
+  #     still wants a human comparing it to docs/design/balance-notes.md
   #   * art generation costs money and needs an API key
   #   * the story-critic and first-timer passes are agents, not scripts —
   #     see /ownerpass

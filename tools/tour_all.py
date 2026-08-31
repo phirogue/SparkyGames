@@ -32,8 +32,11 @@ from pathlib import Path
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from paths import godot_binary  # noqa: E402  (tools/paths.py owns binary paths)
+
 REPO = Path(__file__).resolve().parent.parent
-GODOT = Path(r"C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe")
+GODOT = godot_binary()
 SHOTS = REPO / "screenshots"
 
 

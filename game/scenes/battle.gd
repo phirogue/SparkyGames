@@ -770,7 +770,15 @@ func _show_outcome() -> void:
 	overlay.visible = true
 
 
+## Guards the outcome overlay's continue against a double-tap: the flow
+## digests this signal (rewards, chronicle, save), so it must fire once.
+var _outcome_reported := false
+
+
 func _on_overlay_continue() -> void:
+	if _outcome_reported:
+		return
+	_outcome_reported = true
 	encounter_finished.emit(state)
 
 
@@ -1438,7 +1446,10 @@ func _refresh() -> void:
 	var intent := state.current_intent()
 	# A masked intent stays masked in EVERY branch — leaking the name through
 	# the stalk or spotted lines would undo the whole mechanic.
-	if state.intent_masked(intent):
+	if intent.is_empty():
+		# Broken content (core already push_errored); the chip must not crash.
+		intent_label.text = ""
+	elif state.intent_masked(intent):
 		intent_label.text = Strings.line("battle.intent_masked")
 	elif state.hidden:
 		intent_label.text = "Unaware. Its plan: %s" % intent["name"]
@@ -1849,7 +1860,8 @@ func _intent_text(intent: Dictionary) -> String:
 		"health": return "%d damage" % int(intent["amount"])
 		"skills": return "burns away 1 use of an action, for good" \
 			if intent.get("mode", "jam") == "burn" else "jams an action for a turn"
-		"hand": return "steals %d card(s)" % int(intent["amount"])
+		"hand": return "steals a card" if int(intent["amount"]) == 1 \
+			else "steals %d cards" % int(intent["amount"])
 		"block": return "guards itself +%d" % int(intent["amount"])
 		"heal": return "mends itself %d" % int(intent["amount"])
 	return "?"

@@ -32,8 +32,11 @@ from pathlib import Path
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from paths import godot_binary  # noqa: E402  (tools/paths.py owns binary paths)
+
 REPO = Path(__file__).resolve().parent.parent
-GODOT = Path(r"C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe")
+GODOT = godot_binary()
 
 
 def godot(*args: str) -> list[str]:
@@ -51,6 +54,10 @@ STEPS = {
     "tests": (
         godot("--headless", "--path", "game", "-s", "tests/run_tests.gd"),
         "the rules still hold",
+    ),
+    "smoke": (
+        godot("--headless", "--path", "game", "-s", "tests/smoke_boot.gd"),
+        "the game boots and every screen has a real size",
     ),
     "propagation": (
         [sys.executable, "tools/kb_check.py"],
@@ -89,9 +96,15 @@ STEPS = {
 
 TIERS = {
     "fast": ["import", "tests", "propagation"],
-    "standard": ["import", "tests", "propagation", "minigames", "chaos"],
+    "standard": ["import", "tests", "smoke", "propagation", "minigames", "chaos"],
     "full": list(STEPS),
 }
+
+# A hung headless Godot must hang the GATE, not the night: every step gets a
+# ceiling, generous enough that only a genuine wedge (a stale .godot lock, a
+# tour leg waiting on a dialog) trips it. Seconds.
+TIMEOUTS = {"tour": 2400, "balance": 1200, "chaos": 1200}
+DEFAULT_TIMEOUT = 600
 
 # What a change to each area needs. Printed by --for so the tier is a decision
 # rather than a guess.
@@ -111,8 +124,15 @@ def run(name: str, quiet: bool) -> tuple[bool, float]:
     command, why = STEPS[name]
     print(f"  {name:16s} … ", end="", flush=True)
     started = time.time()
-    done = subprocess.run(command, cwd=REPO, capture_output=True, text=True,
-                          encoding="utf-8", errors="replace")
+    try:
+        done = subprocess.run(command, cwd=REPO, capture_output=True, text=True,
+                              encoding="utf-8", errors="replace",
+                              timeout=TIMEOUTS.get(name, DEFAULT_TIMEOUT))
+    except subprocess.TimeoutExpired:
+        elapsed = time.time() - started
+        print(f"FAIL  {elapsed:5.1f}s   TIMED OUT — check for a stale Godot "
+              "process holding the .godot lock (law 27)")
+        return False, elapsed
     elapsed = time.time() - started
     output = (done.stdout or "") + "\n" + (done.stderr or "")
     # Godot exits 0 even when a script error scrolled past, so the streams are
@@ -143,7 +163,7 @@ def main() -> None:
         print(f"{args.area}/ changed -> {tier} tier ({reason})\n")
 
     if not GODOT.exists():
-        sys.exit(f"Godot not found at {GODOT} — see CLAUDE.md for the expected path.")
+        sys.exit(f"Godot not found at {GODOT} — set GODOT_BIN or see CLAUDE.md.")
 
     print(f"verify: {tier} tier ({len(TIERS[tier])} steps)\n")
     failed, total = [], 0.0

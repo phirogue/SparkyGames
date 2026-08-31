@@ -745,5 +745,10 @@ func _finish() -> void:
 	# A crossing that ends wants to be SEEN ending (owner rule: the reward for
 	# finishing must not be a dialog in the same frame).
 	await get_tree().create_timer(0.7 if _booted else 0.0).timeout
+	# The back button stays live through that pause, and leaving frees this
+	# screen — the coroutine must not resume on a corpse (same guard as
+	# stitch_screen._finish, which learned it first).
+	if not is_instance_valid(self):
+		return
 	MinigameShell.show_outcome(self, state.outcome, crossing,
 		func() -> void: closed.emit())

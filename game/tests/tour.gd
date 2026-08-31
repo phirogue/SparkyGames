@@ -106,7 +106,12 @@ func _run() -> void:
 			# different picture, not a modulate of the ON one.
 			game.settings_overlay._on_toggle("music")
 			game.settings_overlay._on_toggle("lamps_low")
-			game.settings_overlay._on_volume_step(3)
+			# Both faders, at DIFFERENT settings. The score and the one-shots
+			# move independently now, and a shot with both at the same level
+			# would photograph as one control drawn twice — which is exactly
+			# the defect the split is meant to avoid.
+			game.settings_overlay._on_volume_step("sfx_volume", 3)
+			game.settings_overlay._on_volume_step("music_volume", 1)
 			await _wait(0.35)
 			await _shot("settings_changed")
 			game.settings_overlay._on_toggle("lamps_low")

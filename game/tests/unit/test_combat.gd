@@ -13,6 +13,29 @@ func _wisp_fight(seed_value: int = 7) -> CombatState:
 		"enemy": "gutter_wisp",
 	})
 
+func test_unknown_content_ids_degrade_instead_of_crashing() -> void:
+	# Catalog.validate() catches dangling ids at boot, but nothing forces a
+	# hand-written scenario through validate() first. A typo'd id must cost a
+	# loud push_error and a degraded fight — never a crash, never a modulo by
+	# zero on an empty intent list.
+	var state := CombatState.create(catalog, 7, {
+		"player_hp": 12,
+		"deck": ["ferocity_1", "no_such_card", "guile_1"],
+		"skills": ["pounce", "no_such_skill"],
+		"enemy": "no_such_enemy",
+	})
+	assert_eq(state.skills.size(), 1, "the unknown skill was skipped")
+	assert_eq(state.enemy_hp, 1, "the phantom enemy is a one-hit dummy")
+	assert_true(state.current_intent().is_empty(), "no intents reads as empty, not a crash")
+	assert_ok(state.do_command({"type": "end_turn"}), "the phantom passes its move")
+	# The unknown card in hand is a rejection, not a crash (fuzzer invariant:
+	# a rejected command changes nothing).
+	var index := state.hand.find("no_such_card")
+	if index >= 0:
+		assert_rejected(state.do_command({"type": "charge_skill",
+			"skill_id": "pounce", "source": "hand", "index": index}))
+
+
 func test_determinism_same_seed_same_state() -> void:
 	var a := _wisp_fight(42)
 	var b := _wisp_fight(42)

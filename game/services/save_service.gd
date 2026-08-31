@@ -294,8 +294,33 @@ static func save_profile(profile: Dictionary,
 		push_error("SaveService: cannot open temp save file")
 		return
 	file.store_string(JSON.stringify(profile, "\t"))
+	# A full disk fails HERE, not at open — and silently, because store_string
+	# returns nothing. Written is not saved: the temp file is re-read and
+	# re-parsed before it is allowed anywhere near the real profile, so a
+	# truncated write can never be renamed over a good save. On a phone the
+	# save file IS the game; a failed checkpoint must lose the checkpoint,
+	# never the book.
+	var write_err := file.get_error()
 	file.close()
+	if write_err != OK:
+		push_error("SaveService: temp write failed (%d); old save kept" % write_err)
+		return
+	var reread := FileAccess.open(temp_path, FileAccess.READ)
+	var parsed: Variant = JSON.parse_string(reread.get_as_text()) if reread != null else null
+	# CLOSE IT BEFORE THE RENAME. Windows will not rename a file that is still
+	# open, so leaving this handle to be collected at end of scope made every
+	# save fail with "temp->profile rename failed (1)" — the verification that
+	# exists to protect the save was destroying it instead. Not reproducible on
+	# a POSIX box, which is exactly why it is spelled out here.
+	if reread != null:
+		reread.close()
+	if not (parsed is Dictionary and parsed.has("schema_version")):
+		push_error("SaveService: temp save failed verification; old save kept")
+		return
 	var dir := DirAccess.open("user://")
+	if dir == null:
+		push_error("SaveService: cannot open user:// to finish the save")
+		return
 	if FileAccess.file_exists(profile_path):
 		var copy_err := dir.copy(profile_path, backup_path)
 		if copy_err != OK:

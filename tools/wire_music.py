@@ -62,7 +62,10 @@ INCOMING = REPO / "assets" / "incoming" / "music"
 LIBRARY = REPO / "assets" / "library" / "music"
 WIRED = REPO / "game" / "assets" / "music"
 MANIFEST = LIBRARY / "MANIFEST.md"
-GODOT = Path(r"C:\Users\yurim\tools\godot\Godot_v4.4.1-stable_win64_console.exe")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from paths import godot_binary  # noqa: E402  (tools/paths.py owns binary paths)
+
+GODOT = godot_binary()
 
 SOURCE_EXTS = (".wav", ".mp3", ".flac", ".m4a", ".ogg", ".opus")
 
