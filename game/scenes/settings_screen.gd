@@ -29,21 +29,23 @@ const ZONE_ROWS := 656
 const ZONE_LOUDNESS := 126
 const ZONE_FOOTER := 190
 
-## 6 x 101 + 5 x 10 = 656 exactly. The sixth row (the book) arrived on
-## 2026-08-30 and was paid for out of the ROW HEIGHT rather than out of the
-## page: law 12 says new content goes INTO an existing zone, and ZONE_ROWS is
-## the same 656 it has always been. Everything inside a row shrank to match.
-const ROW_HEIGHT := 101
-const ROW_SEPARATION := 10
+## 5 x 120 + 4 x 14 = 656 exactly. The book row arrived on 2026-08-30 and was
+## briefly paid for out of the ROW HEIGHT (six rows at 101), because law 12
+## says new content goes INTO an existing zone and ZONE_ROWS is the same 656
+## it has always been. The owner then cut the Language row the next day —
+## "this game will be English only for now" — so the page is back at five rows
+## and at the geometry it was calibrated against.
+const ROW_HEIGHT := 120
+const ROW_SEPARATION := 14
 
 ## Width budget for a row, measured rather than guessed (law 2). The plate is
 ## CONTENT_WIDTH wide; the dashed border inside the torn art eats ROW_INSET a
-## side, leaving 502. icon 64 + name 190 + toggle 120 + word 58 + 3 x 10
-## separation = 462, with 40px of slack. The first cut of these numbers came
+## side, leaving 502. icon 72 + name 190 + toggle 132 + word 58 + 3 x 10
+## separation = 482, with 20px of slack. The first cut of these numbers came
 ## to exactly 502 and the ON/OFF word was squeezed to one letter wide.
 const ROW_INSET := 40.0
-const ICON_BOX := 64.0
-const TOGGLE_SIZE := Vector2(120, 52)
+const ICON_BOX := 72.0
+const TOGGLE_SIZE := Vector2(132, 58)
 const VALUE_WIDTH := 58.0
 const NAME_WRAP := 190.0
 const ROW_ITEM_SEPARATION := 10
@@ -138,11 +140,14 @@ func _build_rows(column: VBoxContainer) -> void:
 	for row: Dictionary in TOGGLE_ROWS:
 		holder.add_child(_toggle_row(String(row["key"]), String(row["name"]),
 			String(row["icon"])))
-	# The fifth row is a VALUE, not a switch. There is exactly one language;
-	# a switch that cannot switch is a lie, so it shows what it is instead.
-	holder.add_child(_value_row("Language", "ui/ui_icon_language", "English"))
-	# The sixth is an ACTION: it opens the book panel rather than changing
-	# anything itself, because both things it offers are worth a second tap.
+	# The fifth is an ACTION, not a switch: it opens the book panel rather than
+	# changing anything itself, because both things it offers are worth a
+	# second tap.
+	#
+	# There WAS a Language row here, an inert value showing "English". The
+	# owner cut it on 2026-08-31 — "this game will be English only for now" —
+	# and a row that reports a choice nobody has is furniture. _value_row
+	# stays: the book row is built from it.
 	holder.add_child(_book_row())
 
 
@@ -268,10 +273,12 @@ func _plate(name_text: String, icon_id: String) -> Panel:
 
 # -------------------------------------------------------------------- book
 
-## The book row: the Language row's shape — icon, name, one word, then the
-## gutter that holds the word clear of the plate's corner sprig — with a tap
-## layer over the whole plate. It is built FROM _value_row rather than beside
-## it so the two right-hand words cannot drift out of alignment.
+## The book row: _value_row's shape — icon, name, one word, then the gutter
+## that holds the word clear of the plate's corner sprig — with a tap layer
+## over the whole plate. Built FROM _value_row rather than beside it, which is
+## also why _value_row survives its only other caller (the Language row) being
+## cut: the gutter is a measurement, and re-deriving it here would be the same
+## measurement written twice.
 ##
 ## Twice-learnt, both times here: a word at the far right lands ON the sprig
 ## and reads as ink over leaves (the switch is opaque felt and is the only

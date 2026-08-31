@@ -158,7 +158,7 @@ python tools/art_catalog.py show sc_kettle    # full prompt + usage
 
 | Image | Kind | What it is | Who is in it | In/Out | Place | Time | Kerchief | Used by |
 |---|---|---|---|---|---|---|---|---|
-| ui_arrow_back | ui | Back arrow | — | abstract | — | none | — | 6 place(s) |
+| ui_arrow_back | ui | Back arrow | — | abstract | — | none | — | 8 place(s) |
 | ui_ash_head | ui | Ash emblem | ash | abstract | — | none | yes | — |
 | ui_btn_amber | ui | Amber button | — | abstract | — | none | — | — |
 | ui_btn_dark | ui | Dark button | — | abstract | — | none | — | — |
@@ -181,7 +181,7 @@ python tools/art_catalog.py show sc_kettle    # full prompt + usage
 | ui_icon_intent_attack | ui | Intent — attack | — | abstract | — | none | — | — |
 | ui_icon_intent_hand | ui | Intent — hand | — | abstract | — | none | — | — |
 | ui_icon_intent_skills | ui | Intent — skills | — | abstract | — | none | — | — |
-| ui_icon_language | ui | Language icon | — | abstract | — | none | — | 1 place(s) |
+| ui_icon_language | ui | Language icon | — | abstract | — | none | — | — |
 | ui_icon_menu | ui | Menu icon | — | abstract | — | none | — | — |
 | ui_icon_music | ui | Music icon | — | abstract | — | none | — | 1 place(s) |
 | ui_icon_sound | ui | Sound icon | — | abstract | — | none | — | 1 place(s) |
@@ -197,8 +197,8 @@ python tools/art_catalog.py show sc_kettle    # full prompt + usage
 | ui_ribbon_band | ui | Ribbon band | — | abstract | — | none | — | 1 place(s) |
 | ui_seal_blue | ui | Wax seal, blue | — | abstract | — | none | — | 2 place(s) |
 | ui_seal_gold | ui | Wax seal, gold | — | abstract | — | none | — | 3 place(s) |
-| ui_seal_red | ui | Wax seal, red | — | abstract | — | none | — | 2 place(s) |
-| ui_settings_row | ui | Settings row | — | abstract | — | none | — | 1 place(s) |
+| ui_seal_red | ui | Wax seal, red | — | abstract | — | none | — | 3 place(s) |
+| ui_settings_row | ui | Settings row | — | abstract | — | none | — | 2 place(s) |
 | ui_shield | ui | Guard glyph | — | abstract | — | none | — | 1 place(s) |
 | ui_spool | ui | Spool | — | abstract | — | none | — | 6 place(s) |
 | ui_strip | ui | Strip plate | — | abstract | — | none | — | 1 place(s) |

@@ -1514,7 +1514,7 @@
       "prompt": "A hand-lettered game logo reading exactly \"The Nine Lives of Ash\" in elegant slightly-gothic storybook lettering, ink and watercolor style, with a small black cat silhouette curled around the letters and a thin silver thread winding through them, warm cream and charcoal with one ember-orange accent, on a plain dark background, high contrast, readable at small sizes. Spell it carefully: The Nine Lives of Ash -- the word \"of\" appears exactly once, and the last word is \"Ash\", not \"Ashcat\".",
       "prompt_source": "tools/batches/genart_batch.py",
       "used_by": [
-        "scenes/game.gd"
+        "scenes/start_screen.gd"
       ],
       "prologue_beats": [],
       "wired": true
@@ -2397,11 +2397,13 @@
       "prompt_source": null,
       "used_by": [
         "scenes/case_board_screen.gd",
+        "scenes/credits_screen.gd",
         "scenes/exchange_screen.gd",
         "scenes/journal_screen.gd",
         "scenes/loadout_screen.gd",
         "scenes/minigames/minigame_shell.gd",
-        "scenes/settings_screen.gd"
+        "scenes/settings_screen.gd",
+        "scenes/shelf_screen.gd"
       ],
       "prologue_beats": [],
       "wired": true
@@ -2870,11 +2872,9 @@
       "notes": null,
       "prompt": "A small icon of a sealed cream envelope seen face-on with a round red wax seal in the centre, hand-drawn storybook ink and watercolour, simple and readable at 48 pixels. No text.",
       "prompt_source": "tools/batches/genart_round3.py",
-      "used_by": [
-        "scenes/settings_screen.gd"
-      ],
+      "used_by": [],
       "prologue_beats": [],
-      "wired": true
+      "wired": false
     },
     {
       "id": "ui_icon_menu",
@@ -3207,7 +3207,8 @@
       "prompt_source": null,
       "used_by": [
         "core/rules.gd",
-        "scenes/hub_screen.gd"
+        "scenes/hub_screen.gd",
+        "scenes/settings_screen.gd"
       ],
       "prologue_beats": [],
       "wired": true
@@ -3228,6 +3229,7 @@
       "prompt": "A single horizontal settings row plaque: a torn-edged strip of aged parchment with a fine dark-brown stitched border running around it and a small sprig of ink leaves in each corner, empty in the middle with nothing written on it. Hand-drawn storybook ink and watercolour. No text, no icons, no toggle.",
       "prompt_source": "tools/batches/genart_round3.py",
       "used_by": [
+        "scenes/shelf_screen.gd",
         "ui/ui_theme.gd"
       ],
       "prologue_beats": [],

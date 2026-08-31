@@ -55,6 +55,7 @@ UNWIRED = {
     "bg_mantel", "ref_ash_prologue",
 }
 
+
 # The exception to the "library/ui is never wired" rule in the module note.
 # These masters were generated on white and ALREADY keyed to alpha, trimmed
 # tight to their content (verified: opaque bbox == canvas), so a downscale is
@@ -68,7 +69,12 @@ UI_KEYED = {
     "ui_icon_sound": 160,
     "ui_icon_music": 160,
     "ui_icon_brightness": 160,
-    "ui_icon_language": 160,
+    # ui_icon_language LEFT this list on 2026-08-31: the Settings page carried
+    # an inert "Language / English" row until the owner cut it ("this game
+    # will be English only for now"), so the icon has nothing to sit beside
+    # and shipping it would grow the export for no pixels on screen. The
+    # master stays in the library (art rule 3 -- never delete art); putting
+    # the row back is this line plus the row.
     # Re-wired 2026-08-04: the hand-processed ui_paw_full in game/assets was
     # 0% opaque above alpha 128 -- a ghost. It had been invisible everywhere
     # it was drawn. The master is a clean black paw print (law 3: read the
@@ -94,6 +100,17 @@ UI_KEYED = {
     #
     # The thick `ui_frame_portrait` it replaces is archived, not deleted.
     "ui_frame_portrait_thin": 512,
+    # The energy cards (2026-08-30). They had NEVER been on this list: the
+    # shipped copies were hand-processed once in July and then sat there while
+    # the masters moved, which is exactly the drift this module note describes.
+    # Wiring them is now safe because tools/cut_card_alpha.py does the keying
+    # and the trim -- it lifts the card off the dark field it is generated on
+    # and crops to the silhouette, so the opaque bbox fills the canvas. Drawn
+    # at 112-150px; 512 on the long edge is plenty.
+    "ui_frame_card_red": 512,
+    "ui_frame_card_green": 512,
+    "ui_frame_card_black": 512,
+    "ui_frame_card_blue": 512,
 }
 
 

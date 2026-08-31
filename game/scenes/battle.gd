@@ -35,7 +35,33 @@ const LOG_HISTORY := 200
 ## "The text showing what just happened should be way larger (maybe only 3
 ## lines visible at a time)" — owner 2026-08-08.
 const LOG_FONT_SIZE := 30
-const CARD_SCALE := 1.2    # energy cards (base 94x128, owner +20%)
+const CARD_SCALE := 1.2    # energy cards (owner +20%)
+## The energy card, sized FROM the name it has to carry (2026-08-30). It was
+## 94x128, drawing at 113x154, whose printed face (UITheme.CARD_NAME_BAND) is
+## 82px — and "Moonlight" is 94 at the type floor, so the longest of the four
+## humour names ran off the card and the neighbour overlapping it took another
+## letter off. 117 draws at 140, giving a 102px face.
+##
+## CARD_STEP moved with it. At the old 98 a 140-wide card would have been
+## covered 42px deep by its neighbour, which is straight through the end of
+## the name; 110 leaves the fan overlapping by 30 and still fits five across
+## (4 x 110 + 140 = 580, against CONTENT_WIDTH 582).
+##
+## The height is short of the art's own proportions on purpose, the same trade
+## the crossing board took: a true 140-wide card is 197 tall and would push
+## the fan's tuck through the skill tray below it.
+const CARD_BASE := Vector2(117, 133)
+## The widest the fan lets two neighbours sit apart: the card less a hair, so
+## a hand small enough to spread covers nothing at all.
+const CARD_STEP := 125.0
+## What the fan has to fit inside. CONTENT_WIDTH less a little, so the outer
+## cards of a full hand do not sit on the page's stitching.
+const FAN_WIDTH := 570.0
+## Where a hand card's bottom edge sits inside ZONE_HAND. Measured from the
+## layout the tuck was tuned against (a 154-tall card resting at -10); the
+## fan is positioned from it so the tuck stays put whatever the card's height
+## becomes.
+const HAND_CARD_BOTTOM := 144.0
 ## Five abilities out at once, ALL visible, NO sideways scroll (owner
 ## 2026-08-08: "not where you need to scroll left and right, maybe have it as
 ## a fanned hand where clicking a specific card opens it up"). The cards fan
@@ -1422,8 +1448,18 @@ func _refresh_hand_fan() -> void:
 		and state.hand.slice(0, _prev_hand.size()) == _prev_hand
 	_clear(hand_cards)
 	var n := state.hand.size()
-	var card_size := Vector2(94, 128) * CARD_SCALE
-	var overlap_step := 98.0
+	var card_size := CARD_BASE * CARD_SCALE
+	# The fan spreads as wide as the hand allows and only overlaps when it has
+	# to. A fixed step overlapped a two-card hand exactly as hard as a
+	# five-card one, which took the end off a name for no reason -- the width
+	# was there and unused. CARD_STEP is the cap: past it the cards stop
+	# separating, because a hand strung right across the page stops reading as
+	# a hand. It is the card's width less a hair, so at the cap nothing is
+	# covered at all.
+	var overlap_step := CARD_STEP
+	if n > 1:
+		overlap_step = clampf((FAN_WIDTH - card_size.x) / float(n - 1),
+			0.0, CARD_STEP)
 	var total_width := overlap_step * (n - 1) + card_size.x
 	var start_x: float = (hand_fan.size.x - total_width) / 2.0
 	if hand_fan.size.x <= 1:  # first layout pass: estimate from zone width
@@ -1436,8 +1472,14 @@ func _refresh_hand_fan() -> void:
 		var offset := i - center
 		# Tucked up slightly: the cards may overhang the zone gap above,
 		# never the tray below.
+		# Pinned by its BOTTOM, not its top. The fan tucks card bottoms under
+		# the skill tray, so a card that grows downward grows straight into
+		# it: sizing the card from its name on 2026-08-30 made it 6px taller
+		# and buried the very name it had been widened for. HAND_CARD_BOTTOM
+		# is where the bottom edge has always sat; the card may overhang the
+		# gap ABOVE, which is empty.
 		var rest := Vector2(start_x + overlap_step * i,
-			-10.0 + 3.0 * absf(offset) * absf(offset))
+			HAND_CARD_BOTTOM - card_size.y + 3.0 * absf(offset) * absf(offset))
 		b.position = rest
 		b.rotation_degrees = offset * 3.0
 		b.pivot_offset = card_size / 2.0
@@ -1511,7 +1553,7 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	var humour: String = card["humour"]
 	var b := Button.new()
 	b.flat = true
-	b.custom_minimum_size = Vector2(94, 128) * scale
+	b.custom_minimum_size = CARD_BASE * scale
 	b.size = b.custom_minimum_size
 	var frame := TextureRect.new()
 	frame.texture = UITheme.tex(HUMOUR_CARD_FRAME.get(humour, ""))
@@ -1525,10 +1567,14 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	glyph.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	glyph.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	glyph.set_anchors_preset(Control.PRESET_FULL_RECT)
-	glyph.set_offset(SIDE_LEFT, 20 * scale)
-	glyph.set_offset(SIDE_RIGHT, -20 * scale)
-	glyph.set_offset(SIDE_TOP, 24 * scale)
-	glyph.set_offset(SIDE_BOTTOM, -44 * scale)
+	# FRACTIONS of the card, not pixels: the card grew on 2026-08-30 and fixed
+	# insets tuned for a 94x128 one would have left the glyph in a corner of
+	# it. Same numbers the crossing board's chip uses, so a card is still the
+	# same card on both screens.
+	glyph.set_offset(SIDE_LEFT, CARD_BASE.x * scale * 0.16)
+	glyph.set_offset(SIDE_RIGHT, -CARD_BASE.x * scale * 0.16)
+	glyph.set_offset(SIDE_TOP, CARD_BASE.y * scale * 0.17)
+	glyph.set_offset(SIDE_BOTTOM, -CARD_BASE.y * scale * 0.34)
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(glyph)
 	var value := Label.new()
@@ -1536,17 +1582,43 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	value.add_theme_font_override("font", UITheme.display_font())
 	value.add_theme_font_size_override("font_size", int(30 * scale))
 	value.add_theme_color_override("font_color", UITheme.INK)
-	value.position = Vector2(14, 8) * scale
+	value.position = Vector2(CARD_BASE.x * 0.13, CARD_BASE.y * 0.06) * scale
 	value.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(value)
 	var name_label := Label.new()
 	name_label.text = Catalog.humour_name(String(humour))
-	name_label.add_theme_font_size_override("font_size", int(22 * scale))
+	# Fitted to the card's printed FACE, not hung across its whole width.
+	# 2026-08-30: the name was set at a flat 22*scale and anchored edge to
+	# edge, so "Ferocity" and "Shadow" ran onto the border ink and "Moonlight"
+	# ran off it. The face is UITheme.CARD_NAME_BAND of the card, and the size
+	# now steps down to whatever fits inside that — never below TYPE_FLOOR.
+	#
+	# KNOWN, and it needs the owner: at this card width (94*scale) the face is
+	# ~82px and "Moonlight" is 94 at the floor, so the longest of the four
+	# still touches the border. Closing that means a 140-wide card, which
+	# means re-budgeting ZONE_HAND and the fan's overlap — a layout pass of
+	# its own, not a line here. The crossing board took that pass on
+	# 2026-08-30; this one has not.
+	var face: float = CARD_BASE.x * scale * UITheme.CARD_NAME_BAND
+	name_label.add_theme_font_size_override("font_size",
+		UITheme.fit_font_size(name_label.text, UITheme.body_font(),
+			[int(22 * scale), 24, UITheme.TYPE_FLOOR],
+			Vector2(face, 40.0 * scale)))
 	name_label.add_theme_color_override("font_color", UITheme.INK)
 	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	var inset: float = CARD_BASE.x * scale * (1.0 - UITheme.CARD_NAME_BAND) * 0.5
+	name_label.set_offset(SIDE_LEFT, inset)
+	name_label.set_offset(SIDE_RIGHT, -inset)
 	# Raised band: the hand fan tucks card bottoms under the skill tray
 	# (ZONE_HAND < card height), and the old -34..-14 band left the name
 	# half-swallowed by the tuck + frame border (owner defect list).
+	# RAISED band, and deliberately NOT the art's printed one. The hand fan
+	# tucks card bottoms under the skill tray (ZONE_HAND < card height), so
+	# the bottom fifth of a hand card is never visible — the old -34..-14 band
+	# left the name half-swallowed, and centring it on the art's ruled band
+	# (which is where the crossing board puts it, correctly, because nothing
+	# covers a card there) buried it again on 2026-08-30. The tray is the
+	# constraint on this screen, not the picture on the card.
 	name_label.set_offset(SIDE_TOP, -46 * scale)
 	name_label.set_offset(SIDE_BOTTOM, -26 * scale)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

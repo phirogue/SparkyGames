@@ -38,6 +38,23 @@ const TYPE_BODY := 30      # anything the player must read to play
 const TYPE_SUPPORT := 26   # secondary lines: blurbs, flavor, captions
 const TYPE_FLOOR := 22     # the smallest legal player-facing size
 
+## The fraction of an energy card's width taken by the PRINTED name band in
+## ui_frame_card_*. Measured off the shipped art, never guessed — a name wider
+## than this sits on the band's ruled edge and reads as overflow even though it
+## is inside the card's rect (owner defect, 2026-08-30: "the energy cards for
+## the long way home minigame are too small to fit the name of the energy type
+## on them").
+##
+## The frames were regenerated that day to widen the band, and the number is
+## measured off the WIRED textures (game/assets/ui) rather than the masters:
+## read at full resolution, a scan of the card's bottom fifth still catches the
+## card FACE and reports a band far wider than the one that gets drawn. The
+## four wired frames come to 72.9 / 74.7 / 75.2 / 82.0 percent, up from a flat
+## 66.7. The FLOOR of those is what a card must be sized against, or the black
+## card is the one that overflows.
+## tests/unit/test_typography.gd holds every screen that draws a card to it.
+const CARD_NAME_BAND := 0.729
+
 static var _cache: Dictionary = {}
 
 

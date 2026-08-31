@@ -44,15 +44,45 @@ signal closed
 ## were 77 tall for a glyph and two short labels, and the said-line was
 ## budgeted for two lines of 26 it never uses. Zone heights must still sum
 ## with their separations to the board height exactly (law 6):
-##   330 + 12 + 190 + 12 + 118 + 12 + 46 = 720.
-const PICTURE_RECT := Rect2(0.0, 0.0, 582.0, 330.0)
+##   302 + 12 + 172 + 12 + 174 + 12 + 36 = 720.
+##
+## The paw took 56 on 2026-08-30 (owner: "the energy cards ... are too small to
+## fit the name of the energy type on them"). "Moonlight" is 94px at the type
+## floor and the card's printed face is UITheme.CARD_NAME_BAND of its width, so
+## the card has to be 140 across; it was 96, which is why only "Guile" ever
+## really fitted. The 56 came from all three of the other zones rather than out
+## of the picture alone: the ways were budgeted 58 a plate for a 44px glyph,
+## and the said-line had 46 for one line of 26. The picture still shows WHOLE,
+## which was the 2026-08-16 complaint — 453x302 where it was 495x330.
+const PICTURE_RECT := Rect2(0.0, 0.0, 582.0, 302.0)
 const NAME_BAND_HEIGHT := 56.0
-const WAYS_TOP := 342.0
-const WAYS_HEIGHT := 190.0
+## The caption steps down this scale until it fits the picture it is on; the
+## floor is TYPE_SUPPORT, never below it (law 29).
+const CAPTION_SIZES := [32, 30, 28, 26]
+const WAYS_TOP := 314.0
+const WAYS_HEIGHT := 172.0
 const WAY_SEPARATION := 8.0
-const PAW_BAND := Vector2(544.0, 662.0)
-const SAID_TOP := 674.0
-const CARD_SIZE := Vector2(96.0, 118.0)
+const PAW_BAND := Vector2(498.0, 672.0)
+const SAID_TOP := 684.0
+## Sized FROM the measurement, not chosen: the widest humour name at
+## UITheme.TYPE_FLOOR must fit inside the card art's printed face
+## (UITheme.CARD_NAME_BAND). "Moonlight" is 94px at 22, so the face needs 102
+## with breathing room, so the card is 140.
+##
+## The height is 13% short of the art's own proportions. A card drawn 140 wide
+## and true would be 197 tall and would have taken another 23px out of the
+## picture; at this size the stretch is not visible, while a name lying across
+## the card's border ink very much was.
+## tests/unit/test_typography.gd fails if these two drift apart again.
+const CARD_SIZE := Vector2(140.0, 174.0)
+## Height of the name's own line, so it can be centred on the printed band
+## rather than hung off the card's bottom edge.
+const NAME_LINE := 30.0
+## How far up from the card's bottom the band's middle sits. The art measures
+## 0.857..0.936, so the geometric centre is 0.1035 up — but a line box carries
+## its baseline low, so type centred on that number sits ON the band's lower
+## rule. 0.118 puts the letters where the eye reads the middle.
+const NAME_BAND_UP := 0.118
 ## The mount the fitted picture sits on, so the margins either side of a
 ## 3:2 picture in a wider window read as a deliberate frame, not a gap.
 const MOUNT := Color(0.10, 0.09, 0.08, 1.0)
@@ -389,7 +419,27 @@ func _fit_picture(art_size: Vector2) -> void:
 	_name_band.position = Vector2(0.0, fitted.y - NAME_BAND_HEIGHT)
 	_name_band.size = Vector2(fitted.x, NAME_BAND_HEIGHT)
 	_name_plate.position = Vector2(14.0, 0.0)
-	_name_plate.size = Vector2(maxf(fitted.x - 28.0, 1.0), NAME_BAND_HEIGHT)
+	_fit_caption(maxf(fitted.x - 28.0, 1.0))
+
+
+## The caption, RE-measured for the picture it is actually sitting on.
+##
+## Law 5, collected 2026-08-30: the plate was measured once at the whole
+## zone's width (554) and then had its rect set to the FITTED picture's width.
+## A measured_label's wrap width is its minimum width, so it kept the 554 it
+## was measured at, and the picture's clip took the end off the caption —
+## "Black water, and one plank" rendered as "Black water, and one plan". The
+## card growing shrank the picture and made a defect that had been latent
+## since the fit was introduced finally visible.
+##
+## Sized down the type scale rather than wrapped: the band is one line tall,
+## so a second line would be clipped exactly like the first overflow was.
+func _fit_caption(width: float) -> void:
+	var size := UITheme.fit_font_size(_name_plate.text, UITheme.display_font(),
+		CAPTION_SIZES, Vector2(width, NAME_BAND_HEIGHT))
+	_name_plate.add_theme_font_size_override("font_size", size)
+	_name_plate.custom_minimum_size = Vector2(width, NAME_BAND_HEIGHT)
+	_name_plate.size = Vector2(width, NAME_BAND_HEIGHT)
 
 
 ## The picture changes at every point (owner 2026-08-13). It cross-fades
@@ -416,6 +466,10 @@ func _refresh_picture() -> void:
 	_picture.move_child(art, 0)
 	_picture_art = art
 	_name_plate.text = String(point.get("name", ""))
+	# Re-fit for the new words: _fit_picture runs before the text is set on
+	# the first point, so measuring only there would size the caption against
+	# an empty string.
+	_fit_caption(_name_plate.size.x)
 	if previous != null and is_instance_valid(previous):
 		if _booted:
 			var fade := previous.create_tween()
@@ -560,10 +614,13 @@ func _card_chip(card_id: String, on_way: bool, useful: bool) -> Control:
 	glyph.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	glyph.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	glyph.set_anchors_preset(Control.PRESET_FULL_RECT)
-	glyph.set_offset(SIDE_LEFT, 20)
-	glyph.set_offset(SIDE_RIGHT, -20)
-	glyph.set_offset(SIDE_TOP, 24)
-	glyph.set_offset(SIDE_BOTTOM, -44)
+	# The insets are FRACTIONS of the card, not the pixel values they were
+	# before: the card grew from 96x118 to 140x174 on 2026-08-30 and fixed
+	# offsets would have left the glyph rattling in a corner of it.
+	glyph.set_offset(SIDE_LEFT, CARD_SIZE.x * 0.16)
+	glyph.set_offset(SIDE_RIGHT, -CARD_SIZE.x * 0.16)
+	glyph.set_offset(SIDE_TOP, CARD_SIZE.y * 0.17)
+	glyph.set_offset(SIDE_BOTTOM, -CARD_SIZE.y * 0.34)
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.add_child(glyph)
 	var value := Label.new()
@@ -571,18 +628,29 @@ func _card_chip(card_id: String, on_way: bool, useful: bool) -> Control:
 	value.add_theme_font_override("font", UITheme.display_font())
 	value.add_theme_font_size_override("font_size", 30)
 	value.add_theme_color_override("font_color", UITheme.INK)
-	value.position = Vector2(14, 8)
+	value.position = Vector2(CARD_SIZE.x * 0.13, CARD_SIZE.y * 0.06)
 	value.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.add_child(value)
 	var name_label := Label.new()
 	name_label.text = Catalog.humour_name(humour)
-	name_label.add_theme_font_size_override("font_size", 22)
+	name_label.add_theme_font_size_override("font_size", UITheme.TYPE_FLOOR)
 	name_label.add_theme_color_override("font_color", UITheme.INK)
-	# The battle card's raised band: on the parchment, not on the deckle edge.
+	# Pinned to the card's printed FACE, not to the card's rect. The whole
+	# defect was a name as wide as the card, lying across the border ink at
+	# both ends; the label is now inset to UITheme.CARD_NAME_BAND and the card
+	# is sized so the widest humour name fits inside that.
+	var inset := CARD_SIZE.x * (1.0 - UITheme.CARD_NAME_BAND) * 0.5
 	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	name_label.set_offset(SIDE_TOP, -46)
-	name_label.set_offset(SIDE_BOTTOM, -26)
+	name_label.set_offset(SIDE_LEFT, inset)
+	name_label.set_offset(SIDE_RIGHT, -inset)
+	# Centred on the art's ruled band, whose middle measures 0.897 down the
+	# card. The band is only 8% of the card tall, so 22px type sits ACROSS it
+	# rather than inside it — as it always has, on every screen that draws
+	# these cards. Centring is what makes that read as deliberate.
+	name_label.set_offset(SIDE_TOP, -CARD_SIZE.y * NAME_BAND_UP - NAME_LINE * 0.5)
+	name_label.set_offset(SIDE_BOTTOM, -CARD_SIZE.y * NAME_BAND_UP + NAME_LINE * 0.5)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.add_child(name_label)
 	if on_way:

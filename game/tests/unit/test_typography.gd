@@ -81,3 +81,32 @@ func test_the_debt_list_cannot_rot() -> void:
 				break
 		assert_true(found,
 			"LEGACY_DEBT names '%s', which no longer exists — strike it" % file_name)
+
+
+## THE CARD NAME FITS THE CARD (owner defect, 2026-08-30: "the energy cards
+## for the long way home minigame are too small to fit the name of the energy
+## type on them").
+##
+## A size test rather than a review comment, because this one is invisible in
+## code: every number involved was individually reasonable, and the name only
+## overflowed once you multiplied the card's width by the fraction of it the
+## art actually leaves blank. "Moonlight" is the long one — 94px at the type
+## floor — and it is the fourth humour, so it is also the one least likely to
+## be on screen when somebody eyeballs a screenshot.
+func test_the_widest_humour_name_fits_the_card_it_is_printed_on() -> void:
+	var widest := ""
+	var widest_px := 0.0
+	for humour in Catalog.HUMOURS:
+		var text := Catalog.humour_name(String(humour))
+		var px := UITheme.measure_text(text, UITheme.body_font(),
+			UITheme.TYPE_FLOOR, 4000.0).x
+		if px > widest_px:
+			widest_px = px
+			widest = text
+	assert_true(widest_px > 0.0, "the humour names measure to something")
+	var card_width: float = load("res://scenes/minigames/crossing_screen.gd") \
+		.get_script_constant_map()["CARD_SIZE"].x
+	var face := card_width * UITheme.CARD_NAME_BAND
+	assert_true(face >= widest_px,
+		"the crossing's card is %.0f wide, leaving a %.0f face, and '%s' is %.0f at the type floor"
+			% [card_width, face, widest, widest_px])

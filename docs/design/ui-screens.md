@@ -47,7 +47,7 @@ Zone template (582x1104 content, 12px separation):
 | Zone | Height | Contents |
 |---|---|---|
 | header | 96 | back arrow, "Settings" in display face |
-| rows | 656 | 6 row plates (`ui_settings_row`), each icon + name + toggle |
+| rows | 656 | 5 row plates (`ui_settings_row`), each icon + name + toggle |
 | loudness | 126 | the master slider, drawn as a thread between two spools |
 | footer | 190 | AI-transparency line, version, "Back to the night" |
 
@@ -62,15 +62,18 @@ does nothing is a lie the player finds out about:
    the effect is visible while the switch is being looked at.
 4. **Ask to Spend** — a confirmation before any purchase at the Exchange. Off
    by default; on for anyone who has fat-fingered 30 gleam once.
-5. **Language — English** — an inert *value* row, not a toggle: there is one
-   language, and a fake language switch is worse than an honest dead end.
-6. **The Book** — opens the save panel: *turn back the page* and *close the
+5. **The Book** — opens the save panel: *turn back the page* and *close the
    book*, and no save button, ever. See
    [saves-and-the-shelf.md](saves-and-the-shelf.md) for why.
 
-The sixth row (2026-08-30) was paid for out of the **row height**, 120 -> 101,
-not out of the page: law 12 says new content goes INTO an existing zone, and
-`ZONE_ROWS` is the same 656 it has always been.
+There **was** a sixth row, an inert "Language — English" value. The owner cut
+it on 2026-08-31 ("this game will be English only for now"), and a row
+reporting a choice nobody has is furniture. Its icon left `wire_assets.py`'s
+list with it; the master stays in the library.
+
+Both edits kept `ZONE_ROWS` at 656 — law 12: new content goes INTO an existing
+zone. The Book row was briefly paid for out of the **row height** (six rows at
+101) and the page is now back at the five-row geometry it was calibrated with.
 
 Buses `Music` and `SFX` are created at boot so the toggles are wired to the
 real thing from the day audio ships, not retrofitted later.
