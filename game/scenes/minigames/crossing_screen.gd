@@ -329,12 +329,17 @@ func _command(command: Dictionary, key: String) -> void:
 	var incoming := "" if state.deck.is_empty() else String(state.deck.back())
 	var result := state.do_command(command)
 	if not result.get("ok", false):
+		SfxService.cue("ui_reject")
 		_say(String(result.get("error", "")))
 		return
 	if coach != null:
 		coach.notify(key)
 	match String(command.get("type", "")):
 		"go":
+			# A slip is the board's one real consequence, so it is the one that
+			# gets its own sound; a clean crossing keeps the paw-step.
+			SfxService.cue("crossing_slip" if result.get("bitten", false)
+				else "step")
 			# Moving on deals one card back into the paw, and the owner asked
 			# to SEE that happen (2026-08-13) — the hand simply having one more
 			# card in it the next time you look is not feedback.

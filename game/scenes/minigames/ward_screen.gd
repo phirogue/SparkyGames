@@ -293,8 +293,16 @@ func _drop_at(point: Vector2) -> void:
 	if anchor.x >= 0 and state.fits(state.drawn, anchor.x, anchor.y, _rotation):
 		var result := state.do_command({"type": "place", "row": anchor.x,
 			"col": anchor.y, "rotation": _rotation})
-		if result.get("ok", false) and coach != null:
-			coach.notify("board")
+		if result.get("ok", false):
+			SfxService.cue("ward_place")
+			if coach != null:
+				coach.notify("board")
+		else:
+			SfxService.cue("ui_reject")
+	else:
+		# A patch dropped where it does not fit. Silence here reads as a drag
+		# the game never noticed, which is the same defect as a silent reject.
+		SfxService.cue("ui_reject")
 	_refresh()
 
 

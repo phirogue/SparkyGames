@@ -388,7 +388,39 @@ static func tap_layer(over: Control) -> Button:
 	for state in ["normal", "hover", "pressed", "focus"]:
 		button.add_theme_stylebox_override(state, StyleBoxEmpty.new())
 	over.add_child(button)
+	sound(button)
 	return button
+
+
+## Give a button its tap sound.
+##
+## Called by the three factories below and by tap_layer, which between them
+## build very nearly every button in the game — so the UI is audible from one
+## edit rather than several hundred. A screen that wants a DIFFERENT sound
+## (the battle's approach cards, the settings toggles) calls `sound(b, "cue")`
+## itself; the last connection wins because the first is disconnected here.
+##
+## Deliberately not on Button itself: a disabled button emits nothing, so a
+## tap that the game is going to ignore stays silent, which is the honest
+## answer. The one that must NOT be silent is a REJECTED action — a tap the
+## game accepted and then refused — and that is `ui_reject`, fired by the
+## screen that did the refusing.
+static func sound(button: Button, cue := "ui_tap") -> Button:
+	# The meta is both the cue and the connect-once flag. Reconnecting would
+	# need to disconnect the previous callable first, and `pressed.bind(cue)`
+	# is not the same Callable as the unbound one, so `is_connected` on it is
+	# always false and the button would end up with a stack of connections
+	# playing several sounds at once. Storing the cue instead means changing
+	# it is an assignment, not a reconnection.
+	var first := not button.has_meta("sfx_cue")
+	button.set_meta("sfx_cue", cue)
+	if first:
+		button.pressed.connect(_play_button_cue.bind(button))
+	return button
+
+
+static func _play_button_cue(button: Button) -> void:
+	SfxService.cue(String(button.get_meta("sfx_cue", "ui_tap")))
 
 
 static func strip_stylebox() -> StyleBoxTexture:
@@ -526,7 +558,7 @@ static func amber_button(text: String, font_size := 30,
 	off.set_content_margin_all(14)
 	b.add_theme_stylebox_override("disabled", off)
 	b.add_theme_color_override("font_disabled_color", INK_FADED)
-	return b
+	return sound(b)
 
 
 ## Secondary (dark) button for destructive or dismissive actions.
@@ -542,7 +574,7 @@ static func dark_button(text: String, font_size := 26,
 	b.add_theme_color_override("font_color", Color("e8e4d8"))
 	b.add_theme_color_override("font_hover_color", Color("e8e4d8"))
 	b.add_theme_color_override("font_pressed_color", Color("e8e4d8"))
-	return b
+	return sound(b)
 
 
 ## Label whose min size is pinned to its measured wrap (law #2 in one call).

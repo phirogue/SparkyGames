@@ -47,7 +47,10 @@
       "PowerShell($found = kpsewhich lmodern.sty; \"lmodern: $found\"; $mt = kpsewhich microtype.sty; \"microtype: $mt\")",
       "Bash(\"C:/Users/yurim/tools/godot/Godot_v4.4.1-stable_win64_console.exe\" --headless --path game -s tests/minigames.gd)",
       "Bash(git --no-pager diff -- novel/chapters/06_the_quiet_gentleman.tex novel/chapters/07_gargoyle_and_ghost.tex)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "PowerShell(python -c \"import numpy; print\\('numpy', numpy.__version__\\)\" 2>&1)",
+      "PowerShell(python \"C:\\\\Users\\\\yurim\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-yurim-OneDrive-Desktop-Vibe-Coding-SparkyGames\\\\7a5a111a-e926-4ab6-a887-4517a221c435\\\\scratchpad\\\\jingles.py\")",
+      "PowerShell(python \"c:\\\\Users\\\\yurim\\\\OneDrive\\\\Desktop\\\\Vibe Coding\\\\SparkyGames\\\\tools\\\\wire_sfx.py\" 2>&1)"
     ],
     "ask": [
       "Bash(git push:*)",

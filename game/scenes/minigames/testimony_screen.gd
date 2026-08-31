@@ -413,6 +413,16 @@ func _on_ribbon(ribbon_id: String) -> void:
 		_selected_evidence = ""
 	else:
 		result = state.do_command({"type": "press", "ribbon": ribbon_id})
+	# Breaking a ribbon with the right evidence is the whole point of the board,
+	# so it is the one that gets a sound of its own. A plain press is the
+	# ordinary case and keeps the UI tap the ribbon button already carries.
+	# `broke` is only present on a PRESENT command — a press returns neither
+	# it nor a failure, and falls through to silence here on purpose.
+	if result.get("broke", false):
+		SfxService.cue("contradiction")
+	elif not result.get("ok", true) or result.has("broke"):
+		# Either refused outright, or the right instinct with the wrong scrap.
+		SfxService.cue("ui_reject")
 	var said := String(result.get("said", ""))
 	if said == "":
 		said = String(result.get("error", ""))

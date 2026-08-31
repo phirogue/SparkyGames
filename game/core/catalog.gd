@@ -86,6 +86,12 @@ var lessons: Dictionary = {}        # id -> {id, name, blurb, kind, order, pages
 ## there. Reached through the music_for_* helpers below; MusicService plays
 ## what they return and knows nothing about content.
 var music: Dictionary = {}          # {tracks, screens, minigames, defaults}
+## The one-shots (data/sfx.json): cue id -> the recordings behind it, how loud,
+## and how often it may fire. A CUE IS NAMED FOR THE EVENT ("ui_reject"), never
+## for the file, so which recording plays is content and moves without touching
+## a program. SfxService plays what this returns and knows nothing about the
+## game; tools/wire_sfx.py reads it to decide which files to wire at all.
+var sfx: Dictionary = {}            # {cues, defaults}
 ## The tuning dials (data/rules.json). Everything the game BALANCES on —
 ## costs, caps, limits, rates, prices, the starting kit — reached through
 ## `rules.count("combat.hand_limit")` and friends. Never null: an absent file
@@ -117,6 +123,7 @@ func _init(data: Dictionary = {}) -> void:
 	minigame_tutorials = data.get("minigame_tutorials", {})
 	lessons = data.get("lessons", {})
 	music = data.get("music", {})
+	sfx = data.get("sfx", {})
 	rules = Rules.new(data.get("rules", {}))
 	world = data.get("world", {})
 
@@ -201,6 +208,24 @@ func _music_default(key: String) -> String:
 		return fallback
 	var tracks := music_tracks()
 	return String(tracks.keys()[0]) if not tracks.is_empty() else ""
+
+
+## Every cue defined in data/sfx.json. Keys beginning "_" are section comments,
+## not cues — the JSON has nowhere else to put a note.
+func sfx_cues() -> Dictionary:
+	var out: Dictionary = {}
+	for key: String in sfx.get("cues", {}):
+		if key.begins_with("_"):
+			continue
+		var cue: Variant = sfx["cues"][key]
+		if cue is Dictionary:
+			out[key] = cue
+	return out
+
+
+## The recordings behind one cue, as file ids relative to assets/sfx/.
+func sfx_files(cue_id: String) -> Array:
+	return sfx_cues().get(cue_id, {}).get("files", [])
 
 
 func _lead_exists(lead_id: String) -> bool:
@@ -305,6 +330,7 @@ func validate() -> Array[String]:
 	problems.append_array(_validate_rule_references())
 	problems.append_array(_validate_world())
 	problems.append_array(_validate_music())
+	problems.append_array(_validate_sfx())
 	return problems
 
 
@@ -349,6 +375,55 @@ func _validate_music() -> Array[String]:
 		var track_id := String(encounters[id]["music"])
 		if not tracks.has(track_id):
 			problems.append("encounter '%s' names unknown track '%s'" % [id, track_id])
+	return problems
+
+
+## Cues, the files behind them, and the one thing that cannot be heard in a
+## test: whether a cue has enough variants to stop sounding like a machine.
+##
+## A wrong sound is reported by a player. A MISSING sound is reported by
+## nobody — it is indistinguishable from a wire that was never connected — so
+## the check has to happen here, where a broken cue fails a test run instead of
+## quietly doing nothing in a fight.
+func _validate_sfx() -> Array[String]:
+	var problems: Array[String] = []
+	if sfx.is_empty():
+		return problems  # a Catalog built for a unit test, not the real one
+	var cues := sfx_cues()
+	if cues.is_empty():
+		problems.append("sfx.json names no cues")
+		return problems
+
+	## Cues that fire many times in one screen and would be noticed repeating.
+	## Law 15 is about repetition the player can hear; a door that opens once a
+	## scene does not need three doors, but a claw does.
+	const NEEDS_VARIANTS := ["ui_tap", "page_turn", "ash_claw", "ash_pounce",
+		"enemy_hit", "play_skill", "thread_snap", "stitch", "ui_reject"]
+
+	var seen_files: Dictionary = {}
+	for cue_id: String in cues:
+		var cue: Dictionary = cues[cue_id]
+		var files: Array = cue.get("files", [])
+		if files.is_empty():
+			problems.append("sfx cue '%s' names no files" % cue_id)
+			continue
+		for f in files:
+			var file_id := String(f)
+			# The wired path. Checked with ResourceLoader rather than
+			# FileAccess because an .ogg that exists but was never imported is
+			# invisible to the game and is exactly the law 23 trap.
+			if not ResourceLoader.exists("res://assets/sfx/%s.ogg" % file_id):
+				problems.append("sfx cue '%s' wants '%s', which is not wired (run tools/wire_sfx.py, then --import)"
+					% [cue_id, file_id])
+			if seen_files.has(file_id) and seen_files[file_id] != cue_id:
+				# Not fatal, but two events that sound identical read to a
+				# player as the game confusing them for each other.
+				problems.append("sfx file '%s' is used by both '%s' and '%s'"
+					% [file_id, seen_files[file_id], cue_id])
+			seen_files[file_id] = cue_id
+		if NEEDS_VARIANTS.has(cue_id) and files.size() < 2:
+			problems.append("sfx cue '%s' fires often and has only one recording — law 15"
+				% cue_id)
 	return problems
 
 

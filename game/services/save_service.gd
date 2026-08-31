@@ -19,7 +19,7 @@ const BACKUP_PATH := "user://profile.bak"
 const SLOT_COUNT := 3
 
 const DEFAULT_PROFILE := {
-	"schema_version": 7,
+	"schema_version": 8,
 	"prologue_done": false,
 	# Which prologue beat this book is open at (v7). The prologue is the
 	# longest unskippable stretch in the game, so quitting in the middle of
@@ -76,9 +76,18 @@ const DEFAULT_PROFILE := {
 	# so a profile written before the settings page existed comes up with
 	# sound on and the lamps normal (law 7).
 	"settings": {
+		# `volume` is the MASTER, and predates the score and the one-shots
+		# having separate faders. It still applies, on top of the two channel
+		# volumes below — see _migrate_audio for what an old save IMPLIES.
 		"volume": 1.0,
 		"sfx": true,
 		"music": true,
+		# The two channels move independently: a player who wants the score
+		# without the clatter of a hundred taps turns one down and leaves the
+		# other alone. Switches and faders are separate controls on purpose —
+		# OFF has to stop the audio decoding, which a fader at zero does not.
+		"music_volume": 1.0,
+		"sfx_volume": 1.0,
 		"lamps_low": false,     # the reading-in-the-dark dim overlay
 		"ask_to_spend": false,  # confirm purchases at the Magpie Exchange
 	},
@@ -369,6 +378,20 @@ static func _migrate(profile: Dictionary) -> Dictionary:
 	# one that did not — the beat it stopped at was never written down.
 	if int(profile.get("schema_version", 1)) < 7:
 		merged["schema_version"] = 7
+	# v8 (2026-08-31): the score and the one-shots got separate faders.
+	# Law 7 — what does an old save IMPLY? It carries ONE loudness, which its
+	# player set to mean "how loud this game is". So it is FOLDED into both
+	# channels and the master reset to full, rather than left applying
+	# underneath: the settings page no longer offers a master control, and an
+	# old save sitting at 40% with no way to raise it would be a player locked
+	# quiet by an upgrade. Read the old value off `profile`, not off `merged` —
+	# the deep merge has already supplied the new keys at 1.0.
+	if int(profile.get("schema_version", 1)) < 8:
+		var was := float(Dictionary(profile.get("settings", {})).get("volume", 1.0))
+		merged["settings"]["music_volume"] = was
+		merged["settings"]["sfx_volume"] = was
+		merged["settings"]["volume"] = 1.0
+		merged["schema_version"] = 8
 	# A finished prologue has no beat to resume; keeping a stale index would
 	# make a replay of the prologue restart in the middle of it.
 	if merged["prologue_done"]:

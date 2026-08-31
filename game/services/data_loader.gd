@@ -29,6 +29,10 @@ static func load_catalog(data_dir: String = DATA_DIR) -> Catalog:
 		# The score: track list plus what each screen, module and place plays.
 		# Places carry their own `music` in environments.json, beside `image`.
 		"music": _load_json(data_dir + "/music.json"),
+		# The one-shots: cue id -> recordings, gain and rate limit. Also the
+		# input to tools/wire_sfx.py, which wires exactly the files named here
+		# — so the data and the assets cannot drift apart.
+		"sfx": _load_json(data_dir + "/sfx.json"),
 		"lessons": _load_json(data_dir + "/lessons.json").get("lessons", {}),
 		# The tuning dials. Unlike the content files this one is a nested
 		# config rather than an id->record map, and every key has a shipped

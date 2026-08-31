@@ -207,8 +207,12 @@ func pull_thread(thread_id: String) -> void:
 		for blocker in result.get("blocked_by", []):
 			_flash.append(String(blocker))
 		_flash.append(thread_id)
+		# A twang is a refusal, so it gets the refusal sound rather than a
+		# thread sound — the board is saying no, not doing something.
+		SfxService.cue("ui_reject")
 		_start_twang()
 	else:
+		SfxService.cue("lattice_resolve")
 		_start_slide(thread_id)
 	_note = Strings.line("minigames.lattice.free") if pulled \
 		else Strings.line("minigames.lattice.twang")

@@ -236,6 +236,9 @@ var _pending_steals := 0
 ## Animations only fire after the first laid-out frame — before that, chip
 ## positions are (0,0) and a "draw" tween would fly in from the page corner.
 var _booted := false
+## Damage at or above which a hit sounds like a BLOW instead of a hit. Read
+## from rules.json presentation.heavy_hit so it moves when enemy damage does.
+var _heavy_hit := 4
 var detail_overlay: Control
 var detail_panel: PanelContainer
 var detail_title: Label
@@ -265,6 +268,7 @@ func setup(p_catalog: Catalog, config: Dictionary, encounter_id: String,
 	catalog = p_catalog
 	encounter_def = catalog.encounters[encounter_id]
 	environment_def = catalog.environments[encounter_def["environment"]]
+	_heavy_hit = catalog.rules.count("presentation.heavy_hit")
 	skill_ids = Array(config.get("skills", []))
 	hints = p_hints
 	coach_steps = p_coach
@@ -383,7 +387,7 @@ func _on_approach(mode: String) -> void:
 	if mode == "":
 		_log(Strings.line("chronicle.walked_in"))
 	else:
-		var result := state.do_command({"type": "approach", "mode": mode})
+		var result := _command({"type":"approach", "mode": mode})
 		if not result["ok"]:
 			_log(result["error"])
 	_drain_events()
@@ -498,9 +502,12 @@ func _on_detail_charge() -> void:
 	var pick := _charge_pick(next_humour)
 	if pick.is_empty():
 		return
-	var result := state.do_command({"type": "charge_skill", "skill_id": skill_id,
+	var result := _command({"type":"charge_skill", "skill_id": skill_id,
 		"source": pick["source"], "index": pick["index"]})
 	if result["ok"]:
+		# A plucked string for spending off the spool — the thread being drawn
+		# tight. The rejected case already sounded in _command().
+		SfxService.cue("charge")
 		_log(Strings.line("chronicle.fed", [Catalog.humour_name(String(next_humour)),
 			catalog.skills[skill_id]["name"]]))
 	else:
@@ -517,8 +524,13 @@ func _on_detail_use() -> void:
 		coach.notify("use")
 	var skill_id := selected_skill
 	_close_detail()
-	var result := state.do_command({"type": "play_skill", "skill_id": skill_id})
-	if not result["ok"]:
+	var result := _command({"type":"play_skill", "skill_id": skill_id})
+	if result["ok"]:
+		# Cloth: the swish of a cat committing to something. The hit it causes
+		# has its own sound a moment later, off the resolved event — this is
+		# the ACT, not the landing.
+		SfxService.cue("play_skill")
+	else:
 		_log(result["error"])  # the journal records what succeeded
 	_after_command()
 
@@ -582,8 +594,9 @@ func _on_concentrate_pressed() -> void:
 
 func _on_concentrate_choose(humour: String) -> void:
 	concentrate_overlay.visible = false
-	var result := state.do_command({"type": "concentrate", "humour": humour})
+	var result := _command({"type":"concentrate", "humour": humour})
 	if result["ok"]:
+		SfxService.cue("concentrate")
 		_log(Strings.line("chronicle.concentrate", [Catalog.humour_name(String(humour))]))
 	else:
 		_log(result["error"])
@@ -595,7 +608,8 @@ func _on_end_turn() -> void:
 		coach.notify("end_turn")
 	_close_detail()
 	_log(Strings.line("chronicle.turn", [state.turn]))
-	state.do_command({"type": "end_turn"})
+	SfxService.cue("end_turn")
+	_command({"type":"end_turn"})
 	_after_command()
 
 
@@ -603,7 +617,7 @@ func _on_slip_away() -> void:
 	if coach != null:
 		coach.notify("slip")
 	_close_detail()
-	var result := state.do_command({"type": "slip_away"})
+	var result := _command({"type":"slip_away"})
 	if not result["ok"]:
 		# There is no door. Say so in the creature's own terms and put the
 		# player back in the room (owner rule 2026-08-04) — a button that
@@ -622,6 +636,23 @@ func _show_no_escape() -> void:
 	no_escape_label.custom_minimum_size = Vector2(wrap, UITheme.measure_text(
 		no_escape_label.text, UITheme.italic_font(), 30, wrap).y)
 	no_escape_overlay.visible = true
+
+
+## Every player action in this scene goes through here, so a REFUSED one
+## always says so out loud.
+##
+## Law 19's chief invariant is that a rejected command changes nothing — and
+## for a long time that included changing nothing AUDIBLE, which made a
+## refused tap indistinguishable from a tap the game never received. The
+## player re-taps, and a fumbled tap that costs nothing starts to feel like a
+## game that is ignoring them. The refusal is still silent in the JOURNAL
+## sense — `result["error"]` is logged by the caller, which knows what it was
+## trying to do — this only guarantees the noise.
+func _command(command: Dictionary) -> Dictionary:
+	var result := state.do_command(command)
+	if not result["ok"]:
+		SfxService.cue("ui_reject")
+	return result
 
 
 func _after_command() -> void:
@@ -718,12 +749,18 @@ func _show_outcome() -> void:
 		CombatState.Outcome.VICTORY:
 			overlay_label.text = "%s: dealt with." % catalog.enemies[state.enemy_id]["name"]
 			overlay_button.text = "Continue"
+			SfxService.cue("sting_victory")
 		CombatState.Outcome.DEFEAT:
 			overlay_label.text = "The dark comes up like a floor."
 			overlay_button.text = "Get up"
+			SfxService.cue("sting_defeat")
 		CombatState.Outcome.RETREATED:
 			overlay_label.text = "You were never here."
 			overlay_button.text = "Slip Away"
+			# Deliberately NOT the defeat sting. Slipping away is a thing the
+			# game teaches on purpose (encounters carry `withdraw_after`), and
+			# scoring it as a loss would argue with the lesson.
+			SfxService.cue("ash_trill")
 	# Autowrap labels reserve no height in a VBox: measure at the label's
 	# true wrap width (panel 480 minus 16px margins each side) so the plate
 	# always encases title and button.
@@ -1902,6 +1939,10 @@ func _control_center(control: Control) -> Vector2:
 func _anim_player_hurt(amount: int) -> void:
 	if not _booted:
 		return
+	# A big hit is a different sound, not the same sound louder. The threshold
+	# is a rules dial rather than a literal so the fights and the feedback
+	# cannot drift apart (law 10).
+	SfxService.cue("heavy_blow" if amount >= _heavy_hit else "enemy_hit")
 	var tween := create_tween()
 	tween.tween_property(hit_flash, "color:a", 0.3, 0.12)
 	tween.tween_property(hit_flash, "color:a", 0.0, 0.8) \
@@ -1915,6 +1956,7 @@ func _anim_player_hurt(amount: int) -> void:
 func _anim_player_blocked(amount: int) -> void:
 	if not _booted:
 		return
+	SfxService.cue("blocked")
 	var guard_chip: Control = status_chips.get("guard", status_plate)
 	guard_chip.pivot_offset = guard_chip.size / 2.0
 	var tween := create_tween()
@@ -1930,6 +1972,9 @@ func _anim_player_blocked(amount: int) -> void:
 func _anim_enemy_hurt(amount: int) -> void:
 	if not _booted or enemy_art == null:
 		return
+	# Ash fights with his claws, so a landed hit IS the claw. Five variants,
+	# never twice running — a fight is where law 15 is most audible.
+	SfxService.cue("ash_claw")
 	var base := enemy_art.position
 	var shake := create_tween()
 	shake.tween_property(enemy_art, "position", base + Vector2(9, -4), 0.1)
@@ -1953,6 +1998,10 @@ func _anim_draw(card: Control, rest: Vector2) -> void:
 	var deck_chip: Control = status_chips.get("deck", null)
 	if deck_chip == null:
 		return
+	# Rate-limited in sfx.json rather than here: a turn that draws three cards
+	# animates them together, and three card sounds on one frame is a shuffle,
+	# not three draws.
+	SfxService.cue("card_draw")
 	var from := hand_cards.get_global_transform().affine_inverse() \
 		* _control_center(deck_chip)
 	card.position = from
@@ -1968,6 +2017,8 @@ func _anim_draw(card: Control, rest: Vector2) -> void:
 
 ## A stolen card flies from the hand to the thief and fades out.
 func _anim_steal(card_id: String) -> void:
+	# Claws on cloth — something being taken off you, not a card being played.
+	SfxService.cue("card_stolen")
 	var ghost := _card_button(card_id, CARD_SCALE)
 	ghost.disabled = true
 	ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE

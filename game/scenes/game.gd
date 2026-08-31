@@ -84,6 +84,8 @@ var lamp_dim: ColorRect
 ## repeat on the floor, so asking on every swap costs nothing.
 var music: MusicService
 var _music_log := false   # --music-log: print every track change
+## The one-shots. Separate bus, separate switch, separate fader from `music`.
+var sfx: SfxService
 
 
 ## Drawn hamburger glyph for the always-available settings button (no
@@ -181,6 +183,18 @@ func _ready() -> void:
 	_music_log = OS.get_cmdline_user_args().has("--music-log")
 	music.enabled = not tour_mode or _music_log
 	add_child(music)
+	# The one-shots. Same reasoning as the score for the bus ordering, and the
+	# same reason to be quiet under the tour — except the tour has no --sfx-log
+	# equivalent, because a one-shot leaves no state to report: it either fired
+	# or it did not, and tests/unit/test_sfx.gd is where that is asserted.
+	sfx = SfxService.new()
+	sfx.name = "SfxService"
+	sfx.configure(catalog.sfx)
+	sfx.enabled = not tour_mode
+	add_child(sfx)
+	# UITheme builds every button in the game from a static context and has no
+	# path to a service instance, so the tap sound is reached through this.
+	SfxService.instance = sfx
 	# The tour node attaches BEFORE the first screen is swapped in, and
 	# regardless of how the game is launched: `--tour --scene scenario:<name>`
 	# photographs a scenario's screens, which is the only way to get shots of
@@ -557,18 +571,34 @@ func _on_setting_changed(key: String, value: Variant) -> void:
 ## and after every change, so there is no per-setting apply path to forget.
 func _apply_settings() -> void:
 	var settings: Dictionary = profile.get("settings", {})
+	# Master. No longer has a control on the settings page — the two channels
+	# below replaced it — but it stays in the profile and stays applied, so a
+	# scenario spec or a future accessibility option can still pull everything
+	# down at once.
 	var volume := float(settings.get("volume", 1.0))
 	AudioServer.set_bus_volume_db(0, linear_to_db(maxf(volume, 0.0001)))
 	AudioServer.set_bus_mute(0, volume <= 0.0)
-	for entry in [["Music", "music"], ["SFX", "sfx"]]:
+	# The score and the one-shots are independent in BOTH directions: each has
+	# its own switch and its own fader, and neither reads the other's. A player
+	# who wants the music without a hundred taps sets Effects to nothing and
+	# leaves Music alone.
+	for entry in [["Music", "music", "music_volume"], ["SFX", "sfx", "sfx_volume"]]:
 		var index := AudioServer.get_bus_index(String(entry[0]))
-		if index >= 0:
-			AudioServer.set_bus_mute(index, not bool(settings.get(entry[1], true)))
+		if index < 0:
+			continue
+		var on := bool(settings.get(String(entry[1]), true))
+		var level := float(settings.get(String(entry[2]), 1.0))
+		AudioServer.set_bus_volume_db(index, linear_to_db(maxf(level, 0.0001)))
+		# Muted when switched off OR faded to nothing. A fader at zero that
+		# left the bus unmuted would still decode every stream for silence.
+		AudioServer.set_bus_mute(index, not on or level <= 0.0)
 	# The bus mute silences the score instantly; this stops it decoding at all.
 	# Both, because the bus is what makes the switch feel immediate and the
 	# stop is what stops spending battery on audio nobody asked for.
 	if music != null:
 		music.set_muted(not bool(settings.get("music", true)))
+	if sfx != null:
+		sfx.set_muted(not bool(settings.get("sfx", true)))
 	if lamp_dim != null:
 		lamp_dim.visible = bool(settings.get("lamps_low", false))
 

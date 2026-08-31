@@ -71,6 +71,7 @@ const DEFAULTS := {
 		"recap_line_max": 70,
 		"flashback_tint": "#d9b689",
 		"music_fade": 1.2,
+		"heavy_hit": 4,
 	},
 }
 

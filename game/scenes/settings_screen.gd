@@ -51,7 +51,26 @@ const NAME_WRAP := 190.0
 const ROW_ITEM_SEPARATION := 10
 
 const VOLUME_STEPS := 5
-const PAW_SIZE := 74.0
+
+## The loudness zone holds TWO faders now — the score and the one-shots move
+## independently (owner 2026-08-31) — and law 12 says new content goes INTO an
+## existing zone rather than growing the page. So the row went horizontal:
+## a name on the left, five paws on the right, instead of a centred strip under
+## a heading. Two rows at PAW_SIZE + ROW_GAP = 118 against ZONE_LOUDNESS's 126.
+##
+## The paws shrank 74 -> 56 to pay for it. They are still a far bigger tap
+## target than a slider grabber, which is why this page counts loudness in paw
+## prints in the first place.
+const PAW_SIZE := 56.0
+const FADER_GAP := 6
+const FADER_LABEL_WIDTH := 190.0
+
+## The two faders, in the order the toggle rows above them have. `key` is the
+## settings key; the paw strip writes 0.0-1.0 into it.
+const FADER_ROWS := [
+	{"key": "sfx_volume", "name": "Effects"},
+	{"key": "music_volume", "name": "Music"},
+]
 
 ## Modal geometry. UITheme.modal's panel is 560 wide by default and the
 ## parchment stylebox eats 16 a side; text measured to anything wider than
@@ -78,7 +97,7 @@ var book_live := true
 
 var _toggle_art: Dictionary = {}   # key -> TextureRect
 var _toggle_word: Dictionary = {}  # key -> Label
-var _paws: Array[TextureRect] = []
+var _fader_paws: Dictionary = {}   # settings key -> Array[TextureRect]
 var _book: Dictionary = {}      # the book panel
 var _book_note: Label           # the panel's one paragraph, which changes
 var _book_actions: Array[Button] = []
@@ -151,19 +170,40 @@ func _build_rows(column: VBoxContainer) -> void:
 	holder.add_child(_book_row())
 
 
+## Two faders, one per audio channel. There is deliberately no master here any
+## more: three loudness controls on a phone page is two too many, and the pair
+## that matters is "the score" against "everything that clatters". Old saves
+## fold their single master into both (SaveService v8).
 func _build_loudness(column: VBoxContainer) -> void:
 	var holder := VBoxContainer.new()
 	holder.custom_minimum_size = Vector2(0, ZONE_LOUDNESS)
-	holder.add_theme_constant_override("separation", 6)
+	holder.add_theme_constant_override("separation", FADER_GAP)
 	column.add_child(holder)
-	holder.add_child(UITheme.measured_label("Loudness", 28,
-		UITheme.CONTENT_WIDTH, UITheme.smallcaps_font(), UITheme.INK_SOFT))
+	for row: Dictionary in FADER_ROWS:
+		holder.add_child(_fader_row(String(row["key"]), String(row["name"])))
+
+
+## Name on the left, five paws on the right. Loudness in paw prints: five steps
+## is enough choice for a phone, and each paw is a far bigger tap target than a
+## slider grabber would be.
+func _fader_row(key: String, name_text: String) -> Control:
+	var row := HBoxContainer.new()
+	row.custom_minimum_size = Vector2(0, PAW_SIZE)
+	row.add_theme_constant_override("separation", ROW_ITEM_SEPARATION)
+
+	var label := UITheme.measured_label(name_text, 26, FADER_LABEL_WIDTH,
+		UITheme.smallcaps_font(), UITheme.INK_SOFT)
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.size_flags_vertical = Control.SIZE_FILL
+	row.add_child(label)
+
 	var paws := HBoxContainer.new()
-	paws.add_theme_constant_override("separation", 18)
-	paws.alignment = BoxContainer.ALIGNMENT_CENTER
-	holder.add_child(paws)
-	# Loudness in paw prints: five steps is enough choice for a phone, and it
-	# is a far bigger tap target than a slider grabber.
+	paws.add_theme_constant_override("separation", 14)
+	paws.alignment = BoxContainer.ALIGNMENT_END
+	paws.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(paws)
+
+	var strip: Array[TextureRect] = []
 	for step in VOLUME_STEPS:
 		var slot := Panel.new()
 		slot.custom_minimum_size = Vector2(PAW_SIZE, PAW_SIZE)
@@ -172,9 +212,12 @@ func _build_loudness(column: VBoxContainer) -> void:
 		var paw := UITheme.icon("ui/ui_paw_full", PAW_SIZE)
 		paw.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		slot.add_child(paw)
-		_paws.append(paw)
-		UITheme.tap_layer(slot).pressed.connect(_on_volume_step.bind(step + 1))
-	_refresh_paws()
+		strip.append(paw)
+		UITheme.tap_layer(slot).pressed.connect(
+			_on_volume_step.bind(key, step + 1))
+	_fader_paws[key] = strip
+	_refresh_paws(key)
+	return row
 
 
 func _build_footer(column: VBoxContainer) -> void:
@@ -224,7 +267,10 @@ func _toggle_row(key: String, name_text: String, icon_id: String) -> Control:
 	body.add_child(art)
 	_toggle_art[key] = art
 	_refresh_toggle(key)
-	UITheme.tap_layer(plate).pressed.connect(_on_toggle.bind(key))
+	# A switch sounds like a switch, not like a page tap. UITheme.sound()
+	# replaces the default cue that tap_layer already attached.
+	UITheme.sound(UITheme.tap_layer(plate), "ui_toggle").pressed.connect(
+		_on_toggle.bind(key))
 	return plate
 
 
@@ -425,15 +471,15 @@ func _on_toggle(key: String) -> void:
 	setting_changed.emit(key, now)
 
 
-func _on_volume_step(step: int) -> void:
+func _on_volume_step(key: String, step: int) -> void:
 	var value := float(step) / float(VOLUME_STEPS)
-	# Tapping the paw you are already on turns it off — otherwise silence is
-	# unreachable, since the first paw is 1/5 and not 0.
-	if is_equal_approx(float(settings.get("volume", 1.0)), value):
+	# Tapping the paw you are already on turns that channel off — otherwise
+	# silence is unreachable, since the first paw is 1/5 and not 0.
+	if is_equal_approx(float(settings.get(key, 1.0)), value):
 		value = 0.0
-	settings["volume"] = value
-	_refresh_paws()
-	setting_changed.emit("volume", value)
+	settings[key] = value
+	_refresh_paws(key)
+	setting_changed.emit(key, value)
 
 
 func _is_on(key: String) -> bool:
@@ -451,8 +497,11 @@ func _refresh_toggle(key: String) -> void:
 		Color("4a6a34") if on else Color("8a5a3a"))
 
 
-func _refresh_paws() -> void:
-	var lit := int(round(float(settings.get("volume", 1.0)) * VOLUME_STEPS))
-	for i in _paws.size():
-		_paws[i].texture = UITheme.cropped_tex(
+func _refresh_paws(key: String) -> void:
+	if not _fader_paws.has(key):
+		return
+	var strip: Array = _fader_paws[key]
+	var lit := int(round(float(settings.get(key, 1.0)) * VOLUME_STEPS))
+	for i in strip.size():
+		strip[i].texture = UITheme.cropped_tex(
 			"ui/ui_paw_full" if i < lit else "ui/ui_paw_empty")

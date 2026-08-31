@@ -217,6 +217,11 @@ func test_an_old_save_keeps_its_own_counsel_about_when_it_was_written() -> void:
 	# recorded — so the field stays 0 and the shelf says so in words rather
 	# than printing a date it invented.
 	var merged := SaveService._migrate({"schema_version": 6, "gleam": 8})
-	assert_eq(int(merged["schema_version"]), 7, "migrated to the shelf version")
+	# Against DEFAULT_PROFILE rather than a literal: the assertion means "was
+	# brought up to the current version", and pinning the number here made an
+	# unrelated migration (v8, the split audio faders) fail a shelf test.
+	assert_eq(int(merged["schema_version"]),
+		int(SaveService.DEFAULT_PROFILE["schema_version"]),
+		"migrated to the current version")
 	assert_eq(int(merged["saved_at"]), 0, "no invented hour")
 	assert_eq(int(merged["gleam"]), 8, "and the game itself survives")

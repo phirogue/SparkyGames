@@ -214,9 +214,15 @@ func on_board_tap(point: Vector2) -> void:
 	var result := state.do_command({"type": "unpick" if not sewing else "sew",
 		"edge": edge_id})
 	if result.get("ok", false):
+		# Sewing and unpicking are opposite acts and get opposite sounds — a
+		# stitch going in, a thread coming out. Same tap, different meaning,
+		# and the board does not otherwise say which one just happened.
+		SfxService.cue("stitch" if sewing else "thread_snap")
 		_note = ""
 		if coach != null:
 			coach.notify("board")
+	else:
+		SfxService.cue("ui_reject")
 	_refresh()
 
 

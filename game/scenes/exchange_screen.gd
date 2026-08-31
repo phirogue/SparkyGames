@@ -620,6 +620,7 @@ func _buy_current() -> void:
 ## has to be honoured.
 func _spend(cost: int, what: String, apply: Callable) -> void:
 	if int(profile["gleam"]) < cost:
+		SfxService.cue("ui_reject")
 		_say(Strings.line("exchange.patter.broke"))
 		_close_shop()
 		return
@@ -640,7 +641,9 @@ func _commit(cost: int, apply: Callable) -> void:
 	_close_shop()
 	profile_changed.emit()
 	_refresh()
-	# The receipt, felt: the purse thins and the spool takes the winding.
+	# The receipt, felt AND heard: the purse thins and the spool takes the
+	# winding. Coins are the one sound in the game that means money left.
+	SfxService.cue("coins")
 	UITheme.pulse(_gleam_label)
 	UITheme.pulse(_spool_strip, 1.08)
 

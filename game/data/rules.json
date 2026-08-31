@@ -127,10 +127,18 @@
       "lines and a fixed illustration, and the story screen silently retires",
       "whatever overflows -- so an over-long line does not look like a bug, it",
       "looks like a missing line. flashback_tint is the one sepia every",
-      "Remembered Day uses, so memory reads the same everywhere."
+      "Remembered Day uses, so memory reads the same everywhere.",
+      "",
+      "heavy_hit is the damage at which a hit stops sounding like a hit and",
+      "starts sounding like a BLOW -- a different recording, not the same one",
+      "louder. It is a dial rather than a literal in battle.gd because it has",
+      "to move with enemy damage: rebalance the Tallowman upward and the",
+      "feedback has to follow, or the fight's biggest moment sounds like its",
+      "smallest."
     ],
     "recap_line_max": 70,
     "music_fade": 1.2,
+    "heavy_hit": 4,
     "flashback_tint": "#d9b689"
   }
 }

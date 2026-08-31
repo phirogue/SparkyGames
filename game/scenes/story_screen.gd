@@ -215,6 +215,11 @@ func _advance() -> void:
 		var label := _line_labels[_revealed]
 		label.visible = true
 		_revealed += 1
+		# The most-heard sound in the game by a wide margin: the whole UI is a
+		# book and this is the page being turned. Three variants, never twice
+		# running — at this frequency a single recording would be the first
+		# thing a player noticed and the first thing they turned off.
+		SfxService.cue("page_turn")
 		var tween := create_tween()
 		tween.tween_property(label, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
 		_retire_overflow()
