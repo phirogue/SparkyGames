@@ -125,9 +125,11 @@ do everything else.
    crit/variance system, absent from the build, mentioned nowhere else.
    My recommendation: cut it from the docs; the charge system already
    fills the "spend to improve odds" niche. Say the word and I'll excise it.
-4. **Supporter pack ($2.99): spec or cut for launch?** Currently 4 lines of
-   design and zero art entries. My recommendation: cut from launch copy,
-   revisit post-launch.
+4. ~~**Supporter pack ($2.99): spec or cut for launch?**~~ **RESOLVED
+   2026-08-31 by the monetization revision:** the game launches free with a
+   donation tip jar; Chapter 2 is sold when ready. The Supporter Pack is cut
+   — the tip jar replaces it with no cosmetic art needed. See
+   `docs/design/monetization.md`.
 5. **Prose trim pass** — the prologue exceeds its own joke-per-scene budget
    in places ("fish, buttons, gossip, gossip about fish"). I can do a
    surgical trim pass and show you a before/after diff, but the voice is

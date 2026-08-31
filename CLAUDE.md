@@ -223,6 +223,9 @@ These override anything older you may read in a doc.
   `docs/design/ai-transparency.md`.
 - **Five minigames approved** (2026-08-03, spec in `docs/design/minigames.md`).
   Do not build unpromoted ones.
+- **Free at launch, with a donation tip jar; Chapter 2 sold when ready**
+  (2026-08-31). Supersedes the free-Ch1 + $6.99-unlock model. What shipped
+  free stays free forever. See `docs/design/monetization.md`.
 - **Every choice needs a consequence**; repetition is the enemy; notifications
   never mix with narrative; text is short, big, and fits; the opponent is the
   biggest thing on screen.
