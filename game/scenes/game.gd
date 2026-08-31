@@ -406,6 +406,7 @@ func _launch_scenario(scenario_name: String) -> void:
 		return
 	profile = SaveService._deep_merge(
 		SaveService.DEFAULT_PROFILE.duplicate(true), spec.get("profile", {}))
+	_heal_facts()
 	tracker = AchievementTracker.new(catalog)
 	tracker.from_dict(profile.get("achievements", {}))
 	# A scenario may carry its OWN story scenes, which is how a story system
@@ -667,11 +668,29 @@ func _new_book(slot: int) -> void:
 	_run_prologue_scene(0)
 
 
+## What an old save IMPLIES (law 7): profiles from before facts existed — and
+## scenario specs, which hand-author quests_done — arrive with facts = {},
+## which would make every "have we met?" answer no to characters the player
+## has known for chapters. Re-derive from completed quests and the profile's
+## own flags; idempotent, additive, cheap, so it runs on every adopt rather
+## than once per schema bump.
+func _heal_facts() -> void:
+	# Sanitize first: saves are player-owned files, and a hand-edited value
+	# ("met_bodkin": "yes") would misgate or crash every later fact read.
+	profile["facts"] = ProwlScript.sanitize_facts(profile.get("facts", {}))
+	var derived := ProwlScript.derive_facts(catalog.quests,
+		Array(profile.get("quests_done", [])), Dictionary(profile.get("flags", {})))
+	for key in derived:
+		if not profile["facts"].has(key):
+			profile["facts"][key] = derived[key]
+
+
 ## Take a loaded profile as the live one, and re-point everything that keeps a
 ## copy of a piece of it. Missing one of these is how a loaded game ends up
 ## with the previous book's achievements or the previous book's lamps.
 func _adopt_profile(loaded: Dictionary) -> void:
 	profile = loaded
+	_heal_facts()
 	tracker.from_dict(profile.get("achievements", {}))
 	toasts = []
 	quest = {}
@@ -1655,6 +1674,16 @@ func _run_prowl_story(step: Dictionary, on_done: Callable) -> void:
 	if ProwlScript.attempt_gate_blocks(step, quest_attempt):
 		on_done.call()
 		return
+	if ProwlScript.fact_gate_blocks(step, profile.get("facts", {})):
+		on_done.call()
+		return
+	# Facts are recorded the moment the page is SHOWN, not when the quest
+	# ends — you have met Bodkin even if you die in the next alley. Saved
+	# immediately for the same reason.
+	if step.has("sets"):
+		profile["facts"] = profile.get("facts", {})
+		profile["facts"].merge(ProwlScript.facts_set_by(step), true)
+		_save()
 	_apply_scene_spine(step)
 	if step.has("grant_growth"):
 		_grant_growth(step["grant_growth"])

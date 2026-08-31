@@ -281,6 +281,7 @@ func validate() -> Array[String]:
 		if String(quest.get("board_card", "")).is_empty():
 			problems.append("quest '%s' has no board card text" % id)
 		problems.append_array(_validate_quest_v2(id, quest))
+	problems.append_array(_validate_fact_references())
 	for id in achievements:
 		var achievement: Dictionary = achievements[id]
 		if String(achievement.get("name", "")).is_empty():
@@ -939,6 +940,16 @@ func _validate_prowl_script(id: String, quest: Dictionary) -> Array[String]:
 	}
 	var fights := 0
 	for step: Dictionary in steps:
+		# Facts (ProwlScript): the engine consults `when_fact` and applies
+		# `sets` only on story and flashback beats — anywhere else the keys
+		# would sit unread, which is a gate that never gates.
+		if step.has("when_fact") or step.has("sets"):
+			var step_type := ProwlScript.type_of(step)
+			if step_type != ProwlScript.STORY and step_type != ProwlScript.FLASHBACK:
+				problems.append("quest '%s' puts when_fact/sets on a '%s' step — only story beats read facts"
+					% [id, step_type])
+			else:
+				problems.append_array(_validate_fact_step(id, step))
 		match ProwlScript.type_of(step):
 			ProwlScript.BATTLE:
 				fights += 1
@@ -1003,6 +1014,104 @@ func _validate_prowl_script(id: String, quest: Dictionary) -> Array[String]:
 				leaves_something = true
 		if not leaves_something:
 			problems.append("quest '%s' has no fights, no reward and no findings — nothing happens" % id)
+	return problems
+
+
+## One step's `when_fact` / `sets` shapes (ProwlScript facts). A mistyped
+## clause would gate a page into never playing, which reads as missing
+## prose rather than as an error — so every shape defect is a boot-time
+## problem. Values are ints only: Godot's JSON parser returns floats
+## (CLAUDE.md trap 26), and anything richer invites `==` surprises.
+func _validate_fact_step(id: String, step: Dictionary) -> Array[String]:
+	var problems: Array[String] = []
+	if step.has("sets"):
+		if not (step["sets"] is Dictionary) or (step["sets"] as Dictionary).is_empty():
+			problems.append("quest '%s' has a step whose `sets` is not a non-empty dict" % id)
+		else:
+			for key in step["sets"]:
+				if String(key).is_empty():
+					problems.append("quest '%s' sets a nameless fact" % id)
+				elif not (step["sets"][key] is float or step["sets"][key] is int):
+					problems.append("quest '%s' sets fact '%s' to a non-integer value" % [id, key])
+				elif int(step["sets"][key]) == 0:
+					# 0 is a trap: a held 0 is not the same as an absent fact
+					# ("not 0" blocks, "not 1" passes) and an author reaching
+					# for 0 to mean "un-set" would be betrayed silently.
+					problems.append("quest '%s' sets fact '%s' to 0 — absent and 0 gate differently; use absence" % [id, key])
+		# Derivation cannot replay a minigame result or a retry, so a fact
+		# set only behind those gates is permanently lost to migrated saves
+		# (ProwlScript.derive_facts skips both).
+		if step.has("when_minigame"):
+			problems.append("quest '%s' sets facts behind a minigame gate — old saves could never re-derive them" % id)
+		if String(step.get("when_attempt", "first")) == "retry":
+			problems.append("quest '%s' sets facts on a retry-only beat — old saves could never re-derive them" % id)
+	if step.has("when_fact"):
+		var clauses: Array = []
+		if step["when_fact"] is Array:
+			clauses = Array(step["when_fact"])
+		else:
+			clauses = [step["when_fact"]]
+		if clauses.is_empty():
+			problems.append("quest '%s' has an empty when_fact gate" % id)
+		for entry in clauses:
+			if not (entry is Dictionary):
+				problems.append("quest '%s' has a when_fact clause that is not a dict" % id)
+				continue
+			var clause: Dictionary = entry
+			if String(clause.get("fact", "")).is_empty():
+				problems.append("quest '%s' gates a beat on a nameless fact" % id)
+			if int(clause.has("is")) + int(clause.has("not")) != 1:
+				problems.append("quest '%s' fact gate on '%s' needs exactly one of is/not"
+					% [id, clause.get("fact", "?")])
+			for op in ["is", "not"]:
+				if clause.has(op) and not (clause[op] is float or clause[op] is int):
+					problems.append("quest '%s' fact gate on '%s' compares a non-integer value"
+						% [id, clause.get("fact", "?")])
+	return problems
+
+
+## Facts as a whole: every fact a beat gates on must be SET somewhere in the
+## content, or the gate is a typo that silently never opens (or never
+## closes). The reverse — a fact set and never read — is legal: facts are
+## plumbing for content that does not exist yet.
+##
+## And a SETTER may only gate on facts set within its own quest. Derivation
+## replays quests in quests_done order; a setter gated on another quest's
+## fact would derive differently depending on that order, and a scenario or
+## hostile save can put quests_done in any order at all.
+func _validate_fact_references() -> Array[String]:
+	var problems: Array[String] = []
+	var set_names := {}
+	var set_names_by_quest := {}
+	for quest_id in quests:
+		var here := {}
+		for step: Dictionary in ProwlScript.steps_of(quests[quest_id]):
+			for key in step.get("sets", {}):
+				set_names[String(key)] = true
+				here[String(key)] = true
+		set_names_by_quest[quest_id] = here
+	for quest_id in quests:
+		for step: Dictionary in ProwlScript.steps_of(quests[quest_id]):
+			if not step.has("when_fact"):
+				continue
+			var clauses: Array = []
+			if step["when_fact"] is Array:
+				clauses = Array(step["when_fact"])
+			else:
+				clauses = [step["when_fact"]]
+			for entry in clauses:
+				if not (entry is Dictionary):
+					continue
+				var fact_name := String((entry as Dictionary).get("fact", ""))
+				if fact_name == "":
+					continue
+				if not set_names.has(fact_name):
+					problems.append("quest '%s' gates a beat on fact '%s', which nothing ever sets"
+						% [quest_id, fact_name])
+				elif step.has("sets") \
+						and not Dictionary(set_names_by_quest[quest_id]).has(fact_name):
+					problems.append("quest '%s' has a setter gated on foreign fact '%s' — derivation would depend on quests_done order"
+						% [quest_id, fact_name])
 	return problems
 
 

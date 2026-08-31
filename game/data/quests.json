@@ -175,6 +175,9 @@
         "portrait": "npc_brindle_magpie",
         "art_desc": "Brindle the magpie fence behind a market stall of buttons, teeth and small keys, one bright eye, night market lanterns",
         "when_attempt": "first",
+        "sets": {
+          "met_brindle": 1
+        },
         "lines": [
           "I arrive at the stall with the thimble still in my teeth and my dignity somewhere behind me on the cobbles.",
           "Brindle is on her perch above the shutters, black and white with that oil-slick green in the wing, doing the thing magpies do that looks like idleness and is inventory. She speaks before I have set the thimble down.",
@@ -249,6 +252,9 @@
       {
         "type": "story",
         "environment": "parlor_cold",
+        "sets": {
+          "met_cardew": 1
+        },
         "lines": [
           "Three witches came at first light, and nobody sent for them. They did not knock. Witches do not knock at a house where a witch has died; a knock asks a question, and the house has already answered it.",
           "Mother Cardew is the eldest of the Circuit. Small and grey and folded, like something kept a long time at the bottom of the workbasket — and her eyes went round the parlor once, at working speed."
@@ -296,6 +302,9 @@
           "flag": "carrying_answer",
           "value": 0
         },
+        "sets": {
+          "heard_cardew_again": 1
+        },
         "lines": [
           "I told it, all of it, in order, as she taught me anything worth saying should go. Cardew listened the whole way through without moving.",
           "Then she said, quieter, to nobody: 'Again.' She put the word down like something she had not meant to be holding. AGAIN means BEFORE, and a thing with habits can be found."
@@ -319,6 +328,9 @@
         "when_flag": {
           "flag": "carrying_answer",
           "value": 2
+        },
+        "sets": {
+          "heard_cardew_learned": 1
         },
         "lines": [
           "'What unpicks a witch's own stitching?' I ask. The room gets colder in a way the room is not responsible for.",
@@ -484,6 +496,9 @@
         "environment": "shambles_market",
         "portrait": "npc_rat_boss",
         "art_desc": "The boss of the Ratsmeet: an ancient grey rat on a throne of market crates under a fish market, chalk tallies and ledgers around him",
+        "sets": {
+          "met_grey_boss": 1
+        },
         "lines": [
           "Their boss is grey to the point of transparency. He will tell you he remembers the ninth bell. Nobody argues with him.",
           "'The witch's cat,' he says. 'We had a lively night. Everyone had a lively night.'",
@@ -718,7 +733,28 @@
         "environment": "shambles_market",
         "lines": [
           "I asked who would look now. 'Seven of us, holding what she held, and a thing under this town that wants a hand on it every hour of the night. There's no spare hand in this city to go asking who.'",
-          "At the sea-wall: 'You are neither.' A pause. 'You were her ninth, you know. She'd never say what she meant by the count. Find who did this, cat.'",
+          "At the sea-wall: 'You are neither.' A pause. 'You were her ninth, you know. She'd never say what she meant by the count. Find who did this, cat.'"
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "when_fact": {
+          "fact": "heard_cardew_again",
+          "is": 1
+        },
+        "lines": [
+          "Ninth. I filed the word next to AGAIN, in the drawer of things said to me that were heavier than the sayer knew."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "when_fact": {
+          "fact": "heard_cardew_again",
+          "not": 1
+        },
+        "lines": [
           "Ninth. I filed it next to 'twice before', in the drawer of things said to me that were heavier than the sayer knew."
         ]
       },
@@ -792,6 +828,10 @@
         "type": "story",
         "environment": "wickrow_night",
         "portrait": "npc_bodkin",
+        "when_fact": {
+          "fact": "met_bodkin",
+          "not": 1
+        },
         "lines": [
           "A paw hooked my scruff and hauled me through a gap I had not seen, and held me in a doorway's dead shadow while the watch went past.",
           "A grey tom. Old, big-boned, one eye, half an ear, and the stillness of a creature long practised at being exactly as visible as it chooses."
@@ -801,6 +841,10 @@
         "type": "story",
         "environment": "wickrow_night",
         "portrait": "npc_bodkin",
+        "when_fact": {
+          "fact": "met_bodkin",
+          "not": 1
+        },
         "lines": [
           "'Watch the paws, not the claws. Claws are a rumor. Paws are an appointment. The dog told you where he would be four moves before he got there, and you were reading the teeth.'",
           "'Wax door, far side. Wick's paper is worth the reading.' — You know what I am looking for, I said. 'I knew your witch to look at,' he says. 'Everyone did.'"
@@ -810,6 +854,26 @@
         "type": "story",
         "environment": "wickrow_night",
         "portrait": "npc_bodkin",
+        "when_fact": {
+          "fact": "met_bodkin",
+          "is": 1
+        },
+        "lines": [
+          "At the alley-mouth, the doorway's dead shadow already has its tenant. A paw takes my scruff through the same gap, same silence. Bodkin does not give a lesson twice; he watches me use the first one instead."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "portrait": "npc_bodkin",
+        "when_fact": {
+          "fact": "heard_guest_right",
+          "not": 1
+        },
+        "sets": {
+          "met_bodkin": 1,
+          "heard_guest_right": 1
+        },
         "lines": [
           "Then he gave me one more thing I had not asked for, flat, and worn smooth with saying.",
           "'Nobody collects off a lit candle. You take a house's light, you take its salt, you take its fire: take any of the three and you take nothing else under that roof that night. Not a debt. Not a favor. Not a mouse.'",
@@ -909,6 +973,9 @@
         "flag": "lamp_approach",
         "portrait": "npc_shift_boss",
         "when_attempt": "first",
+        "sets": {
+          "met_merrow": 1
+        },
         "lines": [
           "They knew me the moment I came in. THE WITCH'S CAT went around the room the way words go around a room full of people not saying them, and the room braced.",
           "The one to convince is obvious. Torn ear, chalk on her paws, and a shift-boss's way of standing: facing the door, near the lamp, where the next bad news has to go through her first.",
@@ -953,6 +1020,9 @@
         "when_flag": {
           "flag": "lamp_approach",
           "value": 1
+        },
+        "sets": {
+          "knows_eleven": 1
         },
         "lines": [
           "I look at the coats over the boots and ask after their missing, which has the advantage of being true. The room stops bracing.",
@@ -1188,7 +1258,28 @@
         "lead": "l4",
         "lines": [
           "A hand's length of her thread comes away with the reading — the piece the unpicker lifted and left hanging. Hers, then mine.",
-          "The ward did not fail. It was UNPICKED: her exact stitch, mirror-handed, faster than any needle honestly goes. I thought those words once already, standing at her chair.",
+          "The ward did not fail. It was UNPICKED: her exact stitch, mirror-handed, faster than any needle honestly goes. I thought those words once already, standing at her chair."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickhouse",
+        "when_fact": {
+          "fact": "heard_cardew_learned",
+          "is": 1
+        },
+        "lines": [
+          "Cardew said it, in her parlor: something that learned it from her — or from one of us. Learned without being taught, then. A different crime, with a shorter list of suspects. I do not like how short."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickhouse",
+        "when_fact": {
+          "fact": "heard_cardew_learned",
+          "not": 1
+        },
+        "lines": [
           "Perfect technique, and Elspeth taught exactly nobody. So something learned her hand without being taught — a different crime, with a shorter list of suspects. I do not like how short."
         ]
       },
@@ -1257,6 +1348,9 @@
         "type": "story",
         "environment": "guildhall",
         "portrait": "npc_wick",
+        "sets": {
+          "met_wick": 1
+        },
         "lines": [
           "Up the stairs, past the puddle with opinions, into the office: Ellery Wick, small behind a desk built to make everything else smaller, already talking.",
           "'You have questions. Everyone has questions. Ask me anything — you will find I have nothing at all to hide.' Which is what that sentence is always for."
@@ -1303,6 +1397,9 @@
           "flag": "wick_verdict",
           "value": 0
         },
+        "sets": {
+          "wick_exposed": 1
+        },
         "standing": {
           "chandlers": -6,
           "lamplighters": 2
@@ -1318,6 +1415,9 @@
         "when_flag": {
           "flag": "wick_verdict",
           "value": 1
+        },
+        "sets": {
+          "wick_knot_taken": 1
         },
         "grant_favor": "wick_knot",
         "standing": {
@@ -1495,8 +1595,35 @@
         "type": "story",
         "environment": "needle_lane",
         "lines": [
-          "There it is, halfway up the lane, keeping the height of a man. A Lamplighter's coat, by the cord on the shoulder.",
-          "One of the missing, then — the hall sent four to her wake, everyone it has left, and this coat is not one of the four. A coat only walks for the missing. Not dead. Somewhere.",
+          "There it is, halfway up the lane, keeping the height of a man. A Lamplighter's coat, by the cord on the shoulder."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "needle_lane",
+        "when_fact": {
+          "fact": "knows_eleven",
+          "is": 1
+        },
+        "lines": [
+          "One of the eleven, then — the names Merrow files every week, and every week the filings come back marked NO APPOINTMENT. Not dead. Somewhere."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "needle_lane",
+        "when_fact": {
+          "fact": "knows_eleven",
+          "not": 1
+        },
+        "lines": [
+          "One of the missing, then — the hall sent four to her wake, everyone it has left, and this coat is not one of the four. A coat only walks for the missing. Not dead. Somewhere."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "needle_lane",
+        "lines": [
           "The wisps have found it first — two of them, drinking the lie of a man who is not there."
         ]
       },
@@ -1554,6 +1681,9 @@
       {
         "type": "story",
         "environment": "rooftop_dusk",
+        "sets": {
+          "met_tansy": 1
+        },
         "lines": [
           "The kitten wakes up, locates me, and announces to the Court that her counsel has arrived. I have issued no such appointment. The Court minutes it anyway.",
           "'He never signs anything that can be settled,' warns the Clowder-mother. 'Read it before you touch it.' Sound advice for contracts, and for him."
@@ -1602,6 +1732,9 @@
       {
         "type": "story",
         "environment": "parlor_cold",
+        "sets": {
+          "tansy_home": 1
+        },
         "lines": [
           "Tansy follows me home. I explain that I live alone. She agrees enthusiastically, and moves in. She has decided she is my apprentice. I was not consulted. I begin to see how her contracts happen.",
           "The Court of Whiskers settles counsel's fee at dawn: small shine, counted to the button. Cats keep accounts too.",

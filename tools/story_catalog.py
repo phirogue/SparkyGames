@@ -75,6 +75,14 @@ def branch_of(step: dict) -> str:
         if isinstance(f, dict):
             return f"{f.get('flag')}={f.get('value')}"
         return str(f)
+    if "when_fact" in step:
+        # Durable facts (ProwlScript): one clause or a list, all must hold.
+        gate = step["when_fact"]
+        parts = []
+        for clause in gate if isinstance(gate, list) else [gate]:
+            op = "=" if "is" in clause else "!="
+            parts.append(f"{clause.get('fact')}{op}{clause.get('is', clause.get('not'))}")
+        return " & ".join(parts)
     return ""
 
 

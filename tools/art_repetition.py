@@ -73,9 +73,70 @@ def load_prologue() -> dict:
     return book
 
 
+def gate_of(step: dict):
+    for key in ("when_flag", "when_outcome", "when_minigame", "when_attempt",
+                "when_fact"):
+        if key in step:
+            return (key, step[key])
+    return None
+
+
+def exclusive(a: dict, b: dict) -> bool:
+    """Can one player ever see BOTH of these steps in one pass? Adjacent
+    variants of the same beat (flag branches, is/not fact pairs, first/retry
+    twins) are one picture-slot, not a run of pictures — counting them as
+    consecutive beats flags runs no player can experience."""
+    ga, gb = gate_of(a), gate_of(b)
+    if not ga or not gb or ga[0] != gb[0]:
+        return False
+    key, va, vb = ga[0], ga[1], gb[1]
+    if key == "when_flag":
+        return (isinstance(va, dict) and isinstance(vb, dict)
+                and va.get("flag") == vb.get("flag")
+                and va.get("value") != vb.get("value"))
+    if key in ("when_outcome", "when_minigame", "when_attempt"):
+        return va != vb
+    if key == "when_fact":
+        fa = va if isinstance(va, dict) else (va[0] if va else {})
+        fb = vb if isinstance(vb, dict) else (vb[0] if vb else {})
+        if fa.get("fact") != fb.get("fact"):
+            return False
+        if "is" in fa and "not" in fb and fa["is"] == fb["not"]:
+            return True
+        if "not" in fa and "is" in fb and fa["not"] == fb["is"]:
+            return True
+        return "is" in fa and "is" in fb and fa["is"] != fb["is"]
+    return False
+
+
+def collapse_exclusive(scenes: list) -> list:
+    """Merge each run of pairwise-exclusive adjacent variants into one slot.
+    If every variant shows the same picture the slot counts as one beat of
+    it; variants showing different pictures cannot extend any single-image
+    run for every player, so the slot breaks the run instead."""
+    out, i = [], 0
+    while i < len(scenes):
+        group = [scenes[i]]
+        j = i + 1
+        while j < len(scenes) and all(exclusive(s, scenes[j]) for s in group):
+            group.append(scenes[j])
+            j += 1
+        if len(group) == 1:
+            out.append(scenes[i])
+        else:
+            looks = {(str(s.get("portrait", "")), str(s.get("environment", "")))
+                     for s in group}
+            if len(looks) == 1:
+                out.append(group[0])
+            else:
+                out.append({"type": "__branch_split__"})
+        i = j
+    return out
+
+
 def beats_of_story(story: dict, environments: dict) -> list:
     out, carried = [], ""
-    for index, scene in enumerate(story.get("scenes", [])):
+    for index, scene in enumerate(collapse_exclusive(story.get("scenes", []))):
         if scene.get("type") not in ("story", "flashback"):
             # A fight, a notice or a minigame breaks the run: the player's eye
             # has been somewhere else entirely.
@@ -89,7 +150,7 @@ def beats_of_story(story: dict, environments: dict) -> list:
 
 def beats_of_quest(quest: dict, environments: dict) -> list:
     out, carried = [], ""
-    for index, step in enumerate(quest.get("steps", [])):
+    for index, step in enumerate(collapse_exclusive(quest.get("steps", []))):
         if step.get("type", "battle") != "story":
             carried = ""
             out.append((index, None))

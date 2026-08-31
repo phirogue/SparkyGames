@@ -99,6 +99,16 @@ const DEFAULT_PROFILE := {
 	# and every quest reads as a first visit — one remembering line lost,
 	# nothing owed.
 	"quest_attempts": {},
+	# Durable FACTS: what this Ash has seen, met and learned, as
+	# {name: int} — set by story steps (`sets`) the moment they are shown,
+	# read by `when_fact` gates so a line that leans on a branch-gated
+	# event provably plays only for players who saw it. Migration thought
+	# (law 7): an old save merges to {} and every "have we met?" would
+	# answer no to characters known for chapters — so game.gd re-derives
+	# facts from quests_done + flags on adopt (ProwlScript.derive_facts),
+	# idempotently, every load. Nothing here is authoritative that cannot
+	# be re-derived or re-earned.
+	"facts": {},
 }
 
 # ---------------------------------------------------------------- the shelf
