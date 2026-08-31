@@ -87,14 +87,8 @@ const NAME_BAND_UP := 0.118
 ## 3:2 picture in a wider window read as a deliberate frame, not a gap.
 const MOUNT := Color(0.10, 0.09, 0.08, 1.0)
 
-## Colours and glyphs come from MinigameShell.HUMOUR_* — the battle screen's
-## own vocabulary, shared verbatim so a card is the same card everywhere.
-const HUMOUR_FRAME := {
-	"ferocity": "ui/ui_frame_card_red",
-	"guile": "ui/ui_frame_card_green",
-	"shadow": "ui/ui_frame_card_black",
-	"mysticism": "ui/ui_frame_card_blue",
-}
+# Colours, glyphs and card frames come from UITheme.HUMOUR_* — one copy
+# everywhere, so a card is provably the same card on every screen.
 const PARCHMENT := Color("f2e4c8")
 
 var state: CrossingState
@@ -508,7 +502,7 @@ func _way_plate(way: Dictionary, height: float) -> Control:
 	var plate := Button.new()
 	plate.custom_minimum_size = Vector2(0, height)
 	plate.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var tint: Color = MinigameShell.HUMOUR_COLOURS.get(humour, Color("6b5747"))
+	var tint: Color = UITheme.HUMOUR_COLORS.get(humour, Color("6b5747"))
 	for style_state in ["normal", "hover", "pressed", "focus"]:
 		plate.add_theme_stylebox_override(style_state,
 			UITheme.amber_stylebox() if chosen else UITheme.panel_stylebox(10))
@@ -523,7 +517,7 @@ func _way_plate(way: Dictionary, height: float) -> Control:
 	row.offset_right = -14
 	plate.add_child(row)
 
-	var glyph_id := String(MinigameShell.HUMOUR_GLYPH.get(humour, ""))
+	var glyph_id := String(UITheme.HUMOUR_GLYPH.get(humour, ""))
 	if glyph_id != "":
 		var glyph := UITheme.icon(glyph_id, 46.0)
 		glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -608,14 +602,14 @@ func _card_chip(card_id: String, on_way: bool, useful: bool) -> Control:
 	chip.size = CARD_SIZE
 	chip.set_meta("card_id", card_id)
 	var frame := TextureRect.new()
-	frame.texture = UITheme.tex(String(HUMOUR_FRAME.get(humour, "")))
+	frame.texture = UITheme.tex(String(UITheme.HUMOUR_CARD_FRAME.get(humour, "")))
 	frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	frame.stretch_mode = TextureRect.STRETCH_SCALE
 	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.add_child(frame)
 	var glyph := TextureRect.new()
-	glyph.texture = UITheme.tex(String(MinigameShell.HUMOUR_GLYPH.get(humour, "")))
+	glyph.texture = UITheme.tex(String(UITheme.HUMOUR_GLYPH.get(humour, "")))
 	glyph.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	glyph.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	glyph.set_anchors_preset(Control.PRESET_FULL_RECT)

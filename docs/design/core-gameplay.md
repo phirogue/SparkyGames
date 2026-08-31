@@ -118,7 +118,7 @@
 >   mechanics and later scenes (first one shipped: the prologue route-home
 >   choice — a Moonlight card of her stitching vs entering the boss with
 >   surprise). Choices are remembered by the world.
-> - **Multiple win paths, verified by data.** Simulated playtests (8,400 bot
+> - **Multiple win paths, verified by data.** Simulated playtests (19,200 bot
 >   fights per pass — see [balance-notes.md](balance-notes.md)) confirm the
 >   stage-3 wraith can be out-tanked (94%), out-fled (banks progress), or
 >   died to (aggression: 2%) — and that tutorials are safe at 100% even for

@@ -138,9 +138,9 @@ func _build_energy_strip() -> void:
 	_board.add_child(strip)
 	_energy_chips["spool"] = _energy_chip(strip, "ui/ui_spool", 44.0, UITheme.INK)
 	for humour in Catalog.HUMOURS:
-		var colour: Color = MinigameShell.HUMOUR_COLOURS.get(humour, UITheme.INK)
+		var colour: Color = UITheme.HUMOUR_COLORS.get(humour, UITheme.INK)
 		_energy_chips[humour] = _energy_chip(strip,
-			String(MinigameShell.HUMOUR_GLYPH.get(humour, "")), 38.0, colour)
+			String(UITheme.HUMOUR_GLYPH.get(humour, "")), 38.0, colour)
 
 
 func _energy_chip(parent: Container, icon_id: String, box: float,
@@ -335,7 +335,7 @@ func _refresh_energy() -> void:
 		var count: int = int(counts.get(humour, 0))
 		var label: Label = _energy_chips[humour]
 		label.text = str(count)
-		var colour: Color = MinigameShell.HUMOUR_COLOURS.get(humour, UITheme.INK)
+		var colour: Color = UITheme.HUMOUR_COLORS.get(humour, UITheme.INK)
 		label.add_theme_color_override("font_color",
 			colour if count > 0 else UITheme.INK_FADED)
 		label.get_parent().modulate.a = 1.0 if count > 0 else 0.45
@@ -431,7 +431,7 @@ class WardBoard extends Control:
 
 	func _colour_of(card_id: String) -> Color:
 		var humour: String = screen.state.humour_of(card_id)
-		var base: Color = MinigameShell.HUMOUR_COLOURS.get(humour, Color("7a5233"))
+		var base: Color = UITheme.HUMOUR_COLORS.get(humour, Color("7a5233"))
 		return base
 
 	# ----------------------------------------------------------------- draw
@@ -503,7 +503,7 @@ class WardBoard extends Control:
 			return
 		var card: Dictionary = screen.state._catalog.energy_cards.get(state.drawn, {})
 		var humour := String(card.get("humour", ""))
-		var tint: Color = MinigameShell.HUMOUR_COLOURS.get(humour, UITheme.INK)
+		var tint: Color = UITheme.HUMOUR_COLORS.get(humour, UITheme.INK)
 		draw_rect(rect, Color("f2e4c8"))
 		draw_rect(rect, tint, false, 4.0)
 		# The cloth this card cuts, at the ward's own cell size where it fits,

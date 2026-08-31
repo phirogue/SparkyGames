@@ -61,22 +61,9 @@ const TORN := Color("6b5747")
 const DONE := Color("3f6b46")
 const DONE_SOFT := Color("3f6b4644")
 
-## The battle screen's per-humour vocabulary, shared verbatim so a card on a
-## crossing, a patch on a ward and a card in a fight are the same colour and
-## wear the same glyph. Lived in crossing_screen.gd until the ward's energy
-## strip needed it too.
-const HUMOUR_COLOURS := {
-	"ferocity": Color("a24a3a"),
-	"guile": Color("6a6a2a"),
-	"shadow": Color("3a4a6a"),
-	"mysticism": Color("6a4a7a"),
-}
-const HUMOUR_GLYPH := {
-	"ferocity": "energy_claw",
-	"guile": "energy_eye",
-	"shadow": "energy_shade",
-	"mysticism": "energy_moon",
-}
+# The per-humour vocabulary lives in UITheme.HUMOUR_* — the copy that used to
+# sit here claimed to be the battle screen's "shared verbatim" and had drifted
+# on all four colours.
 
 
 ## Builds page + margin + the four zones. Returns
@@ -332,8 +319,8 @@ static func _spool_row(catalog: Catalog, humour: String, deck: Array,
 	row.add_theme_constant_override("separation", 10)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	plate.add_child(row)
-	row.add_child(UITheme.icon(String(HUMOUR_GLYPH.get(humour, "")), 44.0))
-	var humour_colour: Color = HUMOUR_COLOURS.get(humour, UITheme.INK)
+	row.add_child(UITheme.icon(String(UITheme.HUMOUR_GLYPH.get(humour, "")), 44.0))
+	var humour_colour: Color = UITheme.HUMOUR_COLORS.get(humour, UITheme.INK)
 	var name_label := UITheme.measured_label(Catalog.humour_name(humour),
 		UITheme.TYPE_BODY, 220.0, UITheme.display_font(), humour_colour)
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

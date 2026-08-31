@@ -115,14 +115,92 @@ func _initialize() -> void:
 	print("")
 	print("%-24s %-9s %6s %6s %6s %7s %7s %7s" % [
 		"scenario", "bot", "win%", "die%", "flee%", "turns", "hp_left", "deck"])
+	var results := {}
 	for scenario in scenarios:
 		for bot in bots:
-			_run_cell(scenario, bot)
+			results["%s|%s" % [scenario["name"], bot]] = _run_cell(scenario, bot)
 		print("")
+	var violations := _check_targets(results)
+	if not violations.is_empty():
+		print("BALANCE GATE FAILED (%d):" % violations.size())
+		for violation in violations:
+			print("  FAIL  %s" % violation)
+		quit(1)
+		return
+	print("balance gate: all targets hold.")
 	quit(0)
 
 
-func _run_cell(scenario: Dictionary, bot: String) -> void:
+## The balance GATE (2026-08-31): the targets that used to live only as prose
+## in .claude/skills/simbalance/SKILL.md, encoded so a tuning change that
+## breaks the design fails `verify full` instead of waiting for a human to
+## notice. Bounds are deliberately LOOSER than the prose targets: this trips
+## on breakage — a tutorial that stopped being winnable, a story fight that
+## became winnable, an elite that folds to random play — not on drift a
+## designer should still eyeball in the printed table.
+func _check_targets(results: Dictionary) -> Array[String]:
+	var violations: Array[String] = []
+	# Tutorials teach; a bot that cannot win one means the lesson is a wall.
+	for scenario_name in ["vole (stage 1)", "wisp (stage 1)"]:
+		for bot in bots:
+			var cell: Dictionary = results["%s|%s" % [scenario_name, bot]]
+			if cell["win"] < 90.0:
+				violations.append("%s: %s wins %.0f%% (tutorials are ~100%%)"
+					% [scenario_name, bot, cell["win"]])
+	# The wraith and the Unpicked are story beats, not fights. The Unpicked is
+	# STRICTLY unwinnable (60 hp, doom turn 6) — one win means the script
+	# broke. The wraith is merely far above Ash's weight: a brawler lands a
+	# freak kill ~1 in 300, and 03_the_wrong_lamps carries the when_outcome
+	# victory line for exactly that night (law 17) — so the gate allows the
+	# freak and trips only when the fight becomes genuinely winnable.
+	for bot in bots:
+		var wraith: Dictionary = results["wraith (stage 3)|%s" % bot]
+		if wraith["win"] > 2.0:
+			violations.append("wraith (stage 3): %s wins %.1f%% (a lesson in "
+				% [bot, wraith["win"]] + "declining a fight must stay unwinnable)")
+		var unpicked: Dictionary = results["unpicked (boss)|%s" % bot]
+		if unpicked["win"] > 0.0:
+			violations.append("unpicked (boss): %s wins %.1f%% (this fight cannot be won)"
+				% [bot, unpicked["win"]])
+	# The dog punishes careless play — random must actually get hurt.
+	var dog_random: Dictionary = results["dog (stage 2)|random"]
+	if dog_random["die"] < 5.0:
+		violations.append(
+			"dog (stage 2): random dies %.0f%% (careless play must be punished)"
+			% dog_random["die"])
+	# Quest elites: skilled play wins them. If the best bot cannot, nobody can.
+	for scenario_name in ["watch captain (quest)", "wisp pair (quest)",
+			"empty coat (quest)"]:
+		var best := _best_skilled(results, scenario_name)
+		if best < 60.0:
+			violations.append("%s: best skilled bot wins %.0f%% (target 75-100%%)"
+				% [scenario_name, best])
+	# The boss floor: the case file promises the Tallowman is beatable with no
+	# side quests at all (2026-08-31 baseline: stalker 99%).
+	if _best_skilled(results, "tallowman (no buys)") < 60.0:
+		violations.append("tallowman (no buys): best skilled bot wins %.0f%% "
+			% _best_skilled(results, "tallowman (no buys)")
+			+ "(the boss must be beatable without purchases)")
+	# A build the Exchange sells must beat the fights it was bought for
+	# (2026-08-31 baseline: 100% across the board).
+	for scenario_name in ["the drowned (claw)", "the drowned (moon)",
+			"tallowman (claw)", "tallowman (moon)"]:
+		var best := _best_skilled(results, scenario_name)
+		if best < 80.0:
+			violations.append("%s: best skilled bot wins %.0f%% "
+				% [scenario_name, best]
+				+ "(a purchased build must carry its fight)")
+	return violations
+
+
+func _best_skilled(results: Dictionary, scenario_name: String) -> float:
+	var best := 0.0
+	for bot in ["brawler", "defender", "stalker"]:
+		best = maxf(best, float(results["%s|%s" % [scenario_name, bot]]["win"]))
+	return best
+
+
+func _run_cell(scenario: Dictionary, bot: String) -> Dictionary:
 	var wins := 0
 	var deaths := 0
 	var flees := 0
@@ -155,11 +233,16 @@ func _run_cell(scenario: Dictionary, bot: String) -> void:
 			CombatState.Outcome.RETREATED:
 				flees += 1
 		turn_sum += state.turn
+	var cell := {
+		"win": 100.0 * wins / RUNS_PER_CELL,
+		"die": 100.0 * deaths / RUNS_PER_CELL,
+		"flee": 100.0 * flees / RUNS_PER_CELL,
+	}
 	print("%-24s %-9s %5.0f%% %5.0f%% %5.0f%% %7.1f %7.1f %7.1f" % [
-		scenario["name"], bot,
-		100.0 * wins / RUNS_PER_CELL, 100.0 * deaths / RUNS_PER_CELL,
-		100.0 * flees / RUNS_PER_CELL, float(turn_sum) / RUNS_PER_CELL,
+		scenario["name"], bot, cell["win"], cell["die"], cell["flee"],
+		float(turn_sum) / RUNS_PER_CELL,
 		float(hp_sum) / maxi(wins, 1), float(deck_sum) / maxi(wins, 1)])
+	return cell
 
 
 func _play(state: CombatState, bot: String, withdraw_after := 0) -> void:
@@ -202,7 +285,8 @@ func _choose_approach(state: CombatState, bot: String) -> void:
 
 func _decide(state: CombatState, bot: String) -> Dictionary:
 	var intent := state.current_intent()
-	var incoming := int(intent.get("amount", 0)) if intent["target"] == "health" else 0
+	var incoming := int(intent.get("amount", 0)) \
+		if intent.get("target", "") == "health" else 0
 	match bot:
 		"random":
 			var options: Array[Dictionary] = [{"type": "end_turn"}]
@@ -216,8 +300,15 @@ func _decide(state: CombatState, bot: String) -> Dictionary:
 			return {"type": "end_turn"}
 		"defender":
 			# Block incoming damage first, heal when safe, then attack.
+			# Unknot leads: a jammed tray is a defender with nothing to play,
+			# and it is the only card that answers that.
+			if _jammed(state) and _playable(state, "unknot"):
+				return {"type": "play_skill", "skill_id": "unknot"}
 			if incoming > state.player_block:
-				for skill in ["loaf", "slink"]:
+				# Long Shadow before Loaf before Slink: the guard that
+				# survives the turn-over is worth more than the bigger one
+				# that costs a turn of paws.
+				for skill in ["long_shadow", "loaf", "slink"]:
 					if _playable(state, skill):
 						return {"type": "play_skill", "skill_id": skill}
 			if state.player_hp <= int(state.player_max_hp * 0.6) and incoming == 0 \
@@ -230,12 +321,18 @@ func _decide(state: CombatState, bot: String) -> Dictionary:
 		"stalker":
 			# Fights while healthy, flees at the wise moment.
 			if state.player_hp <= int(state.player_max_hp * 0.3):
+				# Vanish before the door: leaving from hiding costs no parting
+				# shot, so the stalker's own card is checked before the exit.
+				if _playable(state, "vanish") and not state.hidden:
+					return {"type": "play_skill", "skill_id": "vanish"}
 				return {"type": "slip_away"}
 			var best := _best_damage_skill(state)
 			if best != "":
 				return {"type": "play_skill", "skill_id": best}
-			if incoming > state.player_block and _playable(state, "slink"):
-				return {"type": "play_skill", "skill_id": "slink"}
+			if incoming > state.player_block:
+				for skill in ["long_shadow", "slink"]:
+					if _playable(state, skill):
+						return {"type": "play_skill", "skill_id": skill}
 			return {"type": "end_turn"}
 	return {"type": "end_turn"}
 
@@ -258,9 +355,15 @@ func _playable(state: CombatState, skill_id: String) -> bool:
 	if def.get("instinct", false):
 		return not state.instinct_used
 	var runtime := state.skill_state(skill_id)
-	return not runtime.is_empty() and int(runtime.get("jammed_turns", 0)) == 0 \
-		and int(runtime.get("charges_left", 0)) > 0 \
-		and state.can_pay(state.effective_cost(def.get("cost", {})))
+	if runtime.is_empty() or int(runtime.get("jammed_turns", 0)) > 0 \
+			or int(runtime.get("charges_left", 0)) <= 0:
+		return false
+	var owing := state.remaining_cost(skill_id)
+	# PAWS, not just energy. Bite Down costs three Ferocity, which is three
+	# card placements against a budget of three — so "can I afford it?" and
+	# "can I afford it THIS turn?" are now different questions, and a bot that
+	# only asks the first one spends its turn being rejected.
+	return state.can_pay(owing) and state.paws_needed(skill_id) <= state.paws_left
 
 
 func _best_damage_skill(state: CombatState) -> String:

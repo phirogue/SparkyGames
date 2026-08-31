@@ -55,6 +55,32 @@ const TYPE_FLOOR := 22     # the smallest legal player-facing size
 ## tests/unit/test_typography.gd holds every screen that draws a card to it.
 const CARD_NAME_BAND := 0.729
 
+## The per-humour vocabulary — colour, glyph, card frame — kept HERE and only
+## here. Three screens each carried a copy whose comment swore it was "shared
+## verbatim" with the others, and all three had quietly drifted to different
+## palettes (2026-08-31 review): a player saw three different greens for
+## guile depending on the screen. The battle screen is the calibration
+## reference, so these are its values; every screen reads these, and a new
+## colour map anywhere else is the same bug being planted again.
+const HUMOUR_COLORS := {
+	"ferocity": Color("c2472e"),
+	"guile": Color("5a7a3a"),
+	"shadow": Color("4a4258"),
+	"mysticism": Color("6a82a8"),
+}
+const HUMOUR_GLYPH := {
+	"ferocity": "energy_claw",
+	"guile": "energy_eye",
+	"shadow": "energy_shade",
+	"mysticism": "energy_moon",
+}
+const HUMOUR_CARD_FRAME := {
+	"ferocity": "ui/ui_frame_card_red",
+	"guile": "ui/ui_frame_card_green",
+	"shadow": "ui/ui_frame_card_black",
+	"mysticism": "ui/ui_frame_card_blue",
+}
+
 static var _cache: Dictionary = {}
 
 

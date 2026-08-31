@@ -11,6 +11,7 @@ const DASH := Color("2b232080")
 var max_value := 20
 var _shown := 1.0
 var _target := 1.0
+var _tween: Tween = null
 
 ## Generated art often floats in transparent padding; region-drawing uses
 ## the rope's real pixels (UITheme.content_region), not the empty canvas.
@@ -34,8 +35,12 @@ func set_health(value: int, p_max: int) -> void:
 		queue_redraw()
 		return
 	_target = new_target
-	var tween := create_tween()
-	tween.tween_method(_set_shown, _shown, _target, 0.35).set_trans(Tween.TRANS_CUBIC)
+	# One tween at a time: two rapid hits used to leave both alive, driving
+	# _shown from two places at once and making the thread stutter.
+	if _tween != null and _tween.is_valid():
+		_tween.kill()
+	_tween = create_tween()
+	_tween.tween_method(_set_shown, _shown, _target, 0.35).set_trans(Tween.TRANS_CUBIC)
 
 
 func _set_shown(value: float) -> void:

@@ -213,8 +213,8 @@ rewards make a return match winnable — that's a satisfying loop.
 
 ---
 
-*2026-07-30. Data from `game/tests/simulate.gd`: 4 bot strategies × 7
-scenarios × 300 seeded runs each (8,400 full fights per pass). Run it any
+*2026-07-30. Data from `game/tests/simulate.gd`: 4 bot strategies × 16
+scenarios × 300 seeded runs each (19,200 full fights per pass). Run it any
 time with:*
 `godot --headless --path game -s tests/simulate.gd`
 

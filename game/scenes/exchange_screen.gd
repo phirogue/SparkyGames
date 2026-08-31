@@ -25,13 +25,7 @@ const SHELF_COLUMNS := 2
 const GOOD_WIDTH := (UITheme.CONTENT_WIDTH - SEPARATION) / SHELF_COLUMNS  # 285
 const GOOD_HEIGHT := 216
 
-## Same colour vocabulary the battle and loadout screens use.
-const HUMOUR_GLYPHS := {
-	"ferocity": "energy_claw",
-	"guile": "energy_eye",
-	"shadow": "energy_shade",
-	"mysticism": "energy_moon",
-}
+# The per-humour vocabulary lives in UITheme.HUMOUR_* — one copy everywhere.
 
 ## THE SHELF IS DATA. What each good COSTS is a rule (data/rules.json
 ## `exchange`), what it is CALLED is writing (story/interface.json, keyed by
@@ -245,7 +239,7 @@ func _refresh_spool() -> void:
 		chip.add_theme_constant_override("separation", 8)
 		chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		grid.add_child(chip)
-		var glyph := UITheme.icon(String(HUMOUR_GLYPHS[humour]), 40.0)
+		var glyph := UITheme.icon(String(UITheme.HUMOUR_GLYPH[humour]), 40.0)
 		glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		chip.add_child(glyph)
 		var count_text := "×%d" % int(counts.get(humour, 0))
@@ -400,7 +394,7 @@ func _value_pips(humour: String, value: int, glyph_size: float) -> Control:
 	row.add_theme_constant_override("separation", 2)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for _i in value:
-		row.add_child(UITheme.icon(String(HUMOUR_GLYPHS[humour]), glyph_size))
+		row.add_child(UITheme.icon(String(UITheme.HUMOUR_GLYPH[humour]), glyph_size))
 	return row
 
 
@@ -636,6 +630,14 @@ func _spend(cost: int, what: String, apply: Callable) -> void:
 
 
 func _commit(cost: int, apply: Callable) -> void:
+	# Checked HERE as well as at _spend: the confirm dialog leaves a window
+	# (a double-tapped seal, a queued second purchase) between the check and
+	# the debit, and a purse must never go negative through it.
+	if int(profile["gleam"]) < cost:
+		SfxService.cue("ui_reject")
+		_say(Strings.line("exchange.patter.broke"))
+		_close_shop()
+		return
 	profile["gleam"] = int(profile["gleam"]) - cost
 	apply.call()
 	_close_shop()

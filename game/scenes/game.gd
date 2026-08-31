@@ -119,9 +119,9 @@ func _ready() -> void:
 	theme = UITheme.build()  # storybook theme; every child screen inherits
 	catalog = DataLoader.load_catalog()
 	# Content must be coherent before ANY screen builds on it. This is the
-	# shipped-scene validation gate (main.gd is not the boot scene) — in a
-	# release export a broken bundle stops here with a readable page instead
-	# of a null-deref three screens later.
+	# shipped-scene validation gate — in a release export a broken bundle
+	# stops here with a readable page instead of a null-deref three screens
+	# later.
 	var problems := catalog.validate()
 	if not problems.is_empty():
 		_fatal("This copy of the game has damaged content.\n\n" +

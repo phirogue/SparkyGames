@@ -162,15 +162,6 @@ def beats_of_quest(quest: dict, environments: dict) -> list:
 
 def runs(beats: list) -> list:
     """Consecutive stretches of the same image, longest first."""
-    out, current, start = [], None, 0
-    for index, image in beats + [(-1, "<end>")]:
-        if image == current:
-            continue
-        if current and index != start:
-            length = sum(1 for i, im in beats if im == current and i >= start)
-            out.append((current, start, length))
-        current, start = image, index
-    # recompute lengths properly: walk once
     out, current, count, start = [], None, 0, 0
     for index, image in beats:
         if image == current and image:

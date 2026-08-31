@@ -28,19 +28,7 @@ const ZONE_CONFIRM := 96
 const SKILL_CARD_SIZE := Vector2(132, 162)
 const BENCH_SEPARATION := 10
 
-## Same mapping the battle screen uses — one vocabulary of colour per humour.
-const HUMOUR_COLORS := {
-	"ferocity": Color("a24a3a"),
-	"guile": Color("4a7a5a"),
-	"shadow": Color("3a3a42"),
-	"mysticism": Color("5a6a9a"),
-}
-const HUMOUR_GLYPHS := {
-	"ferocity": "energy_claw",
-	"guile": "energy_eye",
-	"shadow": "energy_shade",
-	"mysticism": "energy_moon",
-}
+# The per-humour vocabulary lives in UITheme.HUMOUR_* — one copy everywhere.
 
 var catalog: Catalog
 var profile: Dictionary
@@ -266,7 +254,7 @@ func _deck_chip(humour: String, count_text: String) -> Control:
 	var chip := HBoxContainer.new()
 	chip.add_theme_constant_override("separation", 8)
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var glyph := UITheme.icon(String(HUMOUR_GLYPHS[humour]), DECK_CHIP_GLYPH)
+	var glyph := UITheme.icon(String(UITheme.HUMOUR_GLYPH[humour]), DECK_CHIP_GLYPH)
 	glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	chip.add_child(glyph)
 	var count_width := UITheme.measure_text(count_text,
@@ -287,7 +275,7 @@ func _deck_chip(humour: String, count_text: String) -> Control:
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	chip.add_child(name_label)
 	var count_label := UITheme.measured_label(count_text, 38, count_width,
-		UITheme.display_font(), HUMOUR_COLORS[humour])
+		UITheme.display_font(), UITheme.HUMOUR_COLORS[humour])
 	count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	count_label.size_flags_vertical = Control.SIZE_FILL
 	chip.add_child(count_label)
@@ -442,8 +430,8 @@ func _cost_bubbles(cost: Dictionary, radius: float) -> Control:
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for humour in cost:
 		row.add_child(Pips.new(int(cost[humour]),
-			HUMOUR_COLORS.get(humour, UITheme.INK_SOFT), radius,
-			UITheme.cropped_tex(String(HUMOUR_GLYPHS.get(humour, "")))))
+			UITheme.HUMOUR_COLORS.get(humour, UITheme.INK_SOFT), radius,
+			UITheme.cropped_tex(String(UITheme.HUMOUR_GLYPH.get(humour, "")))))
 	return row
 
 
@@ -772,8 +760,8 @@ func _spool_row(card_id: String, in_deck: int, owned: int) -> Control:
 	row.add_theme_constant_override("separation", 8)
 	plate.add_child(row)
 	var pips := Pips.new(int(def["value"]),
-		HUMOUR_COLORS.get(humour, UITheme.INK_SOFT), 10.0,
-		UITheme.cropped_tex(String(HUMOUR_GLYPHS[humour])))
+		UITheme.HUMOUR_COLORS.get(humour, UITheme.INK_SOFT), 10.0,
+		UITheme.cropped_tex(String(UITheme.HUMOUR_GLYPH[humour])))
 	pips.custom_minimum_size.x = 3 * 28.0
 	pips.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(pips)
@@ -786,7 +774,7 @@ func _spool_row(card_id: String, in_deck: int, owned: int) -> Control:
 		UITheme.display_font()))
 	text.add_child(UITheme.measured_label(
 		"%s %d" % [Catalog.humour_name(humour), int(def["value"])], 22, 180.0,
-		UITheme.body_font(), HUMOUR_COLORS[humour]))
+		UITheme.body_font(), UITheme.HUMOUR_COLORS[humour]))
 	var minus := UITheme.dark_button("-", 30, Vector2(72, 72))
 	minus.disabled = in_deck < 1 \
 		or profile.get("deck", []).size() <= _deck_floor()

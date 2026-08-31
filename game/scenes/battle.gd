@@ -131,25 +131,8 @@ class PawIcon extends Control:
 			draw_circle(center + Vector2(cos(angle), sin(angle)) * s * 0.32,
 				s * 0.12, color)
 
-const HUMOUR_CARD_FRAME := {
-	"ferocity": "ui/ui_frame_card_red",
-	"guile": "ui/ui_frame_card_green",
-	"shadow": "ui/ui_frame_card_black",
-	"mysticism": "ui/ui_frame_card_blue",
-}
-## The glyph-per-humour vocabulary every screen shares.
-const HUMOUR_GLYPH := {
-	"ferocity": "energy_claw",
-	"guile": "energy_eye",
-	"shadow": "energy_shade",
-	"mysticism": "energy_moon",
-}
-const HUMOUR_COLORS := {
-	"ferocity": Color("c2472e"),
-	"guile": Color("5a7a3a"),
-	"shadow": Color("4a4258"),
-	"mysticism": Color("6a82a8"),
-}
+# The humour colour/glyph/frame vocabulary lives in UITheme.HUMOUR_* — one
+# copy for every screen (three "shared verbatim" copies had drifted apart).
 ## Approach copy lives in story/interface.json (law 20) -- what an approach
 ## COSTS is a rule in CombatState; what it reads like is writing.
 static func approach_desc(mode: String) -> String:
@@ -442,8 +425,8 @@ func _refresh_detail() -> void:
 	for humour in cost:
 		var powered := int(runtime.get("powered", {}).get(humour, 0))
 		detail_pips.add_child(CostPips.new(int(cost[humour]),
-			powered, HUMOUR_COLORS.get(humour, UITheme.INK_SOFT), 15.0,
-			UITheme.cropped_tex(HUMOUR_GLYPH.get(humour, ""))))
+			powered, UITheme.HUMOUR_COLORS.get(humour, UITheme.INK_SOFT), 15.0,
+			UITheme.cropped_tex(UITheme.HUMOUR_GLYPH.get(humour, ""))))
 	detail_pips.visible = not cost.is_empty()
 	# Rule text at DOUBLE its old size (owner 2026-08-08) — the art moved up
 	# beside the pips so the words get the panel's full width to be big in.
@@ -579,7 +562,7 @@ func _on_concentrate_pressed() -> void:
 		b.text = "%s — %d spent" % [Catalog.humour_name(String(humour)), counts[humour]]
 		b.custom_minimum_size = Vector2(0, 96)
 		b.add_theme_font_size_override("font_size", 28)
-		b.add_theme_color_override("font_color", HUMOUR_COLORS.get(humour, UITheme.INK))
+		b.add_theme_color_override("font_color", UITheme.HUMOUR_COLORS.get(humour, UITheme.INK))
 		b.pressed.connect(_on_concentrate_choose.bind(String(humour)))
 		concentrate_box.add_child(b)
 	if counts.is_empty():
@@ -1186,11 +1169,11 @@ func _spool_row(humour: String, by_value: Dictionary) -> Control:
 	row.add_theme_constant_override("separation", 10)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	plate.add_child(row)
-	var glyph := UITheme.icon(String(HUMOUR_GLYPH.get(humour, "")), 44.0)
+	var glyph := UITheme.icon(String(UITheme.HUMOUR_GLYPH.get(humour, "")), 44.0)
 	glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(glyph)
 	var name_label := UITheme.measured_label(Catalog.humour_name(humour), 30,
-		200.0, UITheme.display_font(), HUMOUR_COLORS.get(humour, UITheme.INK))
+		200.0, UITheme.display_font(), UITheme.HUMOUR_COLORS.get(humour, UITheme.INK))
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	name_label.size_flags_vertical = Control.SIZE_FILL
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1604,14 +1587,14 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	b.custom_minimum_size = CARD_BASE * scale
 	b.size = b.custom_minimum_size
 	var frame := TextureRect.new()
-	frame.texture = UITheme.tex(HUMOUR_CARD_FRAME.get(humour, ""))
+	frame.texture = UITheme.tex(UITheme.HUMOUR_CARD_FRAME.get(humour, ""))
 	frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	frame.stretch_mode = TextureRect.STRETCH_SCALE
 	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(frame)
 	var glyph := TextureRect.new()
-	glyph.texture = UITheme.tex(HUMOUR_GLYPH.get(humour, ""))
+	glyph.texture = UITheme.tex(UITheme.HUMOUR_GLYPH.get(humour, ""))
 	glyph.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	glyph.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	glyph.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -1718,7 +1701,7 @@ func _skill_button(skill_id: String) -> Button:
 	for key in def.get("cost", {}):
 		humour = key
 		break
-	var pip_color: Color = HUMOUR_COLORS.get(humour, UITheme.INK_SOFT)
+	var pip_color: Color = UITheme.HUMOUR_COLORS.get(humour, UITheme.INK_SOFT)
 
 	var jammed: bool = not is_instinct and int(runtime.get("jammed_turns", 0)) > 0
 	var charges_left := int(runtime.get("charges_left", 0))
@@ -1761,7 +1744,7 @@ func _skill_button(skill_id: String) -> Button:
 			cost_total += int(cost[key])
 			allocated += mini(int(powered.get(key, 0)), int(cost[key]))
 		var pips := CostPips.new(cost_total, allocated, pip_color, 9.0,
-			UITheme.cropped_tex(HUMOUR_GLYPH.get(humour, "")))
+			UITheme.cropped_tex(UITheme.HUMOUR_GLYPH.get(humour, "")))
 		pips.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 		pips.set_offset(SIDE_TOP, -58)
 		pips.set_offset(SIDE_BOTTOM, -32)
@@ -1981,18 +1964,31 @@ func _anim_player_blocked(amount: int) -> void:
 
 
 ## Your hit landed: the portrait flinches, flashes, and shows the number.
+## The hurt-shake's single home and single live tween (see _anim_enemy_hurt).
+var _enemy_shake: Tween = null
+var _enemy_home := Vector2.ZERO
+
+
 func _anim_enemy_hurt(amount: int) -> void:
 	if not _booted or enemy_art == null:
 		return
 	# Ash fights with his claws, so a landed hit IS the claw. Five variants,
 	# never twice running — a fight is where law 15 is most audible.
 	SfxService.cue("ash_claw")
-	var base := enemy_art.position
-	var shake := create_tween()
-	shake.tween_property(enemy_art, "position", base + Vector2(9, -4), 0.1)
-	shake.tween_property(enemy_art, "position", base + Vector2(-8, 3), 0.1)
-	shake.tween_property(enemy_art, "position", base + Vector2(5, -2), 0.1)
-	shake.tween_property(enemy_art, "position", base, 0.12)
+	# Containers own positions (see UITheme's fade rule), so the shake keeps
+	# ONE home: a second hit landing mid-shake used to capture a displaced
+	# origin as its base, and the portrait drifted until the next relayout.
+	if _enemy_shake != null and _enemy_shake.is_valid():
+		_enemy_shake.kill()
+		enemy_art.position = _enemy_home
+	else:
+		_enemy_home = enemy_art.position
+	var base := _enemy_home
+	_enemy_shake = create_tween()
+	_enemy_shake.tween_property(enemy_art, "position", base + Vector2(9, -4), 0.1)
+	_enemy_shake.tween_property(enemy_art, "position", base + Vector2(-8, 3), 0.1)
+	_enemy_shake.tween_property(enemy_art, "position", base + Vector2(5, -2), 0.1)
+	_enemy_shake.tween_property(enemy_art, "position", base, 0.12)
 	var flash := ColorRect.new()
 	flash.color = Color(1.0, 0.96, 0.85, 0.4)
 	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
