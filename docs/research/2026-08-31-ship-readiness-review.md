@@ -1,5 +1,10 @@
 # Ship-Readiness Review — 2026-08-31
 
+> **FIX PASS RUN 2026-08-31/09-01.** Phases 0–2 of the plan below are
+> largely done — see the commits `9c9463e`, `a9e5496`, `2080b02` and the
+> "What was fixed" section at the end of this doc for what landed, what is
+> still open, and the four owner-only blockers that remain.
+
 Six-track deep review of the full playthrough (prologue → end of Chapter 1),
 run as: story critic, first-time-player critic, screenshot sweep (all 17
 quests + prologue + minigames, shot 2026-08-31), chaos/economy rules attack,
@@ -258,6 +263,80 @@ Ordered by (player-visible damage × cheapness). Sizes are rough.
     missing); Play Games / Game Center decision.
 23. Photograph the Hollow Court + defeat-variant story pages; add both to
     the standing tour.
+
+---
+
+## What was fixed (pass of 2026-08-31 → 09-01)
+
+Verified at the end of the pass: **299 unit tests green across 25 files**,
+kb_check 9/9, balance gate holds, art-repetition clean, **16,500 irregular
+fuzz runs with no violations**, and the changed screens photographed and
+read (law 1).
+
+**The chapter now ends.** An authored "The First File" card plays once when
+the case closes (`ending_screen.gd`, `CaseState.case_closed()`,
+`ending_seen` profile key with migration), and the Mantel board afterwards
+reads `mantel.board_closed` instead of the lull string. Photographed.
+
+**Real defects closed:**
+- Quest-level `grant_growth` was applied by nothing — the chapter finale's
+  +2 lives silently vanished. Now applied in `_finish_quest` inside the
+  once-guard, with a catalog-wide test so Chapter 2 cannot repeat it.
+- The press-on wager card rendered a near-black rectangle in every quest;
+  it now passes the environment image. Verified by screenshot.
+- The first crossing tutorial could deadlock (a wait step whose notify key
+  could never match) — the ship-blocking softlock.
+- `paws` was written by growth rewards, toasted to the player, and read by
+  no fight. Registered in `DEFAULT_PROFILE` and passed into `CombatState`.
+- Save repair clamps `gleam >= 0` and `max_hp <= cap`; the tonic can no
+  longer overshoot the cap.
+- Coach bubbles crossed the page stitching; damage floaters drew over
+  modal dialogs; ward/crossing/testimony/lattice/case-board defects — all
+  fixed (case-board threads now route *around* section headings).
+
+**Content and teaching:**
+- Three new opponents beyond the wisps (the Doorman, the Left Glove, a
+  Votive Stub), wired with story reasons; the bestiary regenerated to 16.
+- Stealth was the only mechanic whose first appearance taught nothing —
+  the `soft_feet` lesson now delivers where the Alarm first matters, and
+  both stealth environments state the threshold and what SPOTTED costs.
+- Gating fixed so no side work is offered while Elspeth's body waits;
+  `follow_the_thread` is now required, so the Weft is always defined.
+- Loaf's tooltip no longer contradicts the code; the turn-8 escalation
+  states its number; the filing fee is quantified; the masked-intent
+  tooltip stops promising what it already delivered.
+- Retry variants (Bodkin does not repeat himself; the empty coat knows it
+  is a repeat), the Tallowman fight given its cause, Gravamen glossed,
+  diegetic payers for work that paid from nowhere, doubled motifs cut,
+  two new crossing boards ending the practice-board repetition.
+
+**Shipping layer scaffolded:** `export_presets.cfg` for both stores (icon
+and signing slots empty), black boot splash and clear colour, the
+letterbox decision recorded in the roadmap, privacy policy and store
+listing drafted in `docs/publishing/`.
+
+### Still open (ranked)
+
+1. **Owner-only, and the longest poles:** Google Play account + the
+   12-tester/14-day clock; Apple enrollment + the Mac decision; Kling and
+   AI-music commercial-terms verification; the commissioned app icon.
+   Nothing technical can substitute for these — see `OWNER-ACTIONS.md`.
+2. **Three economy exploits remain open** (specified but not implemented —
+   the agent assigned to them ran out of budget before editing): energy
+   laundering across encounters, the `once`-quest withdraw-farm (whose fix
+   is also the mid-quest checkpoint the two long quests need), and
+   force-quit dodging the refusal fee and the Toll. Full specifications,
+   including the design call that a force-quit must never spend a life,
+   are in the chaos section of this document.
+3. **Harness coverage gaps:** the fuzzer still does not pass scripted-fight
+   flags (`no_retreat`/`hp_floor`/`doom_turn`), fuzz the shipped loadout
+   shape, or cover worn/carryover configs; the three new enemies have no
+   sim scenarios yet.
+4. **Not yet photographed:** the Hollow Court death/refusal path (the tour
+   bot keeps winning; needs a scenario that forces the loss) and the
+   Mantel *after* the ending card is dismissed.
+5. Chapter 2's replay answer — the generated cases — remains undesigned,
+   and is the single biggest lever on the content-volume score.
 
 ### Explicitly trimmable (the review found little fat — a good sign)
 - The Wickrow-polite joke doubled within a minute (keep step 1's).

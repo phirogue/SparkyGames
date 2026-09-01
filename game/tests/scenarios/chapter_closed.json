@@ -1,0 +1,25 @@
+{
+  "comment": "The Mantel the moment Chapter 1 is over: every lead pulled, the case closed, and `ending_seen` still false -- so arriving at the hub plays the First File card once and then leaves the board reading `mantel.board_closed` rather than the lull string. Exists so the chapter's LAST screen can be reviewed and photographed without playing the whole chapter (law 1): `godot --path game -- --tour --tour-out <dir> --scene scenario:chapter_closed`. Same profile as case_board_end, which shoots the finished BOARD; this one shoots the ending.",
+  "profile": {
+    "prologue_done": true,
+    "gleam": 160,
+    "ending_seen": false,
+    "skills": ["scratch", "pounce", "slink", "purr", "loaf", "swat", "shelf_justice"],
+    "quests_done": [
+      "follow_the_thread", "find_the_magpie", "the_carrying", "what_i_saw",
+      "ask_the_rats", "sharpen_the_claws", "the_wake", "creditors",
+      "the_lamplighters_talk", "the_ward_that_failed", "an_audience_of_wax"
+    ],
+    "case": {
+      "active": "wax_and_wick",
+      "evidence": ["candle_stub", "cart_docket", "wick_ledger", "shift_tally", "backward_seam", "wick_counterfoil"],
+      "leads_done": ["l1", "l2", "l3", "l4", "l5"]
+    },
+    "standing": {
+      "chandlers": -6,
+      "lamplighters": 4
+    },
+    "favors": ["lamplighters_knot", "cardew_grey_debt"]
+  },
+  "launch": "hub"
+}
