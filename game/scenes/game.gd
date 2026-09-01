@@ -237,12 +237,14 @@ func _ready() -> void:
 ## with only the free Scratch — run them with a proper hand of 5 selected
 ## action cards." A bare-clawed test proves the fight is survivable at zero
 ## power and proves nothing whatever about the fight the game ships.
+## The kit is EVERY skill in the catalog, not a list written down here. It was
+## a list once, and the list went stale the day the roster grew — a dev launch
+## then quietly tests last month's game while looking exactly like this
+## month's, which is the failure this law exists to prevent.
 func _equip_for_testing() -> void:
-	var kit: Array = ["scratch", "pounce", "slink", "purr", "loaf",
-		"swat", "shelf_justice"]
-	for skill_id in kit:
-		if catalog.skills.has(skill_id) and not profile["skills"].has(skill_id):
-			profile["skills"].append(skill_id)
+	for skill_id in catalog.skills:
+		if not profile["skills"].has(skill_id):
+			profile["skills"].append(String(skill_id))
 	profile["loadout"] = []   # auto-fills the tray from what is owned
 	profile["gleam"] = maxi(int(profile["gleam"]), 40)
 
@@ -715,12 +717,35 @@ func _heal_facts() -> void:
 			profile["facts"][key] = derived[key]
 
 
+## What an old save IMPLIES (law 7), for the ACTIONS Ash knows. Chapter 1's
+## roster arrived after the quests that teach it, and every quest that teaches
+## one is `once: true` — so a book saved mid-chapter would be permanently
+## short the skills its own finished nights had earned, with no way back to
+## the beat that hands them over. A scenario spec that hand-authors
+## quests_done has the same hole.
+##
+## So the kit is re-derived from the quests already done. Additive and
+## idempotent — it never takes a skill away, which matters because the
+## loadout, the Exchange and a dev launch all put skills into a profile that
+## no quest accounts for.
+func _heal_skills() -> void:
+	if not (profile.get("skills") is Array):
+		profile["skills"] = SaveService.DEFAULT_PROFILE["skills"].duplicate()
+	for quest_id in profile.get("quests_done", []):
+		if not catalog.quests.has(quest_id):
+			continue
+		for skill_id in ProwlScript.skills_taught_by(catalog.quests[quest_id]):
+			if catalog.skills.has(skill_id) and not profile["skills"].has(skill_id):
+				profile["skills"].append(skill_id)
+
+
 ## Take a loaded profile as the live one, and re-point everything that keeps a
 ## copy of a piece of it. Missing one of these is how a loaded game ends up
 ## with the previous book's achievements or the previous book's lamps.
 func _adopt_profile(loaded: Dictionary) -> void:
 	profile = loaded
 	_heal_facts()
+	_heal_skills()
 	tracker.from_dict(profile.get("achievements", {}))
 	toasts = []
 	quest = {}
@@ -1683,6 +1708,13 @@ func _run_step(index: int) -> void:
 		ProwlScript.LESSON:
 			_teach(String(step["lesson"]), next)
 		ProwlScript.NOTICE:
+			# Same vocabulary as the prologue's notice scene: a skill LEARNED
+			# mid-quest arrives on the parchment card at the moment the work
+			# earned it, not silently at the quest's end. `unlock_skill` on the
+			# quest still exists and still means "the whole job taught you
+			# this" — this is for the ones a single beat teaches.
+			if step.has("grant"):
+				_grant_skills(step["grant"])
 			for note in step.get("notes", []):
 				toasts.append(String(note))
 			var pending := toasts.duplicate()

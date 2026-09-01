@@ -68,6 +68,7 @@
   "mantel": {
     "board_heading": "Pinned to the chimney breast",
     "board_empty": "Nothing pinned tonight. The city is being quiet at you.",
+    "board_closed": "The first file is closed. What hangs here now is the city's ordinary work — the second file is being written.",
     "lives": "lives",
     "spool": "spool",
     "deeds": "deeds",
@@ -242,12 +243,23 @@
     "_notes": [
       "Rule text rendered from data/skills.json effects by ui/skill_text.gd,",
       "shared by the battle close-up and the loadout close-up. Keys damage /",
-      "block / heal / draw take one number; channel_heal takes amount, turns."
+      "block / heal / draw / paws take one number; channel_heal takes amount,",
+      "turns. An effect with a modifier gets its OWN key rather than a suffix",
+      "glued on in code -- `damage_pierce` is a different sentence from",
+      "`damage`, not the same sentence with a clause appended, and a writer",
+      "must be able to rewrite either one without touching a program."
     ],
     "damage": "Deal %d damage",
+    "damage_pierce": "Deal %d damage, straight through a raised guard",
     "block": "Block %d",
+    "block_holds": "Block %d, and it is still there next turn",
     "heal": "Heal %d",
     "draw": "Draw %d",
+    "paws": "%d more paws this turn",
+    "sharpen": "The next damage you deal lands one deeper",
+    "hide": "It loses you. Its next move hits nothing",
+    "unjam": "Every jammed action comes loose at once",
+    "unmask": "You can read its every move for the rest of the fight",
     "channel_heal": "Heal %d per turn for %d turns. Ash lies still until it ends — taking damage breaks it",
     "self_stun": "You cannot act next turn — and nothing can be stolen from your paws",
     "needs": "needs %s",
@@ -359,6 +371,15 @@
       "go_on": "Go on"
     }
   },
+  "ending": {
+    "heading": "The First File",
+    "lines": [
+      "Case one: the Wax and Wick affair. Closed, as far as a case closes — one suspect off the board, and a name that is not a name still on it.",
+      "The Casebook keeps every page: the fights, the faces, the leads. The board at the Mantel will take new pins the moment the city offers them.",
+      "The second file is being written. What Ash has banked, learned and earned keeps."
+    ],
+    "button": "Back to the Mantel"
+  },
   "codex": {
     "threads": "%d threads on its life",
     "close": "Close the file",
@@ -367,6 +388,9 @@
     "creatures_empty": "Nothing observed yet. Observation is coming.",
     "places_empty": "Everywhere is still somewhere else.",
     "deeds_empty": "The pages are blank. For now.",
+    "deeds_heading": "Deeds",
+    "deeds_hidden": "A page not yet turned.",
+    "deeds_progress": "%d of %d",
     "earlier": "Earlier",
     "lessons_empty": "Nothing taught yet. The city will get to it.",
     "target": {

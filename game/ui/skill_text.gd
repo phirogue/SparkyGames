@@ -11,13 +11,25 @@ static func effect_summary(def: Dictionary) -> String:
 	for effect in def.get("effects", []):
 		var kind := String(effect.get("type", ""))
 		match kind:
-			"damage", "block", "heal", "draw":
+			"damage":
+				# A modifier picks a DIFFERENT sentence, never the same one
+				# with a clause stapled on in code (law 20): "straight through
+				# a raised guard" is the whole point of the card, and it has to
+				# be rewritable without opening a program.
+				parts.append(Strings.line(
+					"skill_rules.damage_pierce" if effect.get("mode", "") == "pierce"
+					else "skill_rules.damage", [int(effect["amount"])]))
+			"block":
+				parts.append(Strings.line(
+					"skill_rules.block_holds" if effect.get("holds", false)
+					else "skill_rules.block", [int(effect["amount"])]))
+			"heal", "draw", "paws":
 				parts.append(Strings.line("skill_rules." + kind, [int(effect["amount"])]))
+			"sharpen", "hide", "unjam", "unmask", "self_stun":
+				parts.append(Strings.line("skill_rules." + kind))
 			"channel_heal":
 				parts.append(Strings.line("skill_rules.channel_heal",
 					[int(effect["amount"]), int(effect.get("turns", 2))]))
-			"self_stun":
-				parts.append(Strings.line("skill_rules.self_stun"))
 	return " · ".join(parts)
 
 

@@ -175,6 +175,35 @@ humours of a witch's cat. (Names provisional, tuned for icon-readability.)
 | **Shadow** | Black | Stealth, fear | Vanish, ambush, terror |
 | **Moonlight** | Silver | The witch's borrowed magic | Hexes, wards, mending, memory |
 
+### The Chapter 1 roster (built 2026-08-31)
+
+Fourteen actions plus Scratch, learned across the chapter, four to a humour
+and two for Moonlight. The tray still holds **five** (`rules.json
+combat.loadout_size`) — what grew is the shelf, not the hand, so a night out
+is a choice about which cat Ash is tonight.
+
+| Humour | Actions |
+|---|---|
+| **Ferocity** | Swat · Pounce · Rake · Bite |
+| **Guile** | Purr · Loaf · Scrounge · Shelf Justice |
+| **Shadow** | Slink · Unknot · Shade · Vanish |
+| **Moonlight** | Moonwise · Her Hour |
+
+The eight new ones are **answers, not engines** — each replies to something
+the game already did that the roster had no reply to (a raised guard, a jam,
+an unreadable intent, the paw budget), and their charge counts keep them from
+becoming the damage engine. See `balance-notes.md` Pass 10 for the sim, and
+`data/skills.json` for the per-humour job description.
+
+Where each is *learned* is `data/quests.json`: a `notice` step at the beat
+that earned it, one to a quest across the chapter. Nothing is bought — the
+Magpie sells energy, never actions.
+
+**A name is a layout constraint.** The tray fans its cards because five do not
+fit across the page, so a name has about nine characters before its neighbour
+covers it. `tests/unit/test_typography.gd` fails a name that cannot be drawn;
+"Bite Down", "Long Shadow" and "Her Thread" were renamed off the back of it.
+
 - Energy cards come in values 1–3, some with small riders ("Shadow 2 — worth 3
   if you're Hidden") so draws still carry texture.
 - Hybrid cards (e.g., Ferocity/Shadow, pick one) smooth variance.

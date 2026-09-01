@@ -28,6 +28,15 @@ const ZONE_CONFIRM := 96
 const SKILL_CARD_SIZE := Vector2(132, 162)
 const BENCH_SEPARATION := 10
 
+## The widest a name may be DRAWN. Five 132-wide cards do not fit across 582px
+## of page, so the carried fan overlaps by design and the right ~20px of every
+## card but the last sits under its neighbour. A name measured against the full
+## card is a name measured partly in pixels nobody can see — which is how
+## "Shelf Justice" came to read as "Shelf Justic" on the tray. Cards on the
+## bench do not overlap and get the whole card.
+const CARD_BORDER := 3.0
+const NAME_BAND_WIDTH := SKILL_CARD_SIZE.x - CARD_BORDER * 2.0
+
 # The per-humour vocabulary lives in UITheme.HUMOUR_* — one copy everywhere.
 
 var catalog: Catalog
@@ -306,11 +315,15 @@ func _refresh() -> void:
 		(UITheme.CONTENT_WIDTH - SKILL_CARD_SIZE.x) / float(n - 1))
 	var total_width := step * float(n - 1) + SKILL_CARD_SIZE.x
 	var x0 := (UITheme.CONTENT_WIDTH - total_width) / 2.0
+	# What the next card hides. Zero when the fan has room to lay flat, so
+	# this costs nothing on a page that is not compressed.
+	var covered := maxf(SKILL_CARD_SIZE.x - step, 0.0)
 	for i in n:
 		var card: Control
 		if i < carried.size():
 			var skill_id := String(carried[i])
-			card = _skill_card(skill_id, skill_id == "scratch", true)
+			card = _skill_card(skill_id, skill_id == "scratch", true,
+				covered if i < n - 1 else 0.0)
 			if skill_id == _just_moved:
 				UITheme.settle(card)
 		else:
@@ -339,7 +352,11 @@ func _refresh() -> void:
 ## plate, the WHOLE picture, the cost as coloured bubbles, uses as ×N, name
 ## across the bottom. Carried cards wear the warm border; bench cards the
 ## plain one — the two states still read apart at a glance.
-func _skill_card(skill_id: String, locked: bool, carried: bool) -> Button:
+## `covered_right` is how much of this card the NEXT one in the fan sits on
+## top of; the name band shrinks and shifts left by that much so the word is
+## centred in what the player can actually see, not in the card's geometry.
+func _skill_card(skill_id: String, locked: bool, carried: bool,
+		covered_right: float = 0.0) -> Button:
 	var def: Dictionary = catalog.skills.get(skill_id, {})
 	var b := Button.new()
 	b.flat = true
@@ -401,17 +418,18 @@ func _skill_card(skill_id: String, locked: bool, carried: bool) -> Button:
 		uses.set_offset(SIDE_BOTTOM, 34)
 		uses.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(uses)
-	var name_label := Label.new()
-	name_label.text = String(def.get("name", skill_id))
-	name_label.add_theme_font_override("font", UITheme.smallcaps_font())
-	name_label.add_theme_font_size_override("font_size", 24)
-	name_label.add_theme_color_override("font_color", UITheme.INK)
+	# The name is MEASURED against the card, never trusted to fit (law 5).
+	# `clip_text` alone turns an over-long name into a silently truncated one —
+	# "Shelf Justice" lost sixteen pixels of itself for a chapter and read as a
+	# design choice. It steps down to the type floor first and only clips if
+	# even that will not do, which test_typography.gd is there to prevent.
+	var name_label := UITheme.skill_name_label(
+		String(def.get("name", skill_id)), NAME_BAND_WIDTH - covered_right)
 	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	name_label.set_offset(SIDE_LEFT, CARD_BORDER)
+	name_label.set_offset(SIDE_RIGHT, -(CARD_BORDER + covered_right))
 	name_label.set_offset(SIDE_TOP, -32)
 	name_label.set_offset(SIDE_BOTTOM, -6)
-	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.clip_text = true
-	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(name_label)
 	if locked:
 		# Scratch's padlock is a word: the (always) tag lives in the popup;

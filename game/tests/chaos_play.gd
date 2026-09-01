@@ -18,9 +18,10 @@ extends RefCounted
 ##   3. Spent is spent. The deck only grows on the two commands allowed to
 ##      return energy (concentrate, and end_turn's sunbeam) — CLAUDE.md's
 ##      "energy never reshuffles" law, enforced instead of remembered.
-##   4. Bounds hold: hp <= max, block/alarm/paws never negative, paws never
-##      exceed the limit. A held purr means no skill/charge/concentrate is
-##      ever accepted (the purr holds him still).
+##   4. Bounds hold: hp <= max, block/alarm/paws never negative, and a turn
+##      always OPENS on the paw limit (a card may push a single turn past it;
+##      nothing may carry the extra over). A held purr means no
+##      skill/charge/concentrate is ever accepted (the purr holds him still).
 ##   5. A finished encounter is finished. No command is accepted afterwards.
 ##   6. The run terminates. No sequence of commands may spin forever.
 ##   7. The log replays. Same seed + same commands = the same final state,
@@ -48,6 +49,7 @@ const PERSONAS: Array[String] = [
 	"approach_spammer",  # tries every entrance, repeatedly, then dawdles
 	"pacifist",          # ends turn and never acts: dies to the night pressing
 	"purrer",            # starts a purr then keeps trying to act through it
+	"turtle",            # guards, hides and unknots; never once attacks
 ]
 
 ## Every humour plus junk, so concentrate is asked for things that cannot
@@ -128,8 +130,18 @@ func build_config(encounter_id: String, skills: Array = []) -> Dictionary:
 	var encounter: Dictionary = catalog.encounters[encounter_id]
 	var environment: Dictionary = catalog.environments.get(
 		String(encounter.get("environment", "")), {})
-	var kit: Array = skills if not skills.is_empty() \
-		else ["pounce", "slink", "purr"]
+	# The default kit is EVERY action in the catalog, read from the catalog
+	# rather than listed here. It was a list of three once, and when the
+	# Chapter 1 roster went from seven actions to fourteen the sweep went on
+	# reporting "no violations" over thirteen thousand runs that never once
+	# touched a new card. A fuzzer with a hand-written loadout only ever
+	# fuzzes the day it was written. Wider than any shippable tray on
+	# purpose: jam and burn need targets, and every effect needs exercising.
+	var kit: Array = skills
+	if kit.is_empty():
+		for skill_id in catalog.skills:
+			if not catalog.skills[skill_id].get("instinct", false):
+				kit.append(String(skill_id))
 	return {
 		"player_hp": 10,
 		"player_max_hp": 10,
@@ -178,9 +190,18 @@ func _check_accepted(state: CombatState, command: Dictionary,
 			state.player_hp, state.player_max_hp, kind])
 	if state.player_block < 0:
 		_violation("negative block (%d) after '%s'" % [state.player_block, kind])
-	if state.paws_left < 0 or state.paws_left > state.paw_limit:
-		_violation("paws %d outside 0..%d after '%s'" % [
-			state.paws_left, state.paw_limit, kind])
+	# Paws: never negative, and a TURN always starts on the limit. The upper
+	# bound used to be paw_limit flat, which was true only while nothing
+	# could give a paw back — Her Hour now can, and going over the budget
+	# for one turn IS the card ("one more minute than the clock was
+	# offering"). What must still hold is that the extra minute does not
+	# carry: whatever this turn was given, the next one opens on the limit.
+	if state.paws_left < 0:
+		_violation("negative paws (%d) after '%s'" % [state.paws_left, kind])
+	if kind == "end_turn" and state.outcome == CombatState.Outcome.ONGOING \
+			and state.paws_left != state.paw_limit:
+		_violation("a turn opened on %d paws, not the limit of %d" % [
+			state.paws_left, state.paw_limit])
 	if channel_before and ["play_skill", "charge_skill", "concentrate"].has(kind):
 		_violation("'%s' was accepted while the purr held" % kind)
 	if state.alarm < 0:
@@ -196,6 +217,12 @@ func _check_accepted(state: CombatState, command: Dictionary,
 		if int(entry["charges_left"]) < 0:
 			_violation("skill '%s' has %d charges after '%s'" % [
 				entry["id"], entry["charges_left"], kind])
+		# Unknot writes to this counter, which nothing but the turn-over used
+		# to touch; a clear that went one past zero would read as a skill
+		# that can never be jammed again.
+		if int(entry["jammed_turns"]) < 0:
+			_violation("skill '%s' is jammed for %d turns after '%s'" % [
+				entry["id"], entry["jammed_turns"], kind])
 
 
 func _check_rejected(state: CombatState, command: Dictionary,
@@ -295,6 +322,19 @@ func _next_command(state: CombatState, persona: String, stall: int) -> Dictionar
 			return {"type": "end_turn"}
 		"pacifist":
 			return {"type": "end_turn"}
+		"turtle":
+			# The defensive roster grew four cards in one chapter — a guard
+			# that survives the turn-over, a hide, an unjam, a heal — and the
+			# question a turtle asks is whether the stack of them can hold a
+			# fight open forever. It must not: the night presses from turn 8
+			# and charges run out, so this ends in a death, and the harness
+			# fails it if the encounter never finishes at all.
+			var guards: Array[Dictionary] = [{"type": "end_turn"}]
+			for skill_id in ["long_shadow", "vanish", "slink", "loaf",
+					"unknot", "purr", "her_thread", "moonwise"]:
+				if not state.skill_state(skill_id).is_empty():
+					guards.append({"type": "play_skill", "skill_id": skill_id})
+			return guards[_rng.pick_index(guards.size())]
 		"purrer":
 			# Starts the purr, then hammers at everything the purr is meant
 			# to forbid — every one of those must be rejected cleanly.

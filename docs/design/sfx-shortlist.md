@@ -18,8 +18,18 @@ assets/library/sfx/      accepted — the sounds the game uses  [tracked]
 game/assets/sfx/         wired into the game  [tracked]
 ```
 
-287 candidates are sitting at the `incoming` step now; see
-`assets/incoming/sfx/MANIFEST.md` for the per-file reference table.
+**Status (2026-08-31): wired.** 147 of the 287 candidates were accepted and are
+in the game; `assets/library/sfx/MANIFEST.md` is the roll of what shipped and
+`assets/incoming/sfx/MANIFEST.md` still holds all 287 for a second pass.
+
+What each sound is FOR lives in [`game/data/sfx.json`](../../game/data/sfx.json)
+as cues named for events, not files — `ui_reject`, `ash_claw`, `page_turn`.
+`tools/wire_sfx.py` reads that file to decide what to wire, so the data and the
+assets cannot drift apart, and `Catalog._validate_sfx()` fails the test run if a
+cue names a recording that is not there.
+
+Still unheard by anyone. The measurements below are real; the *choices* are
+inference, and the four stings most of all.
 
 | Library | Where | Size | Licence | Fetch with |
 |---|---|---|---|---|
@@ -354,29 +364,35 @@ above — generate from text prompts, never with a Sonniss file as reference.
 
 ## Next steps
 
-Sourcing and staging are done — 657 source files across three libraries, 287
-candidates staged in `assets/incoming/sfx/`, all commercially clear. Everything
-below is selection and wiring.
+Sourcing, staging and wiring are done. 147 files are in the game across 46
+cues, on their own bus, with their own switch and their own fader. What is
+left is the part no tool can do.
 
-1. **The owner auditions `assets/incoming/sfx/`** and deletes what does not
-   belong. The known junk was already excluded at the staging step, so
-   everything present is at least plausible. Priorities while listening:
-   the 17 pizzicato jingles (four become the stings, and nothing else can
-   replace them), `court/ghost_ambience` (likely too horror), and the eight
-   long beds.
-2. `python tools/stage_sfx.py --manifest` to make the reference table match
-   what survived.
-3. Promote survivors from `assets/incoming/sfx/` to `assets/library/sfx/` —
-   that folder is tracked, and the move is what makes a sound part of the
-   game's canon.
-4. Write `tools/wire_sfx.py` for `assets/library/sfx/` → `game/assets/sfx/`,
-   mirroring `tools/wire_assets.py`. It has to do more than copy: trim the
-   Sonniss beds to the useful moment, and run one `loudnorm` pass across the
-   lot — 27 staged files still clip and eight are near-inaudible.
-5. Then `godot --headless --path game --import` (law 23) before anything can
-   see them.
-6. Wire the rejected-command sound first — it fixes a real silence law 19 cares
-   about.
+1. **Listen to it.** Nothing here has been heard by anybody. The whole build
+   rests on filenames, durations and peak measurements. Law 1's audio
+   equivalent has not happened, and until it does every claim below is
+   inference.
+2. **The four stings are the least-verified thing in the game.**
+   `sting_victory` is `pizzicato_3` because it is the only one of the 17 that
+   ends higher than it starts (+4.9 semitones) — measured, not heard, and
+   measured against a real confound: a plucked string's bright attack decays
+   downward, so every phrase drifts flat and the ranking is more trustworthy
+   than the absolute sign. If it sounds wrong, the other 16 are already
+   staged and swapping one is a one-line edit to `sfx.json`.
+3. **Ambience is deliberately not wired.** The long beds — `hearth`,
+   `wind_chimney`, `city_storm`, `bells`, `ghost_ambience` — would fight the
+   score, which already owns "what this place sounds like". Wiring them means
+   deciding how a bed and a track share a room, and that is a design decision,
+   not a wiring one.
+4. `tools/wire_sfx.py --check` reports drift in either direction: a cue whose
+   files are missing, or a file no cue asks for any more.
 
-Nothing here has been **heard**. The measurements are real; the judgements are
-name-and-number deep. Build the dev-menu soundboard before trusting any of it.
+### Known, and left alone on purpose
+
+- `ui/toggle_3` normalises to −2.1 dBFS instead of −3.0, ~1 dB hotter than its
+  siblings. No full-scale samples, so it is not a click — just marginally
+  louder than the other three toggles.
+- `ui/modal_open_2` was **dropped**: its source was clipped and Vorbis rings
+  around an already-square transient, so attenuating it 8 dB moved the mean and
+  left five samples pinned at 0 dBFS. `wire_sfx.py` counts full-scale samples
+  now, so the next one gets caught rather than shipped as a click.

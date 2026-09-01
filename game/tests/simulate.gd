@@ -103,6 +103,35 @@ var scenarios := [
 	{"name": "tallowman (moon)", "enemy": "the_tallowman",
 		"skills": ["scratch", "pounce", "swat", "slink", "shelf_justice"], "hp": 14,
 		"deck": MOON_FOCUS_DECK, "environment": {"cost_mod": {"mysticism": 1, "guile": -1}}},
+	# ------------------------------------------------- Chapter 1's full roster
+	# The rows above are the ladder as it was BUILT, on the seven-card roster,
+	# and they stay so the history stays comparable. These are the same fights
+	# played by somebody who took what the chapter actually teaches — still
+	# four chosen actions plus Scratch, because the tray did not get wider,
+	# only the shelf it is picked from (rules.json combat.loadout_size).
+	#
+	# Each row is the SAME tray as the matching row above with exactly ONE
+	# card swapped for the specialist the new roster offers against that
+	# enemy. That is the question worth asking — does the card earn a slot? —
+	# and it is the only comparison the rows above can answer.
+	#
+	# A tray built ENTIRELY of the new specialists was simmed first and lost
+	# every run: Bite has one charge and Rake has two, so four of them
+	# together carry eleven damage against a boss with twenty-four and a mend.
+	# That is the roster working as designed (they are answers, not engines),
+	# and it is why none of them replaces the damage engine below.
+	{"name": "candle golem (tray)", "enemy": "candle_golem",
+		"skills": ["scratch", "pounce", "swat", "bite_down"], "hp": 12,
+		"deck": BACKHALF_DECK, "environment": {"cost_mod": {"mysticism": 1, "guile": -1}}},
+	{"name": "the drowned (tray)", "enemy": "the_drowned",
+		"skills": ["scratch", "pounce", "swat", "bite_down"], "hp": 12,
+		"deck": BACKHALF_DECK, "environment": {"cost_mod": {"shadow": -1}}},
+	{"name": "tallowman (tray)", "enemy": "the_tallowman",
+		"skills": ["scratch", "pounce", "swat", "unknot"], "hp": 14,
+		"deck": CLAW_FOCUS_DECK, "environment": {"cost_mod": {"mysticism": 1, "guile": -1}}},
+	{"name": "tallowman (her tray)", "enemy": "the_tallowman",
+		"skills": ["scratch", "pounce", "swat", "her_thread"], "hp": 14,
+		"deck": MOON_FOCUS_DECK, "environment": {"cost_mod": {"mysticism": 1, "guile": -1}}},
 ]
 
 var bots := ["brawler", "defender", "stalker", "random"]
@@ -305,7 +334,7 @@ func _decide(state: CombatState, bot: String) -> Dictionary:
 			if _jammed(state) and _playable(state, "unknot"):
 				return {"type": "play_skill", "skill_id": "unknot"}
 			if incoming > state.player_block:
-				# Long Shadow before Loaf before Slink: the guard that
+				# Shade before Loaf before Slink: the guard that
 				# survives the turn-over is worth more than the bigger one
 				# that costs a turn of paws.
 				for skill in ["long_shadow", "loaf", "slink"]:
@@ -337,6 +366,15 @@ func _decide(state: CombatState, bot: String) -> Dictionary:
 	return {"type": "end_turn"}
 
 
+## Is anything in the tray tangled? Unknot's whole reason for being in a
+## loadout, and the one condition under which a defender should lead with it.
+func _jammed(state: CombatState) -> bool:
+	for entry in state.skills:
+		if int(entry.get("jammed_turns", 0)) > 0:
+			return true
+	return false
+
+
 func _playable_skills(state: CombatState) -> Array[String]:
 	var playable: Array[String] = []
 	for entry in state.skills:
@@ -359,20 +397,42 @@ func _playable(state: CombatState, skill_id: String) -> bool:
 			or int(runtime.get("charges_left", 0)) <= 0:
 		return false
 	var owing := state.remaining_cost(skill_id)
-	# PAWS, not just energy. Bite Down costs three Ferocity, which is three
+	# PAWS, not just energy. Bite costs three Ferocity, which is three
 	# card placements against a budget of three — so "can I afford it?" and
 	# "can I afford it THIS turn?" are now different questions, and a bot that
 	# only asks the first one spends its turn being rejected.
 	return state.can_pay(owing) and state.paws_needed(skill_id) <= state.paws_left
 
 
+## The hardest hit available RIGHT NOW, scored through the enemy's guard
+## rather than off the card face. Raw damage was the same question until a
+## pierce card existed: with a guard of 4 up, Bite's 5 lands 5 and
+## Pounce's 4 lands nothing — and with no guard up, spending Bite's one
+## charge to out-hit Pounce by one is a bot throwing its answer away before
+## the question is asked. Ties go to the cheaper card for the same reason.
 func _best_damage_skill(state: CombatState) -> String:
 	var best := ""
-	var best_damage := 0
+	var best_landed := 0
+	var best_paws := 99
 	for skill_id in _playable_skills(state):
 		var def: Dictionary = catalog.skills[skill_id]
+		var landed := 0
+		var guard := state.enemy_block
 		for effect in def.get("effects", []):
-			if effect.get("type", "") == "damage" and int(effect["amount"]) > best_damage:
-				best_damage = int(effect["amount"])
-				best = skill_id
+			if effect.get("type", "") != "damage":
+				continue
+			var amount := int(effect["amount"])
+			if effect.get("mode", "") == "pierce":
+				landed += amount
+			else:
+				var turned := mini(guard, amount)
+				guard -= turned
+				landed += amount - turned
+		if landed <= 0:
+			continue
+		var paws := state.paws_needed(skill_id)
+		if landed > best_landed or (landed == best_landed and paws < best_paws):
+			best_landed = landed
+			best_paws = paws
+			best = skill_id
 	return best

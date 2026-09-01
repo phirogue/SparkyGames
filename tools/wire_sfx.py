@@ -51,9 +51,17 @@ STAGED_MANIFEST = INCOMING / "manifest.json"
 PEAK_DBFS = -3.0
 
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from paths import ffmpeg_binary, ffprobe_binary  # noqa: E402
+
+_BINARIES = {"ffmpeg": ffmpeg_binary, "ffprobe": ffprobe_binary}
+
+
 def _tool(name: str) -> str:
-    packaged = Path.home() / "Packages" / "ffmpeg" / "bin" / f"{name}.exe"
-    return str(packaged) if packaged.exists() else name
+    # Resolved through tools/paths.py so CI can point at its own binaries with
+    # an environment variable instead of this file growing a second copy of
+    # the machine's install path.
+    return str(_BINARIES[name]())
 
 
 def run(args: list[str]) -> str:

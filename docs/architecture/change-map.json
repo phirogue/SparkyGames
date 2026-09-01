@@ -42,11 +42,14 @@
     "add-or-change-a-skill": {
       "summary": "A new card in the tray, or a change to what one costs or does.",
       "touch": [
-        { "path": "game/data/skills.json", "why": "the definition: cost, charges, effects, instinct flag, flavor" },
+        { "path": "game/data/skills.json", "why": "the definition: cost, charges, effects, instinct flag, flavor. The NAME is a layout constraint too -- the tray fans its cards, so about nine characters before a neighbour covers it (tests/unit/test_typography.gd)" },
+        { "path": "game/data/quests.json", "why": "WHERE IT IS LEARNED. Nothing is bought: a skill reaches the player through a quest's `unlock_skill` or a `notice` step's `grant`, paired with a story beat that earns it. A skill nothing grants is a card that exists in the loadout, the sim and the art folder and never once in the game -- Catalog.validate() fails the boot on it" },
         { "path": "assets/library/skills", "why": "art named sk_<id>.png; check the library FIRST, never regenerate what exists" },
         { "path": "tools/wire_assets.py", "why": "run it -- never hand-copy from the library into game/assets", "command": "python tools/wire_assets.py" },
         { "path": "game/data/rules.json", "why": "ONLY if the loadout law changes; the tray is built with one column per slot", "optional": true },
-        { "path": "game/core/catalog.gd", "why": "add validation if the skill introduces a new field", "optional": true },
+        { "path": "game/core/catalog.gd", "why": "add validation if the skill introduces a new field or a new EFFECT type -- _validate_skill_effects lists the vocabulary, and an unknown effect is a card that costs a charge and does nothing", "optional": true },
+        { "path": "game/story/interface.json", "why": "skill_rules.* -- a new effect type needs its sentence, or the card shows a blank rule line", "optional": true },
+        { "path": "game/ui/skill_text.gd", "why": "render the new effect into that sentence", "optional": true },
         { "path": "docs/design/balance-notes.md", "why": "record what the sim says after the change" }
       ],
       "verify": [

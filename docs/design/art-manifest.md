@@ -151,6 +151,44 @@ engine-drawn cut-thread overlay sprites. One generation covers both.)*
 
 ---
 
+## Batch 4b — the Chapter 1 roster (AR 1:1, 2026-08-31)
+
+Eight more action cards, taking the roster to fourteen plus the instinct.
+Generated with `tools/genart.py --ref assets/library/characters/ref_ash.png`,
+which is the edits endpoint — words alone let the breed drift, and these had
+to sit beside seven existing cards without looking like a different cat.
+
+Every prompt ends by refusing a background in as many words as it takes
+("no room, no street, no background scene of any kind, just bare paper around
+him"). Skill cards are the subject on plain parchment (art rule 5), and asking
+once was not enough — the model will invent an alley if you leave it room to.
+
+**Two came back with TWO TAILS** (`sk_unknot`, `sk_moonwise`), which is the
+kind of thing that survives a glance and not a read. Both were repaired with
+`--ref <the defective image>` rather than re-rolled, so the pose and
+composition held and only the tail changed (art rule 9). The rejected takes
+are in `assets/archive/superseded/`.
+
+The full prompts are recorded per-asset in `assets/art-catalog.json`; query
+them with `python tools/art_catalog.py show sk_vanish`.
+
+| id | what it is |
+|---|---|
+| `sk_rake` | striking down and across, four ink slash lines trailing the paw |
+| `sk_bite_down` | flat to the ground, shoulders driving, jaws shut hard |
+| `sk_unknot` | working a snarl of silver thread apart between both paws |
+| `sk_long_shadow` | sitting still while one long soft-edged shadow runs off across bare paper |
+| `sk_vanish` | mid-step and half gone — front solid ink, back dissolving into wash |
+| `sk_scrounge` | one paw down a gutter grating, dragging out a coin, a nail and a bootlace |
+| `sk_moonwise` | head tilted, a crescent of silver-blue light across both eyes |
+| `sk_her_thread` | a silver thread wound once round a paw, a bone needle beside it |
+
+Ids are stable and keep their original names; three of the CARDS were renamed
+for width (Bite, Shade, Her Hour) and the art filenames deliberately did not
+follow — an id that moves is an art file that has to move with it.
+
+---
+
 ## Batch 5 — Humour energy glyphs (AR 1:1) — **use ChatGPT, not Kling**
 
 Icons need precision and transparency — that's ChatGPT's strength. Ask ChatGPT
@@ -195,6 +233,14 @@ regenerate the odd one out):
 | sk_loaf | 4 | ☐ |
 | sk_shelf_justice | 4 | ☐ |
 | sk_scratch | 4 | ☐ |
+| sk_rake | 4b | ☑ read 2026-08-31 |
+| sk_bite_down | 4b | ☑ read 2026-08-31 |
+| sk_unknot | 4b | ☑ read 2026-08-31 (two tails, repaired) |
+| sk_long_shadow | 4b | ☑ read 2026-08-31 |
+| sk_vanish | 4b | ☑ read 2026-08-31 |
+| sk_scrounge | 4b | ☑ read 2026-08-31 |
+| sk_moonwise | 4b | ☑ read 2026-08-31 (two tails, repaired) |
+| sk_her_thread | 4b | ☑ read 2026-08-31 |
 | hu_ferocity..moonlight | 5 | ☐ (ChatGPT) |
 
 Chapter 1's prompts get added here after Batch 0–2 confirm the reference

@@ -50,7 +50,20 @@
       "Bash(git commit -m ' *)",
       "PowerShell(python -c \"import numpy; print\\('numpy', numpy.__version__\\)\" 2>&1)",
       "PowerShell(python \"C:\\\\Users\\\\yurim\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-yurim-OneDrive-Desktop-Vibe-Coding-SparkyGames\\\\7a5a111a-e926-4ab6-a887-4517a221c435\\\\scratchpad\\\\jingles.py\")",
-      "PowerShell(python \"c:\\\\Users\\\\yurim\\\\OneDrive\\\\Desktop\\\\Vibe Coding\\\\SparkyGames\\\\tools\\\\wire_sfx.py\" 2>&1)"
+      "PowerShell(python \"c:\\\\Users\\\\yurim\\\\OneDrive\\\\Desktop\\\\Vibe Coding\\\\SparkyGames\\\\tools\\\\wire_sfx.py\" 2>&1)",
+      "Bash(sed -i 's/\\\\bHUMOUR_CARD_FRAME\\\\b/UITheme.HUMOUR_CARD_FRAME/g; s/\\\\bHUMOUR_COLORS\\\\b/UITheme.HUMOUR_COLORS/g; s/\\\\bHUMOUR_GLYPH\\\\b/UITheme.HUMOUR_GLYPH/g' game/scenes/battle.gd)",
+      "Bash(sed -i 's/MinigameShell\\\\.HUMOUR_COLOURS/UITheme.HUMOUR_COLORS/g; s/MinigameShell\\\\.HUMOUR_GLYPH\\\\b/UITheme.HUMOUR_GLYPH/g; s/\\\\bHUMOUR_FRAME\\\\b/UITheme.HUMOUR_CARD_FRAME/g' game/scenes/minigames/crossing_screen.gd game/scenes/minigames/ward_screen.gd)",
+      "Bash(sed -i 's/\\\\bHUMOUR_COLOURS\\\\b/UITheme.HUMOUR_COLORS/g; s/\\\\bHUMOUR_GLYPH\\\\b/UITheme.HUMOUR_GLYPH/g' game/scenes/minigames/minigame_shell.gd)",
+      "Bash(sed -i 's/\\\\bHUMOUR_COLORS\\\\b/UITheme.HUMOUR_COLORS/g; s/\\\\bHUMOUR_GLYPHS\\\\b/UITheme.HUMOUR_GLYPH/g' game/scenes/loadout_screen.gd game/scenes/exchange_screen.gd)",
+      "Bash(\"C:/Users/yurim/tools/godot/Godot_v4.4.1-stable_win64_console.exe\" --headless --path game -s tests/simulate.gd)",
+      "Bash(echo \"exit $?\")",
+      "Edit(/.claude/skills/simbalance/**)",
+      "Bash(PYTHONIOENCODING=utf-8 python -)",
+      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 python \"C:/Users/yurim/AppData/Local/Temp/claude/c--Users-yurim-OneDrive-Desktop-Vibe-Coding-SparkyGames/4e810159-2414-4399-9049-f4fbfbeaa644/scratchpad/add_skill_beats.py\")",
+      "Bash(\"C:/Users/yurim/tools/godot/Godot_v4.4.1-stable_win64_console.exe\" --headless --path game -s tests/run_tests.gd)",
+      "Bash(PYTHONIOENCODING=utf-8 python \"C:/Users/yurim/AppData/Local/Temp/claude/c--Users-yurim-OneDrive-Desktop-Vibe-Coding-SparkyGames/4e810159-2414-4399-9049-f4fbfbeaa644/scratchpad/fix_skill_beats.py\")",
+      "Bash(\"C:/Users/yurim/tools/godot/Godot_v4.4.1-stable_win64_console.exe\" --headless --path game -s tests/diag_beatfit.gd)"
     ],
     "ask": [
       "Bash(git push:*)",

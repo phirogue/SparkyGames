@@ -16,7 +16,11 @@ extends RefCounted
 ##             (you cannot re-decide a memory)
 ##   minigame  {"module": stitch|testimony|ward|lattice|crossing, "id": ...}
 ##   lesson    {"lesson": id}                          — teach once, then skip
-##   notice    {"notes": [...]}                        — the rules card
+##   notice    {"notes": [...], "grant": [skill_id]}   — the rules card, and
+##             the one place a quest hands Ash a new ACTION mid-prowl. A
+##             skill learned in the middle of a job arrives on the parchment
+##             card at the beat that earned it; `unlock_skill` on the quest
+##             itself still means "the whole night taught you this".
 ##
 ## Old quests that carry only `encounters` still work: they compile to one
 ## battle step each. That is not a transition state — a straight fight-chain
@@ -79,6 +83,22 @@ static func has_battle_after(quest: Dictionary, index: int) -> bool:
 		if type_of(script[i]) == BATTLE:
 			return true
 	return false
+
+
+## Every action this quest teaches: the notice steps that hand one over
+## mid-prowl, plus the quest's own `unlock_skill` (paid at the end, meaning
+## "the whole night taught you this"). One function so the boot-time
+## reachability check and the law-7 save heal cannot drift apart — a quest
+## that grants a skill in a way only ONE of them knows about is either dead
+## content or a skill an old save can never be given.
+static func skills_taught_by(quest: Dictionary) -> Array[String]:
+	var taught: Array[String] = []
+	if quest.has("unlock_skill"):
+		taught.append(String(quest["unlock_skill"]))
+	for step: Dictionary in steps_of(quest):
+		for skill_id in step.get("grant", []):
+			taught.append(String(skill_id))
+	return taught
 
 
 ## A story step may be keyed to how the previous MINIGAME ended

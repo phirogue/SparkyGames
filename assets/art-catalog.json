@@ -1306,10 +1306,7 @@
       "prompt": null,
       "prompt_source": null,
       "used_by": [
-        "scenes/battle.gd",
-        "scenes/exchange_screen.gd",
-        "scenes/loadout_screen.gd",
-        "scenes/minigames/minigame_shell.gd"
+        "ui/ui_theme.gd"
       ],
       "prologue_beats": [],
       "wired": true
@@ -1330,10 +1327,7 @@
       "prompt": null,
       "prompt_source": null,
       "used_by": [
-        "scenes/battle.gd",
-        "scenes/exchange_screen.gd",
-        "scenes/loadout_screen.gd",
-        "scenes/minigames/minigame_shell.gd"
+        "ui/ui_theme.gd"
       ],
       "prologue_beats": [],
       "wired": true
@@ -1354,10 +1348,7 @@
       "prompt": null,
       "prompt_source": null,
       "used_by": [
-        "scenes/battle.gd",
-        "scenes/exchange_screen.gd",
-        "scenes/loadout_screen.gd",
-        "scenes/minigames/minigame_shell.gd"
+        "ui/ui_theme.gd"
       ],
       "prologue_beats": [],
       "wired": true
@@ -1378,10 +1369,7 @@
       "prompt": null,
       "prompt_source": null,
       "used_by": [
-        "scenes/battle.gd",
-        "scenes/exchange_screen.gd",
-        "scenes/loadout_screen.gd",
-        "scenes/minigames/minigame_shell.gd"
+        "ui/ui_theme.gd"
       ],
       "prologue_beats": [],
       "wired": true
@@ -2234,6 +2222,48 @@
       "wired": true
     },
     {
+      "id": "sk_bite_down",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Bite",
+      "description": "Ash flat to the ground with his shoulders driving forward and his jaws shut hard, eyes screwed nearly closed with the effort.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": null,
+      "prompt": "The same black cat as the reference, with orange eyes and a small frayed red neckerchief. He is very low to the ground, shoulders driving forward, head turned side-on with his jaws shut hard and his eyes screwed almost closed with the effort of biting. Ears flat. Subject alone on plain cream parchment: no room, no street, no background scene of any kind, just bare paper around him.",
+      "prompt_source": "tools/genart.py --ref assets/library/characters/ref_ash.png",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sk_her_thread",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Her Hour",
+      "description": "A single fine silver thread wound once around one of Ash's front paws and running off out of frame, an old bone needle lying on the paper beside it.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": null,
+      "prompt": "The same black cat as the reference, with orange eyes and a small frayed red neckerchief. A single fine silver thread is wound once around one of his front paws and runs off across the bare paper out of frame; he is looking down at it. An old bone sewing needle lies on the paper beside the paw. Quiet, careful, not sad. Subject alone on plain cream parchment: no room, no table, no background scene of any kind.",
+      "prompt_source": "tools/genart.py --ref assets/library/characters/ref_ash.png",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
       "id": "sk_loaf",
       "kind": "skills",
       "verified": "read",
@@ -2250,6 +2280,48 @@
       "notes": null,
       "prompt": "A black cat in a perfect bread loaf pose with all paws tucked under its body, eyes half closed, serene and immovable, faint silver shimmer around it, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
       "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sk_long_shadow",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Shade",
+      "description": "Ash sitting upright and still while one long soft-edged shadow stretches away across bare paper, far longer than he is.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": null,
+      "prompt": "The same black cat as the reference, with orange eyes and a small frayed red neckerchief. He sits upright and perfectly still, facing the viewer, while one long dark shadow stretches away from him across the bare paper, far longer than he is, with a soft edge like a drawn curtain. Subject alone on plain cream parchment: no room, no street, no background scene of any kind, only the cat and his cast shadow on bare paper.",
+      "prompt_source": "tools/genart.py --ref assets/library/characters/ref_ash.png",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sk_moonwise",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Moonwise",
+      "description": "Ash sitting very still with his head tilted, a thin crescent of pale silver-blue moonlight lying across both eyes as he reads something out of frame.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": null,
+      "prompt": "The same black cat as the reference, with orange eyes and a small frayed red neckerchief. He sits very still with his head tilted, reading something out of frame, and a thin crescent of pale silver-blue moonlight lies across both of his eyes so they catch cold light instead of warm. Ears forward. Subject alone on plain cream parchment: no room, no window, no background scene of any kind, just bare paper around him. He has exactly ONE tail, curled around his front paws.",
+      "prompt_source": "tools/genart.py --ref assets/library/characters/ref_ash.png",
       "used_by": [],
       "prologue_beats": [],
       "wired": true
@@ -2297,6 +2369,27 @@
       "wired": true
     },
     {
+      "id": "sk_rake",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Rake",
+      "description": "Ash striking downward and across with claws spread, four thin parallel ink slash lines trailing behind the paw.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": null,
+      "prompt": "The same black cat as the reference, with orange eyes and a small frayed red neckerchief. He is striking downward and across with one front paw, claws spread, body low and turning into the blow. Four thin parallel ink slash lines trail behind the paw. Subject alone on plain cream parchment: no room, no street, no background scene of any kind, just bare paper around him.",
+      "prompt_source": "tools/genart.py --ref assets/library/characters/ref_ash.png",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
       "id": "sk_scratch",
       "kind": "skills",
       "verified": "read",
@@ -2313,6 +2406,27 @@
       "notes": "Cards are atemporal: they sit in the tray from the prologue onward, so the kerchief on them is not dated the way a story scene is. The checks only date story portraits.",
       "prompt": "A black cat's paw swiping quickly with three thin ink slash marks in the air, simple composition with lots of empty paper, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
       "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sk_scrounge",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Scrounge",
+      "description": "Ash with one paw hooked deep into a gutter grating, dragging out a coin, a bent boot nail and a bootlace, extremely pleased with himself.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": null,
+      "prompt": "The same black cat as the reference, with orange eyes and a small frayed red neckerchief. He has one front paw hooked deep into a narrow iron gutter grating and is dragging out a small heap of findings: a coin, a bent boot nail, a length of bootlace. He looks up at the viewer, extremely pleased with himself. Only the short piece of grating is drawn; subject otherwise alone on plain cream parchment, no street, no background scene of any kind.",
+      "prompt_source": "tools/genart.py --ref assets/library/characters/ref_ash.png",
       "used_by": [],
       "prologue_beats": [],
       "wired": true
@@ -2376,6 +2490,48 @@
       "notes": null,
       "prompt": "A calm black cat sitting still while one front paw strikes out in a blur of motion, composed face, storybook ink and watercolor illustration, loose ink linework, muted watercolor washes in charcoal grey and warm amber, hand-drawn children's book style, textured cream paper, no text",
       "prompt_source": "docs/design/art-manifest.md",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sk_unknot",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Unknot",
+      "description": "Ash sitting up working a snarl of silver thread apart between both front paws, two loose ends already hanging free.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": null,
+      "prompt": "The same black cat as the reference, with orange eyes and a small frayed red neckerchief. He is sitting up working a tangled snarl of silver-grey thread apart between both front paws, head down, concentrating hard, with two loose thread ends already hanging free and straight. Subject alone on plain cream parchment: no room, no table, no background scene of any kind, just bare paper around him. He has exactly ONE tail.",
+      "prompt_source": "tools/genart.py --ref assets/library/characters/ref_ash.png",
+      "used_by": [],
+      "prologue_beats": [],
+      "wired": true
+    },
+    {
+      "id": "sk_vanish",
+      "kind": "skills",
+      "verified": "read",
+      "title": "Vanish",
+      "description": "Ash mid-step and half gone: head and forelegs solid ink, the rest dissolving into a transparent dark wash that fades to bare paper.",
+      "characters": [
+        "ash"
+      ],
+      "setting": "plain",
+      "place": null,
+      "time_of_day": "none",
+      "light": "none",
+      "ash_neckerchief": true,
+      "notes": null,
+      "prompt": "The same black cat as the reference, with orange eyes and a small frayed red neckerchief. He is mid-step and half gone: the head, shoulders and front paws are drawn solid in ink, and from the middle of his back the rest of him dissolves into a loose transparent dark wash that fades out into bare paper. Only the eyes and the neckerchief stay bright. Subject alone on plain cream parchment: no room, no street, no background scene of any kind.",
+      "prompt_source": "tools/genart.py --ref assets/library/characters/ref_ash.png",
       "used_by": [],
       "prologue_beats": [],
       "wired": true
@@ -2565,8 +2721,7 @@
       "prompt": null,
       "prompt_source": null,
       "used_by": [
-        "scenes/battle.gd",
-        "scenes/minigames/crossing_screen.gd"
+        "ui/ui_theme.gd"
       ],
       "prologue_beats": [],
       "wired": true
@@ -2587,8 +2742,7 @@
       "prompt": null,
       "prompt_source": null,
       "used_by": [
-        "scenes/battle.gd",
-        "scenes/minigames/crossing_screen.gd"
+        "ui/ui_theme.gd"
       ],
       "prologue_beats": [],
       "wired": true
@@ -2609,8 +2763,7 @@
       "prompt": null,
       "prompt_source": null,
       "used_by": [
-        "scenes/battle.gd",
-        "scenes/minigames/crossing_screen.gd"
+        "ui/ui_theme.gd"
       ],
       "prologue_beats": [],
       "wired": true
@@ -2631,8 +2784,7 @@
       "prompt": null,
       "prompt_source": null,
       "used_by": [
-        "scenes/battle.gd",
-        "scenes/minigames/crossing_screen.gd"
+        "ui/ui_theme.gd"
       ],
       "prologue_beats": [],
       "wired": true

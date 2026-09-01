@@ -251,6 +251,7 @@ func validate() -> Array[String]:
 				problems.append("skill '%s' cost uses unknown humour '%s'" % [id, humour])
 		if not skill.get("instinct", false) and int(skill.get("charges", 0)) < 1:
 			problems.append("skill '%s' has no charges and is not an instinct" % id)
+		problems.append_array(_validate_skill_effects(id, skill))
 	for id in enemies:
 		var enemy: Dictionary = enemies[id]
 		if int(enemy.get("hp", 0)) < 1:
@@ -331,6 +332,50 @@ func validate() -> Array[String]:
 	problems.append_array(_validate_world())
 	problems.append_array(_validate_music())
 	problems.append_array(_validate_sfx())
+	return problems
+
+
+## What a skill DOES, checked at boot. CombatState._apply_effects push_errors
+## on an unknown effect and moves on, which on a device is a card that plays,
+## costs its charge, and does nothing at all — the most expensive kind of
+## silent failure. So the vocabulary is stated once, here, and a typo is a
+## readable boot problem instead.
+##
+## Effects taking an `amount`, effects taking none, and the two modifiers
+## (`damage.mode`, `block.holds`) are listed separately because a modifier on
+## the wrong effect reads as working content: `{"type": "heal", "mode":
+## "pierce"}` would parse, validate and quietly mean nothing.
+const EFFECTS_WITH_AMOUNT := ["damage", "block", "heal", "draw", "paws",
+	"channel_heal"]
+const EFFECTS_WITHOUT_AMOUNT := ["self_stun", "sharpen", "hide", "unjam",
+	"unmask"]
+
+func _validate_skill_effects(id: String, skill: Dictionary) -> Array[String]:
+	var problems: Array[String] = []
+	var effects: Array = skill.get("effects", [])
+	if effects.is_empty():
+		problems.append("skill '%s' has no effects — it would cost a charge and do nothing" % id)
+	for entry in effects:
+		if not (entry is Dictionary):
+			problems.append("skill '%s' has an effect that is not a dict" % id)
+			continue
+		var effect: Dictionary = entry
+		var kind := String(effect.get("type", ""))
+		if EFFECTS_WITH_AMOUNT.has(kind):
+			# Godot's JSON parser returns floats (trap 26), so this asks what
+			# the number IS, not what type carried it.
+			if not (effect.get("amount") is float or effect.get("amount") is int):
+				problems.append("skill '%s' effect '%s' has no numeric amount" % [id, kind])
+			elif int(effect["amount"]) < 1:
+				problems.append("skill '%s' effect '%s' has a non-positive amount" % [id, kind])
+		elif not EFFECTS_WITHOUT_AMOUNT.has(kind):
+			problems.append("skill '%s' has unknown effect type '%s'" % [id, kind])
+		if effect.has("mode") and kind != "damage":
+			problems.append("skill '%s' puts a mode on a '%s' effect — only damage reads it" % [id, kind])
+		if String(effect.get("mode", "pierce")) != "pierce":
+			problems.append("skill '%s' damage has unknown mode '%s'" % [id, effect["mode"]])
+		if effect.has("holds") and kind != "block":
+			problems.append("skill '%s' puts `holds` on a '%s' effect — only block reads it" % [id, kind])
 	return problems
 
 
@@ -493,6 +538,32 @@ func _validate_rule_references() -> Array[String]:
 		for humour in rules.table("approaches.%s.cost" % mode):
 			if not HUMOURS.has(String(humour)):
 				problems.append("rules: approach '%s' costs unknown humour '%s'" % [mode, humour])
+	problems.append_array(_validate_skill_reachability())
+	return problems
+
+
+## Can Ash ever LEARN this? Nothing is bought and nothing drops: a skill is
+## either in the starting kit, handed over by the prologue, or taught by a
+## quest — so a skill in the file that no quest names is a card that exists
+## in the loadout code, in the balance sim and in the art folder, and never
+## once in the game. That defect is silent in every harness we have, which is
+## why it is checked here.
+func _validate_skill_reachability() -> Array[String]:
+	var problems: Array[String] = []
+	if skills.is_empty() or quests.is_empty():
+		return problems  # a Catalog built for a unit test, not the real one
+	var reachable := {}
+	for key in ["start.skills", "start.prologue_skills"]:
+		for skill_id in rules.list(key):
+			reachable[String(skill_id)] = true
+	for quest_id in quests:
+		for skill_id in ProwlScript.skills_taught_by(quests[quest_id]):
+			if not skills.has(skill_id):
+				problems.append("quest '%s' teaches unknown skill '%s'" % [quest_id, skill_id])
+			reachable[skill_id] = true
+	for id in skills:
+		if not reachable.has(String(id)):
+			problems.append("skill '%s' can never be learned — nothing grants it" % id)
 	return problems
 
 
@@ -1071,6 +1142,9 @@ func _validate_prowl_script(id: String, quest: Dictionary) -> Array[String]:
 			ProwlScript.NOTICE:
 				if Array(step.get("notes", [])).is_empty():
 					problems.append("quest '%s' has an empty notice step" % id)
+				# A notice may also hand over a skill; the id is checked by
+				# _validate_skill_reachability, which asks the same question
+				# from the other end (can this skill ever be learned?).
 			_:
 				problems.append("quest '%s' has unknown step type '%s'"
 					% [id, ProwlScript.type_of(step)])

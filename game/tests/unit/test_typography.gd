@@ -110,3 +110,41 @@ func test_the_widest_humour_name_fits_the_card_it_is_printed_on() -> void:
 	assert_true(face >= widest_px,
 		"the crossing's card is %.0f wide, leaving a %.0f face, and '%s' is %.0f at the type floor"
 			% [card_width, face, widest, widest_px])
+
+
+## THE ACTION NAME FITS THE ACTION CARD (2026-08-31).
+##
+## Same class of defect as the one above, one screen over. The tray fans its
+## cards because five 132-wide cards do not fit across 582px of page, so the
+## right ~20px of every card but the last is behind its neighbour — and a name
+## that overruns it is not merely tight, it is TRUNCATED, which reads as a
+## design choice rather than as a bug. "Shelf Justice" drew as "Shelf Justic"
+## for a chapter; "Bite Down", "Long Shadow" and "Her Thread" shipped into the
+## same trap the day the roster grew and were renamed off the back of this
+## test rather than off a screenshot.
+##
+## The budget enforced here is THE CARD at the TYPE FLOOR — the last size the
+## label is allowed to step down to (UITheme.skill_name_label). Past that the
+## name is truncated on every screen it appears on, which is a build-breaking
+## content bug.
+##
+## KNOWN GAP, stated rather than asserted away: the fan's visible band is
+## narrower still (~105px), and "Shelf Justice" is 125 at the floor. It fits
+## its card and loses about 19px whenever another card is fanned over it.
+## Tightening this test to the fan band would fail on shipped, owner-named
+## content, and renaming that card is the owner's call, not a test's — so the
+## test guards the line that can be defended (a name must at least fit its own
+## card) and the residue is written down here where the next person will find
+## it. The fix, when it is wanted, is a shorter name: nothing about the page
+## geometry can be moved to buy 20px.
+func test_every_action_name_fits_its_card() -> void:
+	var card: Dictionary = load("res://scenes/battle.gd").get_script_constant_map()
+	var band: float = card["NAME_BAND_WIDTH"]
+	var catalog := DataLoader.load_catalog()
+	for id in catalog.skills:
+		var skill_name := String(catalog.skills[id]["name"])
+		var px := UITheme.smallcaps_font().get_string_size(
+			skill_name, HORIZONTAL_ALIGNMENT_LEFT, -1, UITheme.TYPE_FLOOR).x
+		assert_true(px <= band,
+			"'%s' is %.0fpx at the type floor; the card's name band is %.0f"
+				% [skill_name, px, band])

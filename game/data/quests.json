@@ -340,6 +340,24 @@
       {
         "type": "story",
         "environment": "parlor_cold",
+        "lines": [
+          "The youngest of the three stayed behind when the other two went out to the street, and worked along the cut workings with her fingers, and I stayed because there was nothing else in that room to watch.",
+          "A cut working is not a dead one. Both ends are still in it. She found the ends and drew them apart slower than they went together, reciting the order under her breath the whole way, like a girl who has been made to learn it.",
+          "It took her most of an hour to undo what took something else no time at all. I did not have an hour. I had the order, which she recited to herself the whole way through without once noticing she was saying it."
+        ]
+      },
+      {
+        "type": "notice",
+        "grant": [
+          "unknot"
+        ],
+        "notes": [
+          "❋ SHADOW is not only for hiding. UNKNOT works every jammed action loose at once, and leaves a thin guard up while the paws are busy."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
         "portrait": "sc_parlor_doorway",
         "lines": [
           "The day-side came at nine. Two constables, not unkind, who tried the window catch and saw an old woman dead in a chair behind a door locked from the inside. 'Heart, most like,' the older one said. 'At her age.'",
@@ -449,6 +467,24 @@
           "And there, in the gutter where a wheel would throw it: a cart docket. Chandlers' paper — the bee in the corner — night of, Needle Lane, consignee scratched out.",
           "Somebody drove a cart down a dark street and did not want to have. That takes a professional. That takes a QUIET one."
         ]
+      },
+      {
+        "type": "story",
+        "environment": "needle_lane_wrong",
+        "lines": [
+          "Then I went back up the lane along the same gutter, at the same speed, which is the part nobody does.",
+          "You go over a place once for the thing you came for. You go over it again for whatever you walked past while you were looking. What is left after that is what the street thought it had got away with.",
+          "Two coins, a boot nail, and half a bootlace with the tag still on it. None of it evidence. All of it mine, and it was in the satchel before I had finished deciding to keep it."
+        ]
+      },
+      {
+        "type": "notice",
+        "grant": [
+          "scrounge"
+        ],
+        "notes": [
+          "❋ SCROUNGE turns two more cards off the spool in one go, paid for in GUILE. The spool does not refill — a fuller hand tonight is a shorter night."
+        ]
       }
     ],
     "reward_bonus": 10,
@@ -490,6 +526,24 @@
       {
         "type": "battle",
         "encounter": "q_rats_doorman"
+      },
+      {
+        "type": "story",
+        "environment": "shambles_market",
+        "lines": [
+          "A goose has one plan and no second plan, which is not the weakness it sounds like when the one plan is arriving at your head.",
+          "I got under it, four lines across the shoulder, and it went away sideways and came back slower and wider, minding the shoulder.",
+          "The second pass went in where the first had already been. Elspeth mended the same tear on that cuff every autumn of my life, and always said the second stitch is the easy one. I had thought she meant the thread."
+        ]
+      },
+      {
+        "type": "notice",
+        "grant": [
+          "rake"
+        ],
+        "notes": [
+          "❋ RAKE opens a seam: it hurts, and the next damage you deal after it goes one deeper. Only the next one, and only once. FEROCITY pays for it."
+        ]
       },
       {
         "type": "story",
@@ -599,6 +653,24 @@
       {
         "type": "battle",
         "encounter": "q_claws_second"
+      },
+      {
+        "type": "story",
+        "environment": "back_gardens",
+        "lines": [
+          "The dog at Number Twelve puts one shoulder between you and everything behind it, and has never once needed a second idea.",
+          "You cannot go through a shoulder. I spent an hour establishing that from several angles, and then I stopped trying to go through it.",
+          "There is a place under a shoulder like that where the shoulder is not. It is not a clever place and it is not a brave one. It is only lower than anybody bothers to look."
+        ]
+      },
+      {
+        "type": "notice",
+        "grant": [
+          "bite_down"
+        ],
+        "notes": [
+          "❋ BITE goes straight through a raised guard. It costs three FEROCITY and comes once a night — when a thing guards itself, this is the answer to it."
+        ]
       },
       {
         "type": "story",
@@ -762,6 +834,24 @@
         "type": "story",
         "environment": "parlor_cold",
         "lines": [
+          "The long way back from the tideline, with a grey knot at my chest that I did not tie and cannot untie.",
+          "There was a minute in her hands that was not in anybody else's. She would be at the door with her coat on, and then she would sit back down and finish the row, and the row would be finished, and she would still be on time.",
+          "Somewhere between the sea-wall and Needle Lane, the trick of that extra minute stopped being only hers."
+        ]
+      },
+      {
+        "type": "notice",
+        "grant": [
+          "her_thread"
+        ],
+        "notes": [
+          "❋ HER HOUR gives you two more paws in a turn and mends two of you, once a night. Only MOONLIGHT pays for it — hers is the one energy nothing else can stand in for."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "lines": [
           "Home, to a house with nobody in it. The kettle sat where I left it, off the fire on the cold hearthstone, and it was the wrongest thing in the room — a kettle off the fire is a kettle finished.",
           "My whole job used to be: be somewhere warm at the correct time. All right, then. New job."
         ]
@@ -878,6 +968,24 @@
           "Then he gave me one more thing I had not asked for, flat, and worn smooth with saying.",
           "'Nobody collects off a lit candle. You take a house's light, you take its salt, you take its fire: take any of the three and you take nothing else under that roof that night. Not a debt. Not a favor. Not a mouse.'",
           "'It is not manners. Manners you can decline. It is older than the Hollow Court and older than the desk they keep in it.' — 'Bodkin,' he says at the fence, his name given once. It meant nothing to me then."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "lines": [
+          "The doorway Bodkin hauled me into was four inches deep and held nothing but the dark that collects on the hinge side of a door in a well-lit street.",
+          "The watch went past at arm's length, twice. Bodkin did not hold his breath and he did not tense, and the second time one of them looked straight into the doorway while saying something about his sister.",
+          "A shadow you step into lasts as long as you stand still in it. A shadow you cast on purpose lasts as long as you meant it to. He said the first half of that and left me the second, which I worked out on the wall going home."
+        ]
+      },
+      {
+        "type": "notice",
+        "grant": [
+          "long_shadow"
+        ],
+        "notes": [
+          "❋ SHADE is the Ward, cast in the middle of a fight: guard 4 that is still standing when the turn comes round again. SHADOW pays for it."
         ]
       },
       {
@@ -1129,6 +1237,24 @@
         "type": "story",
         "environment": "wickrow_night",
         "lines": [
+          "Before she walked me to the door I stopped at the pegs, because eleven coats over eleven pairs of boots are the most looked-at thing in that hall and nobody in it looks at them.",
+          "A coat on a peg is a man-shaped hole. The room checks it all night, and finds a man there every time, and is wrong every time.",
+          "I sat under the fourth coat for ten minutes. Four lamplighters crossed that room and not one of them crossed at me."
+        ]
+      },
+      {
+        "type": "notice",
+        "grant": [
+          "vanish"
+        ],
+        "notes": [
+          "❋ VANISH is the Stalk, taken late: leave the shape and step out of it, and the next move it makes lands on nothing at all. The strike after that goes one deeper. Once a night, in SHADOW."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
+        "lines": [
           "Merrow walks me to the door. At the threshold, in front of her whole guild, she ties a lamplighter's knot into the thread at my chest — rough work, honest, tight.",
           "'The hall owes the cat,' she says, for the room.",
           "And then, bending close, for me alone, in the voice she keeps for the end of bad shifts: 'Wisps do not learn a route. Somebody taught them the taste. Find the teacher.'",
@@ -1259,6 +1385,24 @@
         "lines": [
           "A hand's length of her thread comes away with the reading — the piece the unpicker lifted and left hanging. Hers, then mine.",
           "The ward did not fail. It was UNPICKED: her exact stitch, mirror-handed, faster than any needle honestly goes. I thought those words once already, standing at her chair."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "wickhouse",
+        "lines": [
+          "Two hours of it, mirror-handed, and at the end my jaw aches and my eyes will not focus on anything nearer than the far wall.",
+          "And here is what her count is for. It is not a tally and it is not a charm. It is the order a thing has to move in, written down before it moves — so you know what it means to do while it is still standing there deciding.",
+          "She kept that order on a shroud chart, and on this wall, and under a sleeping kitten she had decided was a paperweight. I have been lying on the answer my whole life."
+        ]
+      },
+      {
+        "type": "notice",
+        "grant": [
+          "moonwise"
+        ],
+        "notes": [
+          "❋ MOONWISE reads the thing in front of you for the rest of the fight: every move it means to make, plain, whether or not you have met it before. Only MOONLIGHT pays for it."
         ]
       },
       {

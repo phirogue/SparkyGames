@@ -97,6 +97,11 @@ var enemy_max_hp: int
 ## has fought the creature N times — he gets better at reading an opponent
 ## the more he faces it (owner mechanic 2026-08-09).
 var familiarity: int = 0
+## Moonwise (an `unmask` effect) sets this for the rest of the fight: her
+## humour reads a thing the way she could, whatever Ash's own experience of
+## it is. Presentational, exactly like familiarity — the move still happens
+## as written; what this buys is the telegraph.
+var intents_revealed: bool = false
 ## Guard the enemy raised with a `block` intent. Soaks the player's damage
 ## and expires when the enemy next acts (same rhythm as the player's own
 ## block: yours resets at the turn-over, its resets when it moves).
@@ -300,6 +305,8 @@ func current_intent() -> Dictionary:
 ## Can Ash READ this intent? Purely presentational: the move still happens
 ## as written — what familiarity buys is the telegraph, not the outcome.
 func intent_masked(intent: Dictionary) -> bool:
+	if intents_revealed:
+		return false
 	return int(intent.get("masked_until", 0)) > familiarity
 
 
@@ -326,6 +333,15 @@ func remaining_cost(skill_id: String) -> Dictionary:
 ## Fully powered and ready to fire?
 func skill_powered(skill_id: String) -> bool:
 	return remaining_cost(skill_id).is_empty()
+
+
+## How many paws firing this skill RIGHT NOW would cost — one per card the
+## auto-payment has to place, zero for a card already fully powered. "Can I
+## afford it" and "can I afford it this turn" stopped being the same question
+## when a skill's cost grew past the paw budget (Bite: three Ferocity
+## against three paws), so the answer is public rather than inferred.
+func paws_needed(skill_id: String) -> int:
+	return _pay_card_count(remaining_cost(skill_id))
 
 
 ## Mysticism is WILD (owner rule 2026-08-01): it can pay any energy cost.
@@ -761,7 +777,12 @@ func _apply_effects(effects: Array) -> Array[String]:
 					amount += 1
 					sharpened = false
 					_events.append("sharpened_strike")
-				var turned := mini(enemy_block, amount)
+				# mode "pierce": the blow goes THROUGH a raised guard. Enemy
+				# intents already had this (the anti-turtle tool, 2026-08-03);
+				# Bite is the player's side of it, and the roster's only
+				# answer to a `block` intent.
+				var turned := 0 if effect.get("mode", "") == "pierce" \
+					else mini(enemy_block, amount)
 				enemy_block -= turned
 				amount = mini(amount - turned, maxi(enemy_hp, 0))
 				enemy_hp -= amount
@@ -771,8 +792,16 @@ func _apply_effects(effects: Array) -> Array[String]:
 					" (%d turned by its guard)" % turned if turned > 0 else ""])
 			"block":
 				player_block += int(effect["amount"])
-				done.append("Guard +%d (now %d)" % [
-					int(effect["amount"]), player_block])
+				# `holds` rides the same latch the Ward approach uses: the guard
+				# survives ONE turn-over instead of being swept at the top of
+				# the next turn. Shade is Ward, cast mid-fight.
+				if effect.get("holds", false):
+					_ward_holds = true
+					done.append("Guard +%d (now %d), and it holds the turn over" % [
+						int(effect["amount"]), player_block])
+				else:
+					done.append("Guard +%d (now %d)" % [
+						int(effect["amount"]), player_block])
 			"heal":
 				var before := player_hp
 				player_hp = mini(player_hp + int(effect["amount"]), player_max_hp)
@@ -790,6 +819,42 @@ func _apply_effects(effects: Array) -> Array[String]:
 			"self_stun":  # Loaf: committed, cannot act next turn
 				statuses["loafed"] = int(effect.get("turns", 1))
 				done.append("paws folded till next turn")
+			"sharpen":  # Rake, Vanish: the NEXT damage effect lands +1
+				sharpened = true
+				done.append("the next one will go deeper")
+			"hide":  # Vanish: Stalk, taken in the middle of the fight
+				if hidden:
+					done.append("he is already nowhere")
+				else:
+					hidden = true
+					# Deliberately the STALK event: the state is identical, so
+					# the chronicle should say the same thing about it. A second
+					# sentence for the same fact would read as a second fact.
+					_events.append("approach_stalk")
+					done.append("it loses him")
+			"unjam":  # Unknot: undo what an unraveller picked
+				var freed: Array[String] = []
+				for s in skills:
+					if s["jammed_turns"] > 0:
+						s["jammed_turns"] = 0
+						freed.append(String(catalog.skills[s["id"]]["name"]))
+				if freed.is_empty():
+					done.append("nothing was tangled")
+				else:
+					done.append("%s comes loose" % ", ".join(freed))
+			"unmask":  # Moonwise: read the thing for the rest of the fight
+				# No _event: the journal fragment below is the whole telling,
+				# and the intent panel unmasking itself on screen is the rest.
+				# An event nobody handles is a line nobody ever sees.
+				if intents_revealed:
+					done.append("he is already reading it")
+				else:
+					intents_revealed = true
+					done.append("he can see what it means to do")
+			"paws":  # Her Hour: one more minute than the clock was offering
+				paws_left += int(effect["amount"])
+				done.append("+%d paws this turn (now %d)" % [
+					int(effect["amount"]), paws_left])
 			_:
 				# Not an assert: asserts vanish in release builds and would
 				# turn a typo'd content effect into a silent no-op on-device.

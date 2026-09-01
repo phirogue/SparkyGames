@@ -1,4 +1,40 @@
 {
+  "_notes": [
+    "THE ACTION ROSTER. Chapter 1 ships fourteen skills plus the instinct,",
+    "four to a humour and two for Moonlight, and the loadout holds five --",
+    "so a night out is a CHOICE about which cat Ash is going to be tonight",
+    "rather than a bar that fills up.",
+    "",
+    "Each humour is a job, and a skill that does another humour's job is a",
+    "skill nobody picks:",
+    "  FEROCITY  hurts things. Swat is the rate, Pounce is the swing, Rake",
+    "            opens a seam for the next blow, and Bite goes THROUGH a",
+    "            raised guard (the only player answer to a `block` intent).",
+    "  GUILE     keeps him going. Purr mends, Loaf holds the line and is the",
+    "            one guard against theft, Scrounge buys a turn's worth of",
+    "            hand, Shelf Justice is patience cashed in at once.",
+    "  SHADOW    refuses the exchange. Slink turns a hit, Shade turns two,",
+    "            Unknot undoes what an unraveller picked, and Vanish is the",
+    "            Stalk approach taken in the middle of the fight.",
+    "  MOONLIGHT does what none of the others can. It is hers, it is wild,",
+    "            and it is rare -- there are three Moonlight cards in the",
+    "            starting spool and the Magpie charges double for more, so a",
+    "            one-Moonlight cost is already an expensive sentence.",
+    "",
+    "Costs keyed `mysticism` are the REVERSE of the wild rule: only true",
+    "Moonlight pays them (combat_state.gd WILD_HUMOUR). That is what makes",
+    "Moonwise and Her Hour feel like her work and not like everyone's.",
+    "",
+    "Where each one is LEARNED is in data/quests.json -- a notice step at",
+    "the moment the quest earns it. Nothing here is bought.",
+    "",
+    "NAMES ARE A LAYOUT CONSTRAINT, not only writing. The action card is 132",
+    "wide and the carried fan OVERLAPS its cards (five of them do not fit",
+    "across 582px of page), so a name has roughly nine characters before it",
+    "starts disappearing under its neighbour. Three of these shipped as `Bite",
+    "Down`, `Long Shadow` and `Her Thread` and were measured, not eyeballed:",
+    "tests/unit/test_typography.gd now fails a name that cannot be drawn."
+  ],
   "scratch": {
     "id": "scratch",
     "name": "Scratch",
@@ -43,6 +79,40 @@
     ],
     "flavor": "Measured. Judicial. Off the shelf it goes."
   },
+  "rake": {
+    "id": "rake",
+    "name": "Rake",
+    "cost": {
+      "ferocity": 2
+    },
+    "charges": 2,
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 3
+      },
+      {
+        "type": "sharpen"
+      }
+    ],
+    "flavor": "Four lines, close together. He finds them later, in better light."
+  },
+  "bite_down": {
+    "id": "bite_down",
+    "name": "Bite",
+    "cost": {
+      "ferocity": 3
+    },
+    "charges": 1,
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 5,
+        "mode": "pierce"
+      }
+    ],
+    "flavor": "A guard is a thing held in front. I am not going at the front."
+  },
   "slink": {
     "id": "slink",
     "name": "Slink",
@@ -57,6 +127,57 @@
       }
     ],
     "flavor": "You saw a cat. You saw no such cat."
+  },
+  "unknot": {
+    "id": "unknot",
+    "name": "Unknot",
+    "cost": {
+      "shadow": 1
+    },
+    "charges": 2,
+    "effects": [
+      {
+        "type": "unjam"
+      },
+      {
+        "type": "block",
+        "amount": 1
+      }
+    ],
+    "flavor": "Whatever it tangled, I can untangle. It takes longer than the tangling."
+  },
+  "long_shadow": {
+    "id": "long_shadow",
+    "name": "Shade",
+    "cost": {
+      "shadow": 2
+    },
+    "charges": 2,
+    "effects": [
+      {
+        "type": "block",
+        "amount": 4,
+        "holds": true
+      }
+    ],
+    "flavor": "Cast once, early, and it does the rest of the evening's work."
+  },
+  "vanish": {
+    "id": "vanish",
+    "name": "Vanish",
+    "cost": {
+      "shadow": 2
+    },
+    "charges": 1,
+    "effects": [
+      {
+        "type": "hide"
+      },
+      {
+        "type": "sharpen"
+      }
+    ],
+    "flavor": "Be somewhere else before anybody has decided where you are."
   },
   "purr": {
     "id": "purr",
@@ -93,6 +214,21 @@
     ],
     "flavor": "Nothing loose. Nothing to take. All paws accounted for."
   },
+  "scrounge": {
+    "id": "scrounge",
+    "name": "Scrounge",
+    "cost": {
+      "guile": 1
+    },
+    "charges": 2,
+    "effects": [
+      {
+        "type": "draw",
+        "amount": 2
+      }
+    ],
+    "flavor": "Nothing in this city is finished with until I have been over it."
+  },
   "shelf_justice": {
     "id": "shelf_justice",
     "name": "Shelf Justice",
@@ -107,5 +243,42 @@
       }
     ],
     "flavor": "It was already broken when gravity got there."
+  },
+  "moonwise": {
+    "id": "moonwise",
+    "name": "Moonwise",
+    "cost": {
+      "mysticism": 1
+    },
+    "charges": 2,
+    "effects": [
+      {
+        "type": "unmask"
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
+    ],
+    "flavor": "She could tell what a thing meant to do by how it stood. I am slower."
+  },
+  "her_thread": {
+    "id": "her_thread",
+    "name": "Her Hour",
+    "cost": {
+      "mysticism": 2
+    },
+    "charges": 1,
+    "effects": [
+      {
+        "type": "paws",
+        "amount": 2
+      },
+      {
+        "type": "heal",
+        "amount": 2
+      }
+    ],
+    "flavor": "She always had one more minute in her than the clock was offering."
   }
 }

@@ -634,6 +634,31 @@ static func fitted_label(text: String, sizes: Array, box: Vector2,
 	return label
 
 
+## An action card's NAME, sized to the strip it will actually be drawn in.
+##
+## One copy for the battle tray and the loadout tray, because there were two
+## and they were identical, which is how a card reads one way in the fight and
+## another on the mantel. `band` is the VISIBLE width — a fanned card is partly
+## under its neighbour, and measuring against the full card measures pixels
+## nobody can see ("Shelf Justice" drew as "Shelf Justic" for a chapter).
+##
+## The size steps down to TYPE_FLOOR rather than clipping, and a name that
+## cannot be drawn even at the floor is a content bug that
+## tests/unit/test_typography.gd fails on, not something to discover in a
+## screenshot.
+static func skill_name_label(text: String, band: float) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.add_theme_font_override("font", smallcaps_font())
+	label.add_theme_font_size_override("font_size",
+		fit_font_size(text, smallcaps_font(), [24, TYPE_FLOOR], Vector2(band, 26.0)))
+	label.add_theme_color_override("font_color", INK)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.clip_text = true
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return label
+
+
 static func measured_label(text: String, font_size: int, wrap: float,
 		use_font: Font = null, color := INK) -> Label:
 	var label := Label.new()

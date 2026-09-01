@@ -80,10 +80,10 @@ python tools/art_catalog.py show sc_kettle    # full prompt + usage
 
 | Image | Kind | What it is | Who is in it | In/Out | Place | Time | Kerchief | Used by |
 |---|---|---|---|---|---|---|---|---|
-| energy_claw | energy | Ferocity glyph | — | abstract | — | none | — | 4 place(s) |
-| energy_eye | energy | Guile glyph | — | abstract | — | none | — | 4 place(s) |
-| energy_moon | energy | Moonlight glyph | — | abstract | — | none | — | 4 place(s) |
-| energy_shade | energy | Shadow glyph | — | abstract | — | none | — | 4 place(s) |
+| energy_claw | energy | Ferocity glyph | — | abstract | — | none | — | 1 place(s) |
+| energy_eye | energy | Guile glyph | — | abstract | — | none | — | 1 place(s) |
+| energy_moon | energy | Moonlight glyph | — | abstract | — | none | — | 1 place(s) |
+| energy_shade | energy | Shadow glyph | — | abstract | — | none | — | 1 place(s) |
 
 ## evidence (5)
 
@@ -142,17 +142,25 @@ python tools/art_catalog.py show sc_kettle    # full prompt + usage
 | sc_title | scenes | Title card | ash | exterior | rooftops | night | yes | 1 place(s) |
 | sc_vole_stalk | scenes | The stalk | ash, the_vole | exterior | rooftop_dusk | dusk | no | 1 place(s) |
 
-## skills (7)
+## skills (15)
 
 | Image | Kind | What it is | Who is in it | In/Out | Place | Time | Kerchief | Used by |
 |---|---|---|---|---|---|---|---|---|
+| sk_bite_down | skills | Bite | ash | plain | — | none | yes | — |
+| sk_her_thread | skills | Her Hour | ash | plain | — | none | yes | — |
 | sk_loaf | skills | Loaf | ash | plain | — | none | yes | — |
+| sk_long_shadow | skills | Shade | ash | plain | — | none | yes | — |
+| sk_moonwise | skills | Moonwise | ash | plain | — | none | yes | — |
 | sk_pounce | skills | Pounce | ash | plain | — | none | yes | — |
 | sk_purr | skills | Purr | ash | plain | — | none | yes | — |
+| sk_rake | skills | Rake | ash | plain | — | none | yes | — |
 | sk_scratch | skills | Scratch | ash | plain | — | none | yes | — |
+| sk_scrounge | skills | Scrounge | ash | plain | — | none | yes | — |
 | sk_shelf_justice | skills | Shelf Justice | ash | plain | — | none | yes | — |
 | sk_slink | skills | Slink | ash | plain | — | none | yes | — |
 | sk_swat | skills | Swat | ash | plain | — | none | yes | — |
+| sk_unknot | skills | Unknot | ash | plain | — | none | yes | — |
+| sk_vanish | skills | Vanish | ash | plain | — | none | yes | — |
 
 ## ui (49)
 
@@ -166,10 +174,10 @@ python tools/art_catalog.py show sc_kettle    # full prompt + usage
 | ui_button_pile | ui | Button pile | — | abstract | — | none | — | 2 place(s) |
 | ui_case_board | ui | Case board | — | abstract | — | none | — | — |
 | ui_cloth_linen | ui | Linen cloth | — | abstract | — | none | — | 2 place(s) |
-| ui_frame_card_black | ui | Card frame — Shadow | — | abstract | — | none | — | 2 place(s) |
-| ui_frame_card_blue | ui | Card frame — Moonlight | — | abstract | — | none | — | 2 place(s) |
-| ui_frame_card_green | ui | Card frame — Guile | — | abstract | — | none | — | 2 place(s) |
-| ui_frame_card_red | ui | Card frame — Ferocity | — | abstract | — | none | — | 2 place(s) |
+| ui_frame_card_black | ui | Card frame — Shadow | — | abstract | — | none | — | 1 place(s) |
+| ui_frame_card_blue | ui | Card frame — Moonlight | — | abstract | — | none | — | 1 place(s) |
+| ui_frame_card_green | ui | Card frame — Guile | — | abstract | — | none | — | 1 place(s) |
+| ui_frame_card_red | ui | Card frame — Ferocity | — | abstract | — | none | — | 1 place(s) |
 | ui_frame_portrait_thin | ui | The opponent's frame, thin | — | abstract | — | none | — | 2 place(s) |
 | ui_frame_skill | ui | Skill card frame | — | abstract | — | none | — | — |
 | ui_gust_swirl | ui | Gust swirl | — | abstract | — | none | — | — |

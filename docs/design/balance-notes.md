@@ -1,5 +1,72 @@
 # Balance Notes — Simulated Playtests
 
+## Pass 10 — the Chapter 1 roster: seven actions to fourteen (2026-08-31)
+
+Owner brief: **four Ferocity, four Guile, four Shadow, two Moonlight**, learned
+across the chapter. Eight new cards (`data/skills.json`); the tray is still
+five wide including Scratch (`rules.json combat.loadout_size`), so what grew is
+the shelf, not the hand. Nothing was retuned — no existing cost, charge or
+damage number moved.
+
+**The design rule the eight follow: answers, not engines.** Each new card
+answers a thing the game already does and that the old roster had no reply to:
+
+| Card | Cost / charges | Answers |
+|---|---|---|
+| Rake | 2 Ferocity ×2 | nothing — it is the setup card (3 dmg, next damage +1) |
+| Bite | 3 Ferocity ×1 | a `block` intent. The FIRST player answer to a raised guard |
+| Scrounge | 1 Guile ×2 | a dead hand, at the price of a shorter spool |
+| Unknot | 1 Shadow ×2 | a `jam` intent. Previously unanswerable, the way theft was before Loaf |
+| Shade | 2 Shadow ×2 | two turns of an attacker, at Ward's exchange rate |
+| Vanish | 2 Shadow ×1 | the Stalk approach, taken late (identical effects; pinned by a test) |
+| Moonwise | 1 Moonlight ×2 | a `masked_until` intent you have not met enough times to read |
+| Her Hour | 2 Moonlight ×1 | the paw budget — +2 paws and heal 2, once a night |
+
+Charges are what keep them answers. Bite has one and Rake has two: a tray
+built entirely of the new specialists carries **eleven damage** against a boss
+with twenty-four and a mend, and it was simmed first and lost every single run.
+That row is deliberately not in the table below — what is there instead is each
+fight's incumbent tray with **exactly one card swapped**, which is the only
+question worth asking: does the specialist earn a slot?
+
+| Fight | incumbent tray (best skilled) | one card swapped (best skilled) |
+|---|---|---|
+| Candle golem (guards +4) | 100% stalker | 80% brawler — Purr → Bite |
+| The Drowned (guards +3) | 100% stalker | 99% stalker — Slink → Bite |
+| Tallowman, claw deck | 100% | 100% — Shelf Justice → Unknot |
+| Tallowman, moon deck | 100% | 100% — Shelf Justice → Her Hour |
+
+Read: **no power creep.** Against the golem, trading sustain for the pierce
+card is a real *downgrade* (100 → 80), because the golem's guard is up for one
+intent in four and Purr answers the other three. That is the shape we want — a
+specialist that is correct sometimes, and a decision the rest of the time.
+
+**Two harness fixes came out of this pass, and both moved baselines:**
+
+1. **The bot now scores damage THROUGH the guard**, not off the card face.
+   Raw damage was the same question until a pierce card existed; afterwards a
+   brawler was spending Bite's single charge to out-hit Pounce by one
+   against an unguarded enemy. Fixing it lifted several *old* rows —
+   candle golem brawler 68 → 80%, the Drowned no-buys brawler 80 → 95% and
+   defender 58 → 84%. **Those deltas are the bot getting smarter, not the
+   content getting easier**; the fights are unchanged.
+2. **The bot checks PAWS, not just energy.** Bite costs three Ferocity =
+   three placements against a budget of three, so "can I afford it" and "can I
+   afford it this turn" stopped being the same question (`paws_needed()`).
+
+**The chaos harness was fuzzing a roster that no longer existed.** Its kit was
+a hand-written `["pounce", "slink", "purr"]`, so 13,800 green runs had never
+once touched a new card. It now builds the kit FROM the catalog, plus a
+`turtle` persona that stacks the four new defensive cards and never attacks.
+Result: **15,180 runs, no violations.** One invariant had to change rather than
+be satisfied — paws were bounded at `0..paw_limit`, which was only true while
+nothing could give a paw back. Her Hour now can, and going over budget for
+one turn *is* the card; the invariant is now "never negative, and a turn always
+OPENS on the limit".
+
+Gate: all targets hold. Full table: `godot --headless --path game -s
+tests/simulate.gd`.
+
 ## Pass 9 — potency priced superlinear; Moonlight priced rare (owner, 2026-08-10)
 
 Two owner rules, one repricing (`data/rules.json` exchange):
