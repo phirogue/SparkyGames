@@ -386,5 +386,91 @@
     "flavor": "Out wearing someone's evening. It fits nobody. It tries everyone.",
     "image": "en_rag_wraith",
     "codex": "A rag-wraith that has found a whole coat rather than scraps, and is wearing somebody's evening around. Fuller than its cousins, and better dressed than most of the people it passes."
+  },
+  "the_doorman": {
+    "id": "the_doorman",
+    "codex_line": "The Ratsmeet's door, on two orange feet.",
+    "name": "The Doorman",
+    "hp": 9,
+    "gleam": 6,
+    "color": "#9db87f",
+    "intents": [
+      {
+        "name": "Regulation Honk",
+        "target": "skills",
+        "amount": 1,
+        "mode": "jam"
+      },
+      {
+        "name": "Peck of Office",
+        "target": "health",
+        "amount": 2
+      },
+      {
+        "name": "Stand Upon Protocol",
+        "target": "block",
+        "amount": 3
+      }
+    ],
+    "flavor": "Employed by the rats. Paid in bread. Utterly incorruptible.",
+    "image": "en_garden_watch",
+    "codex": "The Court of Whiskers keeps a goose on its door, on the reasoning that a goose cannot be bought, cannot be flattered, and enjoys the work. They pay it in bread. It would do the job for free, and everyone involved knows it."
+  },
+  "the_left_glove": {
+    "id": "the_left_glove",
+    "codex_line": "A scrap of that night, still walking.",
+    "name": "The Left Glove",
+    "hp": 9,
+    "gleam": 6,
+    "color": "#7a6f8e",
+    "intents": [
+      {
+        "name": "Cold Fingers (past the guard)",
+        "target": "health",
+        "amount": 2,
+        "mode": "pierce"
+      },
+      {
+        "name": "Pick and Pull",
+        "target": "hand",
+        "amount": 1
+      },
+      {
+        "name": "Clench",
+        "target": "health",
+        "amount": 3
+      }
+    ],
+    "flavor": "Five cold fingers, nobody's. It remembers holding things.",
+    "image": "en_rag_wraith",
+    "codex": "A left glove off somebody's evening, going about on its fingertips like a spider that has read a book about hands. Wraith-stuff, but small — a dropped stitch from a larger unravelling. It gets past a guard the way a hand gets into a pocket."
+  },
+  "votive_stub": {
+    "id": "votive_stub",
+    "codex_line": "A night shift that should have ended.",
+    "name": "A Votive Stub",
+    "hp": 10,
+    "gleam": 6,
+    "color": "#d8b87a",
+    "intents": [
+      {
+        "name": "Gutter and Flare",
+        "target": "health",
+        "amount": 3
+      },
+      {
+        "name": "A Last Inch of Light",
+        "target": "block",
+        "amount": 3
+      },
+      {
+        "name": "Drip",
+        "target": "health",
+        "amount": 2
+      }
+    ],
+    "flavor": "Burned to the socket. Still on shift.",
+    "image": "en_candle_golem",
+    "codex": "A candle-golem burned down past its shoulders, still walking its round on the last inch of wick. The Chandlers retire them by blowing them out, which requires somebody to admit the shift is over. Nobody has. So it flares when it must, drips where it goes, and will clock off when it is told."
   }
 }

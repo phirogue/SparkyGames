@@ -42,6 +42,10 @@ var coach_auto := false
 var coach: Coach = null
 
 var _status: Label
+## Second status line: what just happened and what to re-read. Its own label
+## under the counts — the shell's one-liner ran everything together with
+## interpuncts and wrapped mid-thought (screenshot review 2026-08-31).
+var _note_label: Label
 var _board: Control
 var _help: Button
 var _alarm_row: MinigameShell.PipRow
@@ -67,6 +71,7 @@ func _ready() -> void:
 	_status = shell["status"]
 	_board = shell["board"]
 	_help = shell["help"]
+	_build_status_lines()
 
 	# The working hangs on dark cloth (owner 2026-08-11): the same linen as
 	# the ward's, modulated toward night so the threads read bright against
@@ -108,6 +113,42 @@ func _ready() -> void:
 	_refresh()
 	if coach_auto:
 		_start_tutorial()
+
+
+## One line an italic note may take under the counts: the measured height of
+## the italic face at TYPE_SUPPORT. Counts (42) + note (34) = 76, inside the
+## shell's 84px status zone (law 6).
+const NOTE_LINE := 34.0
+
+
+## Two measured lines in the status zone instead of the shell's one-liner,
+## which ran "1 of 4 threads out · alarm 1 of 3 · Out, and quietly. ·
+## Something shifted · read it again." together and wrapped wherever it liked
+## (screenshot review 2026-08-31). Line one: the counts. Line two: what just
+## happened, and the re-read hint when the lattice argued back.
+func _build_status_lines() -> void:
+	_status.visible = false
+	var stack := VBoxContainer.new()
+	stack.custom_minimum_size = Vector2(UITheme.CONTENT_WIDTH,
+		MinigameShell.ZONE_STATUS)
+	stack.alignment = BoxContainer.ALIGNMENT_CENTER
+	stack.add_theme_constant_override("separation", 0)
+	var column := _status.get_parent()
+	column.add_child(stack)
+	column.move_child(stack, _status.get_index())
+	var progress := Label.new()
+	progress.add_theme_font_size_override("font_size", MinigameShell.STATUS_FONT)
+	progress.add_theme_color_override("font_color", UITheme.INK)
+	stack.add_child(progress)
+	_status = progress
+	_note_label = Label.new()
+	_note_label.add_theme_font_override("font", UITheme.italic_font())
+	_note_label.add_theme_color_override("font_color", UITheme.INK_SOFT)
+	# Wrap pinned to the zone width so a long note can never widen the page
+	# (the battle paid for that once); the fitter keeps it to one line anyway.
+	_note_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_note_label.custom_minimum_size = Vector2(UITheme.CONTENT_WIDTH, 0)
+	stack.add_child(_note_label)
 
 
 func _start_tutorial() -> void:
@@ -281,13 +322,25 @@ func revealing_free() -> bool:
 func _refresh() -> void:
 	var threshold := int(lattice.get("alarm_threshold", 0))
 	_alarm_row.set_pips(state.alarm, maxi(threshold, 1))
-	var parts: Array[String] = [Strings.line("minigames.lattice.status", [
-		state.pulled.size(), state.order.size(), state.alarm, threshold])]
+	_status.text = Strings.line("minigames.lattice.status", [
+		state.pulled.size(), state.order.size(), state.alarm, threshold])
+	# The note and the re-read hint go on their OWN line, fitted to stay one
+	# line (composition only — the strings keep their homes in interface.json).
+	# The twang note and the hint never co-occur: trembling only fills on a
+	# successful pull, whose note is the short "free" line.
+	var extras: Array[String] = []
 	if _note != "":
-		parts.append(_note)
+		extras.append(_note)
 	if not state.trembling.is_empty():
-		parts.append(Strings.line("minigames.lattice.status_shifted"))
-	_status.text = "   ·   ".join(parts)
+		extras.append(Strings.line("minigames.lattice.status_shifted"))
+	var note_line := "   ".join(extras)
+	_note_label.visible = note_line != ""
+	_note_label.text = note_line
+	if note_line != "":
+		_note_label.add_theme_font_size_override("font_size",
+			UITheme.fit_font_size(note_line, UITheme.italic_font(),
+				[UITheme.TYPE_SUPPORT, 24, UITheme.TYPE_FLOOR],
+				Vector2(float(UITheme.CONTENT_WIDTH), NOTE_LINE)))
 	for child in _board.get_children():
 		child.queue_redraw()
 	if Minigame.is_over(state.outcome):

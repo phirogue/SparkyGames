@@ -114,6 +114,18 @@ static func next_lead(catalog: Catalog, profile: Dictionary) -> Dictionary:
 	return {}
 
 
+## Whether the active case has nothing left to pull: a real case, with leads,
+## every one of them satisfied. False when there is no active case or it has
+## no leads at all — a board that never opened is not a board that closed.
+## The Mantel reads this to show the one-time chapter-close card and to
+## relabel its empty board (mantel.board_closed vs board_empty).
+static func case_closed(catalog: Catalog, profile: Dictionary) -> bool:
+	var case_def := active_case(catalog, profile)
+	if case_def.is_empty() or Array(case_def.get("leads", [])).is_empty():
+		return false
+	return next_lead(catalog, profile).is_empty()
+
+
 ## "Previously on": the chapter has to have a memory, so a cold launch
 ## opens with the last thing found and the thing to do next. Empty array
 ## means there is nothing worth recapping yet — the caller shows nothing

@@ -62,10 +62,16 @@ Build these as reusable helpers (`game/ui/fx.gd`, upcoming):
 - Canvas 720×1280 with `canvas_items`/`expand` already adapts 960-wide
   (tablets) to 1680-tall (21:9); anchors keep bands pinned; middle absorbs
   slack (see mobile UI research).
-- TODO before device beta: `SafeAreaContainer` applying
-  `DisplayServer.get_display_safe_area()` ÷ final-transform scale (min top
-  60, bottom 48); multi-ratio tour runs (`window_width_override` matrix:
-  960×1280, 720×1600, 720×1680) with screenshots per ratio.
+- **v1 ship decision (2026-08-31): letterbox.** `project.godot` ships
+  `stretch/aspect="keep"` — on tall/notched phones the 9:16 page centers
+  on black bars, which read as the book's cover (`UITheme.COVER` is black)
+  and put content under no notch by construction. Boot splash and clear
+  color are pinned black to match.
+- Post-launch upgrade path (unchanged): flip to `expand`, then
+  `SafeAreaContainer` applying `DisplayServer.get_display_safe_area()` ÷
+  final-transform scale (min top 60, bottom 48); multi-ratio tour runs
+  (`window_width_override` matrix: 960×1280, 720×1600, 720×1680) with
+  screenshots per ratio, read per Law 1.
 
 ## Soundtrack integration — DONE 2026-08-30 (beds), stings outstanding
 

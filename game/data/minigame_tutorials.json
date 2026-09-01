@@ -172,7 +172,8 @@
       },
       {
         "target": "board:ways",
-        "text": "Every way past it is priced: what ENERGY it wants, and how much of it. Tap a way to choose it."
+        "text": "Every way past it is priced: what ENERGY it wants, and how much of it. Tap a way to choose it.",
+        "wait": true
       },
       {
         "target": "board:paw",

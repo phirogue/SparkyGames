@@ -176,9 +176,25 @@
     "id": "q_rats_doorman",
     "name": "The Doorman Objects",
     "enemies": [
-      "garden_watch"
+      "the_doorman"
     ],
     "environment": "shambles_market"
+  },
+  "q_rounds_glove": {
+    "id": "q_rounds_glove",
+    "name": "What the Night Left",
+    "enemies": [
+      "the_left_glove"
+    ],
+    "environment": "needle_lane"
+  },
+  "q_lamp_stub": {
+    "id": "q_lamp_stub",
+    "name": "Short Wick",
+    "enemies": [
+      "votive_stub"
+    ],
+    "environment": "wickrow_night"
   },
   "q_claws_first": {
     "id": "q_claws_first",

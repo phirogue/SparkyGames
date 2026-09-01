@@ -105,6 +105,37 @@ func test_grant_card_feeds_deck_and_collection_together() -> void:
 		"and in the collection forever")
 
 
+func test_old_saves_gain_ending_seen_false() -> void:
+	# Law 14: the chapter-close card did not exist when old saves were
+	# written, so even a save whose case is already closed never saw it.
+	# False is the correct answer, not a gap — the Mantel shows the ending
+	# once on that save's next visit.
+	var merged := SaveService._migrate({
+		"schema_version": 2, "prologue_done": true,
+	})
+	assert_true(merged.has("ending_seen"), "old saves gain the ending_seen key")
+	assert_eq(bool(merged["ending_seen"]), false,
+		"an old save has not seen an ending that did not exist yet")
+
+
+func test_migrate_clamps_negative_gleam() -> void:
+	var merged := SaveService._migrate({"schema_version": 8, "gleam": -30})
+	assert_eq(int(merged["gleam"]), 0, "a negative purse repairs to empty")
+	var legal := SaveService._migrate({"schema_version": 8, "gleam": 12})
+	assert_eq(int(legal["gleam"]), 12, "a legal purse is untouched")
+
+
+func test_migrate_clamps_max_hp_to_the_tonic_cap() -> void:
+	var cap := int(Rules.DEFAULTS["exchange"]["max_hp_cap"])
+	var merged := SaveService._migrate({
+		"schema_version": 8, "max_hp": cap + 7,
+	})
+	assert_eq(int(merged["max_hp"]), cap,
+		"max_hp repairs to the ceiling the Exchange enforces")
+	var legal := SaveService._migrate({"schema_version": 8, "max_hp": cap - 2})
+	assert_eq(int(legal["max_hp"]), cap - 2, "a legal max_hp is untouched")
+
+
 func test_save_load_round_trip() -> void:
 	_cleanup()
 	var profile := SaveService.DEFAULT_PROFILE.duplicate(true)

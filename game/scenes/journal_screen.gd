@@ -143,7 +143,10 @@ func _select_tab(chosen: Button) -> void:
 
 # ------------------------------------------------------------------- deeds
 
-## Ash's own journal, newest first. The chronicle stores FACTS; the
+## The Deeds page opens on the GALLERY — every achievement, stamped or
+## waiting — because that is what the Mantel's deeds counter taps through to
+## (owner 2026-08-10: "I should have a way to see my deeds"). Ash's own
+## journal follows underneath, newest first. The chronicle stores FACTS; the
 ## first-person sentences are made here, now, from story/interface.json —
 ## rewriting a line there re-reads the whole history.
 ##
@@ -153,6 +156,7 @@ func _select_tab(chosen: Button) -> void:
 func _show_deeds() -> void:
 	_select_tab(_deeds_button)
 	_clear()
+	_deed_gallery()
 	var chronicle := Chronicle.from_list(profile.get("chronicle", []))
 	var entries := chronicle.describe(catalog)
 	var legacy: Array = profile.get("journal", [])
@@ -166,6 +170,96 @@ func _show_deeds() -> void:
 	_heading(Strings.line("codex.earlier"))
 	for i in range(legacy.size() - 1, -1, -1):
 		_entry(String(legacy[i]))
+
+
+## The deed gallery. Earned deeds carry their stamp and their sentence;
+## unearned ones show their name greyed — a promise rather than a secret;
+## HIDDEN ones not yet earned say only that a page exists (codex.deeds_hidden).
+## The header count matches the Mantel's chip: hidden deeds join the total
+## only once earned, so the denominator never spoils how many secrets exist.
+func _deed_gallery() -> void:
+	var tracker := AchievementTracker.new(catalog)
+	tracker.from_dict(profile.get("achievements", {}))
+	var visible_total := 0
+	for id in catalog.achievements:
+		if not catalog.achievements[id].get("hidden", false) or tracker.is_unlocked(id):
+			visible_total += 1
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 12)
+	_list.add_child(head)
+	var title := UITheme.measured_label(Strings.line("codex.deeds_heading"), 34,
+		300.0, UITheme.smallcaps_font(), UITheme.INK_SOFT)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(title)
+	var progress := UITheme.measured_label(
+		Strings.line("codex.deeds_progress",
+			[tracker.unlocked.size(), visible_total]),
+		26, 200.0, UITheme.smallcaps_font(), UITheme.ACCENT_WARM)
+	progress.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	progress.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	progress.size_flags_vertical = Control.SIZE_FILL
+	head.add_child(progress)
+	if catalog.achievements.is_empty():
+		_entry(Strings.line("codex.deeds_empty"), true)
+		return
+	for id in catalog.achievements:
+		var def: Dictionary = catalog.achievements[id]
+		if tracker.is_unlocked(id):
+			_list.add_child(_deed_row(String(def["name"]),
+				String(def.get("description", "")), true))
+		elif not def.get("hidden", false):
+			_list.add_child(_deed_row(String(def["name"]), "", false))
+		else:
+			_list.add_child(_deed_row(Strings.line("codex.deeds_hidden"), "",
+				false))
+
+
+## One deed plate: the wax stamp (earned only — the empty slot keeps every
+## name in one column), the name, and — earned only — its sentence. Not a
+## button: deeds are read, not opened.
+func _deed_row(name_text: String, line_text: String, earned: bool) -> Control:
+	var pad := 18.0
+	var stamp_size := 64.0
+	var wrap := float(UITheme.CONTENT_WIDTH) - pad * 2.0 - stamp_size - 14.0
+	# Law 4/5: measured, wrap width equal to the label's width.
+	var height := UITheme.measure_text(name_text, UITheme.display_font(), 30,
+		wrap).y + pad * 2.0
+	if line_text != "":
+		height += UITheme.measure_text(line_text, UITheme.italic_font(), 24,
+			wrap).y + 4.0
+	var row := Panel.new()
+	row.custom_minimum_size = Vector2(0, maxf(stamp_size + pad * 2.0, height))
+	row.add_theme_stylebox_override("panel", UITheme.panel_stylebox(int(pad)))
+	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", 14)
+	line.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	line.offset_left = pad
+	line.offset_right = -pad
+	line.offset_top = pad
+	line.offset_bottom = -pad
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(line)
+	var stamp_box := Control.new()
+	stamp_box.custom_minimum_size = Vector2(stamp_size, stamp_size)
+	stamp_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	stamp_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.add_child(stamp_box)
+	if earned:
+		var stamp := UITheme.icon("ui/ui_seal_gold", stamp_size)
+		stamp.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		stamp_box.add_child(stamp)
+	var text := VBoxContainer.new()
+	text.add_theme_constant_override("separation", 4)
+	text.alignment = BoxContainer.ALIGNMENT_CENTER
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.add_child(text)
+	text.add_child(UITheme.measured_label(name_text, 30, wrap,
+		UITheme.display_font(), UITheme.INK if earned else UITheme.INK_FADED))
+	if line_text != "":
+		text.add_child(UITheme.measured_label(line_text, 24, wrap,
+			UITheme.italic_font(), UITheme.INK_SOFT))
+	return row
 
 
 # --------------------------------------------------------------- knowledge

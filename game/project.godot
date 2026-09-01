@@ -11,6 +11,8 @@ config/description="A story-driven roguelite card game. You are Ash, a murdered 
 config/version="0.1.0"
 run/main_scene="res://scenes/game.tscn"
 config/features=PackedStringArray("4.4", "Mobile")
+boot_splash/bg_color=Color(0, 0, 0, 1)
+boot_splash/show_image=false
 
 [display]
 
@@ -24,6 +26,7 @@ window/stretch/aspect="keep"
 
 [rendering]
 
+environment/defaults/default_clear_color=Color(0, 0, 0, 1)
 renderer/rendering_method="mobile"
 renderer/rendering_method.mobile="mobile"
 textures/vram_compression/import_etc2_astc=true

@@ -67,6 +67,9 @@ const SEAL_CORE := "ui/ui_seal_red"
 const SEAL_GUILD := "ui/ui_seal_blue"
 const SEAL_SIDE := "ui/ui_seal_gold"
 
+## The one-time chapter-close card (see _maybe_show_ending).
+const EndingScreen := preload("res://scenes/ending_screen.gd")
+
 var catalog: Catalog
 var profile: Dictionary
 var tracker: AchievementTracker
@@ -78,6 +81,7 @@ var _status: HBoxContainer
 var _purse: HBoxContainer
 var _note_modal: Dictionary = {}
 var _note_box: VBoxContainer
+var _ending: Control = null
 
 ## First-visit walkthrough of the room, using the same Coach the tutorial
 ## fights use. Steps come from story/prologue/interludes.json (mantel_coach)
@@ -120,6 +124,7 @@ func _ready() -> void:
 	if not coach_steps.is_empty():
 		coach = Coach.new(coach_steps, _coach_target)
 		add_child(coach)
+	_maybe_show_ending()
 
 
 ## Coach resolver: the room's parts, by name. An unknown key spotlights
@@ -397,14 +402,23 @@ func _close_note() -> void:
 
 
 ## An empty board still has to say something — a blank zone reads as a bug.
+## And a board emptied by FINISHING the chapter must not read as a quiet
+## night: the closed-case line says the file is done and the city goes on.
 func _bare_note() -> Control:
+	var text := Strings.line("mantel.board_closed"
+		if CaseState.case_closed(catalog, profile) else "mantel.board_empty")
+	var wrap := NOTE_WIDTH - 68.0
+	# Law 4: the closed-case line runs longer than the quiet-night one, so the
+	# note grows to the measured text instead of clipping it (same sum as
+	# _note above; the board scrolls, so height costs nothing).
+	var height := maxf(NOTE_HEIGHT,
+		UITheme.measure_text(text, UITheme.italic_font(), 24, wrap).y + 48.0)
 	var note := Panel.new()
-	note.custom_minimum_size = Vector2(NOTE_WIDTH, NOTE_HEIGHT)
+	note.custom_minimum_size = Vector2(NOTE_WIDTH, height)
 	note.add_theme_stylebox_override("panel", UITheme.row_stylebox(
 		Color(1, 1, 1, 0.6)))
-	var label := UITheme.measured_label(
-		"Nothing pinned tonight. The city is being quiet at you.", 24,
-		NOTE_WIDTH - 68, UITheme.italic_font(), UITheme.INK_SOFT)
+	var label := UITheme.measured_label(text, 24, wrap,
+		UITheme.italic_font(), UITheme.INK_SOFT)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -474,3 +488,38 @@ func _clear(container: Container) -> void:
 	for child in container.get_children():
 		container.remove_child(child)
 		child.queue_free()
+
+
+# ------------------------------------------------------------- chapter close
+
+## The one-time chapter-close card (owner: every choice needs a consequence —
+## a case that closes must SAY so). Shown by the Mantel because the Mantel is
+## where a finished case lands the player; the card itself is a dumb page
+## (ending_screen.gd). The flag is set the moment the card opens, and
+## persisted through the same profile_changed channel every other hub change
+## uses, so a quit mid-card cannot replay the ending forever.
+func _maybe_show_ending() -> void:
+	if _ending != null:
+		return
+	if bool(profile.get("ending_seen", false)):
+		return
+	if not CaseState.case_closed(catalog, profile):
+		return
+	profile["ending_seen"] = true
+	profile_changed.emit()
+	var ending: Control = EndingScreen.new()
+	ending.setup(catalog)
+	ending.closed.connect(_close_ending)
+	add_child(ending)
+	ending.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_ending = ending
+
+
+func _close_ending() -> void:
+	if _ending == null:
+		return
+	_ending.queue_free()
+	_ending = null
+	# The card played the score's one non-looping track; the parlor takes its
+	# own bed back on the way out.
+	EndingScreen.play_screen_music(self, catalog, "hub")

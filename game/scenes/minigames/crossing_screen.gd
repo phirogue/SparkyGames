@@ -76,8 +76,11 @@ const SAID_TOP := 684.0
 ## tests/unit/test_typography.gd fails if these two drift apart again.
 const CARD_SIZE := Vector2(140.0, 174.0)
 ## Height of the name's own line, so it can be centred on the printed band
-## rather than hung off the card's bottom edge.
-const NAME_LINE := 30.0
+## rather than hung off the card's bottom edge. MEASURED, not guessed (law 5):
+## "Moonlight" at the type floor is 31px tall in the body face, and the 30
+## this shipped at shaved the g's descender. _card_chip re-measures against
+## the actual name, so a face or floor change can never re-shave it.
+const NAME_LINE := 31.0
 ## How far up from the card's bottom the band's middle sits. The art measures
 ## 0.857..0.936, so the geometric centre is 0.1035 up — but a line box carries
 ## its baseline low, so type centred on that number sits ON the band's lower
@@ -85,11 +88,27 @@ const NAME_LINE := 30.0
 const NAME_BAND_UP := 0.118
 ## The mount the fitted picture sits on, so the margins either side of a
 ## 3:2 picture in a wider window read as a deliberate frame, not a gap.
-const MOUNT := Color(0.10, 0.09, 0.08, 1.0)
+## It is the book's drawn parchment plate (UITheme.panel_stylebox), not a
+## flat dark field: black side panels read as raw letterboxing, not as a
+## mount (screenshot review 2026-08-31).
 
 # Colours, glyphs and card frames come from UITheme.HUMOUR_* — one copy
 # everywhere, so a card is provably the same card on every screen.
 const PARCHMENT := Color("f2e4c8")
+
+## Which lesson step each ACCEPTED verb satisfies. The coach's wait steps
+## target board zones ("board:ways", "board:paw"), but commands arrive keyed
+## by verb — without this map the "put cards on it" step waited on a notify
+## that could never match, and the lesson deadlocked (ship blocker,
+## 2026-08-31). Most specific FIRST: while the paw step waits, re-choosing a
+## way advances it too (a paw with nothing useful for the first-chosen way
+## must never wall the lesson — law 7), and because notify() only matches the
+## CURRENT step, one choose can never advance two steps at once.
+const COACH_SATISFIES := {
+	"choose": ["board:paw", "board:ways"],
+	"put": ["board:paw"],
+	"take_back": ["board:paw"],
+}
 
 var state: CrossingState
 var crossing: Dictionary = {}
@@ -221,8 +240,8 @@ func _build_board() -> void:
 	# The thing in the road, full width and unframed: a place is not a
 	# portrait (owner: "the location card here doesn't need a border").
 	# The mount fills the whole zone; the picture is fitted onto it whole.
-	var mount := ColorRect.new()
-	mount.color = MOUNT
+	var mount := Panel.new()
+	mount.add_theme_stylebox_override("panel", UITheme.panel_stylebox())
 	mount.position = PICTURE_RECT.position
 	mount.size = PICTURE_RECT.size
 	mount.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -327,7 +346,8 @@ func _command(command: Dictionary, key: String) -> void:
 		_say(String(result.get("error", "")))
 		return
 	if coach != null:
-		coach.notify(key)
+		for coach_key: String in COACH_SATISFIES.get(key, [key]):
+			coach.notify(coach_key)
 	match String(command.get("type", "")):
 		"go":
 			# A slip is the board's one real consequence, so it is the one that
@@ -646,8 +666,12 @@ func _card_chip(card_id: String, on_way: bool, useful: bool) -> Control:
 	# card. The band is only 8% of the card tall, so 22px type sits ACROSS it
 	# rather than inside it — as it always has, on every screen that draws
 	# these cards. Centring is what makes that read as deliberate.
-	name_label.set_offset(SIDE_TOP, -CARD_SIZE.y * NAME_BAND_UP - NAME_LINE * 0.5)
-	name_label.set_offset(SIDE_BOTTOM, -CARD_SIZE.y * NAME_BAND_UP + NAME_LINE * 0.5)
+	# The line's height comes from the MEASURED name (law 5): at NAME_LINE's
+	# old hand-set 30 the label was 1px shy and clipped Moonlight's descender.
+	var name_line := maxf(NAME_LINE, UITheme.measure_text(name_label.text,
+		UITheme.body_font(), UITheme.TYPE_FLOOR, CARD_SIZE.x).y)
+	name_label.set_offset(SIDE_TOP, -CARD_SIZE.y * NAME_BAND_UP - name_line * 0.5)
+	name_label.set_offset(SIDE_BOTTOM, -CARD_SIZE.y * NAME_BAND_UP + name_line * 0.5)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE

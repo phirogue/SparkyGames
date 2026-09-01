@@ -43,6 +43,12 @@ const CHIP_SIZE := 84.0
 const PORTRAIT_SIZE := Vector2(256.0, 300.0)
 ## Type ladder a statement is fitted down through. Nothing below the floor.
 const RIBBON_SIZES := [30, 28, 26, 24, 22]
+## Vertical content margins of the ribbon dress, sized to clear its dashed
+## stitching (measured off ui_ribbon_band: top dash 15..24px in, bottom dash
+## 15..21px in — see _ribbon_stylebox). The fit box below is derived from
+## these, so the fitter and the dress can never disagree again.
+const RIBBON_MARGIN_TOP := 24
+const RIBBON_MARGIN_BOTTOM := 22
 
 var state: TestimonyState
 var testimony: Dictionary = {}
@@ -220,14 +226,22 @@ func _ribbon_stylebox(spent: bool) -> StyleBox:
 		box.set_content_margin(side, 40)
 	for side in [SIDE_TOP, SIDE_BOTTOM]:
 		box.set_texture_margin(side, 34)
-		box.set_content_margin(side, 10)
+	# The band's dashed stitching is MEASURED (ink scan, 2026-08-31) at
+	# 15..24px inside the top edge and 15..21px inside the bottom; the 9-patch
+	# draws those bands 1:1, so these margins put text just clear of the dash.
+	# At the old 10 a two-line statement lay straight across it.
+	box.set_content_margin(SIDE_TOP, RIBBON_MARGIN_TOP)
+	box.set_content_margin(SIDE_BOTTOM, RIBBON_MARGIN_BOTTOM)
 	if spent:
 		box.modulate_color = Color(0.74, 0.78, 0.88)
 	return box
 
 
 func _ribbon_wrap() -> float:
-	return UITheme.CONTENT_WIDTH - 88.0   # both content margins, measured
+	# EXACTLY the width the button will really wrap at — its plate width less
+	# both 40px side content margins (law 5: wrap width equals measured width;
+	# the old 88 measured 8px narrower than the label actually wrapped).
+	return UITheme.CONTENT_WIDTH - 80.0
 
 
 func _start_tutorial() -> void:
@@ -276,7 +290,12 @@ func _refresh_ribbons() -> void:
 		child.queue_free()
 	var count := maxi(state.visible.size(), 1)
 	var plate_height := (RIBBON_ZONE - float(count - 1) * 8.0) / float(count)
-	var text_box := Vector2(_ribbon_wrap(), plate_height - 20.0)
+	# The fit box is the plate LESS the dress's measured vertical margins, so
+	# a size only passes if its wrapped lines sit clear of the dashed border.
+	# The old box was plate - 20, which let a two-line statement pass at 28 and
+	# then lie across the stitching.
+	var text_box := Vector2(_ribbon_wrap(),
+		plate_height - float(RIBBON_MARGIN_TOP + RIBBON_MARGIN_BOTTOM))
 	for ribbon_id in state.visible:
 		var ribbon: Dictionary = state.ribbons[ribbon_id]
 		var text := String(ribbon.get("text", ""))

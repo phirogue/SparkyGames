@@ -89,7 +89,7 @@
     "sunbeam_turns": [],
     "cost_mod": { "ferocity": 1 },
     "stealth_threshold": 5,
-    "rule_text": "Sleeping houses: Ferocity costs 1 more and raises the Alarm."
+    "rule_text": "Sleeping houses: Ferocity costs 1 more and feeds the Alarm by the card's value. At 5 the yard wakes — SPOTTED, and every move after comes plainer and harder."
   },
   "wickrow_night": {
     "id": "wickrow_night",
@@ -116,7 +116,7 @@
     "sunbeam_turns": [],
     "cost_mod": { "ferocity": 1 },
     "stealth_threshold": 4,
-    "rule_text": "Sleeping money: Ferocity costs 1 more and raises the Alarm."
+    "rule_text": "Sleeping money: Ferocity costs 1 more and feeds the Alarm by the card's value. At 4 the house wakes — SPOTTED, and every move after comes plainer and harder."
   },
   "mereside_edge": {
     "id": "mereside_edge",
@@ -168,6 +168,6 @@
     "image": "bg_shambles",
     "sunbeam_turns": [3],
     "cost_mod": { "guile": -1 },
-    "rule_text": "Everything is negotiable: Guile costs 1 less."
+    "rule_text": "Everything is negotiable: Guile costs 1 less. A lantern-beam falls on turn 3 — end your turn in it and a spent card returns."
   }
 }

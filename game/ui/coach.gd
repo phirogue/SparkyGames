@@ -151,8 +151,12 @@ func notify(action_key: String) -> void:
 
 
 const TEXT_FONT_SIZE := 30
-const TEXT_MAX_WIDTH := 560.0
 const TEXT_PADDING := Vector2(48, 36)
+## The widest wrap the PAGE can hold: label + padding = the content width, so
+## the clamp in _process can keep every bubble inside the stitching. It was a
+## hand-set 560, which made the bubble 608 — wider than the content area, so
+## some part of it ALWAYS crossed a dash line (screenshot review 2026-08-31).
+const TEXT_MAX_WIDTH := float(UITheme.CONTENT_WIDTH) - TEXT_PADDING.x
 
 var _bubble_size := Vector2.ZERO
 
@@ -208,12 +212,17 @@ func _process(_delta: float) -> void:
 	_hole_catcher.size = hole.size
 	# Instruction sits above the hole when there's room, else below.
 	# Explicit geometry pinned every frame — no layout drift possible.
+	# Clamped inside the PAGE CONTENT AREA, not the window: a bubble held 16px
+	# off the window edge still lay across the page's stitched border.
 	var panel_size := _bubble_size
 	_text_panel.size = panel_size
-	var x: float = clampf(hole.get_center().x - panel_size.x / 2.0, 16, full.size.x - panel_size.x - 16)
+	var x: float = clampf(hole.get_center().x - panel_size.x / 2.0,
+		float(UITheme.PAGE_MARGIN_LEFT),
+		full.size.x - float(UITheme.PAGE_MARGIN_RIGHT) - panel_size.x)
 	var y: float = hole.position.y - panel_size.y - 18
-	if y < 16 or current_target() == "":
-		y = minf(hole.end.y + 18, full.size.y - panel_size.y - 16)
+	if y < float(UITheme.PAGE_MARGIN_TOP) or current_target() == "":
+		y = minf(hole.end.y + 18,
+			full.size.y - float(UITheme.PAGE_MARGIN_BOTTOM) - panel_size.y)
 	_text_panel.position = Vector2(x, y)
 	# Skip lives top-right, but must never sit ON the spotlit target, on the
 	# header's rule card, or ON THE INSTRUCTION ITSELF. It is drawn last, so

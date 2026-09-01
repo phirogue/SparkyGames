@@ -350,7 +350,11 @@ func _on_good_pressed(mode: String) -> void:
 			_shop_card = ""
 		"tonic":
 			# One item only, so the popup opens straight on the close-up.
-			if int(profile["max_hp"]) >= _max_hp_cap():
+			# The whole tonic has to FIT: from one below the cap, granting the
+			# full +2 would overshoot the ceiling the rule card states, so the
+			# Magpie refuses the sale rather than short-pouring the bottle —
+			# which is exactly what the no_more_tonic patter already says.
+			if int(profile["max_hp"]) + _tonic_hp() > _max_hp_cap():
 				_say(Strings.line("exchange.patter.no_more_tonic"))
 				_shop_mode = ""
 				return

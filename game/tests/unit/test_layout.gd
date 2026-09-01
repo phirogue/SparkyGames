@@ -17,6 +17,7 @@ const SCREENS := {
 	"res://scenes/start_screen.gd": "SEPARATION",
 	"res://scenes/shelf_screen.gd": "SEPARATION",
 	"res://scenes/credits_screen.gd": "SEPARATION",
+	"res://scenes/ending_screen.gd": "SEPARATION",
 	"res://scenes/exchange_screen.gd": "SEPARATION",
 	"res://scenes/loadout_screen.gd": "SEPARATION",
 	# One template shared by all five mission minigames, so re-budgeting it

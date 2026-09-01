@@ -36,8 +36,8 @@ different problem in a different place.
 
 | Place | Rule | Cost changes | Sunbeams | Alarm |
 |---|---|---|---|---|
-| The Back Gardens | Sleeping houses: Ferocity costs 1 more and raises the Alarm. | Ferocity +1 | - | spotted at 5 |
-| The Counting-House, After Hours | Sleeping money: Ferocity costs 1 more and raises the Alarm. | Ferocity +1 | - | spotted at 4 |
+| The Back Gardens | Sleeping houses: Ferocity costs 1 more and feeds the Alarm by the card's value. At 5 the yard wakes — SPOTTED, and every move after comes plainer and harder. | Ferocity +1 | - | spotted at 5 |
+| The Counting-House, After Hours | Sleeping money: Ferocity costs 1 more and feeds the Alarm by the card's value. At 4 the house wakes — SPOTTED, and every move after comes plainer and harder. | Ferocity +1 | - | spotted at 4 |
 | The Chandlers' Guildhall | The guild's own light: Moonlight costs 1 more; Guile 1 less. | Moonlight +1, Guile -1 | - | - |
 | The Hollow Court | No sun has ever reached this desk. | - | - | - |
 | The Mereside, Fog | The Mere's breath: Shadow costs 1 less. The water is listening. | Shadow -1 | - | - |
@@ -46,7 +46,7 @@ different problem in a different place.
 | The Parlor | Her room remembers her: Moonlight costs 1 less. | Moonlight -1 | - | - |
 | The Parlor, Before | Warm, and hers. | Moonlight -1 | turns 2, 4 | - |
 | The Rooftops, Dusk | Last light: sunbeams on turns 2 and 4 return a spent card. | - | turns 2, 4 | - |
-| The Shambles, After Hours | Everything is negotiable: Guile costs 1 less. | Guile -1 | turns 3 | - |
+| The Shambles, After Hours | Everything is negotiable: Guile costs 1 less. A lantern-beam falls on turn 3 — end your turn in it and a spent card returns. | Guile -1 | turns 3 | - |
 | The Wickhouse | Her stitching holds these walls: Moonlight costs 1 less. | Moonlight -1 | - | - |
 | Wickrow, Under Ward-Light | Ward-lit streets: Moonlight costs 1 more; Guile 1 less. | Moonlight +1, Guile -1 | - | - |
 
@@ -95,7 +95,7 @@ Fought in: A Meeting Declined (Needle Lane, Night), Something That Fights Back, 
 
 **8 hp**  ·  **5 gleam**  ·  cycle of 3, repeating
 
-Fought in: Something That Fights Back (The Back Gardens), The First Garden (The Back Gardens), The Doorman Objects (The Shambles, After Hours)
+Fought in: Something That Fights Back (The Back Gardens), The First Garden (The Back Gardens)
 
 | Turn | Move | Target | Effect |
 |---|---|---|---|
@@ -178,6 +178,24 @@ Fought in: The Yard's Opinion (Wickrow, Under Ward-Light)
 
 ---
 
+## The Doorman  <sub>`the_doorman`</sub>
+
+> Employed by the rats. Paid in bread. Utterly incorruptible.
+
+**9 hp**  ·  **6 gleam**  ·  cycle of 3, repeating
+
+Fought in: The Doorman Objects (The Shambles, After Hours)
+
+| Turn | Move | Target | Effect |
+|---|---|---|---|
+| 1 | **Regulation Honk** | `skills / jam` | jams a random ready skill for 1 turn(s) |
+| 2 | **Peck of Office** | `health` | 2 damage, blockable |
+| 3 | **Stand Upon Protocol** | `block` | guards itself for 3 — soaks your damage until its next move |
+
+**Strategy:** Averages **0.7 damage a turn** over its cycle (biggest single hit 2). Takes roughly **3 turns to bring down** at 3 damage a turn. **Jams** — bring a second answer, or a jam lands on your only one. **Guards itself** — its raised guard soaks your damage until its next move; time the big hit for the open turn.
+
+---
+
 ## One of the Drowned  <sub>`the_drowned`</sub>
 
 > Dry-footed on a wet street. Never fast. Always arriving.
@@ -211,6 +229,24 @@ Fought in: The Coat Itself (Needle Lane, Night)
 | 3 | **Wrap Tight** | `health` | 4 damage, blockable |
 
 **Strategy:** Averages **2.3 damage a turn** over its cycle (biggest single hit 4). Takes roughly **5 turns to bring down** at 3 damage a turn. **Steals energy** — play cards out rather than holding a fat hand.
+
+---
+
+## The Left Glove  <sub>`the_left_glove`</sub>
+
+> Five cold fingers, nobody's. It remembers holding things.
+
+**9 hp**  ·  **6 gleam**  ·  cycle of 3, repeating
+
+Fought in: What the Night Left (Needle Lane, Night)
+
+| Turn | Move | Target | Effect |
+|---|---|---|---|
+| 1 | **Cold Fingers (past the guard)** | `health / pierce` | 2 damage, **ignores block** |
+| 2 | **Pick and Pull** | `hand` | steals 1 energy from your hand |
+| 3 | **Clench** | `health` | 3 damage, blockable |
+
+**Strategy:** Averages **1.7 damage a turn** over its cycle (biggest single hit 3). Takes roughly **3 turns to bring down** at 3 damage a turn. **Pierces** — blocking is not an answer here, and a defensive kit will lose the race. **Steals energy** — play cards out rather than holding a fat hand.
 
 ---
 
@@ -267,6 +303,24 @@ Fought in: The Hunt (The Rooftops, Dusk)
 | 2 | **Dart for Cover** | `hand` | steals 1 energy from your hand |
 
 **Strategy:** Averages **0.0 damage a turn** over its cycle (biggest single hit 0). Takes roughly **2 turns to bring down** at 3 damage a turn. **Steals energy** — play cards out rather than holding a fat hand.
+
+---
+
+## A Votive Stub  <sub>`votive_stub`</sub>
+
+> Burned to the socket. Still on shift.
+
+**10 hp**  ·  **6 gleam**  ·  cycle of 3, repeating
+
+Fought in: Short Wick (Wickrow, Under Ward-Light)
+
+| Turn | Move | Target | Effect |
+|---|---|---|---|
+| 1 | **Gutter and Flare** | `health` | 3 damage, blockable |
+| 2 | **A Last Inch of Light** | `block` | guards itself for 3 — soaks your damage until its next move |
+| 3 | **Drip** | `health` | 2 damage, blockable |
+
+**Strategy:** Averages **1.7 damage a turn** over its cycle (biggest single hit 3). Takes roughly **4 turns to bring down** at 3 damage a turn. **Guards itself** — its raised guard soaks your damage until its next move; time the big hit for the open turn.
 
 ---
 

@@ -69,6 +69,10 @@ const HAND_CARD_BOTTOM := 144.0
 ## art whole (KEEP_ASPECT, never cropped) and the full text lives in the
 ## popup the tap opens.
 const SKILL_CARD_SIZE := Vector2(132, 162)
+## The card's ink border, and the widest a name may be drawn inside one.
+## Shared shape with the loadout tray (UITheme.skill_name_label).
+const CARD_BORDER := 3.0
+const NAME_BAND_WIDTH := SKILL_CARD_SIZE.x - CARD_BORDER * 2.0
 
 signal encounter_finished(state: CombatState)
 
@@ -212,6 +216,11 @@ var status_chips: Dictionary = {}
 var skill_fan: Control
 ## Hit-feedback overlay (full page red wash) — built once, animated on "hurt".
 var hit_flash: ColorRect
+## Damage floats and flying card ghosts live HERE, a layer created BEFORE the
+## modal overlays: tree order then keeps them above the board and UNDER every
+## dialog. They used z_index 60, which put "-3" drifting across the outcome
+## card (screenshot review 2026-08-31).
+var floater_layer: Control
 ## Hand snapshot from the previous refresh: the diff drives the draw/steal
 ## animations without the rules layer having to know the UI exists.
 var _prev_hand: Array = []
@@ -957,6 +966,14 @@ func _build_ui() -> void:
 	skill_fan.custom_minimum_size = Vector2(0, ZONE_SKILLS)
 	root.add_child(skill_fan)
 
+	# Floaters' layer FIRST, before any modal is built: later siblings draw on
+	# top, so everything parented here stays under every dialog with no z_index
+	# arithmetic at all.
+	floater_layer = Control.new()
+	floater_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	floater_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(floater_layer)
+
 	# Detail popup: a centered modal over a DIMMED battle — the card close-up
 	# is the only bright thing on screen (owner rule). Magnified art left,
 	# measured text right, energy-requirement pips, and the powering flow:
@@ -1567,8 +1584,12 @@ func _refresh_skill_fan() -> void:
 	var total_width: float = step * (n - 1) + SKILL_CARD_SIZE.x
 	var start_x := (fan_width - total_width) / 2.0
 	var center := (n - 1) / 2.0
+	# What the next card in the fan sits on top of. Zero when the tray has
+	# room to lay flat; on a full five-wide tray it is about 20px, and a name
+	# measured without it is measured partly in pixels nobody can see.
+	var covered := maxf(SKILL_CARD_SIZE.x - step, 0.0)
 	for i in n:
-		var button := _skill_button(shown[i])
+		var button := _skill_button(shown[i], covered if i < n - 1 else 0.0)
 		skill_buttons[shown[i]] = button
 		skill_fan.add_child(button)
 		var offset := i - center
@@ -1658,7 +1679,10 @@ func _card_button(card_id: String, scale := 1.0) -> Button:
 	return b
 
 
-func _skill_button(skill_id: String) -> Button:
+## `covered_right` is how much of this card the NEXT one in the fan covers;
+## the name band shrinks and shifts left by that much so the word is centred
+## in what the player can see rather than in the card's geometry.
+func _skill_button(skill_id: String, covered_right: float = 0.0) -> Button:
 	# Objective mock: rounded ink-bordered card, art on top, grey→colored
 	# pips overlapping the art's bottom edge, name below.
 	var def: Dictionary = catalog.skills[skill_id]
@@ -1776,17 +1800,13 @@ func _skill_button(skill_id: String) -> Button:
 		uses.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(uses)
 
-	var name_label := Label.new()
-	name_label.text = String(def["name"])
-	name_label.add_theme_font_override("font", UITheme.smallcaps_font())
-	name_label.add_theme_font_size_override("font_size", 24)
-	name_label.add_theme_color_override("font_color", UITheme.INK)
+	var name_label := UITheme.skill_name_label(String(def["name"]),
+		NAME_BAND_WIDTH - covered_right)
 	name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	name_label.set_offset(SIDE_LEFT, CARD_BORDER)
+	name_label.set_offset(SIDE_RIGHT, -(CARD_BORDER + covered_right))
 	name_label.set_offset(SIDE_TOP, -32)
 	name_label.set_offset(SIDE_BOTTOM, -6)
-	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.clip_text = true
-	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(name_label)
 
 	# Unplayable cards go DIM, never transparent (owner 2026-08-09: "the
@@ -1914,9 +1934,8 @@ func _float_text(text: String, color: Color, at_global: Vector2,
 	label.add_theme_font_override("font", UITheme.display_font())
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
-	label.z_index = 60
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(label)
+	floater_layer.add_child(label)
 	label.global_position = at_global
 	var tween := create_tween().set_parallel()
 	tween.tween_property(label, "position:y", label.position.y - 64.0, 1.6) \
@@ -2030,8 +2049,7 @@ func _anim_steal(card_id: String) -> void:
 	var ghost := _card_button(card_id, CARD_SCALE)
 	ghost.disabled = true
 	ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ghost.z_index = 55
-	add_child(ghost)
+	floater_layer.add_child(ghost)
 	ghost.global_position = _control_center(hand_fan) - Vector2(56, 76)
 	var target := _control_center(enemy_art) - ghost.size / 2.0 \
 		- global_position

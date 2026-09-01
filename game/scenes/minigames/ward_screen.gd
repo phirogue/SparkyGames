@@ -485,9 +485,11 @@ class WardBoard extends Control:
 		var rect := card_rect()
 		if state.drawn == "":
 			# An empty paw still shows the plate, so the page keeps its shape
-			# and the DRAW button has somewhere to point.
-			draw_rect(rect, Color("00000010"))
-			draw_rect(rect, Color("00000030"), false, 2.0)
+			# and the DRAW button has somewhere to point. It wears the book's
+			# DRAWN parchment chrome (law 22 — the drawn styleboxes, never the
+			# textured ones): the flat grey box it debuted in read as debug
+			# furniture (screenshot review 2026-08-31).
+			UITheme.panel_stylebox().draw(get_canvas_item(), rect)
 			var prompt := Strings.line("minigames.ward.paw_empty") \
 				if not state.deck.is_empty() \
 				else Strings.line("minigames.ward.spool_bare")
@@ -504,8 +506,12 @@ class WardBoard extends Control:
 		var card: Dictionary = screen.state._catalog.energy_cards.get(state.drawn, {})
 		var humour := String(card.get("humour", ""))
 		var tint: Color = UITheme.HUMOUR_COLORS.get(humour, UITheme.INK)
-		draw_rect(rect, Color("f2e4c8"))
-		draw_rect(rect, tint, false, 4.0)
+		# Same drawn parchment plate as the empty state, with the humour's
+		# tint on the border for the card's identity.
+		var plate := UITheme.panel_stylebox()
+		plate.set_border_width_all(4)
+		plate.border_color = tint
+		plate.draw(get_canvas_item(), rect)
 		# The cloth this card cuts, at the ward's own cell size where it fits,
 		# so what is on the card is exactly what will land on the cloth.
 		var shape := WardState.rotate_shape(state.shape_of(state.drawn),

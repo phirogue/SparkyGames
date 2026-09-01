@@ -47,6 +47,11 @@ var _detail_body: Label
 ## centre-to-centre, which would lay string across the art.
 class ThreadOverlay extends Control:
 	var pairs: Array = []   # [[suspect_chip, evidence_chip], ...]
+	## Labels the string must ROUTE AROUND, not merely draw beneath: a red
+	## line under "What — 2 of 6" still reads as a strikethrough. Each carries
+	## a "text_width" meta with its MEASURED ink width — the label control is
+	## page-wide, but only the words need dodging.
+	var dodges: Array = []
 	var _last: PackedVector2Array = PackedVector2Array()
 
 	func _ready() -> void:
@@ -54,12 +59,30 @@ class ThreadOverlay extends Control:
 		set_process(true)
 
 	# Container layout settles a frame or two after _ready, and again on any
-	# resize; redraw when the pins actually move rather than every frame.
+	# resize; redraw when the pins (or a dodged heading) actually move rather
+	# than every frame.
 	func _process(_delta: float) -> void:
 		var now := _pin_points()
+		for rect: Rect2 in _dodge_rects():
+			now.append(rect.position)
+			now.append(rect.end)
 		if now != _last:
 			_last = now
 			queue_redraw()
+
+	## The headings' ink rects in overlay space, grown for clearance.
+	func _dodge_rects() -> Array[Rect2]:
+		var rects: Array[Rect2] = []
+		var inverse := get_global_transform().affine_inverse()
+		for label in dodges:
+			if not is_instance_valid(label):
+				continue
+			var global: Rect2 = (label as Control).get_global_rect()
+			var rect := Rect2(inverse * global.position, global.size)
+			rect.size.x = float((label as Control).get_meta("text_width",
+				rect.size.x))
+			rects.append(rect.grow(8.0))
+		return rects
 
 	func _pin_points() -> PackedVector2Array:
 		var points := PackedVector2Array()
@@ -78,12 +101,41 @@ class ThreadOverlay extends Control:
 
 	func _draw() -> void:
 		var points := _pin_points()
+		var rects := _dodge_rects()
 		var i := 0
 		while i + 1 < points.size():
-			draw_line(points[i], points[i + 1], THREAD_COLOR, 3.0, true)
+			var route := _route(points[i], points[i + 1], rects)
+			draw_polyline(route, THREAD_COLOR, 3.0, true)
 			draw_circle(points[i], 5.0, PIN_COLOR)
 			draw_circle(points[i + 1], 5.0, PIN_COLOR)
 			i += 2
+
+	## String from pin to pin, detouring around any dodged heading it would
+	## otherwise cross. The heading hugs the left margin, so the clear lane is
+	## just right of its measured ink; both waypoints sit at the lane, so the
+	## detour's legs stay above and below the grown rect and never re-enter it.
+	func _route(from: Vector2, to: Vector2,
+			rects: Array[Rect2]) -> PackedVector2Array:
+		var route := PackedVector2Array([from])
+		for rect in rects:
+			if not _crosses(from, to, rect):
+				continue
+			var lane := rect.end.x + 12.0
+			route.append(Vector2(lane, rect.position.y))
+			route.append(Vector2(lane, rect.end.y))
+		route.append(to)
+		return route
+
+	func _crosses(from: Vector2, to: Vector2, rect: Rect2) -> bool:
+		if rect.has_point(from) or rect.has_point(to):
+			return true
+		var corners := [rect.position, Vector2(rect.end.x, rect.position.y),
+			rect.end, Vector2(rect.position.x, rect.end.y)]
+		for i in 4:
+			if Geometry2D.segment_intersects_segment(from, to,
+					corners[i], corners[(i + 1) % 4]) != null:
+				return true
+		return false
 
 
 ## Two strokes of the same waxed-red string, corner to corner, over a suspect
@@ -114,10 +166,10 @@ func setup(p_catalog: Catalog, p_profile: Dictionary) -> void:
 
 func _ready() -> void:
 	var margin := UITheme.page_scaffold(self)
-	# The thread is added FIRST so it draws BEHIND the cards and headings.
-	# Strung over the top it read as a strikethrough through "What — 2 of 5";
-	# behind, the glyphs stay legible and the string still shows in the gap
-	# between the rows, which is the only place it needs to be seen.
+	# The thread is added FIRST so it draws BEHIND the cards and headings,
+	# and it also ROUTES AROUND the "What" heading's measured ink (see
+	# ThreadOverlay.dodges): drawn behind alone, the string still underlined
+	# the count and read as a strikethrough through "What — 2 of 5".
 	_threads = ThreadOverlay.new()
 	_threads.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.add_child(_threads)
@@ -220,7 +272,14 @@ func _build_evidence(column: VBoxContainer) -> void:
 	for slot in slots:
 		if slot["found"]:
 			found += 1
-	holder.add_child(_heading("What — %d of %d" % [found, slots.size()]))
+	var what := _heading("What — %d of %d" % [found, slots.size()])
+	# The thread overlay dodges this heading's INK (drawing behind it was not
+	# enough — the string underlining the count still read as a strike). The
+	# measured width says where the words end and the clear lane begins.
+	what.set_meta("text_width", UITheme.measure_text(what.text,
+		UITheme.smallcaps_font(), 28, float(UITheme.CONTENT_WIDTH)).x)
+	_threads.dodges.append(what)
+	holder.add_child(what)
 	var grid := GridContainer.new()
 	grid.columns = COLUMNS
 	grid.add_theme_constant_override("h_separation", SEPARATION)

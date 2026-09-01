@@ -118,6 +118,13 @@ const DEFAULT_PROFILE := {
 	# idempotently, every load. Nothing here is authoritative that cannot
 	# be re-derived or re-earned.
 	"facts": {},
+	# Whether the one-time chapter-close card (scenes/ending_screen.gd) has
+	# been shown. Migration thought (law 14): an old save merges to false —
+	# including one whose case is already closed, because the card did not
+	# exist when it closed it. False is CORRECT there, not a gap: the Mantel
+	# shows the ending once on that save's next visit, which is the game
+	# finally saying what the save already earned.
+	"ending_seen": false,
 }
 
 # ---------------------------------------------------------------- the shelf
@@ -425,6 +432,15 @@ static func _migrate(profile: Dictionary) -> Dictionary:
 	# not (a hand-written scenario spec, or a reward that missed grant_card).
 	# Counts, not membership — decks repeat cards.
 	merged["card_pool"] = _pool_covering(merged["card_pool"], merged["deck"])
+	# Repair, every load: the ledger stays inside the rules. A negative purse
+	# (a hand-written scenario spec, or an overspend bug) would make every
+	# price unpayable with no way back; a max_hp above the tonic's ceiling is
+	# a body the Exchange itself refuses to sell past (exchange.max_hp_cap).
+	# Rules.DEFAULTS is the shipped dial and test_rules.gd keeps it equal to
+	# data/rules.json, so this clamp can never disagree with the shop.
+	merged["gleam"] = maxi(0, int(merged["gleam"]))
+	merged["max_hp"] = mini(int(merged["max_hp"]),
+		int(Rules.DEFAULTS["exchange"]["max_hp_cap"]))
 	return merged
 
 
