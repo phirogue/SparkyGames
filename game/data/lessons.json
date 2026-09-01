@@ -102,7 +102,30 @@
           "title": "Favor-Knots",
           "lines": [
             "A favor owed to you is a KNOT tied in your thread, where anyone who reads the Weft can see it. Nobody welches on a visible debt.",
-            "A knot is spent, not saved: untying one opens a door that gleam cannot. The Case Board keeps count of who owes you."
+            "A knot is spent, not saved: untying one opens a door that gleam cannot, when a door of that kind offers. None has offered yet — Ash's knots sit unspent for now. A knot keeps. The Case Board counts who owes you."
+          ]
+        }
+      ]
+    },
+    "soft_feet": {
+      "id": "soft_feet",
+      "name": "Soft Feet, Loud Claws",
+      "blurb": "Some houses are asleep. Ferocity is loud.",
+      "kind": "pages",
+      "order": 47,
+      "pages": [
+        {
+          "title": "The Alarm",
+          "lines": [
+            "Some places are asleep, and mean to stay that way. In them, every point of FEROCITY you spend is a noise — the Alarm fills by the card's value, and the room's own rule says how much it will bear.",
+            "Guile and Shadow make no sound. The quiet humours stay quiet everywhere."
+          ]
+        },
+        {
+          "title": "Spotted",
+          "lines": [
+            "Fill the Alarm and you are SPOTTED. What was patrolling is now hunting: its habits stop mattering and its temper takes over — plainer moves, and harder, for the rest of the fight.",
+            "There is no unringing it. Finish the work fast, or take the wall — quiet is a thing you get back by leaving."
           ]
         }
       ]

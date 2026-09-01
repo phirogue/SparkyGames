@@ -70,7 +70,7 @@
         "It is blank. He does not remark on it. He writes nothing in it, either.",
         "'Arrive dead WITHOUT an appointment and you will be refused at this desk — we are a court, not a revolving door.'",
         {
-          "text": "A true death — the kind you will always see coming — costs a life. After the first, it also costs the Toll: a quarter of the shine banked at home. Any other defeat is REFUSED: no life spent, a small filing fee. Either way the satchel stays where you dropped it, and nothing else is ever lost — not your kit, not your case, not what you have worked out.",
+          "text": "A true death — the kind you will always see coming — costs a life. After the first, it also costs the Toll: a quarter of the shine banked at home. Any other defeat is REFUSED: no life spent, a filing fee of one part in ten from the bank. Either way the satchel stays where you dropped it, and nothing else is ever lost — not your kit, not your case, not what you have worked out.",
           "rule": true
         },
         "'The first visit is complimentary. Do consider it a courtesy rather than a habit.'",
@@ -159,7 +159,7 @@
         "The corridor. The filing. The desk. I appear to be dead — and the Clerk is already shaking his head.",
         "'You are not on the docket.' He holds the sheet up as proof. 'No appointment, no death. We do not process walk-ins.'",
         {
-          "text": "A defeat off the docket spends no life. You are sent back up, minus a filing fee and whatever the satchel held. A true death is always announced. This was not one.",
+          "text": "A defeat off the docket spends no life. You are sent back up, minus a tenth-part filing fee and whatever the satchel held. A true death is always announced. This was not one.",
           "rule": true
         },
         "The stamp says REFUSED. It is also, somehow, still a paw print."

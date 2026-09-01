@@ -25,8 +25,9 @@
     "Lessons play ONCE (data/lessons.json) and replay from the Casebook. A",
     "story step may gate on `when_minigame` success/loss -- a lost testimony",
     "must never be followed by the page narrating the confession (law 17).",
-    "GATING: the_carrying is the only CORE work after the Magpie, because a",
-    "body being carried out of your house does not wait its turn. The three",
+    "GATING: the_carrying is the only work of ANY kind after the Magpie,",
+    "because a body being carried out of your house does not wait its turn",
+    "(side patrols wait on it too), and it requires BOTH starting jobs. The",
     "middle jobs open together; the_wake waits for all three; the back half",
     "waits for the_wake and then chains itself on the evidence each lead",
     "yields. Every Bodkin line is LITERALLY TRUE (docs/design/the-unraveler.md",
@@ -87,7 +88,7 @@
       {
         "type": "minigame",
         "module": "crossing",
-        "id": "crossing_practice",
+        "id": "crossing_thread_fog",
         "environment": "needle_lane_wrong",
         "on_loss_lines": [
           "I come out three streets wrong, with the line lost twice and found twice.",
@@ -227,6 +228,12 @@
         ]
       },
       {
+        "type": "notice",
+        "notes": [
+          "❋ SWAT is the measured cuff: two hurt for one FEROCITY, four times a night. The claw you can always afford."
+        ]
+      },
+      {
         "type": "lesson",
         "lesson": "the_exchange"
       }
@@ -244,6 +251,7 @@
     "once": true,
     "requires": {
       "quests": [
+        "follow_the_thread",
         "find_the_magpie"
       ]
     },
@@ -436,7 +444,7 @@
       {
         "type": "minigame",
         "module": "crossing",
-        "id": "crossing_practice",
+        "id": "crossing_lane_again",
         "on_loss_lines": [
           "I come out of it four streets wrong and shaking, which is data of a kind.",
           "Whatever is in that fog does not want the lane walked. Noted."
@@ -582,6 +590,7 @@
         "lines": [
           "A cart with no chandler on it, and a gentleman behind it going nowhere in particular. The Grey Boss charges honest rates once he has stopped lying.",
           "You cannot clear out of an empty street. I will be keeping that one.",
+          "And the Meet pays as it is paid: what I saw on Needle Lane goes into their ledgers too, and a witness's fee comes back out, counted into the satchel in small shine.",
           "By morning the Chandlers will know a cat was asking about their cart. Good."
         ]
       },
@@ -595,6 +604,7 @@
         "lines": [
           "A rat's silence is a price list. He knows the lane's story; the lane knows; I am the only one paying retail.",
           "Still: 'a lively night,' he called it, on a lane he swears was empty. Empty lanes are not lively. I will come back armed.",
+          "The Meet buys my account of the night all the same — a witness's fee, in small shine, because first paws on a scene are worth money even when the witness leaves without answers.",
           "By morning the Chandlers will know a cat was asking about Needle Lane. Word is the one thing this market gives away free."
         ]
       }
@@ -637,6 +647,10 @@
           "First: the Watch goose behind the tannery, which has never lost an argument in its life. That is what makes it worth arguing with.",
           "Elspeth used to say the difference between brave and stupid is about four seconds of looking. Watch it. THEN decide."
         ]
+      },
+      {
+        "type": "lesson",
+        "lesson": "soft_feet"
       },
       {
         "type": "battle",
@@ -714,9 +728,15 @@
           "I go at it until my legs are wrong, and then a bit past that, and then I lie down in the dark and listen to my own heart being annoyed with me. In the morning my shoulder will not have come back. Some of it never will.",
           "Better. Not enough. But the kind of not-enough that has a direction in it."
         ]
+      },
+      {
+        "type": "notice",
+        "notes": [
+          "❋ SHELF JUSTICE drops the heaviest thing to hand on the problem: six hurt for two GUILE, once a night. Gravity does the work; GUILE picks the moment."
+        ]
       }
     ],
-    "reward_bonus": 8,
+    "reward_bonus": 0,
     "repeatable": false,
     "unlock_skill": "shelf_justice"
   },
@@ -881,7 +901,7 @@
         "portrait": "npc_brindle_magpie",
         "when_attempt": "first",
         "lines": [
-          "Brindle first, because paper is her native language and mine only by adoption. She reads the flimsy head cocked, one eye at a time: watermark, fold-grease, ink that had been wet in fog.",
+          "Brindle first, because paper is her native language and mine only by adoption. She reads the cart docket head cocked, one eye at a time: watermark, fold-grease, ink that had been wet in fog.",
           "Then she flicks it flat to take the corner, and stops. Half a second, her working eye on the cart-slot seal. Then she goes on as though the seal were weather, and I was too new to ask what she had not said.",
           "'Counting-house paper. The originals live under the ledgers, second yard off Wick Row. Mind the night shift, pet.'"
         ]
@@ -1031,7 +1051,8 @@
         "type": "story",
         "environment": "wickrow_night",
         "lines": [
-          "Out over the yards with a page of a rich man's handwriting folded into my shadow. Paper says what Wick WANTED; paper does not say what he DID.",
+          "Out over the yards with a rich man's handwriting folded into my shadow, and a night's sweepings of counting-house shine in the satchel. A floor that weighs coin all day sheds a little, and what it sheds goes in no ledger.",
+          "Paper says what Wick WANTED. Paper does not say what he DID.",
           "For that I need people who watch the Chandlers for a living and hate them fluently."
         ]
       }
@@ -1167,6 +1188,18 @@
       {
         "type": "story",
         "environment": "wickrow_night",
+        "lines": [
+          "Past the thirtieth lamp the round runs into a Chandlers' votive — a candle-golem burned down past the shoulders, walking a beat on the last inch of itself, planted square where her next lamp hangs.",
+          "'They lose one now and then,' says Merrow. 'It cannot clock off till somebody ends its shift, and no Chandler walks this far to say so.' She looks at me, and then at her lamp behind it. Ending shifts is not lamplighters' work. Tonight it is mine."
+        ]
+      },
+      {
+        "type": "battle",
+        "encounter": "q_lamp_stub"
+      },
+      {
+        "type": "story",
+        "environment": "wickrow_night",
         "portrait": "npc_shift_boss",
         "lines": [
           "The round costs me a flank — a fence I would have cleared at eight, and did not quite clear tonight. It bleeds quietly; I say nothing about it and finish the round. She relights her lamps in her order to the round's end.",
@@ -1291,10 +1324,21 @@
         "type": "story",
         "environment": "mereside_edge",
         "portrait": "npc_bodkin",
+        "when_attempt": "first",
         "lines": [
           "The Wickhouse squats on the Mere-edge, fat as a tick, warded to the chimneys in her stitch. You can smell the wax three streets off. Under the wax: the water.",
           "Bodkin is on the sea-wall like he grew there, sitting where he can see the water. 'You are going to the Wickhouse.' It is not a question.",
           "'Nothing good ever came off that water. Keep your feet dry and your business short — and go in by the wax door, not the water door.' He stays on the stone. 'I don't go in there.'"
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "mereside_edge",
+        "portrait": "npc_bodkin",
+        "when_attempt": "retry",
+        "lines": [
+          "The Wickhouse again, fat on the Mere-edge. Bodkin is on the sea-wall, sitting where he can see the water. He says nothing at all; he said it the first time.",
+          "In by the wax door, then, not the water door, the way I was told. He watches me down to it."
         ]
       },
       {
@@ -1436,7 +1480,7 @@
         ]
       }
     ],
-    "reward_bonus": 16,
+    "reward_bonus": 0,
     "repeatable": false,
     "grant_growth": {
       "cards": [
@@ -1456,7 +1500,7 @@
         "backward_seam"
       ]
     },
-    "board_card": "Guildmaster Wick will see you now. Everyone in Wickrow is suddenly very polite. Mind the big one.",
+    "board_card": "Guildmaster Wick will see you now. Nothing in that guild is free, including the invitation.",
     "steps": [
       {
         "type": "story",
@@ -1481,7 +1525,8 @@
         "environment": "guildhall",
         "lines": [
           "The Guildhall is a chapel to the bee: ten thousand votives, all lit, the heat of them standing in the room like a body.",
-          "Between me and the stairs the votives' keeper unfolds — a tower of poured wax with a gentle face and hands like warming pans. 'The Guildmaster will see you,' it says kindly, 'presently.'"
+          "Between me and the stairs the votives' keeper unfolds — a tower of poured wax with a gentle face and hands like warming pans. 'The Guildmaster will see you,' it says kindly, 'presently.'",
+          "My invitation is an inch from its socket, and the appointment dies with the flame. 'Presently' is a refusal with manners on it. I decline to be refused."
         ]
       },
       {
@@ -1576,8 +1621,30 @@
         "type": "story",
         "environment": "parlor_cold",
         "lines": [
-          "Home. The board gets its last pin of the season: a counterfoil, and a thread running from it to a gentleman nobody meets. Favor-paper drains toward Gravamen, where the carts change hands.",
+          "Home. The board gets its last pin of the season: a counterfoil, and a thread running from it to a gentleman nobody meets. Favor-paper drains toward Gravamen — the paper district, where the carts change hands.",
           "One suspect off the board. One name-that-is-not-a-name waiting on it. The kettle stays quiet, and so, tonight, do I."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "when_fact": {
+          "fact": "tansy_home",
+          "is": 1
+        },
+        "lines": [
+          "Tansy is asleep on the case board, orange over the whole of Wickrow. I pin the counterfoil where she is not, and leave her holding down the rest of the case."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "parlor_cold",
+        "when_fact": {
+          "fact": "tansy_home",
+          "not": 1
+        },
+        "lines": [
+          "The board takes the counterfoil without comment. Nothing in this house is asleep on it, and the parlor is exactly as quiet as I left it."
         ]
       }
     ],
@@ -1597,7 +1664,7 @@
     "once": false,
     "requires": {
       "quests": [
-        "find_the_magpie"
+        "the_carrying"
       ]
     },
     "board_card": "The streets don't watch themselves. Someone ought to be paid for this. Someone is not.",
@@ -1619,13 +1686,13 @@
         "type": "story",
         "environment": "needle_lane",
         "lines": [
-          "Two more down the lane, sharing one appetite between them. Wisps used to be rare on this street.",
-          "Used to be."
+          "Halfway down the lane, something small is going along the railings at latch height, trying each latch as it passes. A glove — a left glove, walking on its fingertips, and nobody's hand in it.",
+          "Wraith-stuff, a dropped stitch off some larger unravelling. It remembers holding things, and these are my street's doors it is remembering at."
         ]
       },
       {
         "type": "battle",
-        "encounter": "q_rounds_wisps"
+        "encounter": "q_rounds_glove"
       },
       {
         "type": "story",
@@ -1651,7 +1718,7 @@
     "once": false,
     "requires": {
       "quests": [
-        "find_the_magpie"
+        "the_carrying"
       ]
     },
     "board_card": "Cross the back gardens. Wake nothing. The dahlias are not the danger.",
@@ -1699,6 +1766,10 @@
         ]
       },
       {
+        "type": "lesson",
+        "lesson": "soft_feet"
+      },
+      {
         "type": "battle",
         "encounter": "q_garden_watch"
       },
@@ -1738,8 +1809,17 @@
       {
         "type": "story",
         "environment": "needle_lane",
+        "when_attempt": "first",
         "lines": [
           "There it is, halfway up the lane, keeping the height of a man. A Lamplighter's coat, by the cord on the shoulder."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "needle_lane",
+        "when_attempt": "retry",
+        "lines": [
+          "A coat on the lane again, keeping the height of a man. Not the one I walked home — the cut is different, and the shoulder cord hangs on the other side. The hall has more empty pegs than that."
         ]
       },
       {
@@ -1790,10 +1870,20 @@
       {
         "type": "story",
         "environment": "needle_lane",
+        "when_attempt": "first",
         "lines": [
-          "The coat comes quiet in the end. I walk it back to the hall and leave it on its peg, over its boots, toes out, waiting.",
-          "Fenn takes it off me at the door — the steadiest round of the four they have left — and hangs it himself, and squares the boots under it, and says nothing.",
+          "The coat comes quiet in the end. I walk it back to the hall and give it over at the door.",
+          "Fenn takes it off me — the steadiest round of the four they have left — and hangs it on its peg himself, and squares the boots under it, and says nothing.",
           "Nobody says anything. Everybody sees."
+        ]
+      },
+      {
+        "type": "story",
+        "environment": "needle_lane",
+        "when_attempt": "retry",
+        "lines": [
+          "The coat comes quiet, and the hall door is open before I reach it. Fenn takes the coat. Hangs it. Squares the boots.",
+          "Nobody says anything, this time either."
         ]
       }
     ],
@@ -1964,7 +2054,7 @@
         "when_minigame": "success",
         "lines": [
           "'We voted with our beaks full, and we called the quiet weather.' From a Postmaster, before the whole Perch, that is not gossip. That is a confession with plumage.",
-          "So the murder night had a QUARTERMASTER: somebody fed the city's gossip until it slept, days ahead, with human hands and quiet money. The board's quiet gentleman just grew a supply line."
+          "So the murder night had a QUARTERMASTER: somebody bought the city's quiet days ahead, with human hands and quiet money. A supply line can be followed."
         ]
       },
       {

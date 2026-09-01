@@ -349,5 +349,12 @@ func test_the_first_board_offers_the_thread_and_the_magpie() -> void:
 	assert_eq(ids, ["find_the_magpie", "follow_the_thread"] as Array[String],
 		"the first board is the two starting jobs, got %s" % str(ids))
 	QuestGate.mark_done(fresh, QuestGate.MAGPIE_QUEST)
-	assert_true(QuestGate.board(catalog, fresh).size() > 1,
-		"finishing the Magpie puts the city's work up")
+	# The carrying waits on BOTH starting jobs, and nothing else is offered
+	# while it is pending (gating fixed 2026-08-31 — a body being carried out
+	# of your house does not queue behind a wisp patrol). So the board after
+	# the Magpie alone is the other starting job, still open.
+	var next_ids: Array[String] = []
+	for quest: Dictionary in QuestGate.board(catalog, fresh):
+		next_ids.append(String(quest["id"]))
+	assert_eq(next_ids, ["follow_the_thread"] as Array[String],
+		"the thread is still owed before the case can move, got %s" % str(next_ids))

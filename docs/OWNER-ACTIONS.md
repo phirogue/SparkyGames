@@ -1,11 +1,23 @@
 # Owner Actions — things only you can do
 
-**Date:** 2026-08-02. Companion to
-`docs/research/2026-08-02-critical-project-review.md`. Everything the review
-flagged that I can execute is in flight (code fixes, doc reconciliation,
-balance passes, tooling). This doc is the remainder: accounts, money, legal,
-hardware, taste, and decisions — the things that need a human with a credit
-card and authority.
+**Date:** 2026-08-02; updated 2026-08-31 (release pass). Companion to
+`docs/research/2026-08-02-critical-project-review.md` and
+`docs/research/2026-08-31-ship-readiness-review.md`. Everything the reviews
+flagged that I can execute is done or in flight (code fixes, doc
+reconciliation, balance passes, tooling, export presets, drafts). This doc
+is the remainder: accounts, money, legal, hardware, taste, and decisions —
+the things that need a human with a credit card and authority.
+
+**2026-08-31 status:** the four items still blocking a store build, in
+order: (1) Google Play account + the 12-tester clock, (2) Apple enrollment
++ the Mac decision, (3) Kling/AI-music commercial-terms verification, (4)
+the commissioned app icon. Drafts now exist for the privacy policy
+(`docs/publishing/privacy-policy.md` — needs a hosted URL and contact) and
+the store listing (`docs/publishing/store-listing.md` — needs your
+approval, especially the AI-disclosure wording). `game/export_presets.cfg`
+is scaffolded for both platforms with icon and signing slots empty.
+Monetization simplified 2026-08-31: free + tip jar at launch, Chapter 2
+paid later — so no paywall or restore flow blocks v1.
 
 Ordered by lead time: the top items start clocks that keep ticking while you
 do everything else.
@@ -84,9 +96,10 @@ do everything else.
 ## 4. Store compliance (fast, but only you can own them)
 
 - [ ] **Privacy policy URL** — required by both stores even for an
-      offline game with zero data collection. I can draft the text (it's
-      three paragraphs for a no-SDK offline game); you need to host it at a
-      URL you control (the domain above, or GitHub Pages under your account).
+      offline game with zero data collection. **Draft written 2026-08-31:
+      `docs/publishing/privacy-policy.md`** — set the contact + effective
+      date, then host it at a URL you control (the domain above, or GitHub
+      Pages under your account).
 - [ ] **Content rating questionnaire (IARC)** — filled in the Play Console
       by you. The game is a murder investigation with a body scene
       (tasteful, off-page, but present); answer honestly, expect ~9+/Teen.

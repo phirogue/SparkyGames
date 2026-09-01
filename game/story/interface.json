@@ -37,6 +37,7 @@
     "retreat_dropped": "%d gleam went over the wall without me. You cannot run and hold.",
     "retreat_tail": "The quest keeps. Quests do. It is one of their few virtues.",
     "journal_withdrew": "Withdrew from %s. Unfinished, not abandoned.",
+    "abandoned": "The night ended without you. The satchel stayed where it fell, and the Court charged a tenth part for the filing.",
     "journal_done": "%s: done. %d gleam banked.",
     "toll": "The Toll: %d gleam. The satchel stays wherever you dropped it.",
     "refusal_fee": "The filing fee: %d gleam. The satchel stays wherever you dropped it. No life spent — the death was not on the docket.",
@@ -60,7 +61,7 @@
     "approach_ward": "A ward, stitched quick and holding.",
     "parting_shot": "You turn your back. It takes its turn anyway.",
     "loaf_guarded": "It paws at a cat with nothing loose. Nothing gives.",
-    "night_presses": "The night presses. It grows bolder.",
+    "night_presses": "The night presses. Its blows land 2 harder — and harder again each turn.",
     "undone": "It finishes the sentence it started.",
     "turn": "— turn %d —",
     "hint": "❋ %s"
@@ -158,6 +159,13 @@
     "concentrate_desc": "Give up the whole turn to will one spent energy back onto the TOP OF THE DECK — you draw it next turn, not now. The enemy still moves. Twice a fight.",
     "concentrate_label": "Concentrate ×%d",
     "intent_masked": "Next: something Ash cannot read. Fight this creature again and its habits will show.",
+    "intent_masked_again": "Next: something Ash cannot read yet. He has not fought this one enough to know it.",
+    "slip_confirm": {
+      "title": "Slip away?",
+      "body": "Its whole move lands on your back as you go — and half the satchel goes over the wall with you.",
+      "yes": "Go",
+      "no": "Stay"
+    },
     "spool": {
       "title": "The Spool",
       "blurb": "Energy still wound on. Spent stays spent until Ash rests at home.",
@@ -261,7 +269,7 @@
     "unjam": "Every jammed action comes loose at once",
     "unmask": "You can read its every move for the rest of the fight",
     "channel_heal": "Heal %d per turn for %d turns. Ash lies still until it ends — taking damage breaks it",
-    "self_stun": "You cannot act next turn — and nothing can be stolen from your paws",
+    "self_stun": "You do nothing more this turn — and nothing can be stolen from your paws",
     "needs": "needs %s",
     "free": "free",
     "instinct": "free, once per turn",

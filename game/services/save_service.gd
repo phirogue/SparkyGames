@@ -34,6 +34,10 @@ const DEFAULT_PROFILE := {
 	# Level-1 Ash (owner calibration 2026-08-01): 10 HP; growth comes as
 	# mission rewards, never as visible numbers.
 	"max_hp": 10,
+	# Actions per turn. A growth reward can raise it; nothing in Chapter 1
+	# does yet, so an old save with no key implies the shipped three — which
+	# is exactly the default, so the migration is a no-op by construction.
+	"paws": 3,
 	# Starter deck: 15 cards, ALL value 1 — potent 2s/3s are rewards, not
 	# starting kit (owner rarity rule).
 	"deck": [

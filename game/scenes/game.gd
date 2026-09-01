@@ -937,6 +937,11 @@ func _show_battle(encounter_id: String, on_done: Callable, hints: Dictionary = {
 		# or lost. Intents with masked_until stay unreadable until then.
 		"familiarity": _enemy_familiarity(
 			String(catalog.encounters[encounter_id]["enemies"][0])),
+		# A granted paw has to REACH the fight. _grant_growth has written this
+		# key (and toasted "a fourth paw") since paws existed, but no battle
+		# ever read it back — the toast was a lie waiting for content to tell
+		# it (2026-08-31). Absent from an old profile means the shipped 3.
+		"paws": int(profile.get("paws", 3)),
 	}
 	if carryover.has("skill_charges"):
 		config["skill_charges"] = carryover["skill_charges"]
@@ -1836,6 +1841,10 @@ func _offer_press_on(just_earned: int) -> void:
 				danger, environment.get("rule_text", "")]), "rule": true},
 			Strings.line("prowl.press_on.wager"),
 		],
+		# The wager card is a PLACE — the one you are deciding to walk into. Without
+		# the image it fell back to a flat colour fill: a black rectangle where the
+		# art goes, on every quest in the game (screenshot review 2026-08-31).
+		"image": environment.get("image", ""),
 		"color": environment.get("color", "#22242a"),
 		"accent": environment.get("accent", "#d8ccb4"),
 		"heading": environment.get("name", ""),
@@ -1879,6 +1888,12 @@ func _finish_quest() -> void:
 				profile, String(quest["grant_favor"])):
 			toasts.append("✦ A knot in your thread: %s" %
 				catalog.favors[quest["grant_favor"]]["name"])
+		# Growth is paid inside the once-guard for the same reason standing is:
+		# a permanent reward a repeatable quest could farm is not a reward, it
+		# is a dial. This lived only on the STEP path until 2026-08-31, so two
+		# quests — the chapter finale's +2 lives among them — granted nothing.
+		if quest.has("grant_growth"):
+			_grant_growth(quest["grant_growth"])
 	for evidence_id in quest.get("grant_evidence", []):
 		_find_evidence(String(evidence_id))
 	if quest.has("lead"):

@@ -137,6 +137,255 @@
       "walk_away": "The long way round becomes the very long way round."
     }
   },
+  "crossing_thread_fog": {
+    "id": "crossing_thread_fog",
+    "name": "Downhill, After the Thread",
+    "hazard": 1,
+    "when_outcome": {
+      "success": "Down off the roofs and into the wet air with the thread still overhead, humming, unbroken.",
+      "partial": "I get down. It costs me more of the spool than a walk downhill has any right to.",
+      "walk_away": "Back up the slates. The thread will still be there, and so, presumably, will the fog."
+    },
+    "points": [
+      {
+        "id": "1_gap",
+        "name": "A gap too wide to walk",
+        "image": "bg_way_gap",
+        "ways": [
+          {
+            "id": "jump",
+            "label": "Take it at a run",
+            "humour": "ferocity",
+            "cost": 2
+          },
+          {
+            "id": "pipe",
+            "label": "Down the drainpipe",
+            "humour": "guile",
+            "cost": 2
+          },
+          {
+            "id": "wait",
+            "label": "Go the long way down",
+            "humour": "any",
+            "cost": 3
+          }
+        ]
+      },
+      {
+        "id": "2_watch",
+        "name": "A watchman on the corner",
+        "image": "bg_way_watch",
+        "ways": [
+          {
+            "id": "dark",
+            "label": "Keep to the dark",
+            "humour": "shadow",
+            "cost": 2
+          },
+          {
+            "id": "draw_off",
+            "label": "Give him something to chase",
+            "humour": "guile",
+            "cost": 2
+          },
+          {
+            "id": "wait",
+            "label": "Wait him off the corner",
+            "humour": "any",
+            "cost": 3
+          }
+        ]
+      },
+      {
+        "id": "3_gate",
+        "name": "A gate, and no way under it",
+        "image": "bg_way_gate",
+        "ways": [
+          {
+            "id": "rush",
+            "label": "Go over it",
+            "humour": "ferocity",
+            "cost": 2
+          },
+          {
+            "id": "hinge",
+            "label": "Work the hinge",
+            "humour": "guile",
+            "cost": 2
+          },
+          {
+            "id": "wait",
+            "label": "Wait for it to open",
+            "humour": "any",
+            "cost": 3
+          }
+        ]
+      },
+      {
+        "id": "4_water",
+        "name": "Black water, and one plank",
+        "image": "bg_way_water",
+        "ways": [
+          {
+            "id": "run",
+            "label": "Run the plank",
+            "humour": "ferocity",
+            "cost": 2
+          },
+          {
+            "id": "rail",
+            "label": "Balance the rail",
+            "humour": "guile",
+            "cost": 2
+          },
+          {
+            "id": "wait",
+            "label": "Wait for the ferry",
+            "humour": "any",
+            "cost": 3
+          }
+        ]
+      }
+    ]
+  },
+  "crossing_lane_again": {
+    "id": "crossing_lane_again",
+    "name": "The Route, Walked Again",
+    "hazard": 2,
+    "when_outcome": {
+      "success": "The whole route again, in order, and nothing about it has changed but me.",
+      "partial": "I get round it. Some of the order goes missing on the way, and so does some of the spool.",
+      "walk_away": "I stop halfway and go home. The lane will hold its shape until I can face the rest of it."
+    },
+    "points": [
+      {
+        "id": "1_crowd",
+        "name": "A crowd across the whole lane",
+        "image": "bg_way_crowd",
+        "ways": [
+          {
+            "id": "weave",
+            "label": "Weave through",
+            "humour": "guile",
+            "cost": 2
+          },
+          {
+            "id": "under",
+            "label": "Under the tables",
+            "humour": "shadow",
+            "cost": 2
+          },
+          {
+            "id": "wait",
+            "label": "Wait for it to thin",
+            "humour": "any",
+            "cost": 3
+          }
+        ]
+      },
+      {
+        "id": "2_dog",
+        "name": "A chained dog, awake",
+        "image": "bg_way_dog",
+        "ways": [
+          {
+            "id": "face",
+            "label": "Face it down",
+            "humour": "ferocity",
+            "cost": 2
+          },
+          {
+            "id": "dark",
+            "label": "Keep to the dark",
+            "humour": "shadow",
+            "cost": 2
+          },
+          {
+            "id": "wait",
+            "label": "Wait for it to settle",
+            "humour": "any",
+            "cost": 3
+          }
+        ]
+      },
+      {
+        "id": "3_lityard",
+        "name": "A yard lit wall to wall",
+        "image": "bg_way_lityard",
+        "ways": [
+          {
+            "id": "dark",
+            "label": "Hug what dark there is",
+            "humour": "shadow",
+            "cost": 2
+          },
+          {
+            "id": "brazen",
+            "label": "Walk it like you live there",
+            "humour": "guile",
+            "cost": 2
+          },
+          {
+            "id": "wait",
+            "label": "Wait for the lamp to gutter",
+            "humour": "any",
+            "cost": 3
+          }
+        ]
+      },
+      {
+        "id": "4_arch",
+        "name": "A ward drawn across the arch",
+        "image": "bg_way_arch",
+        "ways": [
+          {
+            "id": "unpick",
+            "label": "Unpick a corner",
+            "humour": "mysticism",
+            "cost": 2
+          },
+          {
+            "id": "round",
+            "label": "Find where it ends",
+            "humour": "guile",
+            "cost": 2
+          },
+          {
+            "id": "through",
+            "label": "Walk through and wear it",
+            "humour": "any",
+            "cost": 3
+          }
+        ]
+      },
+      {
+        "id": "5_watch",
+        "name": "A watchman on the corner",
+        "image": "bg_way_watch",
+        "ways": [
+          {
+            "id": "dark",
+            "label": "Keep to the dark",
+            "humour": "shadow",
+            "cost": 2
+          },
+          {
+            "id": "draw_off",
+            "label": "Give him something to chase",
+            "humour": "guile",
+            "cost": 2
+          },
+          {
+            "id": "wait",
+            "label": "Wait him off the corner",
+            "humour": "any",
+            "cost": 3
+          }
+        ]
+      }
+    ]
+  },
   "crossing_needle_fog": {
     "id": "crossing_needle_fog",
     "name": "The Lane, Fogged Shut",

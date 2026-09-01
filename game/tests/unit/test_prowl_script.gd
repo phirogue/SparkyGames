@@ -149,7 +149,13 @@ func test_the_board_opens_up_as_the_arc_is_walked() -> void:
 	QuestGate.mark_done(profile, "follow_the_thread")
 	QuestGate.mark_done(profile, "find_the_magpie")
 	var after_magpie := QuestGate.board(catalog, profile)
-	assert_true(after_magpie.size() > 1, "the Magpie opens the city's odd jobs")
+	# The board NARROWS here rather than opening (gating fixed 2026-08-31):
+	# the side patrols used to hang beside the carrying, so a player could
+	# walk wisp rounds for several nights while Elspeth sat dead in her chair
+	# — and then be told Cardew came "at first light". A body does not wait,
+	# and neither does the board.
+	assert_eq(after_magpie.size(), 1,
+		"the carrying, alone: nothing is offered beside a body being carried out")
 	var core_ids: Array[String] = []
 	for quest: Dictionary in after_magpie:
 		if String(quest.get("kind", "")) == "core":
