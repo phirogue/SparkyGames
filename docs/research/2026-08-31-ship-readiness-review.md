@@ -332,9 +332,11 @@ listing drafted in `docs/publishing/`.
    flags (`no_retreat`/`hp_floor`/`doom_turn`), fuzz the shipped loadout
    shape, or cover worn/carryover configs; the three new enemies have no
    sim scenarios yet.
-4. **Not yet photographed:** the Hollow Court death/refusal path (the tour
-   bot keeps winning; needs a scenario that forces the loss) and the
-   Mantel *after* the ending card is dismissed.
+4. **Photography:** the Hollow Court refusal path is now shot and read
+   (`scenarios/refused_at_the_desk.json` forces the loss the tour bot kept
+   avoiding) — the REFUSED stamp page reads correctly and states the fee
+   in gleam. Still unphotographed: a *mortal* death (only the prologue
+   parlor authors one) and the Mantel after the ending card is dismissed.
 5. Chapter 2's replay answer — the generated cases — remains undesigned,
    and is the single biggest lever on the content-volume score.
 

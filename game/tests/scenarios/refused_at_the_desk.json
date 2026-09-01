@@ -1,0 +1,16 @@
+{
+  "comment": "A death the tour cannot avoid, so the Hollow Court can finally be PHOTOGRAPHED (it shipped unphotographed through 2026-08-31 -- the one surface the repetition law names as most at risk). One life of health, Scratch alone, and three cards: the gutter-wisp's Flicker Bite outlives anything the bot can do about it. night_rounds is not a mortal beat, so this is the REFUSED path -- no life spent, the filing fee, the stamp -- not a canonical death. Shoot it with: godot --path game -- --tour --tour-out <dir> --scene scenario:refused_at_the_desk. For the mortal path, the prologue parlor is still the only authored one.",
+  "profile": {
+    "prologue_done": true,
+    "gleam": 80,
+    "max_hp": 1,
+    "skills": ["scratch"],
+    "deck": [
+      "guile_1",
+      "shadow_1",
+      "mysticism_1"
+    ]
+  },
+  "seed": 909,
+  "launch": "quest:night_rounds"
+}
